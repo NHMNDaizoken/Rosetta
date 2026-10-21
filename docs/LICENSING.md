@@ -6,6 +6,25 @@
 - Follow the team's chosen SPDX and copyright header convention for original source files. Make sure its exact requirements match the official OLP assessment criteria.
 - Preserve upstream copyright, license files, attribution and NOTICE obligations.
 
+## Current local implementation authorization
+
+The maintainer has explicitly authorized local Layer 1 foundation implementation,
+testing and Git commits while the project license is pending. This permits the
+current local work; it does not approve distribution or an open-source license.
+Original source headers remain pending until the copyright holder and exact
+SPDX/copyright convention are approved. Do not insert a guessed identifier.
+
+Recommendation for maintainer review: **Apache-2.0**, an
+[OSI-approved license](https://opensource.org/license/apache-2.0), with permissive
+reuse terms and an explicit contributor patent grant. This is a recommendation,
+not a license selection or a completed legal review. See the
+[upstream license terms](https://www.apache.org/licenses/LICENSE-2.0).
+
+Before any GitHub publication or image/package release, approve the license,
+identify the copyright holder, add the complete root `LICENSE`, apply approved
+source headers and review the third-party inventory. GitHub authentication and
+an explicitly authorized repository owner/name are also required before push.
+
 ## Before adding any dependency or asset
 
 Record its name, version/commit, upstream URL, SPDX license if known, role, whether it is redistributed/modified/hosted, and any compliance obligations in `THIRD_PARTY.md` (create it if missing).

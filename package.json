@@ -1,0 +1,16 @@
+{
+  "name": "rosetta-core-foundation",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.mjs",
+    "check": "node --check src/health.mjs && node --check src/server.mjs && node --check scripts/check-health.mjs && node --check tests/health.test.mjs",
+    "test": "node --test",
+    "healthcheck": "node scripts/check-health.mjs"
+  }
+}
