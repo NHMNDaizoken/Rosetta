@@ -17,3 +17,26 @@ There is no npm install step or lockfile because the package has no dependency
 graph. New packages, service images or borrowed assets require inventory updates
 and license review before use. This inventory is not a vulnerability or license
 audit of the host operating system.
+
+## Layer 1 infrastructure review
+
+These are unmodified upstream OSS images fetched by the operator's Docker engine.
+The source repository distributes configuration/adapters, not copies of these
+images or upstream source. No derivative upstream source has been produced.
+Bundled OS/library notices stay in the original image layers. A future binary
+image bundle or registry release needs a complete package inventory and any
+required corresponding-source offers; process separation alone is not an exemption.
+
+| Component/image | Exact pin | Verified upstream terms and edition | Integration/obligations |
+| --- | --- | --- | --- |
+| Keycloak OSS | `26.8.1`, `sha256:79c623a22abacf3fe6c00a5fb30f5b7843d717b234033b80995891c06116d244` | [Apache-2.0](https://github.com/keycloak/keycloak/blob/26.8.1/LICENSE.txt), [official container](https://www.keycloak.org/server/containers) | Hosted OIDC/SSO server; keep upstream licenses/notice content and Java/base OS notices. No modifications or vendor source copying. |
+| Nginx OSS official image | `stable-bookworm`, `sha256:552e7481ca93ffccd046aa658dbbed22caefbc09c66fa7cd247cbb90b8a5c609` | [BSD-2-Clause](https://nginx.org/LICENSE), [official image source](https://github.com/nginx/docker-nginx) | Hosted reverse proxy/auth-request gateway; BSD notices must accompany binary redistribution. Debian and bundled library terms also apply. No Nginx Plus dependency. |
+| PostgreSQL official image | `17-bookworm`, `sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27` | [PostgreSQL](https://www.postgresql.org/about/licence/), [official image source](https://github.com/docker-library/postgres) | Hosted persistence with separate database roles; preserve PostgreSQL copyright/permission and base-package notices. No source changes. |
+| PostgREST OSS | `v16.5`, `sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc` | [MIT](https://github.com/PostgREST/postgrest/blob/v16.5/LICENSE), [image build source](https://github.com/PostgREST/postgrest/tree/v16.5) | Hosted data API. Preserve copyright/permission notice for any redistribution; SQL authorization uses upstream RLS support. |
+| SeaweedFS OSS | `4.48`, `sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d` | [Apache-2.0](https://github.com/seaweedfs/seaweedfs/blob/4.48/LICENSE), [image source](https://github.com/seaweedfs/seaweedfs/tree/4.48/docker) | Hosted filer/object storage; not the Enterprise image. Preserve Apache notices and base-package obligations if redistributed. |
+| Flowable REST OSS | `8.0.0`, `sha256:708dfa32f27b93180bb6e7a30684d881d995fe257f5b8413e14b20a55c25672d` | [Apache-2.0](https://github.com/flowable/flowable-engine/blob/flowable-8.0.0/LICENSE), [image/base source](https://github.com/flowable/flowable-engine/tree/flowable-8.0.0/docker) | Hosted BPMN engine via REST, without a Rosetta GUI. Java runtime, fonts and Alpine packages have separate terms; retain their notices and review corresponding-source requirements before binary distribution. |
+
+The review above establishes source provenance, selected edition and the current
+configuration-only hosting model. It is not a claim that every transitive binary
+package has passed a redistribution or vulnerability audit. Rosetta does not
+strip upstream license material, republish images or change their licensing.

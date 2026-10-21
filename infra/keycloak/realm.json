@@ -1,0 +1,272 @@
+{
+  "realm": "rosetta",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "accessTokenLifespan": 300,
+  "roles": {
+    "realm": [
+      {
+        "name": "core-reader"
+      },
+      {
+        "name": "core-writer"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "rosetta-core",
+      "secret": "${CORE_CLIENT_SECRET}",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "standardFlowEnabled": false
+    },
+    {
+      "clientId": "tenant-a",
+      "secret": "${TENANT_A_SECRET}",
+      "protocol": "openid-connect",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "protocolMappers": [
+        {
+          "name": "tenant",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "config": {
+            "claim.name": "tenant_id",
+            "claim.value": "tenant-a",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "rosetta-core",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "tenant-memberships",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "config": {
+            "access.token.claim": "true",
+            "claim.name": "tenant_memberships",
+            "full.path": "false",
+            "introspection.token.claim": "true"
+          },
+          "protocol": "openid-connect"
+        }
+      ]
+    },
+    {
+      "clientId": "tenant-b",
+      "secret": "${TENANT_B_SECRET}",
+      "protocol": "openid-connect",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "protocolMappers": [
+        {
+          "name": "tenant",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "config": {
+            "claim.name": "tenant_id",
+            "claim.value": "tenant-b",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "rosetta-core",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "tenant-memberships",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "config": {
+            "access.token.claim": "true",
+            "claim.name": "tenant_memberships",
+            "full.path": "false",
+            "introspection.token.claim": "true"
+          },
+          "protocol": "openid-connect"
+        }
+      ]
+    },
+    {
+      "clientId": "reader",
+      "secret": "${READER_SECRET}",
+      "protocol": "openid-connect",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "protocolMappers": [
+        {
+          "name": "tenant",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "config": {
+            "claim.name": "tenant_id",
+            "claim.value": "tenant-a",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "rosetta-core",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "tenant-memberships",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "config": {
+            "access.token.claim": "true",
+            "claim.name": "tenant_memberships",
+            "full.path": "false",
+            "introspection.token.claim": "true"
+          },
+          "protocol": "openid-connect"
+        }
+      ]
+    },
+    {
+      "clientId": "rosetta-local",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://127.0.0.1:9876/callback"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "tenant",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "rosetta-core",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "tenant-memberships",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "config": {
+            "access.token.claim": "true",
+            "claim.name": "tenant_memberships",
+            "full.path": "false",
+            "introspection.token.claim": "true"
+          },
+          "protocol": "openid-connect"
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "service-account-tenant-a",
+      "enabled": true,
+      "serviceAccountClientId": "tenant-a",
+      "realmRoles": [
+        "core-reader",
+        "core-writer"
+      ],
+      "groups": [
+        "tenant-a"
+      ]
+    },
+    {
+      "username": "service-account-tenant-b",
+      "enabled": true,
+      "serviceAccountClientId": "tenant-b",
+      "realmRoles": [
+        "core-reader",
+        "core-writer"
+      ],
+      "groups": [
+        "tenant-b"
+      ]
+    },
+    {
+      "username": "service-account-reader",
+      "enabled": true,
+      "serviceAccountClientId": "reader",
+      "realmRoles": [
+        "core-reader"
+      ],
+      "groups": [
+        "tenant-a"
+      ]
+    },
+    {
+      "username": "local-user",
+      "enabled": true,
+      "email": "local-user@example.invalid",
+      "emailVerified": true,
+      "firstName": "Local",
+      "lastName": "Fixture",
+      "attributes": {
+        "tenant_id": [
+          "tenant-a"
+        ]
+      },
+      "realmRoles": [
+        "core-reader",
+        "core-writer"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${SSO_USER_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "tenant-a"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "tenant-a"
+    },
+    {
+      "name": "tenant-b"
+    }
+  ]
+}

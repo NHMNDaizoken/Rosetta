@@ -1,8 +1,9 @@
 # Rosetta DX-OS
 
 Layer 1 foundation for a reusable, headless platform. The implementation currently
-provides one process-health HTTP API. The five Core integrations are planned;
-they are not implemented or represented as healthy by this endpoint.
+provides process health, Keycloak OIDC/SSO and an Nginx gateway with authentication
+at both the gateway and Core boundary. Data, object and workflow integrations are
+being added. Process health does not represent integration readiness.
 
 ## Run locally
 
@@ -23,11 +24,15 @@ Stop with Ctrl+C.
 
 Use Docker Engine with Linux containers and Compose v2.20 or newer. A working
 Docker daemon is required; the CLI alone cannot build or start containers.
+Generate random local-only credentials first. `npm run setup` never overwrites an
+existing `.env`. Do not fill `.env.example` with working credentials.
 
 ```sh
+ npm run setup
 docker compose config --quiet
-docker compose up --build --detach --wait --wait-timeout 60
+docker compose up --build --detach --wait --wait-timeout 180
 docker compose exec -T core node scripts/check-health.mjs
+npm run test:integration
 docker compose ps
 docker compose down
 ```
@@ -38,9 +43,11 @@ mapping binds only to `127.0.0.1`. The image runs as the upstream nonroot `node`
 user; Compose drops Linux capabilities, prevents privilege escalation and uses a
 read-only root filesystem. No persistent data or host sockets are mounted.
 The Docker healthcheck runs the same JSON-validating probe as the native check.
+Only Nginx publishes a host port. Keycloak and PostgreSQL remain on private
+Compose networks; their administration endpoints are local development tools.
 
 The build uses an official Node image pinned by version and multiarch digest.
-Only source, the probe and third-party inventory enter the build context; `.env`
+Only source, the probe, license/notice and third-party inventory enter the build context; `.env`
 and `.git` are excluded. There are no package installation steps in the image.
 
 ## API contract

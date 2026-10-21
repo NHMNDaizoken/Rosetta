@@ -8,9 +8,11 @@
     "node": ">=24 <25"
   },
   "scripts": {
+    "setup": "node scripts/setup-local.mjs",
     "start": "node --env-file-if-exists=.env src/server.mjs",
     "check": "node scripts/check.mjs",
     "test": "node --test",
-    "healthcheck": "node scripts/check-health.mjs"
+    "healthcheck": "node scripts/check-health.mjs",
+    "test:integration": "node --env-file=.env --test integration/core.mjs"
   }
 }

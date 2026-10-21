@@ -1,0 +1,51 @@
+# Layer 1 API contracts
+
+All routes are reached through the local gateway at `PUBLIC_URL` (default
+`http://127.0.0.1:8080`). Versioned Core routes use `/v1`. This stack is a local
+foundation: HTTP is restricted to loopback, and no production deployment is
+configured. Configure TLS, trusted proxies and secrets before any approved
+deployment beyond the local environment.
+
+## Identity and gateway
+
+- `GET /health` and `HEAD /health`: existing process-liveness contract.
+- `GET /ready`: dependency-aware readiness, `200` or `503`; separate from liveness.
+- `GET /v1/identity`: authenticated `{subject, tenantId, roles}`.
+- `/identity/realms/rosetta/.well-known/openid-configuration`: upstream Keycloak
+  discovery. Use its standard OIDC authorization, token, refresh and logout APIs.
+
+Gateway auth-request and Core independently introspect bearer tokens through
+Keycloak's confidential `rosetta-core` client. Require active, unexpired tokens,
+the configured issuer, audience `rosetta-core`, realm role `core-reader`, and
+`tenant_id` matching an authoritative `tenant_memberships` group. Caller tenant
+headers are ignored. Provider errors fail closed. No custom JWT verifier,
+password database or email-only login is implemented.
+
+The imported realm contains two local service-account tenants and a read-only
+account, all using random secrets from ignored `.env`. `rosetta-local` is a public
+authorization-code client requiring S256 PKCE, with exactly one loopback callback:
+`http://127.0.0.1:9876/callback`. The technical `local-user` fixture belongs to
+tenant A; its random password stays in `.env`. Registration is disabled. These
+fixtures are not production account provisioning or business entities.
+
+Group memberships and role grants are administrator-owned. A tenant attribute
+alone never grants membership. Core returns only its supported reader/writer
+roles. No caller may assign a tenant via a request payload/header.
+
+Unknown routes return `404`; denied credentials return `401/403`. Gateway-level
+denials can use Nginx's standard error representation; Core errors use JSON
+`{error: code}`. Identity dependency failure returns `503`. The gateway enforces
+request-size/time bounds and a per-source rate limit; upstream URLs are fixed
+configuration, not caller input. Internal auth and service ports are unpublished.
+
+## Running the local checks
+
+`npm run setup` creates ignored random credentials and refuses to overwrite an
+existing file. `docker compose up --build --detach --wait --wait-timeout 180`
+starts real services. `npm run test:integration` verifies discovery, real token
+issuance, two tenant identities, spoofed-header denial and a complete PKCE
+authorization-code/login/logout flow using the upstream provider.
+
+Keycloak imports the realm only into an empty database. Editing the JSON does
+not migrate an existing realm. Use reviewed administrator changes for an
+existing realm; never delete a data volume to apply a configuration edit.

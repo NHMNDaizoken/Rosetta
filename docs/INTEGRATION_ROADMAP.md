@@ -2,9 +2,9 @@
 
 ## Current boundary
 
-Only the Layer 1 foundation is implemented: the health HTTP process, container
-build, local Compose stack and CI verification definition. None of the five
-Core integrations below is installed or claimed to be working. `/health` remains
+The health foundation, Keycloak identity/SSO and Nginx gateway are implemented
+and tested against real containers. Other Core integrations below are in progress.
+`/health` remains
 a process-liveness contract and must not silently become an aggregate readiness
 check when services are added.
 

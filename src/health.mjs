@@ -1,11 +1,21 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { createServer } from "node:http";
+import { HttpError, json } from "./http.mjs";
 
-export function createHealthServer() {
+export function createHealthServer(route) {
   return createServer(
     { requestTimeout: 5000, headersTimeout: 5000, maxHeaderSize: 8192 },
-    (request, response) => {
+    async (request, response) => {
+      if (route && request.url?.split("?", 1)[0] !== "/health") {
+        try { await route(request, response); }
+        catch (error) {
+          if (!response.headersSent) json(response, error instanceof HttpError ? error.status : 503,
+            { error: error instanceof HttpError ? error.message : "service_unavailable" }, request.method);
+          else response.destroy();
+        }
+        return;
+      }
       let status = 200;
       let payload = { service: "rosetta-core", status: "ok" };
 
@@ -18,14 +28,7 @@ export function createHealthServer() {
         response.setHeader("Allow", "GET, HEAD");
       }
 
-      const body = JSON.stringify(payload);
-      response.writeHead(status, {
-        "Content-Type": "application/json; charset=utf-8",
-        "Content-Length": Buffer.byteLength(body),
-        "Cache-Control": "no-store",
-        "X-Content-Type-Options": "nosniff",
-      });
-      response.end(request.method === "HEAD" ? undefined : body);
+      json(response, status, payload, request.method);
     },
   );
 }

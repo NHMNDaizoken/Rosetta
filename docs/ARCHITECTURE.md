@@ -29,8 +29,15 @@ The current product direction (Capability-Driven DX-OS) is **proposed**, not an 
 `src/server.mjs` supplies environment configuration and shutdown handling.
 `scripts/check-health.mjs` validates its JSON response for local/container probes.
 `compose.yaml` runs this single process as a nonroot container with a read-only
-filesystem and a loopback-only host port. No five-Core integration or business
-application is implemented yet.
+filesystem. Nginx is the single loopback-published gateway and uses auth-request
+against Core; Core also checks authorization at its own boundary. Keycloak
+provides OIDC/SSO backed by a separate PostgreSQL database/role. Other Core
+integrations are being added; no business application is implemented.
+
+Identity claims, endpoint versions and tenant authorization are described in
+[CORE_API.md](CORE_API.md). The database is shared infrastructure with separate
+database owners for identity, structured data and workflow; applications never
+receive these credentials.
 
 See [the integration roadmap](INTEGRATION_ROADMAP.md) for the ordered Core work,
 contract decisions, acceptance checks and SynapseDX reference review.
