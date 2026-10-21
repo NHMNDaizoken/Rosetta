@@ -44,5 +44,11 @@ assertion from the verified tenant identity; SQL RLS controls every record read
 and write. The database authenticator and nonlogin API role have separate duties;
 neither caller input nor an application chooses the database role or tenant.
 
+Unstructured objects use SeaweedFS OSS behind the authenticated Core adapter.
+The objects network contains only Core and SeaweedFS; a named volume stores both
+chunks and filer metadata. All storage paths derive from verified tenant claims
+and UUIDs. Files are returned as attachments. Stable-UUID PUT is the retryable
+upload contract; POST creates a new object.
+
 See [the integration roadmap](INTEGRATION_ROADMAP.md) for the ordered Core work,
 contract decisions, acceptance checks and SynapseDX reference review.

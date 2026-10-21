@@ -75,3 +75,29 @@ or published database/data API port.
 without dropping data. Existing migrations must not be edited after release;
 add a new reviewed migration for schema changes. Named volumes survive
 `docker compose down`. Never use `down -v` on persistent project data.
+
+## Unstructured objects
+
+| Route | Methods | Contract |
+| --- | --- | --- |
+| `/v1/objects` | POST | Upload bytes with a generated UUID; returns `201 {id,size}` |
+| `/v1/objects/{uuid}` | PUT | Upload/replace at a caller-chosen UUID; `201` created or `200` replaced |
+| `/v1/objects/{uuid}` | GET, DELETE | Read or delete an owned object; inaccessible/missing IDs return `404` |
+
+Uploads require `application/octet-stream`, 1 byte–5 MiB, and `core-writer`.
+Files are opaque bytes; original filenames, executable scripts and MIME-based
+rendering are not part of the API. Downloads always use octet-stream,
+`Content-Disposition: attachment`, `nosniff` and `no-store`. GET requires reader
+permission; DELETE requires writer permission. Other query parameters, object
+path formats and content types are rejected.
+
+SeaweedFS filer/volume/master data and LevelDB filer metadata live in a named
+volume. Core constructs the private storage path from verified tenant identity
+and a validated UUID; a caller cannot provide a path or storage endpoint. Only
+Core shares the private objects network with SeaweedFS; no filer/admin port is
+published. The adapter is the authenticated object-service boundary.
+
+Use PUT with a stable UUID and identical bytes for retryable writes. POST creates
+a new identifier and is not automatically retried; an ambiguous POST timeout
+must not be treated as proof no object was stored. No upstream call is blindly
+retried. This is single-node local persistence, not a replicated storage cluster.

@@ -9,7 +9,7 @@ function check(path) {
   for (const entry of readdirSync(path, { withFileTypes: true })) {
     const file = join(path, entry.name);
     if (entry.isDirectory()) check(file);
-    else if (/\.(mjs|sql|sh|ps1|ya?ml|conf)$/.test(file)) checkFile(file);
+    else if (/\.(mjs|sql|sh|ps1|ya?ml|conf|toml)$/.test(file)) checkFile(file);
   }
 }
 

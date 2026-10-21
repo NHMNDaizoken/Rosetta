@@ -3,6 +3,7 @@
 import { createAuthorizer } from "./auth.mjs";
 import { HttpError, json } from "./http.mjs";
 import { dataRequest, handleData } from "./data.mjs";
+import { handleObjects } from "./objects.mjs";
 
 export function createApi(config) {
   const authorize = createAuthorizer(config);
@@ -13,12 +14,21 @@ export function createApi(config) {
         const result = await fetch(`${config.identityUrl}/.well-known/openid-configuration`, { signal: AbortSignal.timeout(3000) });
         if (!result.ok || (await result.json()).issuer !== config.issuer) throw new Error("Identity not ready");
         if (config.dataUrl) await dataRequest(config, "readiness", new URLSearchParams({ select: "id", limit: "0" }));
+        if (config.objectsUrl) {
+          const objects = await fetch(`${config.objectsUrl}/?limit=0`, { signal: AbortSignal.timeout(3000) });
+          if (!objects.ok) throw new Error("Objects not ready");
+          await objects.arrayBuffer();
+        }
         return json(response, 200, { status: "ready" });
       } catch { throw new HttpError(503, "not_ready"); }
     }
     if (path?.startsWith("/v1/data/")) {
       const identity = await authorize(request);
       return handleData(request, response, identity, config, new URL(request.url, "http://core"));
+    }
+    if (path === "/v1/objects" || path?.startsWith("/v1/objects/")) {
+      const identity = await authorize(request);
+      return handleObjects(request, response, identity, config, new URL(request.url, "http://core"));
     }
     if (path === "/internal/auth" || path === "/v1/identity") {
       const identity = await authorize(request);

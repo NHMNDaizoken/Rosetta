@@ -76,6 +76,13 @@ services:
       data-migrate:
         condition: service_completed_successfully
     networks: [data]
+  objects:
+    image: chrislusf/seaweedfs:4.48@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
+    command: [server, -dir=/data, -ip=objects, -ip.bind=0.0.0.0, -master.volumeSizeLimitMB=64, -volume.max=4, -filer]
+    volumes:
+      - object-data:/data
+      - ./infra/seaweedfs/filer.toml:/etc/seaweedfs/filer.toml:ro
+    networks: [objects]
   core:
     build: .
     image: rosetta-core:local
@@ -87,10 +94,13 @@ services:
       CORE_CLIENT_SECRET: ${CORE_CLIENT_SECRET:?Run npm run setup first}
       DATA_URL: http://data:3000
       DATA_JWT_SECRET: ${DATA_JWT_SECRET:?Run npm run setup first}
+      OBJECTS_URL: http://objects:8888
     depends_on:
       identity:
         condition: service_healthy
       data:
+        condition: service_started
+      objects:
         condition: service_started
     read_only: true
     cap_drop:
@@ -129,3 +139,4 @@ networks:
 
 volumes:
   postgres-data:
+  object-data:

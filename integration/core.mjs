@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
 import { before, test } from "node:test";
 import { promisify } from "node:util";
@@ -127,4 +127,32 @@ test("structured data CRUD enforces roles, input limits and tenant isolation in 
   );
   assert.equal((await api(item, tokenA, { method: "DELETE" })).status, 204);
   assert.equal((await api(item, tokenA)).status, 404);
+});
+
+test("object storage round trips opaque bytes and rejects cross-tenant access and unsafe uploads", async () => {
+  const bytes = Buffer.from([0, 255, 1, 2, 60, 62, 128, 42]);
+  const upload = { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: bytes };
+  assert.equal((await api("/v1/objects", reader, upload)).status, 403);
+  assert.equal((await api("/v1/objects", tokenA, { ...upload, headers: { "Content-Type": "text/html" } })).status, 415);
+  assert.equal((await api("/v1/objects", tokenA, { ...upload, body: Buffer.alloc(5 * 1024 * 1024 + 1) })).status, 413);
+  const created = await api("/v1/objects", tokenA, upload);
+  assert.equal(created.status, 201);
+  const object = await created.json();
+  assert.equal(object.size, bytes.length);
+  const path = `/v1/objects/${object.id}`;
+  const download = await api(path, tokenA);
+  assert.equal(download.status, 200);
+  assert.deepEqual(Buffer.from(await download.arrayBuffer()), bytes);
+  assert.match(download.headers.get("content-disposition"), /^attachment;/);
+  assert.equal((await api(path, tokenB)).status, 404);
+  assert.equal((await api(path, tokenB, { method: "DELETE" })).status, 404);
+  assert.equal((await api(`${path}?tenant_id=tenant-b`, tokenA)).status, 400);
+  assert.equal((await api("/v1/objects/not-a-uuid", tokenA)).status, 400);
+  assert.equal((await api(path, tokenA, { method: "DELETE" })).status, 204);
+  assert.equal((await api(path, tokenA)).status, 404);
+  const retryPath = `/v1/objects/${randomUUID()}`;
+  assert.equal((await api(retryPath, tokenA, { ...upload, method: "PUT" })).status, 201);
+  assert.equal((await api(retryPath, tokenA, { ...upload, method: "PUT" })).status, 200);
+  assert.deepEqual(Buffer.from(await (await api(retryPath, tokenA)).arrayBuffer()), bytes);
+  assert.equal((await api(retryPath, tokenA, { method: "DELETE" })).status, 204);
 });
