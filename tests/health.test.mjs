@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { execFile, spawnSync } from "node:child_process";
 import { once } from "node:events";

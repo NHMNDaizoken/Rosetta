@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-License-Identifier: Apache-2.0
 import { createHealthServer } from "./health.mjs";
 
 const rawPort = process.env.PORT ?? "8080";

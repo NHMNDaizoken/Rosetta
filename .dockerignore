@@ -4,4 +4,6 @@
 !src/**
 !scripts/
 !scripts/check-health.mjs
-!THIRD_PARTY.md
+!THIRD-PARTY.md
+!LICENSE
+!NOTICE

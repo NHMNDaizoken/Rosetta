@@ -91,21 +91,18 @@ review. Integration and publication gates are documented explicitly.
 
 ## License and publication status
 
-Project licensing is **pending maintainer approval**. No root `LICENSE` or source
-SPDX identifier has been selected. `UNLICENSED` and `private: true` in
-`package.json` prevent an accidental claim of an approved npm license/publication;
-they do not select an open-source license or control GitHub visibility.
-
-Local implementation and commits are authorized while this decision is pending.
-Do not publish source, packages, container images or a public repository until
-the project license, copyright holder and source-header convention are approved.
-See [the licensing policy](docs/LICENSING.md).
+Original source is licensed under [Apache License 2.0](LICENSE), approved by the
+maintainer on 2026-10-21. Attribution: Copyright 2026 Rosetta Contributors, subject
+to contributors' actual rights and agreement. See [NOTICE](NOTICE),
+[THIRD-PARTY.md](THIRD-PARTY.md) and [the licensing policy](docs/LICENSING.md).
+External components keep their own terms. `private: true` prevents accidental
+npm publication; no package/image publishing or production deployment is enabled.
 
 ## Git and GitHub
 
 Use one branch, `main`, and meaningful Conventional Commits for cohesive, tested
 changes. CI runs on pushes and pull requests, but does not publish images,
 deploy, create PRs or merge changes. No remote is assumed or silently selected.
-After licensing approval and GitHub authentication, create or reuse the explicitly
-authorized repository, inspect its history before pushing, and push verified
-commits incrementally without force-pushing.
+The authorized source repository is `NHMNDaizoken/Rosetta`, public, with `main` as
+the default branch. Verify authentication and remote history before pushing
+verified commits incrementally, without force-pushing.

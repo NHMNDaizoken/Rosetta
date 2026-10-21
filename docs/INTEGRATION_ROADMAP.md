@@ -9,18 +9,17 @@ a process-liveness contract and must not silently become an aggregate readiness
 check when services are added.
 
 The requested next scope is all five Core capabilities and cross-core tests.
-Local foundation work is authorized while licensing is pending. New integration
-dependencies and publication remain subject to `AGENTS.md` and
-[the licensing policy](LICENSING.md): approve the project license, copyright
-holder/header convention and upstream component license review first. Apache-2.0
-is recommended, not selected. No service brand or new API contract is approved
-by this roadmap.
+The maintainer has approved original source under Apache-2.0 with attribution
+2026 Rosetta Contributors and authorized public source publication to the
+authenticated account's `Rosetta` repository on `main`. New integration
+dependencies still require upstream license/edition review under
+[the licensing policy](LICENSING.md). Production deployment remains unapproved.
 
 ## Integration order and acceptance evidence
 
 Use existing open-source infrastructure, pinned by version and image digest;
 implement only the adapters needed for the platform boundary. Record component
-provenance, editions, dependencies and notices in `THIRD_PARTY.md` before use.
+provenance, editions, dependencies and notices in `THIRD-PARTY.md` before use.
 An OSS edition must actually provide the selected feature.
 
 | Order | Capability and integration work | Minimum verification before committing |
