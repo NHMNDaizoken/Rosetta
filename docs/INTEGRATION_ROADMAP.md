@@ -1,0 +1,91 @@
+# Five-Core integration roadmap
+
+## Current boundary
+
+Only the Layer 1 foundation is implemented: the health HTTP process, container
+build, local Compose stack and CI verification definition. None of the five
+Core integrations below is installed or claimed to be working. `/health` remains
+a process-liveness contract and must not silently become an aggregate readiness
+check when services are added.
+
+The requested next scope is all five Core capabilities and cross-core tests.
+Local foundation work is authorized while licensing is pending. New integration
+dependencies and publication remain subject to `AGENTS.md` and
+[the licensing policy](LICENSING.md): approve the project license, copyright
+holder/header convention and upstream component license review first. Apache-2.0
+is recommended, not selected. No service brand or new API contract is approved
+by this roadmap.
+
+## Integration order and acceptance evidence
+
+Use existing open-source infrastructure, pinned by version and image digest;
+implement only the adapters needed for the platform boundary. Record component
+provenance, editions, dependencies and notices in `THIRD_PARTY.md` before use.
+An OSS edition must actually provide the selected feature.
+
+| Order | Capability and integration work | Minimum verification before committing |
+| --- | --- | --- |
+| 1 | **Identity / SSO:** integrate an upstream OIDC provider; configure clients, issuer, audiences, roles and authoritative tenant membership. Separate admin/bootstrap credentials from caller credentials. | Discovery and real token issuance/validation work; expired tokens, wrong issuer/audience and insufficient role are rejected. Two tenants cannot acquire each other's privileges. No email-only/demo login bypass. |
+| 2 | **API Gateway:** integrate an upstream OSS gateway using the Identity contract. Publish versioned routes; configure authentication, bounded requests, upstream timeouts and consistent errors. Keep upstream services on private networks. | An authenticated call reaches the intended upstream; missing/invalid tokens fail closed; caller-supplied identity headers cannot impersonate another tenant; identity/upstream outages produce defined failures. |
+| 3 | **Structured Data:** integrate a durable upstream database and a documented service boundary. Add versioned migrations, dedicated credentials and explicit tenant isolation; keep app schemas/business rules outside the reusable Core. | CRUD survives restart; tenant A cannot read/write tenant B's rows through API or direct service access; malformed inputs fail; migration and backup/restore procedures are tested against disposable data. |
+| 4 | **Unstructured Data:** integrate an upstream object store with an authenticated API contract, tenant-scoped storage policies, bounded uploads and explicit download authorization. Keep root/storage admin credentials private. | Authorized upload/download/delete succeeds; cross-tenant object keys and guessed identifiers fail; size/type rules apply; object data persists across restart. Any signed URLs expire and remain object-scoped. |
+| 5 | **Workflow Engine:** integrate an upstream headless engine with versioned workflow definitions, tenant-scoped execution/history, idempotency and defined retry behavior. Use only technical integration workflows as fixtures. | Authorized start/status/cancel works; retries do not duplicate side effects; restart preserves execution state; unauthorized definitions, executions and histories remain inaccessible. |
+| 6 | **Cross-core verification:** run one technical fixture through Identity → Gateway → structured metadata/object storage → Workflow. Add dependency-aware readiness separately from `/health`. | The positive flow and two-tenant denial cases pass against real Compose services. Stop a dependency and assert readiness fails while process liveness remains accurate; restore it and verify recovery. |
+
+## Contracts to approve before integration
+
+- Identity: issuer, audience, subject and tenant claim semantics, role ownership,
+  key rotation and token lifetimes. Tenant identity comes from verified claims,
+  never an untrusted header alone.
+- Service APIs: identifiers/versions, inputs, outputs, authorization rules,
+  side effects and error behavior. Preserve the existing health contract.
+- Data and workflows: ownership, migration/recovery procedure, persistence,
+  idempotency and execution permissions. No direct access to another app's data.
+- Operational readiness: list required dependencies and timeout behavior;
+  never return a successful aggregate status for missing integrations.
+
+These are implementation decisions, not additional organizer requirements.
+
+## Repository, Compose and CI practices
+
+Use one branch, `main`, with cohesive, verified Conventional Commits. Add upstream
+configuration under `infra/` only when an integration is approved; keep reusable
+source and technical integration tests separate. Do not create empty service
+packages, SDKs or application scaffolding in advance.
+
+Compose integrations should use explicit internal networks, persistent volumes
+only where required and health-based dependency ordering. Credentials must be
+provided locally/through deployment secrets, never working credentials committed
+as defaults. Local `docker compose down` must not delete persistent volumes.
+Destructive resets or migrations require explicit approval.
+
+Extend CI to run service tests, validate configuration, start real dependencies,
+exercise cross-core success/denial/failure cases, collect diagnostics on failure
+and clean up ephemeral containers. Keep CI checks distinct from publishing and
+production deployment. GitHub-hosted CI itself is unverified until an authorized
+push and a successful run.
+
+## SynapseDX reference review
+
+Reviewed [vku-open-source-2026/SynapseDX at a731ad9](https://github.com/vku-open-source-2026/SynapseDX/tree/a731ad928f4a261cd65e531d427a0be4a8922b90):
+the README layout, development/production Compose files, CI/CD workflows and
+production guide. Useful patterns are separate infrastructure configuration,
+health-based startup, live integration checks and documented deployment steps.
+Its production configuration removes internal service ports; its CD workflow
+publishes after CI. Rosetta currently has local execution and checks only.
+
+This is an organizational reference. No SynapseDX source/configuration was
+copied, and its license does not license Rosetta. Its application, SDK, AI and
+other infrastructure scope is outside this implementation.
+
+## Publication and deployment gates
+
+Before creating/pushing a GitHub repository, approve licensing/header decisions,
+confirm the authorized owner/name and authenticated account, inspect any remote
+history and push verified commits to `main` without force. Do not publish an
+image or deploy to production as a side effect of committing or pushing.
+
+Production deployment additionally needs an approved target, network/TLS/secrets
+configuration, resource limits, backup/recovery and a verified rollback. Those
+choices are not supplied by the current local Compose stack. No Layer 2 logic,
+GUI, AI, SDKs, Kubernetes or OpenStack belongs in this work.

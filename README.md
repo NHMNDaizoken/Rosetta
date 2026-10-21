@@ -85,6 +85,10 @@ CI performs this check on Linux in addition to the native test run.
 Current scope is Layer 1 foundation only. GUI, business applications, SDKs, AI,
 Kubernetes and OpenStack are outside this implementation.
 
+See the [five-Core integration roadmap](docs/INTEGRATION_ROADMAP.md) for the next
+Layer 1 work, contract decisions, acceptance evidence and SynapseDX reference
+review. Integration and publication gates are documented explicitly.
+
 ## License and publication status
 
 Project licensing is **pending maintainer approval**. No root `LICENSE` or source

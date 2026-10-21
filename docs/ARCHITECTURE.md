@@ -22,3 +22,15 @@ At least one user-facing GUI application must exercise Core APIs in a real end-t
 Do not add AI runtimes, sandbox infrastructure, MCP/A2A, vector databases, or other services merely because they are fashionable. Each addition requires a user-facing use case, architecture rationale, license review, minimal test and owner approval.
 
 The current product direction (Capability-Driven DX-OS) is **proposed**, not an excuse to treat unapproved features as requirements.
+
+## Implemented foundation
+
+`src/health.mjs` exposes a minimal process-health HTTP server;
+`src/server.mjs` supplies environment configuration and shutdown handling.
+`scripts/check-health.mjs` validates its JSON response for local/container probes.
+`compose.yaml` runs this single process as a nonroot container with a read-only
+filesystem and a loopback-only host port. No five-Core integration or business
+application is implemented yet.
+
+See [the integration roadmap](INTEGRATION_ROADMAP.md) for the ordered Core work,
+contract decisions, acceptance checks and SynapseDX reference review.
