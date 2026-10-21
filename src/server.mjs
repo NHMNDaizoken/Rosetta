@@ -11,7 +11,9 @@ if (!/^\d+$/.test(rawPort) || Number(rawPort) < 1 || Number(rawPort) > 65535) {
 let route;
 if (process.env.OIDC_ISSUER) {
   if (!process.env.CORE_CLIENT_SECRET || !process.env.IDENTITY_URL) throw new Error("Identity configuration is incomplete");
-  route = createApi({ issuer: process.env.OIDC_ISSUER, identityUrl: process.env.IDENTITY_URL, clientSecret: process.env.CORE_CLIENT_SECRET });
+  if (process.env.DATA_URL && (!process.env.DATA_JWT_SECRET || process.env.DATA_JWT_SECRET.length < 32)) throw new Error("Data signing secret must contain at least 32 characters");
+  route = createApi({ issuer: process.env.OIDC_ISSUER, identityUrl: process.env.IDENTITY_URL, clientSecret: process.env.CORE_CLIENT_SECRET,
+    dataUrl: process.env.DATA_URL, dataSecret: process.env.DATA_JWT_SECRET });
 }
 const server = createHealthServer(route);
 server.on("error", (error) => {

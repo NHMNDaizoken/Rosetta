@@ -39,5 +39,10 @@ Identity claims, endpoint versions and tenant authorization are described in
 database owners for identity, structured data and workflow; applications never
 receive these credentials.
 
+Structured data uses a private PostgREST service. Core mints a 30-second internal
+assertion from the verified tenant identity; SQL RLS controls every record read
+and write. The database authenticator and nonlogin API role have separate duties;
+neither caller input nor an application chooses the database role or tenant.
+
 See [the integration roadmap](INTEGRATION_ROADMAP.md) for the ordered Core work,
 contract decisions, acceptance checks and SynapseDX reference review.

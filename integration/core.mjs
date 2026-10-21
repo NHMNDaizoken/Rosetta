@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { createHash, randomBytes } from "node:crypto";
+import { execFile } from "node:child_process";
 import { before, test } from "node:test";
+import { promisify } from "node:util";
 
 const base = process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
 const issuer = `${base}/identity/realms/rosetta`;
@@ -92,4 +94,37 @@ test("SSO completes a real authorization-code + PKCE flow and revokes the sessio
   });
   assert.equal(logout.status, 204);
   assert.equal((await api("/v1/identity", session.access_token)).status, 401, "Revoked session is rejected");
+});
+
+test("structured data CRUD enforces roles, input limits and tenant isolation in API and SQL", async () => {
+  const collection = `fixture_${randomBytes(6).toString("hex")}`;
+  const path = `/v1/data/${collection}`;
+  const post = (value) => ({ method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(value) });
+  assert.equal((await api(path, reader, post({ data: { fixture: true } }))).status, 403);
+  assert.equal((await api(path, tokenA, post({ data: {}, tenant_id: "tenant-b" }))).status, 400);
+  assert.equal((await api(path, tokenA, post({ data: { large: "x".repeat(70000) } }))).status, 413);
+  const created = await api(path, tokenA, post({ data: { fixture: "created" } }));
+  assert.equal(created.status, 201);
+  const record = await created.json();
+  const item = `${path}/${record.id}`;
+  assert.equal((await api(item, reader)).status, 200);
+  assert.equal((await api(item, tokenB)).status, 404);
+  assert.deepEqual((await (await api(path, tokenB)).json()).items, []);
+  assert.equal((await api(`${path}?limit=101`, tokenA)).status, 400);
+  assert.equal((await api(`${path}?tenant_id=tenant-b`, tokenA)).status, 400);
+  assert.equal((await api(item, tokenB, { ...post({ data: {} }), method: "PATCH" })).status, 404);
+  assert.equal((await api(item, tokenB, { method: "DELETE" })).status, 404);
+  const updated = await api(item, tokenA, { ...post({ data: { fixture: "updated" } }), method: "PATCH" });
+  assert.equal(updated.status, 200);
+  assert.equal((await updated.json()).data.fixture, "updated");
+  const sql = `SET ROLE rosetta_api; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-b"}',false); SELECT count(*) FROM core.records WHERE id='${record.id}';`;
+  const result = await promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-Atc", sql]);
+  assert.equal(result.stdout.trim().split(/\r?\n/).at(-1), "0", "SQL RLS hides tenant A's row from tenant B");
+  const forbiddenSql = `SET ROLE rosetta_api; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-a"}',false); UPDATE core.records SET tenant_id='tenant-b' WHERE id='${record.id}';`;
+  await assert.rejects(
+    promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-Atc", forbiddenSql]),
+    (error) => error.code === 1 && /row-level security/.test(error.stderr),
+  );
+  assert.equal((await api(item, tokenA, { method: "DELETE" })).status, 204);
+  assert.equal((await api(item, tokenA)).status, 404);
 });

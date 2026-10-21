@@ -10,6 +10,7 @@ export function createHealthServer(route) {
       if (route && request.url?.split("?", 1)[0] !== "/health") {
         try { await route(request, response); }
         catch (error) {
+          if (error instanceof HttpError && error.status === 413) response.setHeader("Connection", "close");
           if (!response.headersSent) json(response, error instanceof HttpError ? error.status : 503,
             { error: error instanceof HttpError ? error.message : "service_unavailable" }, request.method);
           else response.destroy();

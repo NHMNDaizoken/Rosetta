@@ -49,3 +49,29 @@ authorization-code/login/logout flow using the upstream provider.
 Keycloak imports the realm only into an empty database. Editing the JSON does
 not migrate an existing realm. Use reviewed administrator changes for an
 existing realm; never delete a data volume to apply a configuration edit.
+
+## Structured data
+
+| Route | Methods | Contract |
+| --- | --- | --- |
+| `/v1/data/{collection}` | GET | `{items: [...]}`, optional `limit` 1–100, default 100 |
+| `/v1/data/{collection}` | POST | Body `{data: {...}}`; returns `201` with generated UUID |
+| `/v1/data/{collection}/{id}` | GET, PATCH, DELETE | Read, replace `data`, or delete an owned record; `404` for an inaccessible ID |
+
+Collections match `[a-z][a-z0-9_-]{0,62}`; IDs are UUIDs. JSON request bodies are
+limited to 64 KiB, with `Content-Type: application/json`. Unknown fields and
+query parameters are rejected. Writes require `core-writer`; all access requires
+`core-reader`. Reads expose only ID, collection, JSON data and creation time.
+This is generic structured storage; no app-specific schema/business rules exist.
+
+Core issues a short-lived, tenant-scoped internal assertion for PostgREST with
+audience `rosetta-data` and role `rosetta_api`. Caller tokens are never treated as
+internal database credentials. PostgreSQL FORCE ROW LEVEL SECURITY enforces
+tenant claims for reads and writes, including direct service-level queries.
+The assertion secret stays inside Compose; there is no anonymous PostgREST role
+or published database/data API port.
+
+`data-migrate` applies `infra/postgres/001-data.sql` transactionally and idempotently
+without dropping data. Existing migrations must not be edited after release;
+add a new reviewed migration for schema changes. Named volumes survive
+`docker compose down`. Never use `down -v` on persistent project data.

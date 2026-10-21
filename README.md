@@ -2,8 +2,9 @@
 
 Layer 1 foundation for a reusable, headless platform. The implementation currently
 provides process health, Keycloak OIDC/SSO and an Nginx gateway with authentication
-at both the gateway and Core boundary. Data, object and workflow integrations are
-being added. Process health does not represent integration readiness.
+at both the gateway and Core boundary, plus PostgreSQL/PostgREST structured data
+with row-level tenant isolation. Object and workflow integrations are being added.
+Process health does not represent integration readiness. See [API contracts](docs/CORE_API.md).
 
 ## Run locally
 
