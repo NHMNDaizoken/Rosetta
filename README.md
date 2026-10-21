@@ -4,7 +4,7 @@ Layer 1 foundation for a reusable, headless platform. The implementation current
 provides process health, Keycloak OIDC/SSO and an Nginx gateway with authentication
 at both the gateway and Core boundary, plus PostgreSQL/PostgREST structured data
 with row-level tenant isolation and SeaweedFS-backed binary object storage.
-Workflow integration is being added.
+Flowable REST provides tenant-scoped workflow definitions, executions and history.
 Process health does not represent integration readiness. See [API contracts](docs/CORE_API.md).
 
 ## Run locally
@@ -30,9 +30,9 @@ Generate random local-only credentials first. `npm run setup` never overwrites a
 existing `.env`. Do not fill `.env.example` with working credentials.
 
 ```sh
- npm run setup
+npm run setup
 docker compose config --quiet
-docker compose up --build --detach --wait --wait-timeout 180
+docker compose up --build --detach --wait --wait-timeout 240
 docker compose exec -T core node scripts/check-health.mjs
 npm run test:integration
 docker compose ps

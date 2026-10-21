@@ -4,6 +4,8 @@ import { createAuthorizer } from "./auth.mjs";
 import { HttpError, json } from "./http.mjs";
 import { dataRequest, handleData } from "./data.mjs";
 import { handleObjects } from "./objects.mjs";
+import { handleWorkflow } from "./workflow.mjs";
+import { workflowRequest } from "./workflow-client.mjs";
 
 export function createApi(config) {
   const authorize = createAuthorizer(config);
@@ -19,6 +21,7 @@ export function createApi(config) {
           if (!objects.ok) throw new Error("Objects not ready");
           await objects.arrayBuffer();
         }
+        if (config.workflowUrl) await workflowRequest(config, "management/engine");
         return json(response, 200, { status: "ready" });
       } catch { throw new HttpError(503, "not_ready"); }
     }
@@ -29,6 +32,10 @@ export function createApi(config) {
     if (path === "/v1/objects" || path?.startsWith("/v1/objects/")) {
       const identity = await authorize(request);
       return handleObjects(request, response, identity, config, new URL(request.url, "http://core"));
+    }
+    if (path?.startsWith("/v1/workflows/")) {
+      const identity = await authorize(request);
+      return handleWorkflow(request, response, identity, config, new URL(request.url, "http://core"));
     }
     if (path === "/internal/auth" || path === "/v1/identity") {
       const identity = await authorize(request);

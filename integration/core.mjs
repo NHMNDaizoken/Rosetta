@@ -156,3 +156,55 @@ test("object storage round trips opaque bytes and rejects cross-tenant access an
   assert.deepEqual(Buffer.from(await (await api(retryPath, tokenA)).arrayBuffer()), bytes);
   assert.equal((await api(retryPath, tokenA, { method: "DELETE" })).status, 204);
 });
+
+test("workflow engine enforces tenant ownership, durable idempotency, completion and cancellation", async () => {
+  const definitions = await api("/v1/workflows/definitions", tokenA);
+  assert.equal(definitions.status, 200);
+  const [definition] = (await definitions.json()).items;
+  assert.ok(definition.id);
+  assert.equal(definition.key, "rosetta_checkpoint");
+  const [otherDefinition] = (await (await api("/v1/workflows/definitions", tokenB)).json()).items;
+  assert.notEqual(definition.id, otherDefinition.id);
+  const key = randomUUID();
+  const body = { definitionId: definition.id, input: { fixture: "checkpoint", nested: { b: 2, a: 1 } } };
+  const start = (accessToken, input = body, requestKey = key) => api("/v1/workflows/executions", accessToken, {
+    method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": requestKey }, body: JSON.stringify(input),
+  });
+  assert.equal((await start(reader)).status, 403);
+  assert.equal((await start(tokenB)).status, 404);
+  assert.equal((await start(tokenA, { ...body, tenantId: "tenant-b" })).status, 400);
+  const created = await start(tokenA);
+  assert.equal(created.status, 201);
+  const instance = await created.json();
+  assert.equal(instance.status, "running");
+  assert.deepEqual(instance.input, body.input);
+  const path = `/v1/workflows/executions/${encodeURIComponent(instance.id)}`;
+  assert.equal((await api(path, tokenB)).status, 404);
+  assert.equal((await api(path, tokenB, { method: "DELETE" })).status, 404);
+  const emptyPost = { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" };
+  assert.equal((await api(`${path}/complete`, tokenB, emptyPost)).status, 404);
+  assert.equal((await api(`${path}/complete`, reader, emptyPost)).status, 403);
+  const replay = await start(tokenA, { definitionId: definition.id, input: { nested: { a: 1, b: 2 }, fixture: "checkpoint" } });
+  assert.equal(replay.status, 200);
+  assert.equal((await replay.json()).id, instance.id);
+  assert.equal((await start(tokenA, { definitionId: definition.id, input: { changed: true } })).status, 409);
+  const clearPointer = `SET ROLE rosetta_api; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-a"}',false); UPDATE core.workflow_requests SET engine_id=NULL WHERE key='${key}';`;
+  await promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-Atc", clearPointer]);
+  const recovered = await start(tokenA);
+  assert.equal(recovered.status, 200, "An ambiguous engine outcome is reconciled from durable history");
+  assert.equal((await recovered.json()).id, instance.id);
+  assert.equal((await (await api(`${path}/complete`, tokenA, emptyPost)).json()).status, "completed");
+  assert.equal((await (await api(`${path}/complete`, tokenA, emptyPost)).json()).status, "completed");
+  const concurrentKey = randomUUID();
+  const attempts = await Promise.all([start(tokenA, body, concurrentKey), start(tokenA, body, concurrentKey), start(tokenA, body, concurrentKey)]);
+  assert.equal(attempts.filter((result) => result.status === 201).length, 1);
+  assert.ok(attempts.every((result) => [200, 201, 409].includes(result.status)));
+  const concurrent = await (await start(tokenA, body, concurrentKey)).json();
+  const countSql = `SELECT count(*) FROM act_hi_procinst WHERE tenant_id_='tenant-a' AND business_key_='tenant-a:${concurrentKey}';`;
+  const count = await promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_workflow", "-Atc", countSql]);
+  assert.equal(count.stdout.trim(), "1", "Concurrent retries create exactly one engine execution");
+  const cancelledPath = `/v1/workflows/executions/${encodeURIComponent(concurrent.id)}`;
+  assert.equal((await api(cancelledPath, tokenA, { method: "DELETE" })).status, 204);
+  assert.equal((await api(cancelledPath, tokenA, { method: "DELETE" })).status, 204);
+  assert.equal((await (await api(cancelledPath, tokenA)).json()).status, "cancelled");
+});

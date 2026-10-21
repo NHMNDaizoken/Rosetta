@@ -11,16 +11,17 @@ export function dataToken(tenantId, secret) {
   return `${header}.${payload}.${signature}`;
 }
 
-export async function dataRequest(config, tenantId, query, options = {}) {
+export async function dataRequest(config, tenantId, query, options = {}, resource = "records") {
   let response;
   try {
-    response = await fetch(`${config.dataUrl}/records?${query}`, {
+    response = await fetch(`${config.dataUrl}/${resource}?${query}`, {
       ...options,
       headers: { Authorization: `Bearer ${dataToken(tenantId, config.dataSecret)}`,
         "Content-Type": "application/json", Prefer: "return=representation" },
       signal: AbortSignal.timeout(5000), redirect: "error",
     });
   } catch { throw new HttpError(503, "data_unavailable"); }
+  if (response.status === 409) throw new HttpError(409, "conflict");
   if (!response.ok) throw new HttpError(response.status === 400 ? 400 : 503, response.status === 400 ? "invalid_data" : "data_unavailable");
   return response.json();
 }

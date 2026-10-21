@@ -4,6 +4,7 @@
 !src/**
 !scripts/
 !scripts/check-health.mjs
+!scripts/init-workflows.mjs
 !THIRD-PARTY.md
 !LICENSE
 !NOTICE

@@ -101,3 +101,48 @@ Use PUT with a stable UUID and identical bytes for retryable writes. POST create
 a new identifier and is not automatically retried; an ambiguous POST timeout
 must not be treated as proof no object was stored. No upstream call is blindly
 retried. This is single-node local persistence, not a replicated storage cluster.
+
+## Workflow engine
+
+| Route | Methods | Contract |
+| --- | --- | --- |
+| `/v1/workflows/definitions` | GET | Up to 100 latest operator-installed definitions for the verified tenant: `{items:[{id,key,version,name}]}` |
+| `/v1/workflows/executions` | POST | `{definitionId,input?:{...}}` plus a lowercase UUID `Idempotency-Key`; `201` created or `200` replayed |
+| `/v1/workflows/executions/{id}` | GET | Durable `{id,definitionId,status,input}` from engine history |
+| `/v1/workflows/executions/{id}/complete` | POST | Empty JSON object; completes an execution with exactly one active user task; repeat completion returns its completed state |
+| `/v1/workflows/executions/{id}` | DELETE | Cancels a running execution; repeated cancellation returns `204`; a completed execution returns `409` |
+
+Writes require `core-writer`, reads require `core-reader`. Definition ownership
+is verified before starting. Every history/task lookup is scoped to the verified
+tenant; foreign definition/execution IDs return `404`. Input is JSON with a
+64 KiB request limit and maximum nesting depth of 32. Caller tenant fields and
+unknown query/body fields are rejected. Internal engine URLs/credentials are
+never returned. Status is `running`, `completed` or `cancelled`.
+
+Flowable REST owns BPMN execution, tasks, variables and history in a separate
+database/role. Its private REST boundary uses a random administrative credential;
+only Core and the one-shot operator initializer share the engine network with
+the database. No Flowable port is published. The initializer installs one
+original technical checkpoint definition per local fixture tenant if missing.
+The checkpoint is a start event, one user task and an end event; it has no
+business rules or external side effects. Operator-reviewed BPMN versions can be
+installed through the private engine interface; public callers cannot upload
+BPMN, scripts or arbitrary network targets. Single-task completion is the current
+adapter contract; more complex task interaction requires a separately reviewed
+contract. Other installed definitions can still be started, observed and cancelled.
+
+The SQL ledger has a unique `(tenant_id, key)` reservation under RLS. Exactly
+one reservation owner may call engine start. Retries with different input or
+definition return `409`; object-key order does not change input identity.
+If the engine result was not recorded, Core reconciles by the tenant-scoped
+business key in durable engine history and records the existing execution ID.
+If no unique outcome is established, it returns `409 execution_pending_reconciliation`
+and never starts another execution for that key. Operators must resolve a stuck
+reservation after checking engine history and in-flight work; there is no blind
+automatic retry, reservation expiry or ledger deletion. Keep definitions,
+history and ledger for the supported retry window. This prevents duplicate
+start calls; it is not a promise of exactly-once external business effects.
+
+Flowable performs its upstream schema initialization in its own database on
+first boot. Review migrations and backups before changing the pinned engine
+version. Rosetta ledger changes use additive, versioned SQL migrations.

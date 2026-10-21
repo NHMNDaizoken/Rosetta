@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: 2026 Rosetta Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             targetNamespace="https://rosetta.invalid/core/workflows">
+  <process id="rosetta_checkpoint" name="Core checkpoint" isExecutable="true">
+    <startEvent id="start" />
+    <sequenceFlow id="to_checkpoint" sourceRef="start" targetRef="checkpoint" />
+    <userTask id="checkpoint" name="Technical checkpoint" />
+    <sequenceFlow id="to_end" sourceRef="checkpoint" targetRef="end" />
+    <endEvent id="end" />
+  </process>
+</definitions>

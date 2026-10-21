@@ -50,5 +50,30 @@ chunks and filer metadata. All storage paths derive from verified tenant claims
 and UUIDs. Files are returned as attachments. Stable-UUID PUT is the retryable
 upload contract; POST creates a new object.
 
+Flowable REST is the private BPMN engine. Core checks the tenant's definition
+and execution ownership; an RLS-protected SQL ledger reserves idempotency keys
+before starting work and reconciles ambiguous outcomes against engine history.
+The one-shot initializer provisions only an original technical checkpoint
+fixture. No business workflow, GUI, SDK or AI component is implemented.
+
+```mermaid
+flowchart LR
+    Caller[API caller] -->|HTTP / OIDC| Gateway[Nginx gateway]
+    Gateway -->|OIDC routes| Identity[Keycloak]
+    Gateway -->|auth request and v1 API| Core[Rosetta Core adapters]
+    Core -->|token introspection| Identity
+    Core -->|tenant assertions| Data[PostgREST]
+    Core -->|tenant paths| Objects[SeaweedFS]
+    Core -->|authenticated REST| Workflow[Flowable REST]
+    Identity -->|identity database| Database[PostgreSQL]
+    Data -->|data database and RLS| Database
+    Workflow -->|workflow database| Database
+```
+
+Separate private networks isolate identity, data, objects and workflow backends;
+Core joins the networks it integrates. The gateway publishes only a loopback
+port. Operator access to Docker/database/engine credentials is a trusted local
+administrative boundary, not an end-user permission model.
+
 See [the integration roadmap](INTEGRATION_ROADMAP.md) for the ordered Core work,
 contract decisions, acceptance checks and SynapseDX reference review.

@@ -2,8 +2,10 @@
 
 ## Current boundary
 
-The health foundation, Keycloak identity/SSO and Nginx gateway are implemented
-and tested against real containers. Other Core integrations below are in progress.
+The health foundation and five Core integrations are implemented: Keycloak,
+Nginx, PostgreSQL/PostgREST, SeaweedFS and Flowable REST. HTTP contracts, tenant
+denials and workflow idempotency are tested against real containers. Cross-core
+restart/failure and recovery verification is being completed.
 `/health` remains
 a process-liveness contract and must not silently become an aggregate readiness
 check when services are added.
