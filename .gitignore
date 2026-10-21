@@ -1,0 +1,135 @@
+# Rosetta DX-OS — repository hygiene
+# Keep source, AGENTS.md, documentation, LICENSE, lockfiles,
+# migration scripts, tests and reproducible deployment examples tracked.
+
+# OS / editor temporary files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+*.swo
+*.tmp
+*.bak
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# Secrets and local-only configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.template
+!.env.*.template
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.tfstate
+*.tfstate.*
+!*.tfstate.example
+*.tfvars
+!*.tfvars.example
+.terraform/
+.terraform.tfstate.lock.info
+# Never store real credentials in tracked example files.
+
+# JavaScript / TypeScript
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.next/
+.nuxt/
+.output/
+.svelte-kit/
+.turbo/
+.parcel-cache/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyright/
+.tox/
+.nox/
+.venv/
+venv/
+.envrc
+*.egg-info/
+.eggs/
+.pycoverage
+.coverage
+.coverage.*
+htmlcov/
+
+# Java / JVM
+.gradle/
+.mvn/timing.properties
+target/
+*.class
+*.hprof
+
+# Go
+# vendor/  # Enable only if your team does not intentionally vendor dependencies.
+*.test
+coverage.out
+
+# Generated outputs (all languages)
+**/dist/
+**/build/
+**/out/
+**/tmp/
+**/temp/
+**/.cache/
+
+# Logs, runtime state and local databases
+*.log
+logs/
+*.pid
+*.pid.lock
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.rdb
+*.aof
+runtime-data/
+local-data/
+uploads/
+
+# Infrastructure local state
+*.retry
+.helmignore.local
+.kube/config
+minikube/
+kind-data/
+
+# Generated SDKs (ignore only if reproducible and not distributed in repo)
+# packages/sdk-*/generated/
+
+# Do NOT ignore: AGENTS.md, README.md, LICENSE, CHANGELOG.md,
+# docs/, tests/, Dockerfiles, compose*.yaml, OpenAPI specs,
+# package-lock.json, pnpm-lock.yaml, yarn.lock, uv.lock,
+# poetry.lock, requirements*.txt, go.sum, gradle wrapper,
+# or source/configuration templates needed for build-from-source.
