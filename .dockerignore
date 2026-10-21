@@ -1,0 +1,7 @@
+*
+!Dockerfile
+!src/
+!src/**
+!scripts/
+!scripts/check-health.mjs
+!THIRD_PARTY.md

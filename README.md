@@ -19,6 +19,30 @@ Visit `http://127.0.0.1:8080/health`. Set `HOST` and `PORT` in `.env` for native
 execution. `HOST` defaults to loopback; `PORT` must be an integer from 1 to 65535.
 Stop with Ctrl+C.
 
+## Run with Docker Compose
+
+Use Docker Engine with Linux containers and Compose v2.20 or newer. A working
+Docker daemon is required; the CLI alone cannot build or start containers.
+
+```sh
+docker compose config --quiet
+docker compose up --build --detach --wait --wait-timeout 60
+docker compose exec -T core node scripts/check-health.mjs
+docker compose ps
+docker compose down
+```
+
+The same health URL is available on the host. Compose reads `PORT` from the shell
+or `.env` for the host mapping; the container always listens on port 8080. The
+mapping binds only to `127.0.0.1`. The image runs as the upstream nonroot `node`
+user; Compose drops Linux capabilities, prevents privilege escalation and uses a
+read-only root filesystem. No persistent data or host sockets are mounted.
+The Docker healthcheck runs the same JSON-validating probe as the native check.
+
+The build uses an official Node image pinned by version and multiarch digest.
+Only source, the probe and third-party inventory enter the build context; `.env`
+and `.git` are excluded. There are no package installation steps in the image.
+
 ## API contract
 
 | Request | Response |
@@ -45,12 +69,18 @@ The healthcheck requires a running server; set `PORT` in the calling shell when
 using a nondefault port. Tests start an isolated server on an ephemeral port.
 There is no transpilation/build step for the native JavaScript source.
 
+To run the same tests in the built container runtime, mount `tests/` read-only at
+`/app/tests` and run `node --test` through `docker compose run --rm --no-deps`.
+CI performs this check on Linux in addition to the native test run.
+
 ## Structure and scope
 
 - `src/`: Core process-health server; no application or business rules.
 - `tests/`: HTTP contract and startup validation tests using `node:test`.
 - `scripts/`: process-health probe shared by local checks and containers.
 - `docs/`: architecture, requirements, license policy and development workflow.
+- `Dockerfile`, `compose.yaml`: local container build and execution.
+- `.github/workflows/ci.yml`: source tests plus container build/start/probe/cleanup.
 
 Current scope is Layer 1 foundation only. GUI, business applications, SDKs, AI,
 Kubernetes and OpenStack are outside this implementation.
@@ -66,3 +96,12 @@ Local implementation and commits are authorized while this decision is pending.
 Do not publish source, packages, container images or a public repository until
 the project license, copyright holder and source-header convention are approved.
 See [the licensing policy](docs/LICENSING.md).
+
+## Git and GitHub
+
+Use one branch, `main`, and meaningful Conventional Commits for cohesive, tested
+changes. CI runs on pushes and pull requests, but does not publish images,
+deploy, create PRs or merge changes. No remote is assumed or silently selected.
+After licensing approval and GitHub authentication, create or reuse the explicitly
+authorized repository, inspect its history before pushing, and push verified
+commits incrementally without force-pushing.
