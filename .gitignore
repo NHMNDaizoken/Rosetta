@@ -40,6 +40,20 @@ Desktop.ini
 .terraform.tfstate.lock.info
 # Never store real credentials in tracked example files.
 
+# Private agent context and local tooling; AGENTS.md remains public.
+CODEX_MASTER.md
+START_CODEX.md
+ROSETTA_CODEX_MASTER_PROMPT.md
+/prompts/
+.codex/
+.agent/
+.agents/
+.aider*
+.continue/
+*_AGENT_NOTES.md
+*_AGENT_MEMORY.md
+*.agent.log
+
 # JavaScript / TypeScript
 node_modules/
 .pnpm-store/
