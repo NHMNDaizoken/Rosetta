@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "SPDX-FileCopyrightText: 2026 Rosetta Contributors; SPDX-License-Identifier: Apache-2.0. Design-only contract; no runtime routes.",
+  "title": "Composition v1 (design draft)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "compositionFormat": {
+      "const": "1.0"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "version": {
+      "$ref": "./capability-manifest-v1.schema.json#/$defs/Version"
+    },
+    "inputSchema": {
+      "$ref": "./capability-manifest-v1.schema.json#/$defs/PayloadSchema"
+    },
+    "outputSchema": {
+      "$ref": "./capability-manifest-v1.schema.json#/$defs/PayloadSchema"
+    },
+    "deadlineMs": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 60000
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "stepId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,31}$"
+          },
+          "capability": {
+            "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef"
+          },
+          "input": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "source": {
+                    "const": "composition-input"
+                  }
+                },
+                "required": [
+                  "source"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "source": {
+                    "const": "step-output"
+                  },
+                  "stepId": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{0,31}$"
+                  }
+                },
+                "required": [
+                  "source",
+                  "stepId"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "stepId",
+          "capability",
+          "input"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 16
+    }
+  },
+  "required": [
+    "compositionFormat",
+    "name",
+    "version",
+    "inputSchema",
+    "outputSchema",
+    "deadlineMs",
+    "steps"
+  ]
+}

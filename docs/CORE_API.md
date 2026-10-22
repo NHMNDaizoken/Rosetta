@@ -151,3 +151,7 @@ start calls; it is not a promise of exactly-once external business effects.
 Flowable performs its upstream schema initialization in its own database on
 first boot. Review migrations and backups before changing the pinned engine
 version. Rosetta ledger changes use additive, versioned SQL migrations.
+
+## Proposed capability APIs
+
+The [Capability v1 specification](CAPABILITY_EXTENSIONS_V1.md), [trust/execution rules](CAPABILITY_TRUST_EXECUTION_V1.md) and [OpenAPI draft](contracts/capability-api-v1.openapi.json) describe unimplemented future endpoints. The draft is not an OpenAPI description of these working foundation routes, and adds no claims, permissions or behavior to them. Approval of runtime changes, separate authority storage and real-service acceptance evidence is still required.

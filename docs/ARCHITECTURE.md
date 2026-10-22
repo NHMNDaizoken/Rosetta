@@ -77,3 +77,7 @@ administrative boundary, not an end-user permission model.
 
 See [the integration roadmap](INTEGRATION_ROADMAP.md) for the ordered Core work,
 contract decisions, acceptance checks and SynapseDX reference review.
+
+## Capability extension design boundary
+
+[Capability extensions v1](CAPABILITY_EXTENSIONS_V1.md) specifies proposed registry, compatibility, trust and composition contracts. It is documentation only: no new Core service, worker, schema migration, network or runtime module is added. The existing Flowable integration remains the sole workflow engine. Identity enrichment and new authority stores must preserve current public claims/responses and APIs; internal app bindings are not extra fields promised by GET /v1/identity.

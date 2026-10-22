@@ -10,7 +10,7 @@ An application can use Identity/SSO, the Gateway, structured records, opaque obj
 
 In the proposed capability-enabled path, an application also publishes explicitly described operations or consumes operations published by other authorized applications. A composition links those operations after platform checks. This path builds on the foundational Cores and their authorization boundaries.
 
-HTTP APIs are the interoperability boundary. Future language-specific SDKs can improve usability, but must remain optional. A machine-readable Rosetta OpenAPI contract and SDKs are planned; the current contract is [CORE_API.md](CORE_API.md).
+HTTP APIs are the interoperability boundary. Future language-specific SDKs can improve usability, but must remain optional. A [design-only extension contract](CAPABILITY_EXTENSIONS_V1.md) and [OpenAPI draft](contracts/capability-api-v1.openapi.json) specify proposed APIs; no extension endpoints are implemented. A complete foundational OpenAPI contract and optional SDKs remain planned; current working APIs are described in [CORE_API.md](CORE_API.md).
 
 ## Ownership and architectural boundaries
 
@@ -86,3 +86,5 @@ The implemented scope is the five-Core Layer-1 foundation, with source tests, re
 Docker Compose is the initial self-hosting strategy. A VPS and public domain are future operational choices; no Kubernetes or OpenStack work is planned in this scope. Public deployment needs an approved target, TLS, secret management, full-platform recovery and rollback verification. Current limits are documented in [OPERATIONS.md](OPERATIONS.md).
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for current service boundaries and [INTEGRATION_ROADMAP.md](INTEGRATION_ROADMAP.md) for foundational acceptance criteria. The README's [development roadmap](../README.md#development-roadmap) connects that foundation to the proposed product direction.
+
+The [Capability v1 design](CAPABILITY_EXTENSIONS_V1.md) now makes concrete proposed choices for the model above. Its [trust/execution rules](CAPABILITY_TRUST_EXECUTION_V1.md) and [acceptance gates](CAPABILITY_ACCEPTANCE_V1.md) require review before runtime work; their publication is not implementation approval.

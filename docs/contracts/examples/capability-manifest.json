@@ -1,0 +1,58 @@
+{
+  "manifestVersion": "1.0",
+  "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+  "providerAppId": "11111111-1111-4111-8111-111111111111",
+  "version": "1.0.0",
+  "title": "Technical echo",
+  "description": "Technical interoperability fixture; returns the supplied value without domain rules.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "value": {
+        "type": "string",
+        "maxLength": 512
+      }
+    },
+    "required": [
+      "value"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "value": {
+        "type": "string",
+        "maxLength": 512
+      }
+    },
+    "required": [
+      "value"
+    ],
+    "additionalProperties": false
+  },
+  "invocation": {
+    "protocol": "http-json",
+    "method": "POST",
+    "path": "/capabilities/echo",
+    "mediaType": "application/json"
+  },
+  "requiredPermissions": [
+    "urn:rosetta:permission:11111111-1111-4111-8111-111111111111:invoke"
+  ],
+  "sideEffects": {
+    "kind": "none",
+    "description": "No persistent or external effects.",
+    "idempotency": "none"
+  },
+  "timeoutMs": 1000,
+  "preconditions": {
+    "approval": "none",
+    "platform": [
+      "caller-active",
+      "provider-active",
+      "grant-active",
+      "same-tenant"
+    ]
+  }
+}

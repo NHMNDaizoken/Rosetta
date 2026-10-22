@@ -13,7 +13,7 @@ for the limits of this local recovery evidence.
 a process-liveness contract and must not silently become an aggregate readiness
 check when services are added.
 
-The requested next scope is all five Core capabilities and cross-core tests.
+The five foundational capabilities and cross-core verification are implemented. The current follow-up scope is the [Capability v1 design](CAPABILITY_EXTENSIONS_V1.md), with documentation/contracts only and no new runtime modules.
 The maintainer has approved original source under Apache-2.0 with attribution
 2026 Rosetta Contributors and authorized public source publication to the
 authenticated account's `Rosetta` repository on `main`. New integration

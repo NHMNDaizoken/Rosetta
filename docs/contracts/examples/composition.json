@@ -1,0 +1,57 @@
+{
+  "compositionFormat": "1.0",
+  "name": "Technical echo pipeline",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "value": {
+        "type": "string",
+        "maxLength": 512
+      }
+    },
+    "required": [
+      "value"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "value": {
+        "type": "string",
+        "maxLength": 512
+      }
+    },
+    "required": [
+      "value"
+    ],
+    "additionalProperties": false
+  },
+  "deadlineMs": 5000,
+  "steps": [
+    {
+      "stepId": "first",
+      "capability": {
+        "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+        "version": "1.0.0",
+        "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+      },
+      "input": {
+        "source": "composition-input"
+      }
+    },
+    {
+      "stepId": "second",
+      "capability": {
+        "capabilityId": "urn:rosetta:capability:22222222-2222-4222-8222-222222222222:echo",
+        "version": "1.0.0",
+        "manifestDigest": "sha256:575109294c1a1166404a7a7c902e95878e321c3dee290b762182f0769c22bc85"
+      },
+      "input": {
+        "source": "step-output",
+        "stepId": "first"
+      }
+    }
+  ]
+}

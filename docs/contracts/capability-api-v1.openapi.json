@@ -1,0 +1,4983 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Rosetta Capability Extensions v1 - DESIGN ONLY",
+    "version": "1.0.0-draft",
+    "description": "Unimplemented proposal. Does not document or replace the five existing Core APIs. Version denotes a draft contract, not a software release. Original contract: Apache-2.0, Copyright 2026 Rosetta Contributors.",
+    "license": {
+      "name": "Apache License 2.0",
+      "identifier": "Apache-2.0"
+    }
+  },
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "x-rosetta-status": "design-only",
+  "servers": [
+    {
+      "url": "https://rosetta.example.invalid",
+      "description": "Reserved documentation host, not a deployment."
+    }
+  ],
+  "security": [
+    {
+      "oidcBearer": []
+    }
+  ],
+  "paths": {
+    "/v1/applications": {
+      "post": {
+        "operationId": "registerApplication",
+        "summary": "Request app registration",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "applications"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision for subsequent If-Match transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "applications.register"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/applications/{appId}": {
+      "get": {
+        "operationId": "getApplication",
+        "summary": "Read an owned/admin-visible application",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "applications"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/applications/{appId}/approve": {
+      "post": {
+        "operationId": "approveApplication",
+        "summary": "Activate separately approved pending registration",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "applications"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "applications.approve"
+        ],
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalUse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/applications/{appId}/state": {
+      "post": {
+        "operationId": "transitionApplication",
+        "summary": "Suspend, separately approve reactivation, or revoke",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "applications"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "applications.approve"
+        ],
+        "parameters": [
+          {
+            "name": "appId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationTransition"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capabilities": {
+      "get": {
+        "operationId": "discoverCapabilities",
+        "summary": "Discover only exact published versions with an active discover grant",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capabilities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 100
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          }
+        ]
+      }
+    },
+    "/v1/capabilities/{capabilityId}/versions": {
+      "post": {
+        "operationId": "registerCapabilityVersion",
+        "summary": "Register a provider-owned draft version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capabilities"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision for subsequent If-Match transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "capabilities.write"
+        ],
+        "parameters": [
+          {
+            "name": "capabilityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Manifest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capabilities/{capabilityId}/versions/{version}": {
+      "get": {
+        "operationId": "getCapabilityVersion",
+        "summary": "Read an authorized exact capability version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capabilities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "capabilityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityId"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "replaceCapabilityDraft",
+        "summary": "Replace a draft; published versions are immutable",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capabilities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "capabilities.write"
+        ],
+        "parameters": [
+          {
+            "name": "capabilityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityId"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Manifest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capabilities/{capabilityId}/versions/{version}/validate": {
+      "post": {
+        "operationId": "validateCapabilityVersion",
+        "summary": "Validate exact capability version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capabilities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationReport"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "capabilities.write"
+        ],
+        "parameters": [
+          {
+            "name": "capabilityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityId"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capabilities/{capabilityId}/versions/{version}/publish": {
+      "post": {
+        "operationId": "publishCapabilityVersion",
+        "summary": "Publish exact capability version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capabilities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "capabilities.publish"
+        ],
+        "parameters": [
+          {
+            "name": "capabilityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityId"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalUse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capabilities/{capabilityId}/versions/{version}/deprecate": {
+      "post": {
+        "operationId": "deprecateCapabilityVersion",
+        "summary": "Deprecate exact capability version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capabilities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "capabilities.write"
+        ],
+        "parameters": [
+          {
+            "name": "capabilityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityId"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capabilities/{capabilityId}/versions/{version}/revoke": {
+      "post": {
+        "operationId": "revokeCapabilityVersion",
+        "summary": "Revoke exact capability version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capabilities"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "capabilities.write"
+        ],
+        "parameters": [
+          {
+            "name": "capabilityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityId"
+            }
+          },
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/trust/grants": {
+      "post": {
+        "operationId": "proposeTrustGrant",
+        "summary": "Provider-owner proposal; separate admin activation required",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "trust"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Grant"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision for subsequent If-Match transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "trust.write"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrantCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/trust/grants/{grantId}": {
+      "get": {
+        "operationId": "getTrustGrant",
+        "summary": "Read an authorized tenant grant",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "trust"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Grant"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "grantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/trust/grants/{grantId}/activate": {
+      "post": {
+        "operationId": "activateTrustGrant",
+        "summary": "Activate a grant",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "trust"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Grant"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "trust.approve"
+        ],
+        "parameters": [
+          {
+            "name": "grantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalUse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/trust/grants/{grantId}/revoke": {
+      "post": {
+        "operationId": "revokeTrustGrant",
+        "summary": "Revoke a grant",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "trust"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Grant"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "trust.write"
+        ],
+        "parameters": [
+          {
+            "name": "grantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/approvals": {
+      "post": {
+        "operationId": "decideApproval",
+        "summary": "Create an immutable independent tenant-admin approval/denial",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "approvals"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Approval"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision for subsequent If-Match transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "trust.approve"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/approvals/{approvalId}/revoke": {
+      "post": {
+        "operationId": "revokeApproval",
+        "summary": "Reduce authority of an existing approval",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "approvals"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Approval"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "trust.approve"
+        ],
+        "parameters": [
+          {
+            "name": "approvalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delegations": {
+      "post": {
+        "operationId": "createDelegation",
+        "summary": "Human subject creates a narrowed one-hop delegation",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "delegations"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Delegation"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision for subsequent If-Match transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DelegationCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delegations/{delegationId}/revoke": {
+      "post": {
+        "operationId": "revokeDelegation",
+        "summary": "Revoke own or administratively controlled delegation",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "delegations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Delegation"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "delegationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/delegations/{delegationId}/reauthorize": {
+      "post": {
+        "operationId": "reauthorizeDelegation",
+        "summary": "Original human refreshes memory proof without extending immutable scope/expiry",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "delegations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Delegation"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "delegationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/compositions": {
+      "post": {
+        "operationId": "registerComposition",
+        "summary": "Create a new caller-app-owned composition and draft version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "compositions"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompositionVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision for subsequent If-Match transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "compositions.write"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Composition"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/compositions/{compositionId}/versions": {
+      "post": {
+        "operationId": "registerCompositionVersion",
+        "summary": "Add a new draft to an owned composition",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "compositions"
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompositionVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision for subsequent If-Match transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "compositions.write"
+        ],
+        "parameters": [
+          {
+            "name": "compositionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Composition"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/compositions/{compositionId}/versions/{version}": {
+      "get": {
+        "operationId": "getCompositionVersion",
+        "summary": "Read an authorized exact composition version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "compositions"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompositionVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "compositionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ]
+      },
+      "put": {
+        "operationId": "replaceCompositionDraft",
+        "summary": "Replace only a draft with matching revision",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "compositions"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompositionVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "compositions.write"
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "compositionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Composition"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/compositions/{compositionId}/versions/{version}/validate": {
+      "post": {
+        "operationId": "validateCompositionVersion",
+        "summary": "Validate a composition version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "compositions"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationReport"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "compositions.write"
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "compositionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/compositions/{compositionId}/versions/{version}/publish": {
+      "post": {
+        "operationId": "publishCompositionVersion",
+        "summary": "Publish a composition version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "compositions"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompositionVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "compositions.publish"
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "compositionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalUse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/compositions/{compositionId}/versions/{version}/deprecate": {
+      "post": {
+        "operationId": "deprecateCompositionVersion",
+        "summary": "Deprecate a composition version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "compositions"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompositionVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "compositions.write"
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "compositionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/compositions/{compositionId}/versions/{version}/revoke": {
+      "post": {
+        "operationId": "revokeCompositionVersion",
+        "summary": "Revoke a composition version",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "compositions"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompositionVersion"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "compositions.write"
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+            }
+          },
+          {
+            "name": "compositionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capability-executions": {
+      "post": {
+        "operationId": "createCapabilityExecution",
+        "summary": "Accept one pinned capability or composition execution",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capability-executions"
+        ],
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Execution"
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Relative execution resource URL"
+              }
+            }
+          },
+          "200": {
+            "description": "Authorized replay of existing execution",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Execution"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecutionCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capability-executions/{executionId}": {
+      "get": {
+        "operationId": "getCapabilityExecution",
+        "summary": "Read an authorized execution without exposing engine internals",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capability-executions"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Execution"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "executionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/capability-executions/{executionId}/cancel": {
+      "post": {
+        "operationId": "cancelCapabilityExecution",
+        "summary": "Request stop; never imply rollback of dispatched effects",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capability-executions"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Execution"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "executionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capability-executions/{executionId}/resume": {
+      "post": {
+        "operationId": "resumeCapabilityExecution",
+        "summary": "Original initiator supplies fresh OIDC proof within the existing deadline",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capability-executions"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Execution"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "executionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Empty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capability-authorizations/introspect": {
+      "post": {
+        "operationId": "redeemProviderAuthorization",
+        "summary": "Enrolled provider redeems one opaque input-bound ticket",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "capability-authorizations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TicketResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketRedeem"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/audit-events": {
+      "get": {
+        "operationId": "listCapabilityAuditEvents",
+        "summary": "Read tenant-scoped audit events under explicit audit authority",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "audit-events"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "audit.read"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 100
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "maxLength": 1024
+            }
+          }
+        ]
+      }
+    },
+    "/v1/approvals/{approvalId}": {
+      "get": {
+        "operationId": "getApproval",
+        "summary": "Read an authorized approval",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "approvals"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Approval"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "approvalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/delegations/{delegationId}": {
+      "get": {
+        "operationId": "getDelegation",
+        "summary": "Read an authorized delegation",
+        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "tags": [
+          "delegations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Delegation"
+                }
+              }
+            },
+            "headers": {
+              "ETag": {
+                "description": "Opaque resource revision; supply exact value in If-Match for transitions.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableContent"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-rosetta-required-permissions": [
+          "live-resource-policy"
+        ],
+        "parameters": [
+          {
+            "name": "delegationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "oidcBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "OIDC access token with rosetta-core audience; live introspection and explicit tenant/app/grant checks"
+      }
+    },
+    "schemas": {
+      "Uuid": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      },
+      "Digest": {
+        "type": "string",
+        "pattern": "^sha256:[0-9a-f]{64}$"
+      },
+      "Version": {
+        "type": "string",
+        "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+      },
+      "CapabilityRef": {
+        "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef"
+      },
+      "Manifest": {
+        "$ref": "./capability-manifest-v1.schema.json"
+      },
+      "Composition": {
+        "$ref": "./composition-v1.schema.json"
+      },
+      "Empty": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      },
+      "ApprovalUse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "approvalId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          }
+        },
+        "required": [
+          "approvalId"
+        ]
+      },
+      "Reason": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "error": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "requestId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "code": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                }
+              },
+              "required": [
+                "path",
+                "code"
+              ]
+            },
+            "minItems": 0,
+            "maxItems": 100,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "error",
+          "requestId"
+        ]
+      },
+      "ApplicationCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "oauthClientId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "providerOrigin": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://[^/?#@]+$",
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "displayName",
+          "oauthClientId",
+          "providerOrigin"
+        ]
+      },
+      "Application": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "appId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "tenantId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "oauthClientId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "providerOrigin": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "active",
+              "suspended",
+              "revoked"
+            ]
+          },
+          "ownerSubject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "appId",
+          "tenantId",
+          "displayName",
+          "oauthClientId",
+          "providerOrigin",
+          "state",
+          "ownerSubject",
+          "revision",
+          "digest"
+        ]
+      },
+      "ApplicationTransition": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "suspend",
+              "reactivate",
+              "revoke"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "approvalId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          }
+        },
+        "required": [
+          "action",
+          "reason"
+        ]
+      },
+      "CapabilityVersion": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "manifest": {
+            "$ref": "#/components/schemas/Manifest"
+          },
+          "state": {
+            "enum": [
+              "draft",
+              "published",
+              "deprecated",
+              "revoked"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "manifest",
+          "state",
+          "revision",
+          "digest"
+        ]
+      },
+      "CompositionVersion": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "compositionId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "ownerAppId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "composition": {
+            "$ref": "#/components/schemas/Composition"
+          },
+          "state": {
+            "enum": [
+              "draft",
+              "published",
+              "deprecated",
+              "revoked"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "compositionId",
+          "ownerAppId",
+          "composition",
+          "state",
+          "revision",
+          "digest"
+        ]
+      },
+      "Issue": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "path",
+          "code",
+          "message"
+        ]
+      },
+      "ValidationReport": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "status": {
+            "enum": [
+              "valid",
+              "invalid",
+              "indeterminate"
+            ]
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "policyRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            },
+            "minItems": 0,
+            "maxItems": 256,
+            "uniqueItems": true
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                "to": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 32
+                },
+                "status": {
+                  "enum": [
+                    "compatible",
+                    "incompatible",
+                    "indeterminate"
+                  ]
+                },
+                "issues": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Issue"
+                  },
+                  "minItems": 0,
+                  "maxItems": 256,
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "from",
+                "to",
+                "status",
+                "issues"
+              ]
+            },
+            "minItems": 0,
+            "maxItems": 17,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "status",
+          "digest",
+          "revision",
+          "policyRevision",
+          "issues",
+          "edges"
+        ]
+      },
+      "CapabilityPage": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CapabilityVersion"
+            },
+            "minItems": 0,
+            "maxItems": 100,
+            "uniqueItems": true
+          },
+          "nextCursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "GrantCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "providerAppId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "consumerAppId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef"
+            },
+            "minItems": 1,
+            "maxItems": 16,
+            "uniqueItems": true
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "discover",
+                "invoke"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 2,
+            "uniqueItems": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^urn:rosetta:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "subjectIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "minItems": 1,
+            "maxItems": 100,
+            "uniqueItems": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "Z$"
+          },
+          "delegationAllowed": {
+            "type": "boolean"
+          },
+          "acceptDelegation": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "providerAppId",
+          "consumerAppId",
+          "capabilities",
+          "operations",
+          "permissions",
+          "subjectIds",
+          "expiresAt",
+          "delegationAllowed",
+          "acceptDelegation"
+        ]
+      },
+      "Grant": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "grantId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "tenantId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63
+          },
+          "proposal": {
+            "$ref": "#/components/schemas/GrantCreate"
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "active",
+              "expired",
+              "revoked"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "grantId",
+          "tenantId",
+          "proposal",
+          "state",
+          "revision",
+          "digest"
+        ]
+      },
+      "ApprovalCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "resourceType": {
+            "enum": [
+              "application",
+              "capability-version",
+              "grant",
+              "composition-version",
+              "invocation-request",
+              "composition-execution-request"
+            ]
+          },
+          "resourceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "resourceDigest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "resourceRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "requesterSubject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "requesterAppId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "inputDigest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "decision": {
+            "enum": [
+              "approve",
+              "deny"
+            ]
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "Z$"
+          }
+        },
+        "required": [
+          "resourceType",
+          "resourceId",
+          "resourceDigest",
+          "resourceRevision",
+          "requesterSubject",
+          "requesterAppId",
+          "decision",
+          "expiresAt"
+        ]
+      },
+      "Approval": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "approvalId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "tenantId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63
+          },
+          "decision": {
+            "$ref": "#/components/schemas/ApprovalCreate"
+          },
+          "state": {
+            "enum": [
+              "approved",
+              "denied",
+              "consumed",
+              "revoked",
+              "expired"
+            ]
+          },
+          "approverSubject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "approvalId",
+          "tenantId",
+          "decision",
+          "state",
+          "approverSubject",
+          "revision"
+        ]
+      },
+      "DelegationCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "receiverAppId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef"
+            },
+            "minItems": 1,
+            "maxItems": 16,
+            "uniqueItems": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^urn:rosetta:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "ttlSeconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300
+          }
+        },
+        "required": [
+          "receiverAppId",
+          "capabilities",
+          "permissions",
+          "ttlSeconds"
+        ]
+      },
+      "Delegation": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "delegationId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "tenantId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "originatingAppId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "receiverAppId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef"
+            },
+            "minItems": 1,
+            "maxItems": 16,
+            "uniqueItems": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^urn:rosetta:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "Z$"
+          },
+          "state": {
+            "enum": [
+              "active",
+              "revoked",
+              "expired"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "delegationId",
+          "tenantId",
+          "subject",
+          "originatingAppId",
+          "receiverAppId",
+          "capabilities",
+          "permissions",
+          "expiresAt",
+          "state",
+          "revision"
+        ]
+      },
+      "JsonValue": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "string",
+            "maxLength": 65536
+          },
+          {
+            "type": "array",
+            "maxItems": 1000,
+            "items": {
+              "$ref": "#/components/schemas/JsonValue"
+            }
+          },
+          {
+            "type": "object",
+            "maxProperties": 64,
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            }
+          }
+        ]
+      },
+      "ExecutionTarget": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "capability"
+              },
+              "capability": {
+                "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef"
+              }
+            },
+            "required": [
+              "kind",
+              "capability"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "composition"
+              },
+              "compositionId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+              },
+              "compositionDigest": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "kind",
+              "compositionId",
+              "version",
+              "compositionDigest"
+            ]
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind"
+        }
+      },
+      "ExecutionCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "target": {
+            "$ref": "#/components/schemas/ExecutionTarget"
+          },
+          "input": {
+            "$ref": "#/components/schemas/JsonValue"
+          },
+          "delegationId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "approvalId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          }
+        },
+        "required": [
+          "target",
+          "input"
+        ]
+      },
+      "Execution": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "executionId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "tenantId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63
+          },
+          "target": {
+            "$ref": "#/components/schemas/ExecutionTarget"
+          },
+          "state": {
+            "enum": [
+              "accepted",
+              "running",
+              "auth_required",
+              "succeeded",
+              "failed",
+              "cancelled",
+              "timed_out",
+              "outcome_unknown"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "Z$"
+          },
+          "deadlineAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "Z$"
+          },
+          "output": {
+            "$ref": "#/components/schemas/JsonValue"
+          },
+          "error": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "required": [
+          "executionId",
+          "tenantId",
+          "target",
+          "state",
+          "createdAt",
+          "deadlineAt",
+          "revision"
+        ]
+      },
+      "ProviderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "invocationId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "capability": {
+            "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef"
+          },
+          "input": {
+            "$ref": "#/components/schemas/JsonValue"
+          }
+        },
+        "required": [
+          "invocationId",
+          "capability",
+          "input"
+        ]
+      },
+      "ProviderSuccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "output": {
+            "$ref": "#/components/schemas/JsonValue"
+          }
+        },
+        "required": [
+          "output"
+        ]
+      },
+      "ProviderFailure": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "enum": [
+              "input_rejected",
+              "authorization_denied",
+              "precondition_failed",
+              "unavailable",
+              "internal_error"
+            ]
+          },
+          "effect": {
+            "enum": [
+              "none",
+              "committed",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "error",
+          "effect"
+        ]
+      },
+      "TicketRedeem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ticket": {
+            "type": "string",
+            "minLength": 43,
+            "maxLength": 256,
+            "writeOnly": true
+          },
+          "invocationId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "inputDigest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "ticket",
+          "invocationId",
+          "inputDigest"
+        ]
+      },
+      "CallerContext": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "tenantId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63
+          },
+          "issuer": {
+            "type": "string",
+            "format": "uri"
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "principalType": {
+            "enum": [
+              "user",
+              "service"
+            ]
+          },
+          "actorAppId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "initiatingSubject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "initiatingAppId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "executorSubject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "capability": {
+            "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef"
+          },
+          "invocationId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "inputDigest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^urn:rosetta:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "grantIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            },
+            "minItems": 1,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "approvalIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            },
+            "minItems": 0,
+            "maxItems": 32,
+            "uniqueItems": true
+          },
+          "delegationId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "executionId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "stepId": {
+            "type": "string",
+            "maxLength": 32
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3
+          }
+        },
+        "required": [
+          "tenantId",
+          "issuer",
+          "subject",
+          "principalType",
+          "actorAppId",
+          "initiatingSubject",
+          "initiatingAppId",
+          "executorSubject",
+          "capability",
+          "invocationId",
+          "inputDigest",
+          "permissions",
+          "grantIds",
+          "approvalIds",
+          "executionId",
+          "stepId",
+          "attempt"
+        ]
+      },
+      "TicketResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "active": {
+                "const": false
+              }
+            },
+            "required": [
+              "active"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "active": {
+                "const": true
+              },
+              "expiresAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "Z$"
+              },
+              "context": {
+                "$ref": "#/components/schemas/CallerContext"
+              }
+            },
+            "required": [
+              "active",
+              "expiresAt",
+              "context"
+            ]
+          }
+        ]
+      },
+      "AuditEvent": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "tenantId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "Z$"
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "requestId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "actorAppId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "actorSubject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "resourceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "resourceDigest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "decision": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "executionId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "stepId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "policyRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "issuer": {
+            "type": "string",
+            "format": "uri"
+          },
+          "authorityRevisions": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "id",
+                "revision"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                "id": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "eventId",
+          "tenantId",
+          "timestamp",
+          "type",
+          "requestId",
+          "actorAppId",
+          "actorSubject",
+          "subject",
+          "resourceId",
+          "decision",
+          "reason",
+          "policyRevision",
+          "issuer",
+          "authorityRevisions"
+        ]
+      },
+      "AuditPage": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditEvent"
+            },
+            "minItems": 0,
+            "maxItems": 100,
+            "uniqueItems": true
+          },
+          "nextCursor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "required": [
+          "items"
+        ]
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "PreconditionFailed": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ContentTooLarge": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "UnsupportedMediaType": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "UnprocessableContent": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "PreconditionRequired": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Delay in seconds"
+          }
+        }
+      },
+      "Unavailable": {
+        "description": "Sanitized error; see specification for policy and state conditions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "description": "Optional delay in seconds; not permission to replay unsafe operations.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Normative design draft and mandatory semantic/security checks",
+    "url": "https://github.com/NHMNDaizoken/Rosetta/blob/main/docs/CAPABILITY_EXTENSIONS_V1.md"
+  },
+  "tags": [
+    {
+      "name": "applications"
+    },
+    {
+      "name": "approvals"
+    },
+    {
+      "name": "audit-events"
+    },
+    {
+      "name": "capabilities"
+    },
+    {
+      "name": "capability-authorizations"
+    },
+    {
+      "name": "capability-executions"
+    },
+    {
+      "name": "compositions"
+    },
+    {
+      "name": "delegations"
+    },
+    {
+      "name": "trust"
+    }
+  ]
+}

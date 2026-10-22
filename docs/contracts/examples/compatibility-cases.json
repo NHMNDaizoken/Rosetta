@@ -1,0 +1,232 @@
+[
+  {
+    "id": "exact-object",
+    "producer": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "maxLength": 8
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "consumer": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "maxLength": 8
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "expected": "compatible"
+  },
+  {
+    "id": "integer-to-number",
+    "producer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "consumer": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "expected": "compatible"
+  },
+  {
+    "id": "number-to-integer",
+    "producer": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "consumer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "expected": "incompatible",
+    "witness": 0.5
+  },
+  {
+    "id": "string-too-wide",
+    "producer": {
+      "type": "string",
+      "maxLength": 8
+    },
+    "consumer": {
+      "type": "string",
+      "maxLength": 3
+    },
+    "expected": "incompatible",
+    "witness": "four"
+  },
+  {
+    "id": "required-not-guaranteed",
+    "producer": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "maxLength": 8
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "consumer": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "maxLength": 8
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "expected": "incompatible",
+    "witness": {}
+  },
+  {
+    "id": "possible-extra-property",
+    "producer": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "maxLength": 8
+        },
+        "extra": {
+          "type": "string",
+          "maxLength": 8
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "consumer": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "maxLength": 8
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "expected": "incompatible",
+    "witness": {
+      "value": "x",
+      "extra": "y"
+    }
+  },
+  {
+    "id": "no-coercion",
+    "producer": {
+      "type": "string",
+      "maxLength": 8
+    },
+    "consumer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "expected": "incompatible",
+    "witness": "1"
+  },
+  {
+    "id": "null-not-string",
+    "producer": {
+      "type": "null"
+    },
+    "consumer": {
+      "type": "string",
+      "maxLength": 8
+    },
+    "expected": "incompatible",
+    "witness": null
+  },
+  {
+    "id": "array-bound",
+    "producer": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 2
+      },
+      "maxItems": 3
+    },
+    "consumer": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 2
+      },
+      "maxItems": 1
+    },
+    "expected": "incompatible",
+    "witness": [
+      "a",
+      "b"
+    ]
+  },
+  {
+    "id": "narrower-string",
+    "producer": {
+      "type": "string",
+      "maxLength": 3
+    },
+    "consumer": {
+      "type": "string",
+      "maxLength": 8
+    },
+    "expected": "compatible"
+  },
+  {
+    "id": "semantic-meaning-unproven",
+    "producer": {
+      "type": "string",
+      "maxLength": 8,
+      "description": "Unit A"
+    },
+    "consumer": {
+      "type": "string",
+      "maxLength": 8,
+      "description": "Unit B"
+    },
+    "expected": "compatible",
+    "note": "Structural result only; descriptions do not establish semantic equivalence."
+  },
+  {
+    "id": "unsupported-pattern",
+    "producer": {
+      "type": "string",
+      "maxLength": 8,
+      "pattern": "^a$"
+    },
+    "consumer": {
+      "type": "string",
+      "maxLength": 8
+    },
+    "expected": "rejected-profile",
+    "note": "Not a publishable v1 producer; must never be treated as compatible."
+  }
+]

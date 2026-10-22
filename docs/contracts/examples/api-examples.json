@@ -1,0 +1,182 @@
+{
+  "applicationRequest": {
+    "schema": "ApplicationCreate",
+    "value": {
+      "displayName": "Technical provider A",
+      "oauthClientId": "provider-a",
+      "providerOrigin": "https://provider-a.example.invalid"
+    }
+  },
+  "applicationResponse": {
+    "schema": "Application",
+    "value": {
+      "appId": "11111111-1111-4111-8111-111111111111",
+      "tenantId": "tenant-a",
+      "displayName": "Technical provider A",
+      "oauthClientId": "provider-a",
+      "providerOrigin": "https://provider-a.example.invalid",
+      "state": "pending",
+      "ownerSubject": "synthetic-owner",
+      "revision": 1,
+      "digest": "sha256:73d1512ef505518ea2341f2351e4c2f49faf63f43dbb7d343b74c1bdba4f59e4"
+    }
+  },
+  "grantRequest": {
+    "schema": "GrantCreate",
+    "value": {
+      "providerAppId": "11111111-1111-4111-8111-111111111111",
+      "consumerAppId": "22222222-2222-4222-8222-222222222222",
+      "capabilities": [
+        {
+          "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+          "version": "1.0.0",
+          "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+        }
+      ],
+      "operations": [
+        "discover",
+        "invoke"
+      ],
+      "permissions": [
+        "urn:rosetta:permission:11111111-1111-4111-8111-111111111111:invoke"
+      ],
+      "subjectIds": [
+        "synthetic-user"
+      ],
+      "expiresAt": "2026-12-01T00:00:00Z",
+      "delegationAllowed": true,
+      "acceptDelegation": true
+    }
+  },
+  "delegationRequest": {
+    "schema": "DelegationCreate",
+    "value": {
+      "receiverAppId": "22222222-2222-4222-8222-222222222222",
+      "capabilities": [
+        {
+          "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+          "version": "1.0.0",
+          "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+        }
+      ],
+      "permissions": [
+        "urn:rosetta:permission:11111111-1111-4111-8111-111111111111:invoke"
+      ],
+      "ttlSeconds": 60
+    }
+  },
+  "approvalRequest": {
+    "schema": "ApprovalCreate",
+    "value": {
+      "resourceType": "capability-version",
+      "resourceId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+      "resourceDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd",
+      "resourceRevision": 1,
+      "requesterSubject": "synthetic-owner",
+      "requesterAppId": "11111111-1111-4111-8111-111111111111",
+      "decision": "approve",
+      "expiresAt": "2026-12-01T00:00:00Z"
+    }
+  },
+  "executionRequest": {
+    "schema": "ExecutionCreate",
+    "value": {
+      "target": {
+        "kind": "capability",
+        "capability": {
+          "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+          "version": "1.0.0",
+          "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+        }
+      },
+      "input": {
+        "value": "technical-fixture"
+      }
+    }
+  },
+  "compositionExecutionRequest": {
+    "schema": "ExecutionCreate",
+    "value": {
+      "target": {
+        "kind": "composition",
+        "compositionId": "33333333-3333-4333-8333-333333333333",
+        "version": "1.0.0",
+        "compositionDigest": "sha256:9210b05f103265e8011a560a28ae8fd72b05bd51a4cc87cdf06ba2d98ff360cd"
+      },
+      "input": {
+        "value": "technical-fixture"
+      }
+    }
+  },
+  "executionResponse": {
+    "schema": "Execution",
+    "value": {
+      "executionId": "33333333-3333-4333-8333-333333333333",
+      "tenantId": "tenant-a",
+      "target": {
+        "kind": "capability",
+        "capability": {
+          "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+          "version": "1.0.0",
+          "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+        }
+      },
+      "state": "accepted",
+      "createdAt": "2026-10-22T00:00:00Z",
+      "deadlineAt": "2026-10-22T00:00:01Z",
+      "revision": 1
+    }
+  },
+  "validationResponse": {
+    "schema": "ValidationReport",
+    "value": {
+      "status": "valid",
+      "digest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd",
+      "revision": 1,
+      "policyRevision": 1,
+      "issues": [],
+      "edges": []
+    }
+  },
+  "providerRequest": {
+    "schema": "ProviderRequest",
+    "value": {
+      "invocationId": "33333333-3333-4333-8333-333333333333",
+      "capability": {
+        "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+        "version": "1.0.0",
+        "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+      },
+      "input": {
+        "value": "technical-fixture"
+      }
+    }
+  },
+  "providerResponse": {
+    "schema": "ProviderSuccess",
+    "value": {
+      "output": {
+        "value": "technical-fixture"
+      }
+    }
+  },
+  "deniedTicketResponse": {
+    "schema": "TicketResult",
+    "value": {
+      "active": false
+    }
+  },
+  "errorResponse": {
+    "schema": "Error",
+    "value": {
+      "error": "approval_required",
+      "requestId": "33333333-3333-4333-8333-333333333333",
+      "details": [
+        {
+          "path": "/approvalId",
+          "code": "missing_approval"
+        }
+      ]
+    }
+  }
+}

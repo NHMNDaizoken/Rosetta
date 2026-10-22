@@ -40,3 +40,7 @@ The review above establishes source provenance, selected edition and the current
 configuration-only hosting model. It is not a claim that every transitive binary
 package has passed a redistribution or vulnerability audit. Rosetta does not
 strip upstream license material, republish images or change their licensing.
+
+## Contract-validation tooling
+
+The Capability v1 documentation was checked using the already installed Python 3.14.3 environment ([PSF terms and bundled notices](https://docs.python.org/3/license.html)), jsonschema 4.23.0 ([MIT](https://github.com/python-jsonschema/jsonschema/blob/v4.23.0/COPYING)), [referencing 0.37.0](https://pypi.org/project/referencing/0.37.0/), [attrs 25.4.0](https://pypi.org/project/attrs/25.4.0/), [rpds-py 0.30.0](https://pypi.org/project/rpds-py/0.30.0/) and [jsonschema-specifications 2025.9.1](https://pypi.org/project/jsonschema-specifications/2025.9.1/) (each reports MIT in its installed distribution metadata). These are host validation tools, not new Rosetta runtime/package dependencies, vendored sources or shipped binaries. No packages were installed for this task. Preserve each upstream distribution license if these tools are later bundled. The official OpenAPI validation schema was fetched into memory from its standards publisher, not copied into Rosetta.

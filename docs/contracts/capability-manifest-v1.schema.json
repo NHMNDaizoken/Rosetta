@@ -1,0 +1,421 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "SPDX-FileCopyrightText: 2026 Rosetta Contributors; SPDX-License-Identifier: Apache-2.0. Design-only contract; no runtime routes.",
+  "title": "Capability Manifest v1 (design draft)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "manifestVersion": {
+      "const": "1.0"
+    },
+    "capabilityId": {
+      "type": "string",
+      "pattern": "^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+    },
+    "providerAppId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048
+    },
+    "inputSchema": {
+      "$ref": "#/$defs/PayloadSchema"
+    },
+    "outputSchema": {
+      "$ref": "#/$defs/PayloadSchema"
+    },
+    "invocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "protocol": {
+          "const": "http-json"
+        },
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "type": "string",
+          "maxLength": 256,
+          "pattern": "^/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*$"
+        },
+        "mediaType": {
+          "const": "application/json"
+        }
+      },
+      "required": [
+        "protocol",
+        "method",
+        "path",
+        "mediaType"
+      ]
+    },
+    "requiredPermissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^urn:rosetta:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+      },
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true
+    },
+    "sideEffects": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "none",
+                "non-idempotent"
+              ]
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "idempotency": {
+              "const": "none"
+            }
+          },
+          "required": [
+            "kind",
+            "description",
+            "idempotency"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "idempotent"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "idempotency": {
+              "const": "provider-key"
+            }
+          },
+          "required": [
+            "kind",
+            "description",
+            "idempotency"
+          ]
+        }
+      ]
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 10000
+    },
+    "preconditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "approval": {
+          "enum": [
+            "none",
+            "tenant-admin"
+          ]
+        },
+        "platform": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "caller-active",
+              "provider-active",
+              "grant-active",
+              "same-tenant"
+            ]
+          },
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "approval",
+        "platform"
+      ]
+    }
+  },
+  "required": [
+    "manifestVersion",
+    "capabilityId",
+    "providerAppId",
+    "version",
+    "title",
+    "description",
+    "inputSchema",
+    "outputSchema",
+    "invocation",
+    "requiredPermissions",
+    "sideEffects",
+    "timeoutMs",
+    "preconditions"
+  ],
+  "$defs": {
+    "Uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "CapabilityId": {
+      "type": "string",
+      "pattern": "^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+    },
+    "PermissionId": {
+      "type": "string",
+      "pattern": "^urn:rosetta:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+    },
+    "Version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+    },
+    "Digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "PayloadSchema": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "object"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "properties": {
+              "type": "object",
+              "maxProperties": 64,
+              "propertyNames": {
+                "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+              },
+              "additionalProperties": {
+                "$ref": "#/$defs/PayloadSchema"
+              }
+            },
+            "required": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+              },
+              "minItems": 0,
+              "maxItems": 64,
+              "uniqueItems": true
+            },
+            "additionalProperties": {
+              "const": false
+            }
+          },
+          "required": [
+            "type",
+            "properties",
+            "required",
+            "additionalProperties"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "array"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "items": {
+              "$ref": "#/$defs/PayloadSchema"
+            },
+            "minItems": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            },
+            "maxItems": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            }
+          },
+          "required": [
+            "type",
+            "items",
+            "maxItems"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "string"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "minLength": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 65536
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 65536
+            }
+          },
+          "required": [
+            "type",
+            "maxLength"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "integer"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "minimum": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "maximum": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "type",
+            "minimum",
+            "maximum"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "number"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "minimum": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            },
+            "maximum": {
+              "type": "number",
+              "minimum": -1e+100,
+              "maximum": 1e+100
+            }
+          },
+          "required": [
+            "type",
+            "minimum",
+            "maximum"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "boolean"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "null"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "CapabilityRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "capabilityId": {
+          "type": "string",
+          "pattern": "^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+        },
+        "manifestDigest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "capabilityId",
+        "version",
+        "manifestDigest"
+      ]
+    }
+  }
+}

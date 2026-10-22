@@ -108,7 +108,7 @@ Composition coordinates capabilities; the Workflow Engine remains responsible fo
 
 Current clients use HTTP, JSON, OIDC and opaque binary uploads. They can use their language's HTTP and authentication libraries without adopting the Core's Node.js runtime or accessing provider databases directly.
 
-[CORE_API.md](docs/CORE_API.md) is the current human-readable contract. A Rosetta OpenAPI specification, contract conformance checks and language-specific SDKs are planned. No Rosetta SDK package or generated OpenAPI document is shipped today. Future SDKs should wrap public APIs and remain optional for interoperability.
+[CORE_API.md](docs/CORE_API.md) is the current human-readable contract for working services. A [design-only extension OpenAPI draft](docs/contracts/capability-api-v1.openapi.json) now specifies proposed capability APIs; those endpoints are not implemented and this draft does not describe the five existing Core APIs. A complete foundational OpenAPI contract, runtime conformance checks and optional language-specific SDKs remain planned. Future SDKs should wrap public APIs and remain optional for interoperability.
 
 ## Illustrative cross-application use case
 
@@ -131,7 +131,7 @@ This example is illustrative. Neither application nor its capabilities is includ
 | Structured-data restore | Isolated `pg_dump`/`pg_restore` test implemented. | Restored data and tenant RLS verified; full-platform disaster recovery remains unverified. |
 | CI and source licensing | GitHub Actions and approved Apache-2.0 project licensing in place. | CI runs source/unit/container/integration/restore checks; binary redistribution and vulnerability audits remain separate work. |
 | Four capability extensions and composition | Proposed. | Review contracts, deterministic validation, trust/delegation and execution semantics before coding. |
-| OpenAPI and optional SDKs | Planned. | Formalize and test contracts before generating clients. |
+| OpenAPI and optional SDKs | Extension design draft available; foundational OpenAPI and SDKs planned. | Review the proposed contracts and prove runtime conformance before generating clients. |
 | Layer-2 GUI and optional AI planning | Future work; no implementation here. | Build separately against public contracts; an AI integration needs its own approved scope. |
 | VPS/public-domain deployment | Future operational work. | Approve a target and verify TLS, secrets, backups and rollback. No public demo is configured. |
 
@@ -279,6 +279,8 @@ Original Rosetta source and documentation are licensed under [Apache License 2.0
 ## Documentation and self-hosting
 
 - [Project vision](docs/PROJECT_VISION.md): capability model, proposed Cores and open design decisions.
+- [Capability extensions v1](docs/CAPABILITY_EXTENSIONS_V1.md): draft manifests, lifecycle, ownership and compatibility, with linked trust/execution and OpenAPI contracts.
+- [Capability acceptance criteria](docs/CAPABILITY_ACCEPTANCE_V1.md): negative cases, validation recipe and implementation approval gates.
 - [Architecture](docs/ARCHITECTURE.md): Layer boundaries, current providers and isolation.
 - [Core API contracts](docs/CORE_API.md): routes, permissions, payloads and retry semantics.
 - [Local operations](docs/OPERATIONS.md): startup, persistence, migrations and recovery limits.
