@@ -1,5 +1,7 @@
 # Capability trust, composition and execution v1
 
+Implementation update: [runtime review and application subset](CAPABILITY_RUNTIME_REVIEW_V1.md) supersedes the original design-only status for Application Registration and application-only approvals. All other extension runtimes remain unimplemented.
+
 Status: **design draft, not implemented**. Read [the manifest/lifecycle specification](CAPABILITY_EXTENSIONS_V1.md) first. Structural request/response models are in the [OpenAPI draft](contracts/capability-api-v1.openapi.json). All examples are synthetic technical fixtures. None of these routes is added to the current server by this task.
 
 ## Identity, caller context and authority

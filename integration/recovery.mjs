@@ -28,9 +28,13 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
   const sourceClaim = "SET ROLE rosetta_api; SELECT set_config('request.jwt.claims','{\"tenant_id\":\"tenant-a\"}',false);";
   let target;
   let seeded = false;
+  let applicationSeeded = false;
   try {
     await sourceSql(`${sourceClaim} INSERT INTO core.records(id,collection,data) VALUES ('${id}','recovery_fixture','{"fixture":"backup"}');`);
     seeded = true;
+    await sourceSql(`INSERT INTO app_private.applications(tenant_id,app_id,issuer,oauth_client_id,owner_subject,provider_origin,display_name,digest)
+      VALUES('tenant-a','${id}','https://recovery.example.invalid','restore-${id}','restore-${id}','https://recovery.example.invalid','Isolated restore fixture','sha256:${"0".repeat(64)}');`);
+    applicationSeeded = true;
     const started = await docker(["run", "--detach", "--rm", "--name", `rosetta-restore-${randomBytes(6).toString("hex")}`,
       "--network", "none", "--tmpfs", "/var/lib/postgresql/data:rw", "--env", "POSTGRES_USER=rosetta_admin",
       "--env", "POSTGRES_PASSWORD", image], { env: { ...process.env, POSTGRES_PASSWORD: randomBytes(32).toString("hex") } });
@@ -47,7 +51,7 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     }
     assert.ok(ready, "Isolated PostgreSQL completed initialization");
     await docker(["exec", target, "createdb", "-U", "rosetta_admin", "recovered"]);
-    await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-c", "CREATE ROLE rosetta_api NOLOGIN NOBYPASSRLS;"]);
+    await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-c", "CREATE ROLE rosetta_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_owner NOLOGIN NOBYPASSRLS;"]);
     const dump = spawn("docker", ["compose", "exec", "-T", "database", "pg_dump", "-U", "rosetta_admin", "--format=custom", "rosetta_data"], { stdio: ["ignore", "pipe", "pipe"] });
     const restore = spawn("docker", ["exec", "-i", target, "pg_restore", "-U", "rosetta_admin", "--exit-on-error", "--dbname=recovered"], { stdio: ["pipe", "ignore", "pipe"] });
     const dumpCode = closeCode(dump);
@@ -62,8 +66,18 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
       const result = await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-Atc", sql]);
       assert.equal(result.stdout.trim().split(/\r?\n/).at(-1), expected, `Restored RLS for ${tenant}`);
     }
+    for (const [tenant, expected] of [["tenant-a", "1"], ["tenant-b", "0"]]) {
+      const claims = `SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims','{"tenant_id":"${tenant}"}',false);`;
+      const result = await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-Atc",
+        `${claims} SELECT count(*) FROM app_private.applications WHERE app_id='${id}';`]);
+      assert.equal(result.stdout.trim().split(/\r?\n/).at(-1), expected, `Restored authority RLS for ${tenant}`);
+    }
+    const acl = await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-Atc",
+      "SELECT has_schema_privilege('rosetta_api','app_private','USAGE'),has_function_privilege('rosetta_api','core.application_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_app_api','core.application_command(text,jsonb)','EXECUTE');"]);
+    assert.equal(acl.stdout.trim(), "f|f|t", "Restore preserves isolated authority RPC grants");
   } finally {
     if (target && /^[0-9a-f]{64}$/.test(target)) await docker(["stop", target]);
+    if (applicationSeeded) await sourceSql(`DELETE FROM app_private.applications WHERE app_id='${id}' AND oauth_client_id='restore-${id}';`);
     if (seeded) await sourceSql(`${sourceClaim} DELETE FROM core.records WHERE id='${id}' AND collection='recovery_fixture';`);
   }
 });

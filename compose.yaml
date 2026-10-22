@@ -55,12 +55,13 @@ services:
   data-migrate:
     image: postgres:17-bookworm@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27
     entrypoint: [psql]
-    command: [-h, database, -U, rosetta_admin, -d, rosetta_data, -v, ON_ERROR_STOP=1, -f, /migrations/001-data.sql, -f, /migrations/002-workflow-requests.sql]
+    command: [-h, database, -U, rosetta_admin, -d, rosetta_data, -v, ON_ERROR_STOP=1, -f, /migrations/001-data.sql, -f, /migrations/002-workflow-requests.sql, -f, /migrations/003-applications.sql]
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD:?Run npm run setup first}
     volumes:
       - ./infra/postgres/001-data.sql:/migrations/001-data.sql:ro
       - ./infra/postgres/002-workflow-requests.sql:/migrations/002-workflow-requests.sql:ro
+      - ./infra/postgres/003-applications.sql:/migrations/003-applications.sql:ro
     depends_on:
       database:
         condition: service_healthy

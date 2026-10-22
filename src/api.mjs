@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
+import { randomUUID } from "node:crypto";
+import { handleApplications } from "./applications.mjs";
 import { createAuthorizer } from "./auth.mjs";
 import { HttpError, json } from "./http.mjs";
 import { dataRequest, handleData } from "./data.mjs";
@@ -20,6 +22,18 @@ export function createApi(config) {
         if (config.workflowUrl) await workflowRequest(config, "management/engine");
         return json(response, 200, { status: "ready" });
       } catch { throw new HttpError(503, "not_ready"); }
+    }
+    if (["/v1/applications", "/v1/approvals"].some(prefix => path === prefix || path?.startsWith(`${prefix}/`))) {
+      const requestId = randomUUID();
+      response.setHeader("X-Request-Id", requestId);
+      try {
+        const identity = await authorize(request, true);
+        return await handleApplications(request, response, identity, config, new URL(request.url, "http://core"));
+      } catch (error) {
+        if (error.status === 413) response.setHeader("Connection", "close");
+        return json(response, error instanceof HttpError ? error.status : 503,
+          { error: error instanceof HttpError ? error.message : "applications_unavailable", requestId });
+      }
     }
     if (path?.startsWith("/v1/data/")) {
       const identity = await authorize(request);

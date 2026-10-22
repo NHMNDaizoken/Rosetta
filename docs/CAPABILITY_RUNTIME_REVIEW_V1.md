@@ -53,6 +53,37 @@ Application authority uses the existing PostgreSQL/PostgREST integration, separa
 from `core.records` by SQL roles, private tables and a narrowly granted RPC. No
 additional service, framework, database driver or workflow engine is required.
 
+## Restricted compatibility proof contract
+
+The accepted profile remains the existing recursive grammar, not full JSON Schema.
+Before proof, reject unsupported keywords, inconsistent bounds, undeclared required
+keys, duplicate keys, invalid Unicode and excessive size/depth. Count at most 4096
+schema nodes and 10000 recursive proof comparisons per request; exhaustion returns
+indeterminate and cannot authorize publication. These limits are future resolver
+requirements, not code delivered in this increment.
+
+For validated producer P and consumer C:
+
+1. Match types, allowing only integer-to-number widening. Compare inclusive numeric
+   bounds or string length bounds directionally, with omitted length minima zero.
+2. For arrays compare permitted length intervals. If P.maxItems is zero, there is
+   no reachable element and no item-edge obligation; otherwise compare items.
+3. For closed objects require every C-required key in P.required, every possible
+   P property in C.properties, and recursively compare each possible property.
+   A missing optional producer property cannot be assumed absent when proving
+   compatibility. No projection, default injection or implicit transformation.
+4. A successful structural proof returns compatible. A failed sufficient proof
+   returns incompatible only with a concrete finite JSON witness that independently
+   validates against P and fails C, within wire/numeric limits. Otherwise return
+   indeterminate, including numeric representability/precision uncertainty. Never
+   label a failed proof itself as a counterexample. Empty arrays and optional
+   properties must be covered by these reachability/witness rules.
+
+This conservative algorithm may reject a valid composition as indeterminate; it
+must never claim safety by guessing. It proves structure only. Semantics, external
+effects, live permissions and availability require runtime checks. No implementation
+of the general validator, witness generator or resolver is included here.
+
 ## Application authority and enrollment
 
 The operator verifies each human subject through Keycloak administration (enabled

@@ -1,5 +1,7 @@
 # Capability v1 acceptance and negative cases
 
+Implementation update: [runtime review and application subset](CAPABILITY_RUNTIME_REVIEW_V1.md) supersedes the original design-only status for Application Registration and application-only approvals. All other extension runtimes remain unimplemented.
+
 Status: design/test specification only. Current runtime does not implement these cases. Read [manifest/lifecycle](CAPABILITY_EXTENSIONS_V1.md) and [trust/execution](CAPABILITY_TRUST_EXECUTION_V1.md), with the [OpenAPI draft](contracts/capability-api-v1.openapi.json). Structural contract validation in this task is not evidence that runtime authorization or composition works.
 
 ## Test layers and required evidence

@@ -14,6 +14,8 @@
     "test": "node --test",
     "healthcheck": "node scripts/check-health.mjs",
     "test:integration": "node --env-file=.env --test integration/core.mjs",
-    "test:recovery": "node --env-file=.env --test integration/recovery.mjs"
+    "test:recovery": "node --env-file=.env --test integration/recovery.mjs",
+    "test:applications": "node --env-file=.env --test integration/applications.mjs",
+    "test:flowable-worker": "node --test integration/flowable-worker.mjs"
   }
 }

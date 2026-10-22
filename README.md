@@ -108,7 +108,7 @@ Composition coordinates capabilities; the Workflow Engine remains responsible fo
 
 Current clients use HTTP, JSON, OIDC and opaque binary uploads. They can use their language's HTTP and authentication libraries without adopting the Core's Node.js runtime or accessing provider databases directly.
 
-[CORE_API.md](docs/CORE_API.md) is the current human-readable contract for working services. A [design-only extension OpenAPI draft](docs/contracts/capability-api-v1.openapi.json) now specifies proposed capability APIs; those endpoints are not implemented and this draft does not describe the five existing Core APIs. A complete foundational OpenAPI contract, runtime conformance checks and optional language-specific SDKs remain planned. Future SDKs should wrap public APIs and remain optional for interoperability.
+[CORE_API.md](docs/CORE_API.md) is the current human-readable contract for working services. The [extension OpenAPI contract](docs/contracts/capability-api-v1.openapi.json) implements Application Registration and application-only approvals; other capability endpoints remain design-only. It does not describe the five existing Core APIs. See [registration operations](docs/APPLICATION_REGISTRATION.md) for enrollment, migrations and verification. A complete foundational OpenAPI contract, runtime conformance checks and optional language-specific SDKs remain planned. Future SDKs should wrap public APIs and remain optional for interoperability.
 
 ## Illustrative cross-application use case
 

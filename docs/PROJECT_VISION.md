@@ -10,7 +10,7 @@ An application can use Identity/SSO, the Gateway, structured records, opaque obj
 
 In the proposed capability-enabled path, an application also publishes explicitly described operations or consumes operations published by other authorized applications. A composition links those operations after platform checks. This path builds on the foundational Cores and their authorization boundaries.
 
-HTTP APIs are the interoperability boundary. Future language-specific SDKs can improve usability, but must remain optional. A [design-only extension contract](CAPABILITY_EXTENSIONS_V1.md) and [OpenAPI draft](contracts/capability-api-v1.openapi.json) specify proposed APIs; no extension endpoints are implemented. A complete foundational OpenAPI contract and optional SDKs remain planned; current working APIs are described in [CORE_API.md](CORE_API.md).
+HTTP APIs are the interoperability boundary. Future language-specific SDKs can improve usability, but must remain optional. The [extension contract](CAPABILITY_EXTENSIONS_V1.md) and [OpenAPI](contracts/capability-api-v1.openapi.json) specify the capability direction. [Application Registration](APPLICATION_REGISTRATION.md) is the first implemented control-plane subset; registry, resolver and composition remain proposed. A complete foundational OpenAPI contract and optional SDKs remain planned; current working APIs are described in [CORE_API.md](CORE_API.md).
 
 ## Ownership and architectural boundaries
 

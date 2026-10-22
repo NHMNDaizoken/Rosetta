@@ -27,17 +27,17 @@ test("pinned Flowable external-worker REST supports locking, failure and complet
       assert.equal(jobs[0].tenantId,'tenant-b','tenantId in acquire body is NOT a filter');
       assert.equal((await (await acquire('review-two')).json()).length,0,'lock excludes concurrent acquisition');
       assert.equal((await call('/external-job-api/acquire/jobs/'+id+'/complete',{workerId:'wrong'})).status,403);
-      assert.equal((await call('/external-job-api/acquire/jobs/'+id+'/fail',{workerId:'review-one',retries:1,retryTimeout:'PT0S',errorMessage:'technical review'})).status,204);
+      assert.equal((await call('/external-job-api/acquire/jobs/'+id+'/complete',{workerId:'review-one',variables:[]})).status,204);
+      let finished=false; const deadline=Date.now()+20000; do { r=await call('/service/history/historic-process-instances/'+processId,undefined,'GET'); if((await r.json()).endTime){finished=true;break;} await new Promise(resolve=>setTimeout(resolve,500)); } while(Date.now()<deadline); assert.ok(finished,'completion eventually advances the engine');
       r=await call('/service/runtime/process-instances',{processDefinitionId:definition.id}); assert.equal(r.status,201); const second=(await r.json()).id;
       r=await acquire('review-three'); jobs=await r.json(); const next=jobs.find(job=>job.processInstanceId===second); assert.ok(next);
-      assert.equal((await call('/external-job-api/acquire/jobs/'+next.id+'/complete',{workerId:'review-three',variables:[]})).status,204);
-      let finished=false; const deadline=Date.now()+20000; do { r=await call('/service/history/historic-process-instances/'+second,undefined,'GET'); if((await r.json()).endTime){finished=true;break;} await new Promise(resolve=>setTimeout(resolve,500)); } while(Date.now()<deadline); assert.ok(finished,'completion eventually advances the engine');
+      assert.equal((await call('/external-job-api/acquire/jobs/'+next.id+'/fail',{workerId:'review-three',retries:1,retryTimeout:'PT0S',errorMessage:'technical review'})).status,204);
       console.log('acquire=200; exclusive lock verified; lock-expiry recovery timing unverified; wrong owner=403; fail/complete=204; tenant filter absent');
     } finally { if(deployment) { let cleanup; for(let n=0;n<5;n++){cleanup=await call('/service/repository/deployments/'+deployment+'?cascade=true',undefined,'DELETE');if(cleanup.status===204)break;await new Promise(resolve=>setTimeout(resolve,500));} assert.equal(cleanup.status,204,await cleanup.text()); } }
   `;
   await new Promise((resolve, reject) => {
     const child=spawn('docker',['compose','exec','-T','core','node','--input-type=module','-'],{stdio:['pipe','pipe','pipe']});
     let output=''; child.stdout.on('data',chunk=>output+=chunk); child.stderr.on('data',chunk=>output+=chunk);
-    child.on('error',reject); child.on('close',code=>{ assert.equal(code,0,output); resolve(); }); child.stdin.end(script);
+    child.on('error',reject); child.on('close',code=>{ if(code!==0) reject(new Error(output)); else resolve(); }); child.stdin.end(script);
   });
 });

@@ -1,5 +1,7 @@
 # Capability-Driven Layer-1 extensions v1
 
+Implementation update: [runtime review and application subset](CAPABILITY_RUNTIME_REVIEW_V1.md) supersedes the original design-only status for Application Registration and application-only approvals. All other extension runtimes remain unimplemented.
+
 Status: **design draft for review; no extension runtime is implemented**. MUST/SHOULD describe the proposed v1 contract, not current server behavior. This task authorizes specification only. Existing [Core APIs](CORE_API.md), claims, migrations, images and tests retain their behavior; every new endpoint below is unimplemented and MUST NOT be advertised as available. This design follows the [project vision](PROJECT_VISION.md) and [architecture boundaries](ARCHITECTURE.md).
 
 ## Contract artifacts and reading order

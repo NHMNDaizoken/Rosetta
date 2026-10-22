@@ -3,14 +3,14 @@
   "info": {
     "title": "Rosetta Capability Extensions v1 - DESIGN ONLY",
     "version": "1.0.0-draft",
-    "description": "Unimplemented proposal. Does not document or replace the five existing Core APIs. Version denotes a draft contract, not a software release. Original contract: Apache-2.0, Copyright 2026 Rosetta Contributors.",
+    "description": "Capability-Driven Layer-1 contracts. Application Registration and application-only approvals are implemented for operator-enrolled humans. All other operations remain design-only and unavailable. See docs/CAPABILITY_RUNTIME_REVIEW_V1.md and docs/APPLICATION_REGISTRATION.md. Existing five-Core APIs remain unchanged.",
     "license": {
       "name": "Apache License 2.0",
       "identifier": "Apache-2.0"
     }
   },
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
-  "x-rosetta-status": "design-only",
+  "x-rosetta-status": "partially-implemented",
   "servers": [
     {
       "url": "https://rosetta.example.invalid",
@@ -27,7 +27,7 @@
       "post": {
         "operationId": "registerApplication",
         "summary": "Request app registration",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented for operator-enrolled human principals. Live server-owned tenant permissions and enrollment are required. Application approvals only; other resource types are not implemented. Errors from the gateway may use its standard representation. See CAPABILITY_RUNTIME_REVIEW_V1.md.",
         "tags": [
           "applications"
         ],
@@ -85,6 +85,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
         "x-rosetta-required-permissions": [
@@ -99,14 +102,15 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented"
       }
     },
     "/v1/applications/{appId}": {
       "get": {
         "operationId": "getApplication",
         "summary": "Read an owned/admin-visible application",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented for operator-enrolled human principals. Live server-owned tenant permissions and enrollment are required. Application approvals only; other resource types are not implemented. Errors from the gateway may use its standard representation. See CAPABILITY_RUNTIME_REVIEW_V1.md.",
         "tags": [
           "applications"
         ],
@@ -164,6 +168,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
         "x-rosetta-required-permissions": [
@@ -179,14 +186,15 @@
               "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
             }
           }
-        ]
+        ],
+        "x-rosetta-status": "implemented"
       }
     },
     "/v1/applications/{appId}/approve": {
       "post": {
         "operationId": "approveApplication",
         "summary": "Activate separately approved pending registration",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented for operator-enrolled human principals. Live server-owned tenant permissions and enrollment are required. Application approvals only; other resource types are not implemented. Errors from the gateway may use its standard representation. See CAPABILITY_RUNTIME_REVIEW_V1.md.",
         "tags": [
           "applications"
         ],
@@ -244,10 +252,14 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
         "x-rosetta-required-permissions": [
-          "applications.approve"
+          "applications.approve",
+          "trust.approve"
         ],
         "parameters": [
           {
@@ -278,14 +290,15 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented"
       }
     },
     "/v1/applications/{appId}/state": {
       "post": {
         "operationId": "transitionApplication",
         "summary": "Suspend, separately approve reactivation, or revoke",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented for operator-enrolled human principals. Live server-owned tenant permissions and enrollment are required. Application approvals only; other resource types are not implemented. Errors from the gateway may use its standard representation. See CAPABILITY_RUNTIME_REVIEW_V1.md. Reactivation additionally requires trust.approve, independent approver and a fresh approvalId. Other transitions reject approvalId.",
         "tags": [
           "applications"
         ],
@@ -343,6 +356,9 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
         "x-rosetta-required-permissions": [
@@ -377,7 +393,8 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented"
       }
     },
     "/v1/capabilities": {
@@ -1532,7 +1549,7 @@
       "post": {
         "operationId": "decideApproval",
         "summary": "Create an immutable independent tenant-admin approval/denial",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented for operator-enrolled human principals. Live server-owned tenant permissions and enrollment are required. Application approvals only; other resource types are not implemented. Errors from the gateway may use its standard representation. See CAPABILITY_RUNTIME_REVIEW_V1.md.",
         "tags": [
           "approvals"
         ],
@@ -1590,9 +1607,13 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
         "x-rosetta-required-permissions": [
+          "applications.approve",
           "trust.approve"
         ],
         "requestBody": {
@@ -1600,18 +1621,19 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApprovalCreate"
+                "$ref": "#/components/schemas/ApplicationApprovalCreate"
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-application-only"
       }
     },
     "/v1/approvals/{approvalId}/revoke": {
       "post": {
         "operationId": "revokeApproval",
         "summary": "Reduce authority of an existing approval",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented for operator-enrolled human principals. Live server-owned tenant permissions and enrollment are required. Application approvals only; other resource types are not implemented. Errors from the gateway may use its standard representation. See CAPABILITY_RUNTIME_REVIEW_V1.md.",
         "tags": [
           "approvals"
         ],
@@ -1669,9 +1691,13 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
         "x-rosetta-required-permissions": [
+          "applications.approve",
           "trust.approve"
         ],
         "parameters": [
@@ -1703,7 +1729,8 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-application-only"
       }
     },
     "/v1/delegations": {
@@ -3313,7 +3340,7 @@
       "get": {
         "operationId": "getApproval",
         "summary": "Read an authorized approval",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented for operator-enrolled human principals. Live server-owned tenant permissions and enrollment are required. Application approvals only; other resource types are not implemented. Errors from the gateway may use its standard representation. See CAPABILITY_RUNTIME_REVIEW_V1.md.",
         "tags": [
           "approvals"
         ],
@@ -3371,10 +3398,13 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
         "x-rosetta-required-permissions": [
-          "live-resource-policy"
+          "live-application-policy"
         ],
         "parameters": [
           {
@@ -3386,7 +3416,8 @@
               "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
             }
           }
-        ]
+        ],
+        "x-rosetta-status": "implemented-application-only"
       }
     },
     "/v1/delegations/{delegationId}": {
@@ -3692,6 +3723,29 @@
         "required": [
           "action",
           "reason"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "action": {
+                  "const": "reactivate"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "approvalId"
+              ]
+            },
+            "else": {
+              "not": {
+                "required": [
+                  "approvalId"
+                ]
+              }
+            }
+          }
         ]
       },
       "CapabilityVersion": {
@@ -4806,6 +4860,27 @@
         "required": [
           "items"
         ]
+      },
+      "ApplicationApprovalCreate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApprovalCreate"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "const": "application"
+              },
+              "resourceId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "inputDigest": false
+            }
+          }
+        ],
+        "description": "Implemented application-only decision. resourceId and requesterAppId must equal the stored appId; requesterSubject, digest and revision must match that app. expiresAt must be future UTC Z within ten minutes; approver must be independent."
       }
     },
     "responses": {

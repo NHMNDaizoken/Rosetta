@@ -154,4 +154,8 @@ version. Rosetta ledger changes use additive, versioned SQL migrations.
 
 ## Proposed capability APIs
 
-The [Capability v1 specification](CAPABILITY_EXTENSIONS_V1.md), [trust/execution rules](CAPABILITY_TRUST_EXECUTION_V1.md) and [OpenAPI draft](contracts/capability-api-v1.openapi.json) describe unimplemented future endpoints. The draft is not an OpenAPI description of these working foundation routes, and adds no claims, permissions or behavior to them. Approval of runtime changes, separate authority storage and real-service acceptance evidence is still required.
+The [Capability v1 specification](CAPABILITY_EXTENSIONS_V1.md), [trust/execution rules](CAPABILITY_TRUST_EXECUTION_V1.md) and [OpenAPI draft](contracts/capability-api-v1.openapi.json) describe the extension contracts. Application Registration and application-only approvals are the implemented subset below; registry, resolver and execution endpoints remain future work. This OpenAPI is not a description of the working foundation routes above and does not change their public claims or permissions.
+
+## Application Registration
+
+POST /v1/applications, GET /v1/applications/{appId}, POST /v1/applications/{appId}/approve and POST /v1/applications/{appId}/state are implemented with tenant-scoped operator enrollment and explicit permissions. The /v1/approvals create/get/revoke subset supports application resources only. See the [runtime review](CAPABILITY_RUNTIME_REVIEW_V1.md), [operator instructions](APPLICATION_REGISTRATION.md) and [OpenAPI](contracts/capability-api-v1.openapi.json) for the exact contract. These new routes return error plus requestId at Core; gateway denials retain their existing representation. No registry or capability execution endpoint is implemented.
