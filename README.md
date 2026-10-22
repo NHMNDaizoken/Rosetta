@@ -204,7 +204,7 @@ The identity includes `subject`, `tenantId: 'tenant-a'` and supported roles. Tok
 | `/v1/objects` and `/{uuid}` | Upload/read/delete opaque bytes; stable-UUID PUT supports retryable replacement, with a 1-byte to 5-MiB upload bound. |
 | `/v1/workflows/definitions` and `/v1/workflows/executions` | List operator-installed definitions; start with a UUID idempotency key, inspect, complete one active user task or cancel. |
 
-Reads require `core-reader`; writes also require `core-writer`. The Core derives tenant identity from verified provider claims, never caller-supplied tenant headers. Authentication failures and dependency outages fail closed. Detailed methods, payloads, status codes, limits and retry semantics are in [CORE_API.md](docs/CORE_API.md).
+Versioned `/v1` reads require `core-reader`; writes also require `core-writer`. OIDC discovery and the health/readiness probes are public. The Core derives tenant identity from verified provider claims, never caller-supplied tenant headers. Authentication failures and dependency outages fail closed. Detailed methods, payloads, status codes, limits and retry semantics are in [CORE_API.md](docs/CORE_API.md).
 
 ## Integration verification
 
