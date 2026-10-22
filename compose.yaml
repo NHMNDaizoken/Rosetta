@@ -137,6 +137,7 @@ services:
       DATA_URL: http://data:3000
       DATA_JWT_SECRET: ${DATA_JWT_SECRET:?Run npm run setup first}
       OBJECTS_URL: http://objects:8888
+      OBJECTS_MASTER_URL: http://objects:9333
       WORKFLOW_URL: http://workflow:8080/flowable-rest/service
       WORKFLOW_ADMIN_PASSWORD: ${WORKFLOW_ADMIN_PASSWORD:?Run npm run setup first}
     depends_on:

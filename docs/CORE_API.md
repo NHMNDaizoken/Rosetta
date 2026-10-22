@@ -10,6 +10,9 @@ deployment beyond the local environment.
 
 - `GET /health` and `HEAD /health`: existing process-liveness contract.
 - `GET /ready`: dependency-aware readiness, `200` or `503`; separate from liveness.
+  Checks OIDC discovery/issuer, an RLS-scoped data query, object filer metadata
+  plus a registered storage volume, and the authenticated workflow engine.
+  It does not prove every future operation or a complete disaster recovery.
 - `GET /v1/identity`: authenticated `{subject, tenantId, roles}`.
 - `/identity/realms/rosetta/.well-known/openid-configuration`: upstream Keycloak
   discovery. Use its standard OIDC authorization, token, refresh and logout APIs.
@@ -41,10 +44,12 @@ configuration, not caller input. Internal auth and service ports are unpublished
 ## Running the local checks
 
 `npm run setup` creates ignored random credentials and refuses to overwrite an
-existing file. `docker compose up --build --detach --wait --wait-timeout 180`
+existing file. `docker compose up --build --detach --wait --wait-timeout 240`
 starts real services. `npm run test:integration` verifies discovery, real token
 issuance, two tenant identities, spoofed-header denial and a complete PKCE
 authorization-code/login/logout flow using the upstream provider.
+It also interrupts/recreates local dependencies and verifies recovery. Run only
+against a local test stack, sequentially with `npm run test:recovery`.
 
 Keycloak imports the realm only into an empty database. Editing the JSON does
 not migrate an existing realm. Use reviewed administrator changes for an

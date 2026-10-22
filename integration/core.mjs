@@ -27,6 +27,17 @@ async function api(path, accessToken, options = {}) {
   });
 }
 
+const compose = (...args) => promisify(execFile)("docker", ["compose", ...args], { timeout: 180000 });
+
+async function waitReady() {
+  const deadline = Date.now() + 120000;
+  while (Date.now() < deadline) {
+    try { if ((await api("/ready")).status === 200) return; } catch { /* Wait for actual dependency recovery. */ }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  assert.fail("Core dependencies did not recover within 120 seconds");
+}
+
 before(async () => {
   tokenA = await token("tenant-a", process.env.TENANT_A_SECRET);
   tokenB = await token("tenant-b", process.env.TENANT_B_SECRET);
@@ -178,6 +189,12 @@ test("workflow engine enforces tenant ownership, durable idempotency, completion
   const instance = await created.json();
   assert.equal(instance.status, "running");
   assert.deepEqual(instance.input, body.input);
+  const tenantB = await start(tokenB, { definitionId: otherDefinition.id, input: {} });
+  assert.equal(tenantB.status, 201, "The same idempotency key is isolated between tenants");
+  const otherInstance = await tenantB.json();
+  assert.notEqual(instance.id, otherInstance.id);
+  assert.equal((await api(`/v1/workflows/executions/${encodeURIComponent(otherInstance.id)}`, tokenA)).status, 404);
+  assert.equal((await api(`/v1/workflows/executions/${encodeURIComponent(otherInstance.id)}`, tokenB, { method: "DELETE" })).status, 204);
   const path = `/v1/workflows/executions/${encodeURIComponent(instance.id)}`;
   assert.equal((await api(path, tokenB)).status, 404);
   assert.equal((await api(path, tokenB, { method: "DELETE" })).status, 404);
@@ -207,4 +224,66 @@ test("workflow engine enforces tenant ownership, durable idempotency, completion
   assert.equal((await api(cancelledPath, tokenA, { method: "DELETE" })).status, 204);
   assert.equal((await api(cancelledPath, tokenA, { method: "DELETE" })).status, 204);
   assert.equal((await (await api(cancelledPath, tokenA)).json()).status, "cancelled");
+});
+
+test("all five Cores preserve a technical fixture through dependency failure and container recreation", { timeout: 240000 }, async () => {
+  const objectId = randomUUID();
+  const bytes = Buffer.from(`rosetta-cross-core-${randomUUID()}`);
+  const checksum = createHash("sha256").update(bytes).digest("hex");
+  const upload = await api(`/v1/objects/${objectId}`, tokenA, { method: "PUT", headers: { "Content-Type": "application/octet-stream" }, body: bytes });
+  assert.equal(upload.status, 201);
+  const collection = `cross_${randomBytes(6).toString("hex")}`;
+  const saved = await api(`/v1/data/${collection}`, tokenA, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: { objectId, checksum } }) });
+  assert.equal(saved.status, 201);
+  const record = await saved.json();
+  const [definition] = (await (await api("/v1/workflows/definitions", tokenA)).json()).items;
+  const input = { recordId: record.id, objectId, checksum };
+  const started = await api("/v1/workflows/executions", tokenA, { method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID() },
+    body: JSON.stringify({ definitionId: definition.id, input }) });
+  assert.equal(started.status, 201);
+  const execution = await started.json();
+  const executionPath = `/v1/workflows/executions/${encodeURIComponent(execution.id)}`;
+  await compose("stop", "data", "objects", "workflow");
+  try {
+    assert.equal((await api("/health")).status, 200);
+    assert.equal((await api("/ready")).status, 503);
+    assert.equal((await api(`/v1/objects/${objectId}`, tokenA)).status, 503);
+    assert.equal((await api(executionPath, tokenA)).status, 503);
+  } finally {
+    await compose("restart", "database");
+    await compose("up", "--detach", "--no-deps", "--force-recreate", "data", "objects", "workflow");
+    await waitReady();
+  }
+  const loaded = await api(`/v1/data/${collection}/${record.id}`, tokenA);
+  assert.equal(loaded.status, 200);
+  assert.deepEqual((await loaded.json()).data, { objectId, checksum });
+  const download = await api(`/v1/objects/${objectId}`, tokenA);
+  assert.equal(download.status, 200);
+  assert.equal(createHash("sha256").update(Buffer.from(await download.arrayBuffer())).digest("hex"), checksum);
+  const resumed = await api(executionPath, tokenA);
+  assert.equal(resumed.status, 200);
+  assert.deepEqual((await resumed.json()).input, input);
+  const complete = await api(`${executionPath}/complete`, tokenA, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+  assert.equal(complete.status, 200);
+  assert.equal((await complete.json()).status, "completed");
+  assert.equal((await api(`/v1/data/${collection}/${record.id}`, tokenA, { method: "DELETE" })).status, 204);
+  assert.equal((await api(`/v1/objects/${objectId}`, tokenA, { method: "DELETE" })).status, 204);
+  await compose("up", "--detach", "--no-deps", "--force-recreate", "core");
+  await waitReady();
+  assert.equal((await api("/v1/identity", tokenA)).status, 200, "Gateway resolves the recreated Core without manual reload");
+});
+
+test("identity outage fails closed while process health remains accurate, then recovers", { timeout: 180000 }, async () => {
+  await compose("stop", "identity");
+  try {
+    assert.equal((await api("/health")).status, 200);
+    assert.equal((await api("/ready")).status, 503);
+    assert.equal((await api("/v1/identity", tokenA)).status, 503);
+  } finally {
+    await compose("start", "identity");
+    await waitReady();
+  }
+  tokenA = await token("tenant-a", process.env.TENANT_A_SECRET);
+  assert.equal((await api("/v1/identity", tokenA)).status, 200);
 });

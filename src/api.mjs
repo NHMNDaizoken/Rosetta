@@ -3,7 +3,7 @@
 import { createAuthorizer } from "./auth.mjs";
 import { HttpError, json } from "./http.mjs";
 import { dataRequest, handleData } from "./data.mjs";
-import { handleObjects } from "./objects.mjs";
+import { checkObjectReadiness, handleObjects } from "./objects.mjs";
 import { handleWorkflow } from "./workflow.mjs";
 import { workflowRequest } from "./workflow-client.mjs";
 
@@ -16,11 +16,7 @@ export function createApi(config) {
         const result = await fetch(`${config.identityUrl}/.well-known/openid-configuration`, { signal: AbortSignal.timeout(3000) });
         if (!result.ok || (await result.json()).issuer !== config.issuer) throw new Error("Identity not ready");
         if (config.dataUrl) await dataRequest(config, "readiness", new URLSearchParams({ select: "id", limit: "0" }));
-        if (config.objectsUrl) {
-          const objects = await fetch(`${config.objectsUrl}/?limit=0`, { signal: AbortSignal.timeout(3000) });
-          if (!objects.ok) throw new Error("Objects not ready");
-          await objects.arrayBuffer();
-        }
+        if (config.objectsUrl) await checkObjectReadiness(config);
         if (config.workflowUrl) await workflowRequest(config, "management/engine");
         return json(response, 200, { status: "ready" });
       } catch { throw new HttpError(503, "not_ready"); }

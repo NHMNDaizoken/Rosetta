@@ -12,9 +12,10 @@ let route;
 if (process.env.OIDC_ISSUER) {
   if (!process.env.CORE_CLIENT_SECRET || !process.env.IDENTITY_URL) throw new Error("Identity configuration is incomplete");
   if (process.env.DATA_URL && (!process.env.DATA_JWT_SECRET || process.env.DATA_JWT_SECRET.length < 32)) throw new Error("Data signing secret must contain at least 32 characters");
+  if (process.env.OBJECTS_URL && !process.env.OBJECTS_MASTER_URL) throw new Error("Object readiness configuration is incomplete");
   if (process.env.WORKFLOW_URL && !process.env.WORKFLOW_ADMIN_PASSWORD) throw new Error("Workflow configuration is incomplete");
   route = createApi({ issuer: process.env.OIDC_ISSUER, identityUrl: process.env.IDENTITY_URL, clientSecret: process.env.CORE_CLIENT_SECRET,
-    dataUrl: process.env.DATA_URL, dataSecret: process.env.DATA_JWT_SECRET, objectsUrl: process.env.OBJECTS_URL,
+    dataUrl: process.env.DATA_URL, dataSecret: process.env.DATA_JWT_SECRET, objectsUrl: process.env.OBJECTS_URL, objectsMasterUrl: process.env.OBJECTS_MASTER_URL,
     workflowUrl: process.env.WORKFLOW_URL, workflowPassword: process.env.WORKFLOW_ADMIN_PASSWORD });
 }
 const server = createHealthServer(route);

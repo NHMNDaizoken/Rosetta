@@ -13,6 +13,7 @@
     "check": "node scripts/check.mjs",
     "test": "node --test",
     "healthcheck": "node scripts/check-health.mjs",
-    "test:integration": "node --env-file=.env --test integration/core.mjs"
+    "test:integration": "node --env-file=.env --test integration/core.mjs",
+    "test:recovery": "node --env-file=.env --test integration/recovery.mjs"
   }
 }

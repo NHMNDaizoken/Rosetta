@@ -5,6 +5,19 @@ import { HttpError, json, readBody, requireWriter, uuidPattern } from "./http.mj
 
 const maxBytes = 5 * 1024 * 1024;
 
+export async function checkObjectReadiness(config, request = fetch) {
+  const filer = await request(`${config.objectsUrl}/?limit=0`, { signal: AbortSignal.timeout(3000), redirect: "error" });
+  if (!filer.ok) throw new Error("Filer not ready");
+  await filer.arrayBuffer();
+  const master = await request(`${config.objectsMasterUrl}/dir/status`, { signal: AbortSignal.timeout(3000), redirect: "error" });
+  if (!master.ok) throw new Error("Object master not ready");
+  const topology = (await master.json()).Topology;
+  // Filer metadata can respond before a restarted volume has registered.
+  if (!topology?.DataCenters?.some((center) => center.Racks?.some((rack) => rack.DataNodes?.some((node) => node.Max > 0)))) {
+    throw new Error("No object volume registered");
+  }
+}
+
 async function storage(config, tenantId, id, options = {}) {
   let response;
   try {
