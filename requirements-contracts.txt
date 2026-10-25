@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2026 Rosetta Contributors
+# SPDX-License-Identifier: Apache-2.0
+# Development/CI validation only; no production Python or npm dependency.
+jsonschema==4.23.0
+referencing==0.37.0
+attrs==25.4.0
+rpds-py==0.30.0
+jsonschema-specifications==2025.9.1
+typing-extensions==4.15.0; python_version < '3.13'

@@ -1,7 +1,11 @@
 # Layer 1 API contracts
 
+The implemented machine-readable source is
+[Foundation OpenAPI 3.1](contracts/foundation-api.openapi.json). See
+[validation, boundaries and tested HTTP examples](FOUNDATION_OPENAPI.md).
+
 All routes are reached through the local gateway at `PUBLIC_URL` (default
-`http://127.0.0.1:8080`). Versioned Core routes use `/v1`. This stack is a local
+`http://127.0.0.1:8080`). Versioned Core routes use `/v1` and `/v2`. This stack is a local
 foundation: HTTP is restricted to loopback, and no production deployment is
 configured. Configure TLS, trusted proxies and secrets before any approved
 deployment beyond the local environment.
@@ -167,4 +171,4 @@ The [Capability v1 specification](CAPABILITY_EXTENSIONS_V1.md), [trust/execution
 
 ## Application Registration
 
-POST /v1/applications, GET /v1/applications/{appId}, POST /v1/applications/{appId}/approve and POST /v1/applications/{appId}/state are implemented with tenant-scoped operator enrollment and explicit permissions. The /v1/approvals create/get/revoke subset supports application resources only. See the [runtime review](CAPABILITY_RUNTIME_REVIEW_V1.md), [operator instructions](APPLICATION_REGISTRATION.md) and [OpenAPI](contracts/capability-api-v1.openapi.json) for the exact contract. These new routes return error plus requestId at Core; gateway denials retain their existing representation. No registry or capability execution endpoint is implemented.
+POST /v1/applications, GET /v1/applications/{appId}, POST /v1/applications/{appId}/approve and POST /v1/applications/{appId}/state are implemented with tenant-scoped operator enrollment and explicit permissions. The /v1/approvals create/get/revoke subset supports application resources only. See the [runtime review](CAPABILITY_RUNTIME_REVIEW_V1.md), [operator instructions](APPLICATION_REGISTRATION.md) and [implemented Foundation OpenAPI](contracts/foundation-api.openapi.json) for the exact contract. These new routes return error plus requestId at Core; gateway denials retain their existing representation. No registry or capability execution endpoint is implemented.

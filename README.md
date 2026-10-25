@@ -108,7 +108,7 @@ Composition coordinates capabilities; the Workflow Engine remains responsible fo
 
 Current clients use HTTP, JSON, OIDC and opaque binary uploads. They can use their language's HTTP and authentication libraries without adopting the Core's Node.js runtime or accessing provider databases directly.
 
-[CORE_API.md](docs/CORE_API.md) is the current human-readable contract for working services. The [extension OpenAPI contract](docs/contracts/capability-api-v1.openapi.json) implements Application Registration and application-only approvals; other capability endpoints remain design-only. It does not describe the five existing Core APIs. See [registration operations](docs/APPLICATION_REGISTRATION.md) for enrollment, migrations and verification. A complete foundational OpenAPI contract, runtime conformance checks and optional language-specific SDKs remain planned. Future SDKs should wrap public APIs and remain optional for interoperability.
+[Foundation OpenAPI 3.1](docs/contracts/foundation-api.openapi.json) describes the implemented public APIs, including v1/v2 resources and registration. [Validation and tested HTTP examples](docs/FOUNDATION_OPENAPI.md) explain the 44-operation coverage, provider boundaries and development tools. [CORE_API.md](docs/CORE_API.md) remains the human-readable guide. The separate [Capability design contract](docs/contracts/capability-api-v1.openapi.json) includes proposed registry, resolver, trust and composition APIs; those runtimes remain unavailable. Optional SDKs are not implemented.
 
 ## Illustrative cross-application use case
 
@@ -131,7 +131,7 @@ This example is illustrative. Neither application nor its capabilities is includ
 | Structured-data restore | Isolated `pg_dump`/`pg_restore` test implemented. | Restored data and tenant RLS verified; full-platform disaster recovery remains unverified. |
 | CI and source licensing | GitHub Actions and approved Apache-2.0 project licensing in place. | CI runs source/unit/container/integration/restore checks; binary redistribution and vulnerability audits remain separate work. |
 | Four capability extensions and composition | Proposed. | Review contracts, deterministic validation, trust/delegation and execution semantics before coding. |
-| OpenAPI and optional SDKs | Extension design draft available; foundational OpenAPI and SDKs planned. | Review the proposed contracts and prove runtime conformance before generating clients. |
+| OpenAPI and optional SDKs | Implemented Foundation OpenAPI with structural and real HTTP conformance checks; separate Capability design draft. No SDK. | Keep route/schema/authorization coverage current before optional client generation. |
 | Layer-2 GUI and optional AI planning | Future work; no implementation here. | Build separately against public contracts; an AI integration needs its own approved scope. |
 | VPS/public-domain deployment | Future operational work. | Approve a target and verify TLS, secrets, backups and rollback. No public demo is configured. |
 
@@ -143,7 +143,7 @@ This example is illustrative. Neither application nor its capabilities is includ
 - Docker Engine with Linux containers and Docker Compose v2.20 or newer. On Windows, start Docker Desktop's Linux engine before running Compose.
 - Network access to fetch the pinned upstream images and sufficient local resources to run PostgreSQL, Keycloak, Flowable and the other services.
 
-There are no npm dependencies, package installation or transpilation steps. A VPS, public domain, Kubernetes and OpenStack are not required.
+The Core runtime has no npm dependencies, package installation or transpilation steps. Contract validation uses separate [Python development tools](docs/FOUNDATION_OPENAPI.md); they are not needed in production containers. A VPS, public domain, Kubernetes and OpenStack are not required.
 
 ### Start the local platform
 
@@ -215,6 +215,8 @@ With the local stack running, execute the suites sequentially:
 
 ```sh
 npm run check
+npm run check:contracts
+npm run test:contract-validator
 npm test
 npm run test:integration
 npm run test:applications
@@ -222,7 +224,7 @@ npm run test:flowable-worker
 npm run test:recovery
 ```
 
-The suite has 22 unit tests, 8 foundational integration tests, 12 registration/resource tests, 1 private-worker contract probe and 1 isolated PostgreSQL restore test. Real-service cases cover same-tenant app isolation, foreign tenants, spoofing, exact read shares, inactive apps, SQL role separation, real PKCE, workflow retries and persistence through service recreation. Restore verifies legacy tenant RLS and app-private RLS. These checks do not prove capability composition or full-platform disaster recovery.
+Install the pinned development tools with `python -m pip install -r requirements-contracts.txt` before contract/integration checks. The suite has 22 unit tests, 9 foundational integration tests, 13 registration/resource/example tests, 1 private-worker contract probe and 1 isolated PostgreSQL restore test. Real HTTP conformance requires positive coverage of all 44 implemented operations, plus negative responses from the existing isolation and failure cases. Restore verifies legacy tenant RLS and app-private RLS. These checks do not prove capability composition, exhaustive vendor behavior or full-platform disaster recovery.
 
 The integration suite intentionally interrupts local services, restarts PostgreSQL and recreates containers. Use a development/test stack without application traffic. The recovery suite restores into its own network-isolated temporary PostgreSQL; it does not restore over project data. These checks do not establish coordinated recovery of identity, objects and workflow databases.
 
@@ -264,7 +266,7 @@ Rosetta's adapters use Node.js 24 and its standard HTTP, crypto and test APIs, w
 | Workstream | Current position | Next acceptance evidence |
 | --- | --- | --- |
 | Foundational Core | Implemented and verified locally. | Maintain API/tenant regression checks and extend operational recovery evidence. |
-| Public contracts | Human-readable `/v1` contracts exist. | Add reviewed OpenAPI and compatibility/conformance tests before optional SDKs. |
+| Public contracts | Foundation OpenAPI covers implemented v1/v2 APIs with structural checks and real-service conformance. | Maintain observed operation coverage and review semantic/contract changes before optional SDKs. |
 | Capability publication and trust | Proposed Registry and Cross-App Trust Cores. | Agree versioning, ownership, visibility and invocation/delegation rules; prove denied cases. |
 | Verifiable composition | Proposed Resolver and Composition & Execution Cores. | Define supported checks and workflow bindings; test incompatible schemas, revoked permissions, retries and runtime failures. |
 | Independent Layer-2 products | No application is implemented. | Demonstrate an application using foundational APIs, then a separately reviewed cross-application capability scenario. |

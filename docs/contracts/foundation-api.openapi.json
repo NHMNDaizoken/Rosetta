@@ -1,0 +1,4868 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Rosetta implemented Foundation API",
+    "version": "1.0.0",
+    "license": {
+      "name": "Apache License 2.0",
+      "identifier": "Apache-2.0"
+    },
+    "description": "Machine-readable contract for implemented Core routes only, derived from source at the application-isolation milestone. Capability Registry, Resolver, Composition, delegation and provider dispatch remain separate design drafts. Reader/writer roles are not OAuth scopes. Tenant/app IDs in caller headers or JSON never supply authority. V2 is backend-only: bind an active registered app to verified tenant/issuer/client_id and operator-enrolled service-account subject. Layer-2 backends enforce human/domain decisions; no on-behalf-of delegation exists. Owner writes and exact expiring read shares are enforced at SQL/storage boundaries. App/owner suspension blocks subsequent v2 access, not already-authorized in-flight work. Workflow and explicitly allowlisted v1 resources remain tenant-scoped. See RESOURCE_AUTHORIZATION.md for migration, logical deletion and retained bytes."
+  },
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8080",
+      "description": "Local Compose only; substitute configured PUBLIC_URL. No public deployment is implied."
+    }
+  ],
+  "tags": [
+    {
+      "name": "process"
+    },
+    {
+      "name": "tenant"
+    },
+    {
+      "name": "legacy-tenant"
+    },
+    {
+      "name": "app-resource"
+    },
+    {
+      "name": "application-admin"
+    },
+    {
+      "name": "oidc-upstream"
+    }
+  ],
+  "x-rosetta-status": "implemented",
+  "x-rosetta-upstream-boundary": "/identity/ is a Keycloak passthrough. Only the documented protocol integration is standardized here; upstream admin/login-action/other protocol surfaces remain governed by the pinned provider, not advertised as Rosetta-owned APIs.",
+  "x-rosetta-routing-errors": "Unsupported methods are normally 405 on health, identity, data, objects, administration and existing workflow instance paths. /ready, workflow definition/execution collections and resource-share routes return 404 for unsupported methods. Authentication, writer checks or resource lookup may reject first. Invalid app/record/object paths can return 400. HEAD always has no wire body. Unknown public routes return 404; Gateway /v1,/v2 auth precedes lookup. Gateway auth errors may be HTML.",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Get health",
+        "description": "",
+        "tags": [
+          "process"
+        ],
+        "x-rosetta-query-policy": "ignored",
+        "x-rosetta-source": "src/health.mjs",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-test-suite": "core"
+      },
+      "head": {
+        "operationId": "headHealth",
+        "summary": "Head health",
+        "description": "",
+        "tags": [
+          "process"
+        ],
+        "x-rosetta-query-policy": "ignored",
+        "x-rosetta-source": "src/health.mjs",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "GET metadata with an empty body.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              },
+              "Content-Length": {
+                "$ref": "#/components/headers/ContentLength"
+              }
+            }
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "getReadiness",
+        "summary": "Get readiness",
+        "description": "Dependency check, not transaction success or full DR. Other methods return 404.",
+        "tags": [
+          "process"
+        ],
+        "x-rosetta-query-policy": "ignored",
+        "x-rosetta-source": "src/api.mjs",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ready"
+                }
+              }
+            }
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/v1/identity": {
+      "get": {
+        "operationId": "getIdentity",
+        "summary": "Get identity",
+        "description": "Verified subject, tenant and supported roles. No appId/delegated human fields are returned.",
+        "tags": [
+          "tenant"
+        ],
+        "x-rosetta-query-policy": "ignored",
+        "x-rosetta-source": "src/api.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Identity"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "tenant",
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/v1/data/{collection}": {
+      "get": {
+        "operationId": "v1ListRecords",
+        "summary": "V1 list records",
+        "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+        "tags": [
+          "legacy-tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/data.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "legacy-tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Collection"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "deprecated": true,
+        "x-rosetta-test-suite": "core"
+      },
+      "post": {
+        "operationId": "v1CreateRecord",
+        "summary": "V1 create record",
+        "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+        "tags": [
+          "legacy-tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/data.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "legacy-tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Collection"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordWrite"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "deprecated": true,
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/v1/data/{collection}/{id}": {
+      "get": {
+        "operationId": "v1GetRecord",
+        "summary": "V1 get record",
+        "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+        "tags": [
+          "legacy-tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/data.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "legacy-tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Collection"
+          },
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "deprecated": true,
+        "x-rosetta-test-suite": "core"
+      },
+      "patch": {
+        "operationId": "v1ReplaceRecordData",
+        "summary": "V1 replace record data",
+        "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+        "tags": [
+          "legacy-tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/data.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "legacy-tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Collection"
+          },
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordWrite"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "deprecated": true,
+        "x-rosetta-test-suite": "core"
+      },
+      "delete": {
+        "operationId": "v1DeleteRecord",
+        "summary": "V1 delete record",
+        "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+        "tags": [
+          "legacy-tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/data.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "legacy-tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Collection"
+          },
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "deprecated": true,
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/v1/objects": {
+      "post": {
+        "operationId": "v1UploadObject",
+        "summary": "V1 upload object",
+        "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V1 DELETE removes the legacy object.",
+        "tags": [
+          "legacy-tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/objects.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectReceipt"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "legacy-tenant",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 5242880,
+        "x-min-body-bytes": 1,
+        "deprecated": true,
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/v1/objects/{id}": {
+      "put": {
+        "operationId": "v1PutObject",
+        "summary": "V1 put object",
+        "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V1 DELETE removes the legacy object.",
+        "tags": [
+          "legacy-tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/objects.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectReceipt"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "200": {
+            "description": "Existing live object replaced",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectReceipt"
+                }
+              }
+            }
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "legacy-tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 5242880,
+        "x-min-body-bytes": 1,
+        "deprecated": true,
+        "x-rosetta-test-suite": "core"
+      },
+      "get": {
+        "operationId": "v1DownloadObject",
+        "summary": "V1 download object",
+        "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V1 DELETE removes the legacy object.",
+        "tags": [
+          "legacy-tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/objects.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              },
+              "Content-Disposition": {
+                "$ref": "#/components/headers/Attachment"
+              },
+              "Content-Length": {
+                "$ref": "#/components/headers/ContentLength"
+              }
+            },
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "legacy-tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "deprecated": true,
+        "x-rosetta-test-suite": "core"
+      },
+      "delete": {
+        "operationId": "v1DeleteObject",
+        "summary": "V1 delete object",
+        "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V1 DELETE removes the legacy object.",
+        "tags": [
+          "legacy-tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/objects.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "legacy-tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "deprecated": true,
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/v2/data/{collection}": {
+      "get": {
+        "operationId": "v2ListRecords",
+        "summary": "V2 list records",
+        "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/data.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecordList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Collection"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "x-rosetta-test-suite": "applications"
+      },
+      "post": {
+        "operationId": "v2CreateRecord",
+        "summary": "V2 create record",
+        "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/data.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Collection"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordWrite"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v2/data/{collection}/{id}": {
+      "get": {
+        "operationId": "v2GetRecord",
+        "summary": "V2 get record",
+        "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/data.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Collection"
+          },
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "x-rosetta-test-suite": "applications"
+      },
+      "patch": {
+        "operationId": "v2ReplaceRecordData",
+        "summary": "V2 replace record data",
+        "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/data.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Collection"
+          },
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordWrite"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-rosetta-test-suite": "applications"
+      },
+      "delete": {
+        "operationId": "v2DeleteRecord",
+        "summary": "V2 delete record",
+        "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/data.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Collection"
+          },
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v2/objects": {
+      "post": {
+        "operationId": "v2UploadObject",
+        "summary": "V2 upload object",
+        "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V2 DELETE tombstones permanently; bytes/old versions retained. PUT publishes immutable versions after DB reauthorization; concurrent owner PUTs use last publication. UUIDs are tenant-scoped, so a foreign tenant may create independent bytes at the same UUID.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/objects.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectReceipt"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 5242880,
+        "x-min-body-bytes": 1,
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v2/objects/{id}": {
+      "put": {
+        "operationId": "v2PutObject",
+        "summary": "V2 put object",
+        "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V2 DELETE tombstones permanently; bytes/old versions retained. PUT publishes immutable versions after DB reauthorization; concurrent owner PUTs use last publication. UUIDs are tenant-scoped, so a foreign tenant may create independent bytes at the same UUID.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/objects.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectReceipt"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "200": {
+            "description": "Existing live object replaced",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ObjectReceipt"
+                }
+              }
+            }
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 5242880,
+        "x-min-body-bytes": 1,
+        "x-rosetta-test-suite": "applications"
+      },
+      "get": {
+        "operationId": "v2DownloadObject",
+        "summary": "V2 download object",
+        "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V2 DELETE tombstones permanently; bytes/old versions retained. PUT publishes immutable versions after DB reauthorization; concurrent owner PUTs use last publication. UUIDs are tenant-scoped, so a foreign tenant may create independent bytes at the same UUID.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/objects.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              },
+              "Content-Disposition": {
+                "$ref": "#/components/headers/Attachment"
+              },
+              "Content-Length": {
+                "$ref": "#/components/headers/ContentLength"
+              }
+            },
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "x-rosetta-test-suite": "applications"
+      },
+      "delete": {
+        "operationId": "v2DeleteObject",
+        "summary": "V2 delete object",
+        "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V2 DELETE tombstones permanently; bytes/old versions retained. PUT publishes immutable versions after DB reauthorization; concurrent owner PUTs use last publication. UUIDs are tenant-scoped, so a foreign tenant may create independent bytes at the same UUID.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/objects.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v2/resource-shares": {
+      "post": {
+        "operationId": "createReadShare",
+        "summary": "Create read share",
+        "description": "Owner backend explicitly approves read of one live resource for a different active same-tenant app. No update/delete, resharing, wildcard or cross-tenant grant. Future object versions remain shared until expiry/revocation. Not a capability grant or human delegation.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/resources.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Share"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareCreate"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v2/resource-shares/{shareId}": {
+      "delete": {
+        "operationId": "revokeReadShare",
+        "summary": "Revoke read share",
+        "description": "Owning backend only. Repeat revocation returns 204; hidden IDs return 404. Unsupported methods return 404. Audit and revocation are atomic.",
+        "tags": [
+          "app-resource"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/resources.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "app-resource",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ShareId"
+          }
+        ],
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v1/applications": {
+      "post": {
+        "operationId": "createApplication",
+        "summary": "Create application",
+        "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Exact owner/client/origin enrollment required; duplicate client binding conflicts even after revocation. No POST retry guarantee.",
+        "tags": [
+          "application-admin"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/applications.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Location": {
+                "$ref": "#/components/headers/Location"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "application-admin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationCreate"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-rosetta-required-permissions": [
+          "applications.register"
+        ],
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v1/applications/{appId}": {
+      "get": {
+        "operationId": "getApplication",
+        "summary": "Get application",
+        "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Owner or independent administrator; foreign/unauthorized IDs hidden.",
+        "tags": [
+          "application-admin"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/applications.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "application-admin",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppId"
+          }
+        ],
+        "x-rosetta-required-permissions": [],
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v1/applications/{appId}/approve": {
+      "post": {
+        "operationId": "approveApplication",
+        "summary": "Approve application",
+        "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Different human approver; matching fresh approval is single-use and digest/revision bound. Same approver consumes it.",
+        "tags": [
+          "application-admin"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/applications.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "application-admin",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppId"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationApprove"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-rosetta-required-permissions": [
+          "applications.approve",
+          "trust.approve"
+        ],
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v1/applications/{appId}/state": {
+      "post": {
+        "operationId": "setApplicationState",
+        "summary": "Set application state",
+        "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Suspend, reactivate with a fresh independent trust approval, or terminally revoke. V2 access follows app state; clients are not disabled in Keycloak automatically. Legacy allowance is a separate permission.",
+        "tags": [
+          "application-admin"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/applications.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "application-admin",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppId"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplicationState"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-rosetta-required-permissions": [
+          "applications.approve"
+        ],
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v1/approvals": {
+      "post": {
+        "operationId": "createApplicationApproval",
+        "summary": "Create application approval",
+        "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Application resources only, never capability/composition approval. Independent human decision expires within ten minutes.",
+        "tags": [
+          "application-admin"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/applications.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              },
+              "Location": {
+                "$ref": "#/components/headers/Location"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Approval"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "application-admin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalCreate"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-rosetta-required-permissions": [
+          "applications.approve",
+          "trust.approve"
+        ],
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v1/approvals/{approvalId}": {
+      "get": {
+        "operationId": "getApplicationApproval",
+        "summary": "Get application approval",
+        "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Visible to application owner or administrator. Expired is a computed response state.",
+        "tags": [
+          "application-admin"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/applications.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Approval"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "application-admin",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApprovalId"
+          }
+        ],
+        "x-rosetta-required-permissions": [],
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v1/approvals/{approvalId}/revoke": {
+      "post": {
+        "operationId": "revokeApplicationApproval",
+        "summary": "Revoke application approval",
+        "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Deciding administrator may revoke an unconsumed decision. Does not undo a consumed activation.",
+        "tags": [
+          "application-admin"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/applications.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              },
+              "ETag": {
+                "$ref": "#/components/headers/ETag"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Approval"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/PreconditionFailed"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "application-admin",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApprovalId"
+          },
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeApproval"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-rosetta-required-permissions": [
+          "applications.approve",
+          "trust.approve"
+        ],
+        "x-rosetta-test-suite": "applications"
+      }
+    },
+    "/v1/workflows/definitions": {
+      "get": {
+        "operationId": "listWorkflowDefinitions",
+        "summary": "List workflow definitions",
+        "description": "Workflow resources remain TENANT scoped, not app-private. App suspension is not a workflow permission check. Keep private payloads out of tenant-visible variables. Up to 100 latest operator-installed definitions; no public deployment, cursor or offset.",
+        "tags": [
+          "tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/workflow.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowDefinitions"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "tenant",
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/v1/workflows/executions": {
+      "post": {
+        "operationId": "startWorkflow",
+        "summary": "Start workflow",
+        "description": "Workflow resources remain TENANT scoped, not app-private. App suspension is not a workflow permission check. Keep private payloads out of tenant-visible variables. UUID key reserves tenant/definition/canonical input. Identical replay returns 200, changed input 409. Uncertain start reconciles history or remains pending; never blindly starts again. Not exactly-once external effects. JSON wire limit 64 KiB and input depth at most 32.",
+        "tags": [
+          "tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/workflow.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowExecution"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "200": {
+            "description": "Existing idempotent execution replay",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowExecution"
+                }
+              }
+            }
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowStart"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/v1/workflows/executions/{executionId}": {
+      "get": {
+        "operationId": "getWorkflow",
+        "summary": "Get workflow",
+        "description": "Workflow resources remain TENANT scoped, not app-private. App suspension is not a workflow permission check. Keep private payloads out of tenant-visible variables. State from durable engine history.",
+        "tags": [
+          "tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/workflow.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowExecution"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader"
+        ],
+        "x-rosetta-authority": "tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ExecutionId"
+          }
+        ],
+        "x-rosetta-test-suite": "core"
+      },
+      "delete": {
+        "operationId": "cancelWorkflow",
+        "summary": "Cancel workflow",
+        "description": "Workflow resources remain TENANT scoped, not app-private. App suspension is not a workflow permission check. Keep private payloads out of tenant-visible variables. Repeated cancellation returns 204; completed execution returns 409. No rollback of external effects is implied.",
+        "tags": [
+          "tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/workflow.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ExecutionId"
+          }
+        ],
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/v1/workflows/executions/{executionId}/complete": {
+      "post": {
+        "operationId": "completeWorkflow",
+        "summary": "Complete workflow",
+        "description": "Workflow resources remain TENANT scoped, not app-private. App suspension is not a workflow permission check. Keep private payloads out of tenant-visible variables. Empty object only. Completes exactly one active user task. Already completed is replayed; cancelled or multiple active tasks conflict. No task-assignee/business approval policy is inferred.",
+        "tags": [
+          "tenant"
+        ],
+        "x-rosetta-query-policy": "closed",
+        "x-rosetta-source": "src/workflow.mjs",
+        "security": [
+          {
+            "coreBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/CacheControl"
+              },
+              "X-Content-Type-Options": {
+                "$ref": "#/components/headers/NoSniff"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowExecution"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/TooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMedia"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ],
+        "x-rosetta-authority": "tenant",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ExecutionId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmptyObject"
+              }
+            }
+          }
+        },
+        "x-max-body-bytes": 65536,
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/identity/realms/rosetta/.well-known/openid-configuration": {
+      "get": {
+        "operationId": "getOidcDiscovery",
+        "summary": "Get oidc discovery",
+        "description": "Public discovery; issuer follows PUBLIC_URL. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+        "tags": [
+          "oidc-upstream"
+        ],
+        "x-rosetta-query-policy": "upstream",
+        "x-rosetta-source": "infra/nginx/default.conf",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcDiscovery"
+                }
+              }
+            }
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "400": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-rosetta-upstream": "Keycloak 26.8.1",
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/identity/realms/rosetta/protocol/openid-connect/auth": {
+      "get": {
+        "operationId": "authorizeOidc",
+        "summary": "Authorize oidc",
+        "description": "Browser authorization-code flow with S256 PKCE for rosetta-local. Local callback is exactly http://127.0.0.1:9876/callback. Do not embed backend secrets in browsers. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+        "tags": [
+          "oidc-upstream"
+        ],
+        "x-rosetta-query-policy": "upstream",
+        "x-rosetta-source": "infra/nginx/default.conf",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Provider login/consent HTML.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "400": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "Authorization redirect.",
+            "headers": {
+              "Location": {
+                "$ref": "#/components/headers/Location"
+              }
+            }
+          }
+        },
+        "x-rosetta-upstream": "Keycloak 26.8.1",
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "response_type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nonce",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code_challenge_method",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/identity/realms/rosetta/protocol/openid-connect/token": {
+      "post": {
+        "operationId": "issueOidcToken",
+        "summary": "Issue oidc token",
+        "description": "Existing client_credentials, authorization_code + PKCE and refresh_token integration. Never log the returned tokens. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+        "tags": [
+          "oidc-upstream"
+        ],
+        "x-rosetta-query-policy": "upstream",
+        "x-rosetta-source": "infra/nginx/default.conf",
+        "security": [
+          {},
+          {
+            "clientSecretBasic": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcTokens"
+                }
+              }
+            }
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "400": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/OidcTokenRequest"
+              }
+            }
+          }
+        },
+        "x-rosetta-upstream": "Keycloak 26.8.1",
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/identity/realms/rosetta/protocol/openid-connect/certs": {
+      "get": {
+        "operationId": "getOidcKeys",
+        "summary": "Get oidc keys",
+        "description": " Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+        "tags": [
+          "oidc-upstream"
+        ],
+        "x-rosetta-query-policy": "upstream",
+        "x-rosetta-source": "infra/nginx/default.conf",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Jwks"
+                }
+              }
+            }
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "400": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-rosetta-upstream": "Keycloak 26.8.1",
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/identity/realms/rosetta/protocol/openid-connect/userinfo": {
+      "get": {
+        "operationId": "getOidcUserInfo",
+        "summary": "Get oidc user info",
+        "description": " Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+        "tags": [
+          "oidc-upstream"
+        ],
+        "x-rosetta-query-policy": "upstream",
+        "x-rosetta-source": "infra/nginx/default.conf",
+        "security": [
+          {
+            "oidcUserToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "400": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-rosetta-upstream": "Keycloak 26.8.1",
+        "x-rosetta-test-suite": "core"
+      },
+      "post": {
+        "operationId": "postOidcUserInfo",
+        "summary": "Post oidc user info",
+        "description": " Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+        "tags": [
+          "oidc-upstream"
+        ],
+        "x-rosetta-query-policy": "upstream",
+        "x-rosetta-source": "infra/nginx/default.conf",
+        "security": [
+          {
+            "oidcUserToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInfo"
+                }
+              }
+            }
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "400": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-rosetta-upstream": "Keycloak 26.8.1",
+        "x-rosetta-test-suite": "core"
+      }
+    },
+    "/identity/realms/rosetta/protocol/openid-connect/logout": {
+      "post": {
+        "operationId": "logoutOidc",
+        "summary": "Logout oidc",
+        "description": "Refresh-token logout used by the local PKCE fixture. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+        "tags": [
+          "oidc-upstream"
+        ],
+        "x-rosetta-query-policy": "upstream",
+        "x-rosetta-source": "infra/nginx/default.conf",
+        "security": [],
+        "responses": {
+          "204": {
+            "$ref": "#/components/responses/NoContent"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "400": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/OidcLogout"
+              }
+            }
+          }
+        },
+        "x-rosetta-upstream": "Keycloak 26.8.1",
+        "x-rosetta-test-suite": "core"
+      },
+      "get": {
+        "operationId": "browserLogoutOidc",
+        "summary": "Browser logout oidc",
+        "description": "Provider RP-initiated logout/confirmation, not a Core API session store. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+        "tags": [
+          "oidc-upstream"
+        ],
+        "x-rosetta-query-policy": "upstream",
+        "x-rosetta-source": "infra/nginx/default.conf",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Provider confirmation HTML.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          },
+          "400": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Provider protocol/client error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OidcError"
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "Provider post-logout redirect.",
+            "headers": {
+              "Location": {
+                "$ref": "#/components/headers/Location"
+              }
+            }
+          }
+        },
+        "x-rosetta-upstream": "Keycloak 26.8.1",
+        "parameters": [
+          {
+            "name": "id_token_hint",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "client_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "post_logout_redirect_uri",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-rosetta-test-suite": "core"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "coreBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "OIDC access token",
+        "description": "Live introspection, issuer/audience/expiry, tenant membership and core-reader; additional writer/admin/backend checks per operation."
+      },
+      "oidcUserToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Upstream user access token; client/scope policy belongs to Keycloak."
+      },
+      "clientSecretBasic": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Confidential OAuth client authentication; body client_secret_post is also provider-controlled."
+      }
+    },
+    "parameters": {
+      "Collection": {
+        "name": "collection",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        }
+      },
+      "Id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/Uuid"
+        }
+      },
+      "AppId": {
+        "name": "appId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/Uuid"
+        }
+      },
+      "ApprovalId": {
+        "name": "approvalId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/Uuid"
+        }
+      },
+      "ShareId": {
+        "name": "shareId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/Uuid"
+        }
+      },
+      "ExecutionId": {
+        "name": "executionId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9:_-]{1,128}$"
+        }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 100
+        },
+        "description": "No cursor/offset. Item GET validates this value but returns at most one row. Repeated limit uses its first value."
+      },
+      "IfMatch": {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/Uuid"
+        },
+        "description": "Tenant-scoped workflow key; identical definition/input returns existing execution, changed logical input conflicts."
+      }
+    },
+    "headers": {
+      "CacheControl": {
+        "description": "Core responses are not cacheable.",
+        "required": true,
+        "schema": {
+          "const": "no-store"
+        }
+      },
+      "NoSniff": {
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^nosniff(?:,\\s*nosniff)*$"
+        },
+        "description": "Current Gateway may append its nosniff value to the Core value; duplicate header values are preserved."
+      },
+      "ETag": {
+        "description": "Opaque strong revision tag. Send the exact value in If-Match; never construct it.",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "Location": {
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ContentLength": {
+        "description": "Byte length of the representation; HEAD sends no body.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        }
+      },
+      "Attachment": {
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^attachment; filename=\"[0-9a-f-]+\\.bin\"$"
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid path, query, JSON, schema, expiry or request framing.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          },
+          "text/html": {
+            "schema": {
+              "type": "string",
+              "description": "Existing Nginx HTML error representation; no JSON error code or requestId guaranteed."
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Missing, invalid, expired or inactive bearer token.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          },
+          "text/html": {
+            "schema": {
+              "type": "string",
+              "description": "Existing Nginx HTML error representation; no JSON error code or requestId guaranteed."
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Insufficient role/permission, missing legacy allowance, or missing/inactive backend binding.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          },
+          "text/html": {
+            "schema": {
+              "type": "string",
+              "description": "Existing Nginx HTML error representation; no JSON error code or requestId guaranteed."
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Missing or hidden foreign resource; no foreign existence disclosure.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "MethodNotAllowed": {
+        "description": "Unsupported method. Allow is present only where the current handler sets it.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Duplicate binding, stale/consumed approval, invalid lifecycle, workflow conflict or pending reconciliation.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "PreconditionFailed": {
+        "description": "If-Match revision mismatch.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "PreconditionRequired": {
+        "description": "Required If-Match absent.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "TooLarge": {
+        "description": "Core body limit or Gateway 10 MiB limit exceeded.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          },
+          "text/html": {
+            "schema": {
+              "type": "string",
+              "description": "Existing Nginx HTML error representation; no JSON error code or requestId guaranteed."
+            }
+          }
+        }
+      },
+      "UnsupportedMedia": {
+        "description": "Wrong request media type.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Gateway per-source /v1 and /v2 rate limit exceeded.",
+        "content": {
+          "text/html": {
+            "schema": {
+              "type": "string",
+              "description": "Existing Nginx HTML error representation; no JSON error code or requestId guaranteed."
+            }
+          }
+        }
+      },
+      "Unavailable": {
+        "description": "Identity or dependency unavailable; authorization fails closed. Uncertain writes are not blindly retried.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/ApplicationError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "BadGateway": {
+        "description": "Gateway cannot reach upstream.",
+        "content": {
+          "text/html": {
+            "schema": {
+              "type": "string",
+              "description": "Existing Nginx HTML error representation; no JSON error code or requestId guaranteed."
+            }
+          }
+        }
+      },
+      "GatewayTimeout": {
+        "description": "Gateway upstream timeout.",
+        "content": {
+          "text/html": {
+            "schema": {
+              "type": "string",
+              "description": "Existing Nginx HTML error representation; no JSON error code or requestId guaranteed."
+            }
+          }
+        }
+      },
+      "NoContent": {
+        "description": "Success; no response body."
+      }
+    },
+    "schemas": {
+      "Uuid": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      },
+      "TenantId": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]{0,62}$"
+      },
+      "JsonObject": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      },
+      "ApplicationError": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requestId": {
+            "$ref": "#/components/schemas/Uuid"
+          }
+        },
+        "required": [
+          "error",
+          "requestId"
+        ],
+        "additionalProperties": false
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "const": "rosetta-core"
+          },
+          "status": {
+            "const": "ok"
+          }
+        },
+        "required": [
+          "service",
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "Ready": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "const": "ready"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false
+      },
+      "Identity": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "core-reader",
+                "core-writer"
+              ]
+            },
+            "contains": {
+              "const": "core-reader"
+            }
+          }
+        },
+        "required": [
+          "subject",
+          "tenantId",
+          "roles"
+        ],
+        "additionalProperties": false
+      },
+      "RecordWrite": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/JsonObject"
+          }
+        },
+        "required": [
+          "data"
+        ],
+        "additionalProperties": false
+      },
+      "Record": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "collection": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+          },
+          "data": {
+            "$ref": "#/components/schemas/JsonObject"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "collection",
+          "data",
+          "created_at"
+        ],
+        "additionalProperties": false
+      },
+      "RecordList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Record"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "ObjectReceipt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5242880
+          }
+        },
+        "required": [
+          "id",
+          "size"
+        ],
+        "additionalProperties": false
+      },
+      "ApplicationCreate": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^(?!\\s*$)[^\\x00-\\x1f\\x7f]+$"
+          },
+          "oauthClientId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^(?!\\s*$)[^\\x00-\\x1f\\x7f]+$"
+          },
+          "providerOrigin": {
+            "type": "string",
+            "maxLength": 255,
+            "pattern": "^https://[^/?#@]+$",
+            "description": "Canonical HTTPS origin with dotted DNS hostname, no IP literal, credentials, path, trailing slash or noncanonical casing. Exact operator enrollment required; schema syntax alone does not prove control."
+          }
+        },
+        "required": [
+          "displayName",
+          "oauthClientId",
+          "providerOrigin"
+        ],
+        "additionalProperties": false
+      },
+      "Application": {
+        "type": "object",
+        "properties": {
+          "appId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "oauthClientId": {
+            "type": "string"
+          },
+          "providerOrigin": {
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "active",
+              "suspended",
+              "revoked"
+            ]
+          },
+          "ownerSubject": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "appId",
+          "tenantId",
+          "displayName",
+          "oauthClientId",
+          "providerOrigin",
+          "state",
+          "ownerSubject",
+          "revision",
+          "digest"
+        ],
+        "additionalProperties": false
+      },
+      "ApplicationApprove": {
+        "type": "object",
+        "properties": {
+          "approvalId": {
+            "$ref": "#/components/schemas/Uuid"
+          }
+        },
+        "required": [
+          "approvalId"
+        ],
+        "additionalProperties": false
+      },
+      "ApplicationState": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "action": {
+                "enum": [
+                  "suspend",
+                  "revoke"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "pattern": "^(?!\\s*$)[^\\x00-\\x1f\\x7f]+$"
+              }
+            },
+            "required": [
+              "action",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "action": {
+                "const": "reactivate"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "pattern": "^(?!\\s*$)[^\\x00-\\x1f\\x7f]+$"
+              },
+              "approvalId": {
+                "$ref": "#/components/schemas/Uuid"
+              }
+            },
+            "required": [
+              "action",
+              "reason",
+              "approvalId"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ApprovalCreate": {
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "const": "application"
+          },
+          "resourceId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "resourceDigest": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "resourceRevision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "requesterSubject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^(?!\\s*$)[^\\x00-\\x1f\\x7f]+$"
+          },
+          "requesterAppId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "decision": {
+            "enum": [
+              "approve",
+              "deny"
+            ]
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$",
+            "description": "Real UTC calendar instant, future and at most ten minutes away. Requester, resource, digest and revision must match the stored app."
+          }
+        },
+        "required": [
+          "resourceType",
+          "resourceId",
+          "resourceDigest",
+          "resourceRevision",
+          "requesterSubject",
+          "requesterAppId",
+          "decision",
+          "expiresAt"
+        ],
+        "additionalProperties": false
+      },
+      "Approval": {
+        "type": "object",
+        "properties": {
+          "approvalId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/ApprovalCreate"
+          },
+          "state": {
+            "enum": [
+              "approved",
+              "denied",
+              "consumed",
+              "revoked",
+              "expired"
+            ]
+          },
+          "approverSubject": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "approvalId",
+          "tenantId",
+          "decision",
+          "state",
+          "approverSubject",
+          "revision"
+        ],
+        "additionalProperties": false
+      },
+      "RevokeApproval": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "pattern": "^(?!\\s*$)[^\\x00-\\x1f\\x7f]+$"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "ShareCreate": {
+        "type": "object",
+        "properties": {
+          "resourceType": {
+            "enum": [
+              "record",
+              "object"
+            ]
+          },
+          "resourceId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "granteeAppId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "action": {
+            "const": "read"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$",
+            "description": "Real UTC calendar instant, future and at most 24 hours away."
+          }
+        },
+        "required": [
+          "resourceType",
+          "resourceId",
+          "granteeAppId",
+          "action",
+          "expiresAt"
+        ],
+        "additionalProperties": false
+      },
+      "Share": {
+        "type": "object",
+        "properties": {
+          "shareId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "resourceType": {
+            "enum": [
+              "record",
+              "object"
+            ]
+          },
+          "resourceId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "granteeAppId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "action": {
+            "const": "read"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "shareId",
+          "resourceType",
+          "resourceId",
+          "granteeAppId",
+          "action",
+          "expiresAt"
+        ],
+        "additionalProperties": false
+      },
+      "WorkflowStart": {
+        "type": "object",
+        "properties": {
+          "definitionId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9:_-]{1,128}$"
+          },
+          "input": {
+            "$ref": "#/components/schemas/JsonObject"
+          }
+        },
+        "required": [
+          "definitionId"
+        ],
+        "additionalProperties": false
+      },
+      "EmptyObject": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      },
+      "WorkflowDefinition": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "WorkflowDefinitions": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WorkflowDefinition"
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "WorkflowExecution": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "definitionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "running",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "input": {
+            "$ref": "#/components/schemas/JsonObject"
+          }
+        },
+        "required": [
+          "id",
+          "definitionId",
+          "status",
+          "input"
+        ],
+        "additionalProperties": false
+      },
+      "OidcDiscovery": {
+        "type": "object",
+        "required": [
+          "issuer",
+          "authorization_endpoint",
+          "token_endpoint",
+          "jwks_uri",
+          "userinfo_endpoint",
+          "end_session_endpoint",
+          "response_types_supported",
+          "code_challenge_methods_supported"
+        ],
+        "properties": {
+          "issuer": {
+            "type": "string",
+            "format": "uri"
+          },
+          "authorization_endpoint": {
+            "type": "string",
+            "format": "uri"
+          },
+          "token_endpoint": {
+            "type": "string",
+            "format": "uri"
+          },
+          "jwks_uri": {
+            "type": "string",
+            "format": "uri"
+          },
+          "userinfo_endpoint": {
+            "type": "string",
+            "format": "uri"
+          },
+          "end_session_endpoint": {
+            "type": "string",
+            "format": "uri"
+          },
+          "response_types_supported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "code_challenge_methods_supported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "OidcTokenRequest": {
+        "type": "object",
+        "required": [
+          "grant_type"
+        ],
+        "properties": {
+          "grant_type": {
+            "type": "string"
+          },
+          "client_id": {
+            "type": "string"
+          },
+          "client_secret": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "code_verifier": {
+            "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true,
+        "description": "Provider-owned OAuth form. Client credentials require confidential-client authentication. Browser PKCE exchange has no client secret. Grant availability and required fields depend on enrolled Keycloak client policy."
+      },
+      "OidcTokens": {
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type",
+          "expires_in"
+        ],
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "integer"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "id_token": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "OidcError": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "error_description": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "Jwks": {
+        "type": "object",
+        "required": [
+          "keys"
+        ],
+        "properties": {
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kty"
+              ],
+              "properties": {
+                "kty": {
+                  "type": "string"
+                },
+                "kid": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      },
+      "UserInfo": {
+        "type": "object",
+        "required": [
+          "sub"
+        ],
+        "properties": {
+          "sub": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "OidcLogout": {
+        "type": "object",
+        "properties": {
+          "client_id": {
+            "type": "string"
+          },
+          "client_secret": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true,
+        "description": "Provider form; local public PKCE fixture uses client_id and refresh_token. Client authentication follows upstream policy."
+      }
+    }
+  }
+}

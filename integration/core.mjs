@@ -3,8 +3,9 @@
 import assert from "node:assert/strict";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { execFile } from "node:child_process";
-import { before, test } from "node:test";
+import { after, before, test } from "node:test";
 import { promisify } from "node:util";
+import { contractFetch as fetch, verifyContracts } from './contract.mjs';
 
 const base = process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
 const issuer = `${base}/identity/realms/rosetta`;
@@ -42,6 +43,19 @@ before(async () => {
   tokenA = await token("tenant-a", process.env.TENANT_A_SECRET);
   tokenB = await token("tenant-b", process.env.TENANT_B_SECRET);
   reader = await token("reader", process.env.READER_SECRET);
+});
+
+after(async () => verifyContracts('core'));
+
+test('public process and OIDC boundary methods conform without changing their wire representations', async () => {
+  assert.equal((await api('/health', undefined, { method: 'HEAD' })).status, 200);
+  assert.equal((await api('/health', undefined, { method: 'POST' })).status, 405);
+  assert.equal((await fetch(`${issuer}/protocol/openid-connect/certs`)).status, 200);
+  assert.equal((await fetch(`${issuer}/protocol/openid-connect/logout`, { redirect: 'manual' })).status, 200);
+  const denied = await fetch(`${issuer}/protocol/openid-connect/token`, {
+    method: 'POST', body: new URLSearchParams({ grant_type: 'client_credentials', client_id: 'tenant-a', client_secret: 'synthetic-invalid-secret' }),
+  });
+  assert.equal(denied.status, 401);
 });
 
 test("gateway preserves health and exposes real OIDC discovery/readiness", async () => {
@@ -97,11 +111,20 @@ test("SSO completes a real authorization-code + PKCE flow and revokes the sessio
   });
   assert.equal(exchange.status, 200, "PKCE code exchange succeeds");
   const session = await exchange.json();
+  for (const method of ['GET', 'POST']) {
+    const userInfo = await fetch(`${issuer}/protocol/openid-connect/userinfo`, { method, headers: { Authorization: `Bearer ${session.access_token}` } });
+    assert.equal(userInfo.status, 200);
+  }
+  const refreshed = await fetch(`${issuer}/protocol/openid-connect/token`, {
+    method: 'POST', body: new URLSearchParams({ grant_type: 'refresh_token', client_id: 'rosetta-local', refresh_token: session.refresh_token }),
+  });
+  assert.equal(refreshed.status, 200);
+  const renewed = await refreshed.json();
   const identity = await api("/v1/identity", session.access_token);
   assert.equal(identity.status, 200);
   assert.equal((await identity.json()).tenantId, "tenant-a");
   const logout = await fetch(`${issuer}/protocol/openid-connect/logout`, {
-    method: "POST", body: new URLSearchParams({ client_id: "rosetta-local", refresh_token: session.refresh_token }),
+    method: "POST", body: new URLSearchParams({ client_id: "rosetta-local", refresh_token: renewed.refresh_token }),
   });
   assert.equal(logout.status, 204);
   assert.equal((await api("/v1/identity", session.access_token)).status, 401, "Revoked session is rejected");

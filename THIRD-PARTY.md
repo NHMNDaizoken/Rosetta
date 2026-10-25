@@ -43,4 +43,17 @@ strip upstream license material, republish images or change their licensing.
 
 ## Contract-validation tooling
 
-The Capability v1 documentation was checked using the already installed Python 3.14.3 environment ([PSF terms and bundled notices](https://docs.python.org/3/license.html)), jsonschema 4.23.0 ([MIT](https://github.com/python-jsonschema/jsonschema/blob/v4.23.0/COPYING)), [referencing 0.37.0](https://pypi.org/project/referencing/0.37.0/), [attrs 25.4.0](https://pypi.org/project/attrs/25.4.0/), [rpds-py 0.30.0](https://pypi.org/project/rpds-py/0.30.0/) and [jsonschema-specifications 2025.9.1](https://pypi.org/project/jsonschema-specifications/2025.9.1/) (each reports MIT in its installed distribution metadata). These are host validation tools, not new Rosetta runtime/package dependencies, vendored sources or shipped binaries. No packages were installed for this task. Preserve each upstream distribution license if these tools are later bundled. The official OpenAPI validation schema was fetched into memory from its standards publisher, not copied into Rosetta.
+The Foundation OpenAPI milestone reuses these validators in development/CI via
+`requirements-contracts.txt`; they are not copied into the Core image or added as
+npm/runtime dependencies. Python must be 3.10+. CI installs exact package pins.
+On Python <3.13, referencing also uses typing-extensions 4.15.0
+([PSF-2.0 and bundled notices](https://github.com/python/typing_extensions/blob/4.15.0/LICENSE));
+its installed distribution metadata was verified as PSF-2.0. Preserve those notices
+if redistributed. No packages were installed locally for this milestone.
+
+The official [OpenAPI 3.1 metaschema](https://spec.openapis.org/oas/3.1/schema/2022-10-07)
+is fetched into memory, not vendored; SHA-256
+`da01ba28852cac0de53893797cb8d1942bc3b05084f526dcc216717dec314ed0`
+pins its reviewed bytes. CI requires HTTPS access and fails on a digest change.
+
+The Capability v1 documentation was checked using the already installed Python 3.14.3 environment ([PSF terms and bundled notices](https://docs.python.org/3/license.html)), jsonschema 4.23.0 ([MIT](https://github.com/python-jsonschema/jsonschema/blob/v4.23.0/COPYING)), [referencing 0.37.0](https://pypi.org/project/referencing/0.37.0/), [attrs 25.4.0](https://pypi.org/project/attrs/25.4.0/), [rpds-py 0.30.0](https://pypi.org/project/rpds-py/0.30.0/) and [jsonschema-specifications 2025.9.1](https://pypi.org/project/jsonschema-specifications/2025.9.1/) (each reports MIT in its installed distribution metadata). These are host validation tools, not new Rosetta runtime/package dependencies, vendored sources or shipped binaries. No packages were installed for that earlier documentation task. Preserve each upstream distribution license if these tools are later bundled. The official OpenAPI validation schema was fetched into memory from its standards publisher, not copied into Rosetta.

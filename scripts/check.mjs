@@ -9,7 +9,7 @@ function check(path) {
   for (const entry of readdirSync(path, { withFileTypes: true })) {
     const file = join(path, entry.name);
     if (entry.isDirectory()) check(file);
-    else if (/\.(mjs|sql|sh|ps1|ya?ml|conf|toml|xml)$/.test(file)) checkFile(file);
+    else if (/\.(mjs|py|sql|sh|ps1|ya?ml|conf|toml|xml)$/.test(file)) checkFile(file);
   }
 }
 
@@ -23,7 +23,7 @@ function checkFile(file) {
   }
 }
 
-for (const root of ["src", "scripts", "tests", "integration", "infra", ".github"]) {
+for (const root of ["src", "scripts", "tests", "integration", "examples", "infra", ".github"]) {
   if (existsSync(root)) check(root);
 }
 checkFile("Dockerfile");

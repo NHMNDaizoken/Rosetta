@@ -1,7 +1,8 @@
 # Application Registration operations
 
-This is the implemented control-plane subset of the
-[capability OpenAPI](contracts/capability-api-v1.openapi.json). Registry, resolver,
+The implemented control plane is described by the
+[Foundation OpenAPI](contracts/foundation-api.openapi.json). Its original design
+also appears in the separate Capability draft. Registry, resolver,
 composition and provider invocation remain unimplemented. Existing Core APIs do
 not change. Use a local/test stack; no production deployment is authorized.
 

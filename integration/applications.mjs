@@ -5,6 +5,8 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { execFile, spawn } from "node:child_process";
 import { before, after, test } from "node:test";
 import { promisify } from "node:util";
+import { contractFetch as fetch, verifyContracts } from './contract.mjs';
+import { foundationExample } from '../examples/foundation-http.mjs';
 
 const base=process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
 const issuer=`${base}/identity/realms/rosetta`;
@@ -107,7 +109,7 @@ async function resourceBackend(label,principal=owner,administrator=approver,tena
   const decision=await approval(value,administrator);assert.equal(decision.status,201);const approvalId=(await decision.json()).approvalId;
   const activated=await api(`/v1/applications/${value.appId}/approve`,administrator,{approvalId},{'If-Match':created.headers.get('etag')});
   assert.equal(activated.status,200);value=await activated.json();
-  return {token,subject,clientId:body.oauthClientId,tenant,app:value,etag:activated.headers.get('etag')};
+  return {token,subject,clientId:body.oauthClientId,clientSecret:secret,tenant,app:value,etag:activated.headers.get('etag')};
 }
 async function resourceState(backend,action) {
   let approvalId;
@@ -166,6 +168,7 @@ after(async()=>{
   }
   for(const id of clientIds) assert.equal((await admin(`clients/${id}`,undefined,"DELETE")).status,204);
   for(const id of users) assert.equal((await admin(`users/${id}`,undefined,"DELETE")).status,204);
+  await verifyContracts('applications');
 });
 
 test("registration denies baseline roles and caller-owned authority, including direct Core access",async()=>{
@@ -268,6 +271,7 @@ test('registered backends own private records and objects; browser and unenrolle
   for(const backend of [resourceA,resourceB,resourceForeign]) {
     const created=await api('/v2/data/private_fixture',backend,{data:{fixture:backend.clientId}});assert.equal(created.status,201);
     const record=await created.json();if(backend===resourceA) privateRecord=record;
+    assert.equal((await api('/v2/data/private_fixture?limit=1',backend)).status,200);
     const p=`/v2/data/private_fixture/${record.id}`;
     assert.equal((await api(p,backend)).status,200);
     assert.equal((await api(p,backend,{data:{updated:true}},{},'PATCH')).status,200);
@@ -277,6 +281,23 @@ test('registered backends own private records and objects; browser and unenrolle
   }
   for(const field of ['app_id','appId','tenant_id','tenantId','client_id','owner_app_id','ownerSubject']) {
     assert.equal((await api('/v2/data/private_fixture',resourceB,{data:{},[field]:resourceA.app.appId})).status,400);
+  }
+});
+
+test('documented backend HTTP example authenticates, stores, shares and executes the technical workflow',async()=>{
+  const result=await foundationExample({base,clientId:resourceA.clientId,clientSecret:resourceA.clientSecret,
+    granteeAppId:resourceB.app.appId,fetcher:fetch});
+  try {
+    const cli=await promisify(execFile)(process.execPath,['examples/foundation-http.mjs'],{
+      env:{...process.env,PUBLIC_URL:base,ROSETTA_APP_CLIENT_ID:resourceA.clientId,
+        ROSETTA_APP_CLIENT_SECRET:resourceA.clientSecret,ROSETTA_GRANTEE_APP_ID:resourceB.app.appId},timeout:30000});
+    assert.match(cli.stdout,/HTTP example succeeded/);
+    assert.equal((await api(`/v2/data/http_example/${result.recordId}`,resourceB)).status,200);
+    assert.equal((await api(`/v2/data/http_example/${result.recordId}`,resourceB,{data:{}},{},'PATCH')).status,404);
+  } finally {
+    assert.equal((await api(`/v2/resource-shares/${result.shareId}`,resourceA,undefined,{},'DELETE')).status,204);
+    assert.equal((await api(`/v2/data/http_example/${result.recordId}`,resourceA,undefined,{},'DELETE')).status,204);
+    assert.equal((await objectCall(`/v2/objects/${result.objectId}`,resourceA,{method:'DELETE'})).status,204);
   }
 });
 
@@ -427,7 +448,14 @@ test("application authority, state, approvals and audit persist across database 
   let recovered=false; const deadline=Date.now()+90000;
   while(Date.now()<deadline){try{const response=await api(path(),owner);if(response.status===200){assert.deepEqual(await response.json(),snapshot);recovered=true;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,1000));}
   assert.ok(recovered,"persistent application survives actual database/Core restart");
-  assert.equal((await api(recordPath(),resourceA)).status,403,'app revocation persists across another restart');
+  const accessDeadline=Date.now()+30000;
+  let revokedStatus;
+  do {
+    revokedStatus=(await api(recordPath(),resourceA)).status;
+    if(revokedStatus!==503) break;
+    await new Promise(resolve=>setTimeout(resolve,500));
+  } while(Date.now()<accessDeadline);
+  assert.equal(revokedStatus,403,'revocation must persist once stale provider connections recover');
   assert.equal((await objectCall(objectPath(),resourceB)).status,403);
   const audit=await sql(`SELECT count(*) FROM app_private.audit WHERE resource_id=${q(app.appId)};`);assert.ok(Number(audit.stdout.trim())>=4);
   assert.equal((await mutate("state",{action:"revoke",reason:"technical"})).status,200);assert.equal(app.state,"revoked");
