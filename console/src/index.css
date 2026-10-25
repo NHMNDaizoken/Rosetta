@@ -1,0 +1,139 @@
+/* SPDX-FileCopyrightText: 2026 Rosetta Contributors */
+/* SPDX-License-Identifier: Apache-2.0 */
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Primitive Palette Tokens */
+    --color-stone-ink: #172F3D;
+    --color-rosetta-blue: #176B80;
+    --color-rosetta-blue-hover: #135566;
+    --color-rosetta-blue-light: #E8F3F5;
+    --color-teal-mediterranean: #18877A;
+    --color-teal-light: #E6F5F3;
+    --color-sandstone: #C58B62;
+    --color-sandstone-light: #FBF4EE;
+    --color-limestone: #F0F2EE;
+    --color-app-bg: #F7F8F6;
+    --color-surface: #FFFFFF;
+    --color-surface-elevated: #FFFFFF;
+    
+    /* Semantic Status Tokens */
+    --color-success: #18877A;
+    --color-success-bg: #E6F5F3;
+    --color-success-border: #BCE4DF;
+    --color-warning: #D97706;
+    --color-warning-bg: #FEF3C7;
+    --color-warning-border: #FDE68A;
+    --color-error: #DC2626;
+    --color-error-bg: #FEE2E2;
+    --color-error-border: #FECACA;
+    --color-info: #176B80;
+    --color-info-bg: #E8F3F5;
+    --color-info-border: #C2E1E7;
+
+    /* Semantic Typography & UI Tokens */
+    --text-primary: #172F3D;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+    --text-placeholder: #94A3B8;
+    --border-subtle: #E2E8F0;
+    --border-strong: #CBD5E1;
+    --border-focus: #176B80;
+
+    /* Spacing & Radii (Dashboard Dense scale from ui-ux-pro-max) */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --shadow-card: 0 1px 3px 0 rgba(23, 47, 61, 0.05), 0 1px 2px -1px rgba(23, 47, 61, 0.05);
+    --shadow-elevated: 0 4px 6px -1px rgba(23, 47, 61, 0.07), 0 2px 4px -2px rgba(23, 47, 61, 0.07);
+    --shadow-modal: 0 20px 25px -5px rgba(23, 47, 61, 0.12), 0 8px 10px -6px rgba(23, 47, 61, 0.12);
+  }
+
+  .dark {
+    --color-stone-ink: #F1F5F9;
+    --color-rosetta-blue: #38BDF8;
+    --color-rosetta-blue-hover: #0284C7;
+    --color-rosetta-blue-light: #0C4A6E;
+    --color-teal-mediterranean: #2DD4BF;
+    --color-teal-light: #134E48;
+    --color-sandstone: #E2A782;
+    --color-sandstone-light: #4A2E1D;
+    --color-limestone: #1E293B;
+    --color-app-bg: #0B161E;
+    --color-surface: #12232F;
+    --color-surface-elevated: #172E3C;
+
+    --color-success: #34D399;
+    --color-success-bg: #064E3B;
+    --color-success-border: #047857;
+    --color-warning: #FBBF24;
+    --color-warning-bg: #78350F;
+    --color-warning-border: #B45309;
+    --color-error: #F87171;
+    --color-error-bg: #7F1D1D;
+    --color-error-border: #B91C1C;
+    --color-info: #38BDF8;
+    --color-info-bg: #082F49;
+    --color-info-border: #0369A1;
+
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-muted: #94A3B8;
+    --text-placeholder: #64748B;
+    --border-subtle: #223E50;
+    --border-strong: #33556D;
+    --border-focus: #38BDF8;
+
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    --shadow-elevated: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Base element overrides */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  background-color: var(--color-app-bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+code, kbd, samp, pre {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Interactive focus ring accessibility */
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}

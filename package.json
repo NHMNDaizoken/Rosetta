@@ -19,6 +19,10 @@
     "test:integration": "node --env-file=.env --test integration/core.mjs",
     "test:recovery": "node --env-file=.env --test integration/recovery.mjs",
     "test:applications": "node --env-file=.env --test integration/applications.mjs",
-    "test:flowable-worker": "node --test integration/flowable-worker.mjs"
+    "test:flowable-worker": "node --test integration/flowable-worker.mjs",
+    "console": "npm --prefix console run dev",
+    "console:build": "npm --prefix console run build",
+    "console:test": "npm --prefix console test",
+    "console:preview": "npm --prefix console run preview"
   }
 }

@@ -57,3 +57,17 @@ is fetched into memory, not vendored; SHA-256
 pins its reviewed bytes. CI requires HTTPS access and fails on a digest change.
 
 The Capability v1 documentation was checked using the already installed Python 3.14.3 environment ([PSF terms and bundled notices](https://docs.python.org/3/license.html)), jsonschema 4.23.0 ([MIT](https://github.com/python-jsonschema/jsonschema/blob/v4.23.0/COPYING)), [referencing 0.37.0](https://pypi.org/project/referencing/0.37.0/), [attrs 25.4.0](https://pypi.org/project/attrs/25.4.0/), [rpds-py 0.30.0](https://pypi.org/project/rpds-py/0.30.0/) and [jsonschema-specifications 2025.9.1](https://pypi.org/project/jsonschema-specifications/2025.9.1/) (each reports MIT in its installed distribution metadata). These are host validation tools, not new Rosetta runtime/package dependencies, vendored sources or shipped binaries. No packages were installed for that earlier documentation task. Preserve each upstream distribution license if these tools are later bundled. The official OpenAPI validation schema was fetched into memory from its standards publisher, not copied into Rosetta.
+
+## Rosetta Console frontend package dependencies
+
+The optional `console/` package uses modern open-source frontend libraries for the operator control plane. None are copied into the headless Core or distributed as part of the core PaaS runtime.
+
+| Package | Version | License | Upstream repository | Use and obligations |
+| --- | --- | --- | --- | --- |
+| React & React DOM | 19.x | MIT | [facebook/react](https://github.com/facebook/react) | UI component tree and rendering runtime. MIT license notice preserved. |
+| Lucide React | 1.16.x | ISC / MIT | [lucide-icons/lucide](https://github.com/lucide-icons/lucide) | Accessible SVG infrastructure iconography. ISC terms preserved. |
+| Tailwind CSS | 4.x | MIT | [tailwindlabs/tailwindcss](https://github.com/tailwindlabs/tailwindcss) | Build-time CSS utility token processing. Zero runtime overhead. |
+| Vite | 6.x | MIT | [vitejs/vite](https://github.com/vitejs/vite) | Build tool, local dev server and ESM bundler. |
+| Vitest | 3.x | MIT | [vitest-dev/vitest](https://github.com/vitest-dev/vitest) | Testing framework for UI and component validation. |
+| Testing Library React | 16.x | MIT | [testing-library/react-testing-library](https://github.com/testing-library/react-testing-library) | User-centric DOM testing utilities. |
+

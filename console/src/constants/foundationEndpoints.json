@@ -1,0 +1,1195 @@
+[
+  {
+    "path": "/health",
+    "method": "GET",
+    "operationId": "getHealth",
+    "summary": "Get health",
+    "description": "",
+    "tags": [
+      "process"
+    ],
+    "security": [],
+    "responses": [
+      "200",
+      "405",
+      "502",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/health",
+    "method": "HEAD",
+    "operationId": "headHealth",
+    "summary": "Head health",
+    "description": "",
+    "tags": [
+      "process"
+    ],
+    "security": [],
+    "responses": [
+      "200",
+      "405",
+      "502",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/ready",
+    "method": "GET",
+    "operationId": "getReadiness",
+    "summary": "Get readiness",
+    "description": "Dependency check, not transaction success or full DR. Other methods return 404.",
+    "tags": [
+      "process"
+    ],
+    "security": [],
+    "responses": [
+      "200",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/identity",
+    "method": "GET",
+    "operationId": "getIdentity",
+    "summary": "Get identity",
+    "description": "Verified subject, tenant and supported roles. No appId/delegated human fields are returned.",
+    "tags": [
+      "tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "401",
+      "403",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/data/{collection}",
+    "method": "GET",
+    "operationId": "v1ListRecords",
+    "summary": "V1 list records",
+    "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+    "tags": [
+      "legacy-tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/data/{collection}",
+    "method": "POST",
+    "operationId": "v1CreateRecord",
+    "summary": "V1 create record",
+    "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+    "tags": [
+      "legacy-tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "405",
+      "409",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v1/data/{collection}/{id}",
+    "method": "GET",
+    "operationId": "v1GetRecord",
+    "summary": "V1 get record",
+    "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+    "tags": [
+      "legacy-tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/data/{collection}/{id}",
+    "method": "PATCH",
+    "operationId": "v1ReplaceRecordData",
+    "summary": "V1 replace record data",
+    "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+    "tags": [
+      "legacy-tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "409",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v1/data/{collection}/{id}",
+    "method": "DELETE",
+    "operationId": "v1DeleteRecord",
+    "summary": "V1 delete record",
+    "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+    "tags": [
+      "legacy-tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "204",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/objects",
+    "method": "POST",
+    "operationId": "v1UploadObject",
+    "summary": "V1 upload object",
+    "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V1 DELETE removes the legacy object.",
+    "tags": [
+      "legacy-tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "405",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v1/objects/{id}",
+    "method": "PUT",
+    "operationId": "v1PutObject",
+    "summary": "V1 put object",
+    "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V1 DELETE removes the legacy object.",
+    "tags": [
+      "legacy-tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504",
+      "200"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v1/objects/{id}",
+    "method": "GET",
+    "operationId": "v1DownloadObject",
+    "summary": "V1 download object",
+    "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V1 DELETE removes the legacy object.",
+    "tags": [
+      "legacy-tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/objects/{id}",
+    "method": "DELETE",
+    "operationId": "v1DeleteObject",
+    "summary": "V1 delete object",
+    "description": "Deprecated tenant-wide namespace restricted to operator LEGACY_RESOURCE_CLIENTS. Native default empty; local Compose allows tenant-a, tenant-b, reader. Separate legacy records/bytes; no automatic ownership migration or v2 fallback. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V1 DELETE removes the legacy object.",
+    "tags": [
+      "legacy-tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "204",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v2/data/{collection}",
+    "method": "GET",
+    "operationId": "v2ListRecords",
+    "summary": "V2 list records",
+    "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v2/data/{collection}",
+    "method": "POST",
+    "operationId": "v2CreateRecord",
+    "summary": "V2 create record",
+    "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "405",
+      "409",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v2/data/{collection}/{id}",
+    "method": "GET",
+    "operationId": "v2GetRecord",
+    "summary": "V2 get record",
+    "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v2/data/{collection}/{id}",
+    "method": "PATCH",
+    "operationId": "v2ReplaceRecordData",
+    "summary": "V2 replace record data",
+    "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "409",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v2/data/{collection}/{id}",
+    "method": "DELETE",
+    "operationId": "v2DeleteRecord",
+    "summary": "V2 delete record",
+    "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. PATCH replaces the complete data object. POST has no automatic retry guarantee.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "204",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v2/objects",
+    "method": "POST",
+    "operationId": "v2UploadObject",
+    "summary": "V2 upload object",
+    "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V2 DELETE tombstones permanently; bytes/old versions retained. PUT publishes immutable versions after DB reauthorization; concurrent owner PUTs use last publication. UUIDs are tenant-scoped, so a foreign tenant may create independent bytes at the same UUID.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "405",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v2/objects/{id}",
+    "method": "PUT",
+    "operationId": "v2PutObject",
+    "summary": "V2 put object",
+    "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V2 DELETE tombstones permanently; bytes/old versions retained. PUT publishes immutable versions after DB reauthorization; concurrent owner PUTs use last publication. UUIDs are tenant-scoped, so a foreign tenant may create independent bytes at the same UUID.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504",
+      "200"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v2/objects/{id}",
+    "method": "GET",
+    "operationId": "v2DownloadObject",
+    "summary": "V2 download object",
+    "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V2 DELETE tombstones permanently; bytes/old versions retained. PUT publishes immutable versions after DB reauthorization; concurrent owner PUTs use last publication. UUIDs are tenant-scoped, so a foreign tenant may create independent bytes at the same UUID.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v2/objects/{id}",
+    "method": "DELETE",
+    "operationId": "v2DeleteObject",
+    "summary": "V2 delete object",
+    "description": "Active registered backend resolved from verified tenant/issuer/client_id and exact operator-enrolled resource_subject. Owner-only mutations; individually shared reads. Suspension/revocation and disabled enrollment block access. Upload 1 byte to 5 MiB. Stable-UUID PUT with identical bytes is retryable; POST creates a new ID and is not blindly retried. V2 DELETE tombstones permanently; bytes/old versions retained. PUT publishes immutable versions after DB reauthorization; concurrent owner PUTs use last publication. UUIDs are tenant-scoped, so a foreign tenant may create independent bytes at the same UUID.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "204",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v2/resource-shares",
+    "method": "POST",
+    "operationId": "createReadShare",
+    "summary": "Create read share",
+    "description": "Owner backend explicitly approves read of one live resource for a different active same-tenant app. No update/delete, resharing, wildcard or cross-tenant grant. Future object versions remain shared until expiry/revocation. Not a capability grant or human delegation.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v2/resource-shares/{shareId}",
+    "method": "DELETE",
+    "operationId": "revokeReadShare",
+    "summary": "Revoke read share",
+    "description": "Owning backend only. Repeat revocation returns 204; hidden IDs return 404. Unsupported methods return 404. Audit and revocation are atomic.",
+    "tags": [
+      "app-resource"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "204",
+      "400",
+      "401",
+      "403",
+      "404",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/applications",
+    "method": "POST",
+    "operationId": "createApplication",
+    "summary": "Create application",
+    "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Exact owner/client/origin enrollment required; duplicate client binding conflicts even after revocation. No POST retry guarantee.",
+    "tags": [
+      "application-admin"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "409",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v1/applications/{appId}",
+    "method": "GET",
+    "operationId": "getApplication",
+    "summary": "Get application",
+    "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Owner or independent administrator; foreign/unauthorized IDs hidden.",
+    "tags": [
+      "application-admin"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/applications/{appId}/approve",
+    "method": "POST",
+    "operationId": "approveApplication",
+    "summary": "Approve application",
+    "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Different human approver; matching fresh approval is single-use and digest/revision bound. Same approver consumes it.",
+    "tags": [
+      "application-admin"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "409",
+      "412",
+      "413",
+      "415",
+      "428",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v1/applications/{appId}/state",
+    "method": "POST",
+    "operationId": "setApplicationState",
+    "summary": "Set application state",
+    "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Suspend, reactivate with a fresh independent trust approval, or terminally revoke. V2 access follows app state; clients are not disabled in Keycloak automatically. Legacy allowance is a separate permission.",
+    "tags": [
+      "application-admin"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "409",
+      "412",
+      "413",
+      "415",
+      "428",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v1/approvals",
+    "method": "POST",
+    "operationId": "createApplicationApproval",
+    "summary": "Create application approval",
+    "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Application resources only, never capability/composition approval. Independent human decision expires within ten minutes.",
+    "tags": [
+      "application-admin"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "409",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v1/approvals/{approvalId}",
+    "method": "GET",
+    "operationId": "getApplicationApproval",
+    "summary": "Get application approval",
+    "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Visible to application owner or administrator. Expired is a computed response state.",
+    "tags": [
+      "application-admin"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/approvals/{approvalId}/revoke",
+    "method": "POST",
+    "operationId": "revokeApplicationApproval",
+    "summary": "Revoke application approval",
+    "description": "Live operator-enrolled human principal, exact issuer/subject/management-client/tenant binding. Baseline core-reader suffices; core-writer is not administrative authority. Core errors include requestId; Gateway auth errors may be HTML or JSON without requestId. Deciding administrator may revoke an unconsumed decision. Does not undo a consumed activation.",
+    "tags": [
+      "application-admin"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "409",
+      "412",
+      "413",
+      "415",
+      "428",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v1/workflows/definitions",
+    "method": "GET",
+    "operationId": "listWorkflowDefinitions",
+    "summary": "List workflow definitions",
+    "description": "Workflow resources remain TENANT scoped, not app-private. App suspension is not a workflow permission check. Keep private payloads out of tenant-visible variables. Up to 100 latest operator-installed definitions; no public deployment, cursor or offset.",
+    "tags": [
+      "tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/workflows/executions",
+    "method": "POST",
+    "operationId": "startWorkflow",
+    "summary": "Start workflow",
+    "description": "Workflow resources remain TENANT scoped, not app-private. App suspension is not a workflow permission check. Keep private payloads out of tenant-visible variables. UUID key reserves tenant/definition/canonical input. Identical replay returns 200, changed input 409. Uncertain start reconciles history or remains pending; never blindly starts again. Not exactly-once external effects. JSON wire limit 64 KiB and input depth at most 32.",
+    "tags": [
+      "tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "201",
+      "400",
+      "401",
+      "403",
+      "404",
+      "409",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504",
+      "200"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/v1/workflows/executions/{executionId}",
+    "method": "GET",
+    "operationId": "getWorkflow",
+    "summary": "Get workflow",
+    "description": "Workflow resources remain TENANT scoped, not app-private. App suspension is not a workflow permission check. Keep private payloads out of tenant-visible variables. State from durable engine history.",
+    "tags": [
+      "tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/workflows/executions/{executionId}",
+    "method": "DELETE",
+    "operationId": "cancelWorkflow",
+    "summary": "Cancel workflow",
+    "description": "Workflow resources remain TENANT scoped, not app-private. App suspension is not a workflow permission check. Keep private payloads out of tenant-visible variables. Repeated cancellation returns 204; completed execution returns 409. No rollback of external effects is implied.",
+    "tags": [
+      "tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "204",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "409",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/v1/workflows/executions/{executionId}/complete",
+    "method": "POST",
+    "operationId": "completeWorkflow",
+    "summary": "Complete workflow",
+    "description": "Workflow resources remain TENANT scoped, not app-private. App suspension is not a workflow permission check. Keep private payloads out of tenant-visible variables. Empty object only. Completes exactly one active user task. Already completed is replayed; cancelled or multiple active tasks conflict. No task-assignee/business approval policy is inferred.",
+    "tags": [
+      "tenant"
+    ],
+    "security": [
+      {
+        "coreBearer": []
+      }
+    ],
+    "responses": [
+      "200",
+      "400",
+      "401",
+      "403",
+      "404",
+      "405",
+      "409",
+      "413",
+      "415",
+      "429",
+      "502",
+      "503",
+      "504"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/identity/realms/rosetta/.well-known/openid-configuration",
+    "method": "GET",
+    "operationId": "getOidcDiscovery",
+    "summary": "Get oidc discovery",
+    "description": "Public discovery; issuer follows PUBLIC_URL. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+    "tags": [
+      "oidc-upstream"
+    ],
+    "security": [],
+    "responses": [
+      "200",
+      "502",
+      "504",
+      "400",
+      "401",
+      "403"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/identity/realms/rosetta/protocol/openid-connect/auth",
+    "method": "GET",
+    "operationId": "authorizeOidc",
+    "summary": "Authorize oidc",
+    "description": "Browser authorization-code flow with S256 PKCE for rosetta-local. Local callback is exactly http://127.0.0.1:9876/callback. Do not embed backend secrets in browsers. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+    "tags": [
+      "oidc-upstream"
+    ],
+    "security": [],
+    "responses": [
+      "200",
+      "502",
+      "504",
+      "400",
+      "401",
+      "403",
+      "302"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/identity/realms/rosetta/protocol/openid-connect/token",
+    "method": "POST",
+    "operationId": "issueOidcToken",
+    "summary": "Issue oidc token",
+    "description": "Existing client_credentials, authorization_code + PKCE and refresh_token integration. Never log the returned tokens. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+    "tags": [
+      "oidc-upstream"
+    ],
+    "security": [
+      {},
+      {
+        "clientSecretBasic": []
+      }
+    ],
+    "responses": [
+      "200",
+      "502",
+      "504",
+      "400",
+      "401",
+      "403"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/identity/realms/rosetta/protocol/openid-connect/certs",
+    "method": "GET",
+    "operationId": "getOidcKeys",
+    "summary": "Get oidc keys",
+    "description": " Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+    "tags": [
+      "oidc-upstream"
+    ],
+    "security": [],
+    "responses": [
+      "200",
+      "502",
+      "504",
+      "400",
+      "401",
+      "403"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/identity/realms/rosetta/protocol/openid-connect/userinfo",
+    "method": "GET",
+    "operationId": "getOidcUserInfo",
+    "summary": "Get oidc user info",
+    "description": " Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+    "tags": [
+      "oidc-upstream"
+    ],
+    "security": [
+      {
+        "oidcUserToken": []
+      }
+    ],
+    "responses": [
+      "200",
+      "502",
+      "504",
+      "400",
+      "401",
+      "403"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/identity/realms/rosetta/protocol/openid-connect/userinfo",
+    "method": "POST",
+    "operationId": "postOidcUserInfo",
+    "summary": "Post oidc user info",
+    "description": " Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+    "tags": [
+      "oidc-upstream"
+    ],
+    "security": [
+      {
+        "oidcUserToken": []
+      }
+    ],
+    "responses": [
+      "200",
+      "502",
+      "504",
+      "400",
+      "401",
+      "403"
+    ],
+    "hasRequestBody": false
+  },
+  {
+    "path": "/identity/realms/rosetta/protocol/openid-connect/logout",
+    "method": "POST",
+    "operationId": "logoutOidc",
+    "summary": "Logout oidc",
+    "description": "Refresh-token logout used by the local PKCE fixture. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+    "tags": [
+      "oidc-upstream"
+    ],
+    "security": [],
+    "responses": [
+      "204",
+      "502",
+      "504",
+      "400",
+      "401",
+      "403"
+    ],
+    "hasRequestBody": true
+  },
+  {
+    "path": "/identity/realms/rosetta/protocol/openid-connect/logout",
+    "method": "GET",
+    "operationId": "browserLogoutOidc",
+    "summary": "Browser logout oidc",
+    "description": "Provider RP-initiated logout/confirmation, not a Core API session store. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+    "tags": [
+      "oidc-upstream"
+    ],
+    "security": [],
+    "responses": [
+      "200",
+      "502",
+      "504",
+      "400",
+      "401",
+      "403",
+      "302"
+    ],
+    "hasRequestBody": false
+  }
+]

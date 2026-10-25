@@ -242,6 +242,7 @@ infra/flowable/               Original technical BPMN checkpoint fixture
 tests/                        Unit and HTTP contract tests
 integration/                  Real-service, restart and isolated restore checks
 scripts/                      Setup, source checks, health probe and workflow initializer
+console/                      Rosetta Console — Layer-1 Operational Control Plane (React/Vite/TS)
 docs/                         Vision, architecture, API, operations and project policies
 .github/workflows/ci.yml       Verification pipeline
 compose.yaml                  Local provider networks, persistence and startup ordering
@@ -285,6 +286,7 @@ Original Rosetta source and documentation are licensed under [Apache License 2.0
 
 ## Documentation and self-hosting
 
+- [Rosetta Console](docs/CONSOLE.md): Layer-1 operational control plane design, setup, architecture and feature matrix.
 - [Project vision](docs/PROJECT_VISION.md): capability model, proposed Cores and open design decisions.
 - [Capability extensions v1](docs/CAPABILITY_EXTENSIONS_V1.md): draft manifests, lifecycle, ownership and compatibility, with linked trust/execution and OpenAPI contracts.
 - [Capability acceptance criteria](docs/CAPABILITY_ACCEPTANCE_V1.md): negative cases, validation recipe and implementation approval gates.

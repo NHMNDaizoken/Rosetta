@@ -175,6 +175,17 @@ services:
       timeout: 3s
       retries: 10
     networks: [edge, identity]
+  console:
+    profiles: ["console"]
+    build:
+      context: ./console
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks: [edge]
 
 networks:
   edge:
