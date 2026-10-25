@@ -6,6 +6,15 @@ foundation: HTTP is restricted to loopback, and no production deployment is
 configured. Configure TLS, trusted proxies and secrets before any approved
 deployment beyond the local environment.
 
+Application-private records and objects use the implemented
+[v2 resource contract](RESOURCE_AUTHORIZATION.md): authoritative backend client
+bindings, owner-only writes, exact owner-approved read shares and live app-state
+checks. V1 data/object routes below are a separate deprecated legacy namespace,
+restricted to `LEGACY_RESOURCE_CLIENTS` (empty by default outside local Compose).
+They never read v2 tables or bytes. Migrate existing data deliberately; do not
+infer ownership or silently fall back to v1. Identity and workflow contracts stay
+at v1, and workflow variables remain tenant-scoped.
+
 ## Identity and gateway
 
 - `GET /health` and `HEAD /health`: existing process-liveness contract.

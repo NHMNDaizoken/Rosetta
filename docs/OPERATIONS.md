@@ -57,6 +57,13 @@ an image is not proof its previous version can read a migrated database.
 
 ## Verified restore boundary
 
+Migration 004 adds app records, resource ownership/shares and enrolled backend
+subject bindings. See [resource authorization](RESOURCE_AUTHORIZATION.md) before
+upgrading, configuring the legacy allowlist or rolling back. Keep v2 object bytes
+and metadata together. Logical object deletion retains tombstones and bytes;
+reclamation is an operator task, not an automatic cleanup of application data.
+The isolated restore test also checks the resource role and same-tenant app RLS.
+
 `npm run test:recovery` seeds its own UUID record, creates a temporary PostgreSQL
 using the pinned image, and streams `pg_dump --format=custom` into `pg_restore`.
 The target has no network or published ports and keeps its database in temporary

@@ -26,6 +26,13 @@ previous Core image while retaining authority/audit tables; do not drop tables.
 
 ## Operator enrollment
 
+For backend resource access, also follow [resource enrollment and migration](RESOURCE_AUTHORIZATION.md).
+Migration 004 adds an optional `resource_subject`; existing enrollment remains
+valid for registration but grants no v2 resource rights until the operator binds
+the verified Keycloak service-account user ID. Registration/approval request and
+response models stay unchanged. App suspension/revocation now also blocks v2
+resources, including reads through shares; it still does not disable OAuth clients.
+
 No app administrator is bootstrapped by default. A baseline reader/writer token
 returns 403 at the application boundary. Only a trusted database/identity operator
 can provision enrollment and human permissions. Do not expose PostgREST or SQL

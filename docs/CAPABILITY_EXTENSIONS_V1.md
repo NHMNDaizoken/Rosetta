@@ -6,6 +6,10 @@ Status: **design draft for review; no extension runtime is implemented**. MUST/S
 
 ## Contract artifacts and reading order
 
+The separate implemented [resource authorization milestone](RESOURCE_AUTHORIZATION.md)
+adds v2 record/object ownership and owner-approved read shares. These are resource
+ACLs, not the capability grants, delegation or execution contracts proposed here.
+
 - This document: manifest, registration, ownership, lifecycle and compatibility.
 - [Trust and execution](CAPABILITY_TRUST_EXECUTION_V1.md): caller context, delegation, approvals, Flowable binding, failure and audit rules, sequence diagrams.
 - [Acceptance criteria](CAPABILITY_ACCEPTANCE_V1.md): negative cases, implementation gates and evidence requirements.

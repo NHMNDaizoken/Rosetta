@@ -200,11 +200,14 @@ The identity includes `subject`, `tenantId: 'tenant-a'` and supported roles. Tok
 | --- | --- |
 | `/identity/realms/rosetta/.well-known/openid-configuration` | Standard upstream OIDC discovery and authorization/token/logout endpoints. |
 | `GET /v1/identity` | Verified subject, tenant and reader/writer roles. |
+| `/v2/data/{collection}` and `/{id}` | Application-private records with forced tenant/app RLS and owner-only writes. |
+| `/v2/objects` and `/{uuid}` | Application-private binary objects with durable ownership/version metadata. |
+| `/v2/resource-shares` and `/{shareId}` | Owner-approved, expiring read-only shares of individual resources; owner revocation. |
 | `/v1/data/{collection}` and `/{id}` | List/create/read/update/delete tenant records; JSON body limit 64 KiB. |
 | `/v1/objects` and `/{uuid}` | Upload/read/delete opaque bytes; stable-UUID PUT supports retryable replacement, with a 1-byte to 5-MiB upload bound. |
 | `/v1/workflows/definitions` and `/v1/workflows/executions` | List operator-installed definitions; start with a UUID idempotency key, inspect, complete one active user task or cancel. |
 
-Versioned `/v1` reads require `core-reader`; writes also require `core-writer`. OIDC discovery and the health/readiness probes are public. The Core derives tenant identity from verified provider claims, never caller-supplied tenant headers. Authentication failures and dependency outages fail closed. Detailed methods, payloads, status codes, limits and retry semantics are in [CORE_API.md](docs/CORE_API.md).
+Foundational reads require `core-reader`; resource/workflow writes also require `core-writer`. Registration uses separately enrolled administrative permissions. V2 resources additionally require an active registered backend with an exact operator-enrolled service-account subject. V1 data/objects are a separate deprecated namespace restricted to an explicit legacy client allowlist; local Compose allows only its three service fixtures. Browsers use an authorized application backend. See [ownership, sharing and migration](docs/RESOURCE_AUTHORIZATION.md) before upgrading. OIDC discovery and health/readiness remain public; verified context, never ownership headers, supplies authority. Detailed contracts are in [CORE_API.md](docs/CORE_API.md).
 
 ## Integration verification
 
@@ -214,10 +217,12 @@ With the local stack running, execute the suites sequentially:
 npm run check
 npm test
 npm run test:integration
+npm run test:applications
+npm run test:flowable-worker
 npm run test:recovery
 ```
 
-The current suite has 14 unit tests, 8 real-service integration tests and 1 isolated PostgreSQL restore test. Integration checks include two-tenant denials, real PKCE login/logout, concurrent workflow retries and a technical flow linking structured metadata, binary objects and durable workflow state.
+The suite has 22 unit tests, 8 foundational integration tests, 12 registration/resource tests, 1 private-worker contract probe and 1 isolated PostgreSQL restore test. Real-service cases cover same-tenant app isolation, foreign tenants, spoofing, exact read shares, inactive apps, SQL role separation, real PKCE, workflow retries and persistence through service recreation. Restore verifies legacy tenant RLS and app-private RLS. These checks do not prove capability composition or full-platform disaster recovery.
 
 The integration suite intentionally interrupts local services, restarts PostgreSQL and recreates containers. Use a development/test stack without application traffic. The recovery suite restores into its own network-isolated temporary PostgreSQL; it does not restore over project data. These checks do not establish coordinated recovery of identity, objects and workflow databases.
 

@@ -8,6 +8,7 @@ import { dataRequest, handleData } from "./data.mjs";
 import { checkObjectReadiness, handleObjects } from "./objects.mjs";
 import { handleWorkflow } from "./workflow.mjs";
 import { workflowRequest } from "./workflow-client.mjs";
+import { handleShares, requireLegacyClient, resourceIdentity } from "./resources.mjs";
 
 export function createApi(config) {
   const authorize = createAuthorizer(config);
@@ -35,13 +36,21 @@ export function createApi(config) {
           { error: error instanceof HttpError ? error.message : "applications_unavailable", requestId });
       }
     }
-    if (path?.startsWith("/v1/data/")) {
-      const identity = await authorize(request);
+    if (path?.startsWith("/v1/data/") || path?.startsWith("/v2/data/")) {
+      let identity = await authorize(request, true);
+      if (path.startsWith("/v2/")) identity = await resourceIdentity(config, identity);
+      else requireLegacyClient(identity, config);
       return handleData(request, response, identity, config, new URL(request.url, "http://core"));
     }
-    if (path === "/v1/objects" || path?.startsWith("/v1/objects/")) {
-      const identity = await authorize(request);
+    if (["/v1/objects", "/v2/objects"].some(prefix => path === prefix || path?.startsWith(`${prefix}/`))) {
+      let identity = await authorize(request, true);
+      if (path.startsWith("/v2/")) identity = await resourceIdentity(config, identity);
+      else requireLegacyClient(identity, config);
       return handleObjects(request, response, identity, config, new URL(request.url, "http://core"));
+    }
+    if (path === "/v2/resource-shares" || path?.startsWith("/v2/resource-shares/")) {
+      const identity = await resourceIdentity(config, await authorize(request, true));
+      return handleShares(request, response, identity, config, new URL(request.url, "http://core"));
     }
     if (path?.startsWith("/v1/workflows/")) {
       const identity = await authorize(request);

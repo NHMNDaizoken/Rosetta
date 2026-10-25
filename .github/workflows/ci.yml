@@ -46,7 +46,7 @@ jobs:
         run: docker compose run --rm --no-deps --volume "$PWD/tests:/app/tests:ro" core node --test
       - name: Verify real Core integrations
         run: npm run test:integration
-      - name: Verify application registration and private worker API contract
+      - name: Verify registration, app resource isolation and private worker API contract
         run: |
           npm run test:applications
           npm run test:flowable-worker

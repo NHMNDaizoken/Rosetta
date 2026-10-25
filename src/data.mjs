@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { createHmac, randomUUID } from "node:crypto";
 import { HttpError, json, readJson, requireWriter, uuidPattern } from "./http.mjs";
+import { resourceRequest } from "./resources.mjs";
 
 export function dataToken(tenantId, secret) {
   const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
@@ -27,9 +28,12 @@ export async function dataRequest(config, tenantId, query, options = {}, resourc
 }
 
 export async function handleData(request, response, identity, config, url) {
-  const match = url.pathname.match(/^\/v1\/data\/([a-z][a-z0-9_-]{0,62})(?:\/([0-9a-f-]+))?$/);
+  const match = url.pathname.match(/^\/v[12]\/data\/([a-z][a-z0-9_-]{0,62})(?:\/([0-9a-f-]+))?$/);
   if (!match || (match[2] && !uuidPattern.test(match[2]))) throw new HttpError(400, "invalid_record_path");
   const [, collection, id] = match;
+  const send = (query, options) => identity.appId
+    ? resourceRequest(config, identity, "app_records", query, options)
+    : dataRequest(config, identity.tenantId, query, options);
   const query = new URLSearchParams({ collection: `eq.${collection}`, select: "id,collection,data,created_at", order: "created_at.asc,id.asc" });
   if (id) query.set("id", `eq.${id}`);
   if (request.method === "GET") {
@@ -38,7 +42,7 @@ export async function handleData(request, response, identity, config, url) {
       throw new HttpError(400, "invalid_query");
     }
     query.set("limit", id ? "1" : limit);
-    const rows = await dataRequest(config, identity.tenantId, query);
+    const rows = await send(query);
     if (id && !rows.length) throw new HttpError(404, "not_found");
     return json(response, 200, id ? rows[0] : { items: rows });
   }
@@ -48,14 +52,14 @@ export async function handleData(request, response, identity, config, url) {
     const body = await readJson(request);
     if (Object.keys(body).length !== 1 || !body.data || typeof body.data !== "object" || Array.isArray(body.data)) throw new HttpError(400, "data_object_required");
     const record = request.method === "POST" ? { id: randomUUID(), collection, data: body.data } : { data: body.data };
-    const rows = await dataRequest(config, identity.tenantId, query, { method: request.method, body: JSON.stringify(record) });
+    const rows = await send(query, { method: request.method, body: JSON.stringify(record) });
     if (!rows.length) throw new HttpError(404, "not_found");
     return json(response, request.method === "POST" ? 201 : 200, rows[0]);
   }
   if (request.method === "DELETE" && id) {
     requireWriter(identity);
     if (url.search) throw new HttpError(400, "invalid_query");
-    const rows = await dataRequest(config, identity.tenantId, query, { method: "DELETE" });
+    const rows = await send(query, { method: "DELETE" });
     if (!rows.length) throw new HttpError(404, "not_found");
     response.writeHead(204);
     return response.end();

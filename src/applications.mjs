@@ -71,10 +71,11 @@ export function validateApplicationBody(body, operation) {
   return body;
 }
 
-export function applicationToken(identity, secret) {
+export function applicationToken(identity, secret, role = "rosetta_app_api") {
   const encode = value => Buffer.from(JSON.stringify(value)).toString("base64url");
   const head = encode({ alg: "HS256", typ: "JWT" });
-  const body = encode({ role: "rosetta_app_api", tenant_id: identity.tenantId, sub: identity.subject,
+  const body = encode({ role, tenant_id: identity.tenantId, sub: identity.subject,
+    ...(role === "rosetta_resource_api" ? { resource_writer: identity.roles.includes("core-writer") } : {}),
     iss: identity.issuer, client_id: identity.clientId, aud: "rosetta-data", exp: Math.floor(Date.now() / 1000) + 30 });
   return `${head}.${body}.${createHmac("sha256", secret).update(`${head}.${body}`).digest("base64url")}`;
 }
