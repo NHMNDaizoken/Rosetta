@@ -1,5 +1,11 @@
 # Five-Core integration roadmap
 
+The current Foundation acceptance history below remains useful. New platform work
+is ordered by the [architecture dependency register](architecture/IMPLEMENTATION_DEPENDENCIES.md)
+and [OpenCode slices](architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md). Hosting and
+Capability Runtime remain proposed and require separate approvals; the mandatory
+Layer-2 product can proceed independently.
+
 ## Current boundary
 
 The health foundation and five Core integrations are implemented: Keycloak,
@@ -13,7 +19,11 @@ for the limits of this local recovery evidence.
 a process-liveness contract and must not silently become an aggregate readiness
 check when services are added.
 
-The five foundational capabilities and cross-core verification are implemented. The current follow-up scope is the [Capability v1 design](CAPABILITY_EXTENSIONS_V1.md), with documentation/contracts only and no new runtime modules.
+The five foundational capabilities and cross-core verification are implemented.
+Application Authority, v2 resources/shares, Foundation OpenAPI and an optional
+partially connected Console were added afterward. The [Capability v1 design](CAPABILITY_EXTENSIONS_V1.md)
+remains design-only beyond registration/approvals. Future hosting and capability
+implementation follow the separately approved architecture slices linked above.
 The maintainer has approved original source under Apache-2.0 with attribution
 2026 Rosetta Contributors and authorized public source publication to the
 authenticated account's `Rosetta` repository on `main`. New integration
@@ -66,8 +76,9 @@ Destructive resets or migrations require explicit approval.
 Extend CI to run service tests, validate configuration, start real dependencies,
 exercise cross-core success/denial/failure cases, collect diagnostics on failure
 and clean up ephemeral containers. Keep CI checks distinct from publishing and
-production deployment. GitHub-hosted CI itself is unverified until an authorized
-push and a successful run.
+production deployment. Verify CI per exact commit; the architecture
+[evidence catalog](architecture/LAYER1_CORE_CATALOG.md) records the successful
+baseline run and distinguishes it from local checks.
 
 ## SynapseDX reference review
 

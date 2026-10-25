@@ -1,5 +1,14 @@
 # Rosetta DX-OS project vision
 
+> Architecture consolidation: 2026-10-26, baseline `7fdd7fc` on main.
+> [Master architecture](architecture/ROSETTA_PLATFORM_ARCHITECTURE.md) adds the
+> proposed Developer Cloud/Hosting direction while preserving this Capability vision.
+
+The target supports externally hosted applications and proposed Rosetta-hosted
+applications using the same Foundation APIs and authority. Hosting location
+does not grant data access. Project/environment/deployment/runtime modules remain
+PROPOSED; no hosting service is present. Neither model requires Capability Runtime.
+
 Rosetta is an open-source, reusable, headless Layer-1 PaaS for independent Layer-2 products. Its direction is Capability-Driven DX-OS: products can use shared infrastructure, and may later publish or consume capabilities under explicit contracts and trust rules. Products can be written in different languages and retain their own interfaces, domain logic and development lifecycles.
 
 The five foundational Cores are implemented in a local Docker Compose stack. The four capability Cores and Verifiable Capability Composition described below are proposals, not implemented services or approved API contracts. This document preserves the product concept; it does not authorize new implementation scope or add requirements to the organizer's official competition rules.
@@ -10,7 +19,7 @@ An application can use Identity/SSO, the Gateway, structured records, opaque obj
 
 In the proposed capability-enabled path, an application also publishes explicitly described operations or consumes operations published by other authorized applications. A composition links those operations after platform checks. This path builds on the foundational Cores and their authorization boundaries.
 
-HTTP APIs are the interoperability boundary. Future language-specific SDKs can improve usability, but must remain optional. The [extension contract](CAPABILITY_EXTENSIONS_V1.md) and [OpenAPI](contracts/capability-api-v1.openapi.json) specify the capability direction. [Application Registration](APPLICATION_REGISTRATION.md) is the first implemented control-plane subset; registry, resolver and composition remain proposed. A complete foundational OpenAPI contract and optional SDKs remain planned; current working APIs are described in [CORE_API.md](CORE_API.md).
+HTTP APIs are the interoperability boundary. Future language-specific SDKs can improve usability, but must remain optional. The [extension contract](CAPABILITY_EXTENSIONS_V1.md) and [OpenAPI](contracts/capability-api-v1.openapi.json) specify the capability direction. [Application Registration](APPLICATION_REGISTRATION.md) is the first implemented control-plane subset; registry, resolver and composition remain proposed. The [Foundation OpenAPI](FOUNDATION_OPENAPI.md) now describes implemented APIs separately; SDKs remain planned. Current working APIs are also described in [CORE_API.md](CORE_API.md).
 
 ## Ownership and architectural boundaries
 
@@ -81,7 +90,7 @@ Before implementing extensions, review capability publication/versioning, suppor
 
 ## Development and operational scope
 
-The implemented scope is the five-Core Layer-1 foundation, with source tests, real-service integration checks and isolated structured-data restore verification. Future work includes OpenAPI, optional SDKs, the proposed capability Cores and independent Layer-2 products. Optional AI planning remains a separately reviewed integration. No GUI, registry or composition runtime is implemented here.
+The implemented scope is the five-Core Layer-1 foundation, Application Authority, private resources/shares and Foundation OpenAPI, with source tests, real-service integration checks and isolated structured-data restore verification. An optional Console exists with [partially verified live behavior](architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions). Future work includes hosting, optional SDKs, the proposed capability Cores and independent Layer-2 products. Optional AI planning remains a separately reviewed integration. No Layer-2 business GUI, registry, hosting controller or composition runtime is implemented here.
 
 Docker Compose is the initial self-hosting strategy. A VPS and public domain are future operational choices; no Kubernetes or OpenStack work is planned in this scope. Public deployment needs an approved target, TLS, secret management, full-platform recovery and rollback verification. Current limits are documented in [OPERATIONS.md](OPERATIONS.md).
 

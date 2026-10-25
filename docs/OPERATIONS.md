@@ -1,7 +1,8 @@
 # Local deployment and recovery
 
 This Compose stack is a single-host Layer 1 development/test environment. Only
-the Nginx gateway binds a host port, on `127.0.0.1:8080`. No production deployment,
+the Nginx gateway binds a host port by default, on `127.0.0.1:8080`; the optional
+Console profile also publishes loopback port 3000. No production deployment,
 container registry publication or automatic release is configured.
 
 ## Start, check and stop
@@ -86,4 +87,7 @@ Before any deployment beyond this local stack, approve the target and review
 TLS, hostnames/proxies, secret storage/rotation, fixture account removal, resource
 limits, vulnerability findings, complete binary license notices, backups and
 rollback. Do not expose the private database, filer or engine interfaces.
-No GUI, business workflow or application-specific schema is supplied here.
+No Layer-2 business GUI/workflow or application-specific schema is supplied here.
+The optional Console is a management client with [audit limitations](architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions).
+Future application hosting is defined in the [proposed deployment model](architecture/DEPLOYMENT_MODEL.md),
+not enabled by this local operations guide.

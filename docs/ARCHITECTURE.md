@@ -1,5 +1,27 @@
 # Architecture Boundaries
 
+> Reviewed: 2026-10-26 | Branch: main | Audit baseline: `7fdd7fc381bdd29d81d56fb08a764efff8c41582`
+
+## Consolidated architecture and changes
+
+Start with the [architecture index](index.md) and
+[platform definition](architecture/ROSETTA_PLATFORM_ARCHITECTURE.md).
+This consolidation accounts for Application Authority, v2 ownership/sharing,
+Foundation OpenAPI and the partially connected Console. It proposes external
+and Rosetta-hosted application models while preserving optional Verifiable
+Capability Composition. Hosting, projects, deployments and Capability Runtime
+are not implemented or approved by this documentation.
+
+The [catalog](architecture/LAYER1_CORE_CATALOG.md) owns implementation/evidence;
+[ownership](architecture/RESOURCE_OWNERSHIP.md),
+[planes](architecture/CONTROL_DATA_RUNTIME_PLANES.md) and
+[deployment model](architecture/DEPLOYMENT_MODEL.md) own target responsibilities.
+Use the [eight maps](architecture/ARCHITECTURE_MAPS.md),
+[ADRs](architecture/ARCHITECTURE_DECISIONS.md),
+[dependency DAG](architecture/IMPLEMENTATION_DEPENDENCIES.md) and
+[one-slice handoff](architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md).
+Official interpretation is consolidated in [traceability](architecture/OLP_REQUIREMENT_TRACEABILITY.md).
+
 ## Layer 1 — Headless PaaS
 
 Required Core capabilities: Identity/SSO; API Gateway; structured data; unstructured/object data; workflow engine. All must be reusable independently of a single demo application's business rules.
@@ -54,25 +76,18 @@ Flowable REST is the private BPMN engine. Core checks the tenant's definition
 and execution ownership; an RLS-protected SQL ledger reserves idempotency keys
 before starting work and reconciles ambiguous outcomes against engine history.
 The one-shot initializer provisions only an original technical checkpoint
-fixture. No business workflow, GUI, SDK or AI component is implemented.
+fixture. No Layer-2 business GUI/workflow, SDK or AI component is implemented.
+The optional Rosetta Console is a management client with the limitations recorded
+in the catalog; it is not a separate authorization server or hosting control API.
 
-```mermaid
-flowchart LR
-    Caller[API caller] -->|HTTP / OIDC| Gateway[Nginx gateway]
-    Gateway -->|OIDC routes| Identity[Keycloak]
-    Gateway -->|auth request and v1 API| Core[Rosetta Core adapters]
-    Core -->|token introspection| Identity
-    Core -->|tenant assertions| Data[PostgREST]
-    Core -->|tenant paths| Objects[SeaweedFS]
-    Core -->|authenticated REST| Workflow[Flowable REST]
-    Identity -->|identity database| Database[PostgreSQL]
-    Data -->|data database and RLS| Database
-    Workflow -->|workflow database| Database
-```
+The current topology is maintained in
+[MAP 02](architecture/ARCHITECTURE_MAPS.md#map-02-current-implemented-architecture),
+including logical authority adapters and public/private boundaries.
 
 Separate private networks isolate identity, data, objects and workflow backends;
-Core joins the networks it integrates. The gateway publishes only a loopback
-port. Operator access to Docker/database/engine credentials is a trusted local
+Core joins the networks it integrates. The gateway publishes a loopback
+port; the optional Console profile also publishes loopback port 3000.
+Operator access to Docker/database/engine credentials is a trusted local
 administrative boundary, not an end-user permission model.
 
 See [the integration roadmap](INTEGRATION_ROADMAP.md) for the ordered Core work,

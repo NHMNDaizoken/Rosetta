@@ -16,6 +16,16 @@ Rosetta addresses the infrastructure work through a reusable Core. Its longer-te
 
 ## Vision and objectives
 
+The consolidated target is a **Self-Hosted Open-Source Developer Cloud Platform**:
+external applications use Rosetta BaaS; proposed Rosetta-hosted applications run
+on approved operator infrastructure and use the same contracts. Project/environment
+management, deployment controllers, app ingress/TLS and credential bindings remain
+**PROPOSED**, not working hosting features. Optional **Verifiable Capability
+Composition** remains the long-term direction and is not required for BaaS/hosting.
+See the [architecture index](docs/index.md),
+[eight editable maps](docs/architecture/ARCHITECTURE_MAPS.md) and
+[bounded OpenCode handoff](docs/architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md).
+
 The project direction is **Capability-Driven DX-OS**, centered on **Verifiable Capability Composition**. The objectives are to:
 
 - Support independent products through public APIs, regardless of their language.
@@ -31,40 +41,12 @@ These objectives describe the direction of the project. The [implementation stat
 
 Layer 1 owns generic infrastructure and, in the proposed architecture, platform-level capability discovery, validation, composition and trust enforcement. Layer 2 owns product interfaces, domain rules and application-specific capabilities. A GUI belongs to an application; a provider's administration console does not make the Rosetta Core a GUI product.
 
-```mermaid
-flowchart TB
-    subgraph L2["Layer 2: independent products"]
-        Apps["Applications in different languages: domain logic and GUIs"]
-    end
-    subgraph L1["Layer 1: Rosetta platform"]
-        Gateway["API Gateway: Nginx"]
-        API["Core API adapters: Node.js"]
-        Identity["Identity / SSO: Keycloak"]
-        Data["Structured Data: PostgreSQL + PostgREST"]
-        Objects["Unstructured Data: SeaweedFS"]
-        Workflow["Workflow Engine: Flowable REST"]
-        subgraph Proposed["Proposed capability extensions"]
-            Registry["Capability Registry Core"]
-            Resolver["Compatibility Resolver Core"]
-            Composition["Composition & Execution Core"]
-            Trust["Cross-App Trust Core"]
-        end
-        Gateway --> API
-        Gateway --> Identity
-        API --> Identity
-        API --> Data
-        API --> Objects
-        API --> Workflow
-        API -.-> Registry
-        Registry -.-> Resolver
-        Resolver -.-> Composition
-        Trust -.-> Composition
-        Composition -.-> Workflow
-    end
-    Apps -->|"Public HTTP APIs; optional future SDKs"| Gateway
-```
-
-The solid Layer-1 paths represent current integrations. The application box shows intended consumers; dashed paths and the four capability extensions are proposed. "Core" describes a platform boundary, not a requirement for one container per Core. Current adapters share a small Node.js service and delegate infrastructure functions to upstream projects. See [architecture boundaries](docs/ARCHITECTURE.md) for current networks, data ownership and service relationships.
+The canonical diagrams distinguish current integrations and future consumers:
+[competition/product context](docs/architecture/ARCHITECTURE_MAPS.md#map-01-competition-and-product-context),
+[current runtime](docs/architecture/ARCHITECTURE_MAPS.md#map-02-current-implemented-architecture)
+and [target logical architecture](docs/architecture/ARCHITECTURE_MAPS.md#map-03-target-logical-core-taxonomy).
+“Core” describes a platform boundary; current adapters share one Node process and
+reuse upstream providers. Projects, hosting and Capability Runtime remain proposed.
 
 Public contracts reduce coupling to providers. Replacing a provider can still require data migration, identity mapping, workflow conversion and compatibility testing; provider interchangeability is not guaranteed.
 
@@ -132,6 +114,8 @@ This example is illustrative. Neither application nor its capabilities is includ
 | CI and source licensing | GitHub Actions and approved Apache-2.0 project licensing in place. | CI runs source/unit/container/integration/restore checks; binary redistribution and vulnerability audits remain separate work. |
 | Four capability extensions and composition | Proposed. | Review contracts, deterministic validation, trust/delegation and execution semantics before coding. |
 | OpenAPI and optional SDKs | Implemented Foundation OpenAPI with structural and real HTTP conformance checks; separate Capability design draft. No SDK. | Keep route/schema/authorization coverage current before optional client generation. |
+| Optional Rosetta Console | React management UI implemented; partially connected, with preview/session resource behavior. | [Audit qualifications](docs/architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions): live identity fallback, persisted bearer token, mock-only v2 methods and packaging gaps. Five preview/UI tests do not prove live administration. |
+| Developer Cloud / application hosting | Proposed architecture only; no project/deployment/controller runtime. | Approve one [handoff slice](docs/architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md) and its ADRs before implementation. |
 | Layer-2 GUI and optional AI planning | Future work; no implementation here. | Build separately against public contracts; an AI integration needs its own approved scope. |
 | VPS/public-domain deployment | Future operational work. | Approve a target and verify TLS, secrets, backups and rollback. No public demo is configured. |
 
@@ -273,6 +257,7 @@ Rosetta's adapters use Node.js 24 and its standard HTTP, crypto and test APIs, w
 | Independent Layer-2 products | No application is implemented. | Demonstrate an application using foundational APIs, then a separately reviewed cross-application capability scenario. |
 | Optional AI planning | Aspirational integration. | Validate any planner output through the same deterministic Core checks and authorization. |
 | Deployment and release | Local Compose and CI only. | Approve a target; verify TLS/secrets, full backup/restore, rollback, security/license audits and release procedures. |
+| Developer Cloud / hosting architecture | Consolidated proposal with logical groups A–F, ownership, planes, ADRs and dependency DAG. | Start with the proposed Console trust slice; project metadata and privileged hosting need separate contract/security approvals. |
 
 There are no promised dates or published release milestones in this roadmap. The [foundation integration roadmap](docs/INTEGRATION_ROADMAP.md) retains detailed acceptance criteria and the SynapseDX reference review. Capability extension work requires reviewed contracts and authorization before implementation.
 
@@ -285,6 +270,8 @@ Use [GitHub Issues](https://github.com/NHMNDaizoken/Rosetta/issues) for public b
 Original Rosetta source and documentation are licensed under [Apache License 2.0](LICENSE), with attribution **Copyright 2026 Rosetta Contributors**, subject to contributors' actual rights and agreement. Preserve upstream notices. See [NOTICE](NOTICE), [THIRD-PARTY.md](THIRD-PARTY.md) and the [licensing policy](docs/LICENSING.md). `private: true` in package metadata prevents accidental npm publication; it does not change the project's open-source license.
 
 ## Documentation and self-hosting
+
+- [Architecture index and implementation evidence](docs/index.md): current versus target, eight maps, official traceability, decisions and the OpenCode backlog.
 
 - [Rosetta Console](docs/CONSOLE.md): Layer-1 operational control plane design, setup, architecture and feature matrix.
 - [Project vision](docs/PROJECT_VISION.md): capability model, proposed Cores and open design decisions.

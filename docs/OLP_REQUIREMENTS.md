@@ -1,5 +1,10 @@
 # OLP PMNM 2026 — Competition Compliance
 
+The [consolidated requirement matrix](architecture/OLP_REQUIREMENT_TRACEABILITY.md)
+records the official pages read on 2026-10-26, baseline evidence, broader service
+groups, four technical principles and unresolved submission risks. This file
+remains the quick submission checklist; the organizer's pages remain authoritative.
+
 ## Official references
 
 - Problem statement: https://vfossa.vn/tin-tuc/de-thi-phan-mem-nguon-mo-olp-2026-798.html
@@ -18,8 +23,8 @@ Verify the latest organizer announcements before submission. The references, not
 
 - Publish project source in an accessible Internet repository under an OSI-approved license, with compatible rights to distributed components.
 - Maintain versioned source releases, reproducible source-build instructions, documented dependencies, README, change history, and issue tracking.
-- The supplied competition analysis states the submission deadline as **2026-12-06 17:00 Vietnam time**; verify this against current official notices.
-- Scoring summary from the supplied analysis: 50 points for FOSS/project practices and 50 points for product quality. Do not optimize for a checklist at the expense of a working demo.
+- The official problem's submission section gives **2026-12-06 17:00 Vietnam time**; verify later organizer notices before submitting.
+- The official rules split scoring into 50 points for FOSS/project practices and 50 points for product quality. Review the detailed rows, including the archive-format clarification recorded in the matrix.
 
 ## Pre-submission review
 

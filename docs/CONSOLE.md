@@ -5,6 +5,14 @@ SPDX-License-Identifier: Apache-2.0
 
 # Rosetta Console — Layer-1 Operational Control Plane
 
+> Audit qualification, 2026-10-26 at `7fdd7fc` on main: IMPLEMENTED management UI,
+> PARTIALLY VERIFIED. Read the [source-based findings](architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions)
+> before interpreting the screen inventory as live functionality. There is no
+> Console PKCE implementation, hosting API or protected server audit viewer.
+> Tokens currently persist in localStorage; identity failure can return mock
+> identity, and resource/share methods remain local simulations in live mode.
+> These are gaps, not recommended authentication or authorization patterns.
+
 **Rosetta Console** is the official operational control center for the **Rosetta DX-OS** Layer-1 headless PaaS platform.
 
 *Tagline:* **One platform. Many applications. Connected capabilities.**
@@ -28,7 +36,7 @@ The Rosetta Console adheres to a restrained, premium SaaS infrastructure design 
   - **App Background** (`#F7F8F6` light / `#0B161E` dark): High-contrast, eye-friendly layout.
 - **Typography**: Inter for UI and section hierarchy; JetBrains Mono for technical identifiers, UUIDs, hashes, and API endpoints.
 - **Bilingual Localization**: Native Vietnamese as default interface language with full, complete English translation (100% dictionary coverage, no mixed strings).
-- **Accessibility**: Meets WCAG 2.2 AA standards (4.5:1 text contrast minimum, visible focus rings, ARIA live regions for badges, focus traps in dialogs, and `prefers-reduced-motion` compliance).
+- **Accessibility**: Source includes focus/ARIA/reduced-motion patterns. Complete WCAG 2.2 AA conformance is UNVERIFIED in the architecture audit; component tests are not an accessibility certification.
 
 ---
 
@@ -62,21 +70,21 @@ Rosetta Console
 | **A. Overview** | Live/Preview mode switch, manual refresh, quick action jumps | Process liveness (`/health`), dependency readiness (`/ready`), tenant ID, roles | Host CPU/RAM telemetry (omitted honestly; no fake metrics) | Platform-wide automated recovery |
 | **B. Core Services** | Detailed inspection drawer for each of the 5 Cores | Provider technology, protocols, port boundaries, verified health status | Direct upstream admin ports (kept private in internal Docker network) | Automated core component failover |
 | **C. Applications** | App proposal (`POST /v1/applications`), two-person approval (`POST /v1/approvals` + `/approve`), state transition (`/state`) | App lookup (`GET /v1/applications/{appId}`), ETag, revision, JCS SHA-256 digest | Global application directory listing (excluded in v1 to protect tenant isolation) | Dynamic capability grant allocation |
-| **D. Resources** | Create record (`POST /v2/data/{col}`), upload object (`/v2/objects`), create share (`/v2/resource-shares`), revoke share | Record details JSON viewer, binary object metadata, active read shares list | Unrestricted global data explorer; public client credentials | On-behalf-of token exchange |
+| **D. Resources** | Preview/session simulation only; no live v2 writes established in apiClient | Mock/session record, object and share views; not a server listing | Live backend enrollment/delegation; unrestricted explorer and browser client secrets | Explicitly label/disable simulation in live mode; separately reviewed backend trust design |
 | **E. Workflows** | Start execution with `Idempotency-Key` (`POST /v1/workflows/executions`), complete task (`/complete`), cancel (`DELETE`) | Installed BPMN definitions (`/v1/workflows/definitions`), execution state & history | Public BPMN XML upload / script deployment (operator-installed only) | Multi-step user task assignment |
 | **F. API Explorer** | Search endpoints, tag filtering, copy cURL, copy TypeScript fetch | Request/response schemas, HTTP status codes, auth requirements for all 44 operations | Interactive API playground with privileged tokens (kept client-side safe) | Capability OpenAPI runtime testing |
-| **G. Security** | Session activity logger tracking all administrative mutations | Multi-tier defense-in-depth architecture, token introspection flow, audit guidance | Public unauthenticated audit event API (database table `app_private.audit_events`) | Centralized security scanner |
+| **G. Security** | Browser-generated session activity, not authoritative server audit | Architecture/audit guidance | No public protected audit API; actual private table is `app_private.audit` | Separate protected audit contract |
 | **H. Capabilities** | Specification file references and architecture comparison | Architectural review of Registry, Resolver, Cross-App Trust, Composition | Active runtime APIs (clearly badged as "Planned / Design-Only") | Full Layer-2 Capability Runtime |
 
 ---
 
 ## 4. Security Architecture
 
-1. **Authentication**: Integrated with Keycloak 26.8.1 OIDC using public client `rosetta-local` (S256 PKCE) or operator bearer token.
-2. **No Secret Leaks**: Client secrets are never embedded in frontend JavaScript or stored in `localStorage`.
-3. **Fail-Closed Boundary**: When permissions are absent or the caller is unenrolled, the console fails closed with an explicit permission notice.
+1. **Authentication**: Console currently accepts a manually supplied bearer token and stores it in `localStorage`. No Console PKCE exchange was found. Foundation's separate Keycloak PKCE fixture does not prove Console login.
+2. **Credential boundary**: Do not enter backend service secrets or credentials intended for application-private v2 calls in a browser. Persisted operator tokens and editable gateway destinations require the proposed S0 hardening.
+3. **Server enforcement**: Core and PostgreSQL fail closed. Console `getIdentity` can currently substitute mock identity after live failure; this UI behavior must be corrected and is not an authorization guarantee.
 4. **Two-Person Rule Confirmation**: Sensitive operations (application activation, suspension, permanent revocation, execution cancellation, share deletion) require explicit confirmation dialogs with accessible focus traps.
-5. **Mode Transparency**: A persistent header badge clearly distinguishes **LIVE CONNECTED** mode (real requests to `http://127.0.0.1:8080`) from **PREVIEW MODE** (realistic mock data for demonstration and offline development).
+5. **Mode Transparency**: A header badge indicates selected live/preview mode, but some lists/resource methods still use mock/session data in live mode. The badge alone does not establish live API coverage.
 
 ---
 
@@ -88,7 +96,7 @@ During our audit of the Foundation OpenAPI 3.1 specification, we identified the 
    - *Current State:* `GET /v1/applications/{appId}` requires knowing the exact UUID.
    - *Recommendation:* Expose a tenant-scoped administrative listing endpoint restricted strictly to operators with the `admin` or `applications.approve` permission.
 2. **Platform Audit Events (`GET /v1/admin/audit-events`)**:
-   - *Current State:* Audit events are recorded internally in PostgreSQL table `app_private.audit_events`.
+   - *Current State:* Application/approval/share audit events are recorded internally in PostgreSQL table `app_private.audit`; this is not a platform-wide immutable audit service.
    - *Recommendation:* Expose a paginated, time-filtered endpoint returning audit events for verified administrators.
 3. **Component Health Diagnostic (`GET /v1/admin/diagnostics`)**:
    - *Current State:* `/ready` returns a binary `ready` or `503 not_ready`.
@@ -135,6 +143,13 @@ The Console will be accessible at `http://127.0.0.1:3000/` and proxies backend r
 ---
 
 ## 7. Verification Summary
+
+The architecture audit reran five preview/UI tests successfully with React act
+warnings; it did not build/launch the Console or repeat visual/accessibility QA.
+The build/visual items below are earlier implementation-report claims, not new
+audit evidence. [Current evidence and CI gaps](architecture/LAYER1_CORE_CATALOG.md)
+take precedence when assessing live functionality. Container proxy/reproducibility
+limitations are recorded there; do not assume the optional profile is verified.
 
 - **Console Vitest Suite**: 5 unit & UI integration tests passed (`npm run console:test`).
 - **Production Build**: Verified with TypeScript 5.7 and Vite 6.1 (`npm run console:build`).
