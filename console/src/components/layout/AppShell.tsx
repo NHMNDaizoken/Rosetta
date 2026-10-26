@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import React, { useState } from "react";
-import { ScreenId, UserIdentity } from "../../types";
+import { ScreenId, IdentityState } from "../../types";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { BRAND } from "../../constants/brand";
@@ -13,7 +13,7 @@ interface AppShellProps {
   onNavigate: (screen: ScreenId) => void;
   isLiveMode: boolean;
   onToggleLiveMode: () => void;
-  identity: UserIdentity;
+  identityState: IdentityState;
   children: React.ReactNode;
 }
 
@@ -22,7 +22,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   onNavigate,
   isLiveMode,
   onToggleLiveMode,
-  identity,
+  identityState,
   children,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -88,7 +88,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           onOpenMobileMenu={() => setIsMobileOpen(true)}
           isLiveMode={isLiveMode}
           onToggleLiveMode={onToggleLiveMode}
-          identity={identity}
+          identityState={identityState}
         />
 
         <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">

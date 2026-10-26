@@ -31,6 +31,7 @@ import { StatusIndicator } from "../common/StatusIndicator";
 
 export const ApplicationsScreen: React.FC = () => {
   const { t } = useI18n();
+  const isLive = api.getLiveMode();
   const [applications, setApplications] = useState<Application[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
@@ -210,7 +211,7 @@ export const ApplicationsScreen: React.FC = () => {
       <div className="p-4 rounded-lg bg-slate-50 dark:bg-[#12232F] border border-slate-200/80 dark:border-[#223E50] flex items-start gap-3 text-xs text-slate-600 dark:text-slate-300">
         <Info className="w-4 h-4 text-rosetta-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
         <p className="leading-relaxed">
-          {t.applications.globalListNotice}
+          {isLive ? t.applications.liveListNotice : t.applications.globalListNotice}
         </p>
       </div>
 
@@ -270,6 +271,13 @@ export const ApplicationsScreen: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#223E50]/70">
+                {filteredApps.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-5 py-6 text-center text-slate-400">
+                      {isLive ? t.applications.liveEmptyList : t.common.noData}
+                    </td>
+                  </tr>
+                )}
                 {filteredApps.map((app) => (
                   <tr
                     key={app.appId}

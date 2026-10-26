@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import React, { useState, useEffect } from "react";
-import { ScreenId, UserIdentity } from "./types";
+import { ScreenId, IdentityState } from "./types";
 import { api } from "./services/apiClient";
 import { I18nProvider } from "./locales/i18n";
 import { ThemeProvider } from "./services/themeContext";
@@ -35,7 +35,12 @@ export const AppContent: React.FC = () => {
   });
 
   const [isLiveMode, setIsLiveMode] = useState<boolean>(api.getLiveMode());
-  const [identity, setIdentity] = useState<UserIdentity>(MOCK_IDENTITY);
+  const [identityState, setIdentityState] = useState<IdentityState>(() =>
+    api.getLiveMode()
+      ? { status: "loading" }
+      : { status: "preview", identity: MOCK_IDENTITY }
+  );
+  const [identityNonce, setIdentityNonce] = useState(0);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -60,8 +65,30 @@ export const AppContent: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    api.getIdentity().then(setIdentity);
-  }, [isLiveMode]);
+    if (!isLiveMode) {
+      setIdentityState({ status: "preview", identity: MOCK_IDENTITY });
+      return;
+    }
+    let cancelled = false;
+    setIdentityState({ status: "loading" });
+    api.getIdentity().then((next) => {
+      if (!cancelled) setIdentityState(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isLiveMode, identityNonce]);
+
+  useEffect(() => {
+    return api.subscribe(() => {
+      const live = api.getLiveMode();
+      setIsLiveMode(live);
+      setIdentityState(
+        live ? { status: "loading" } : { status: "preview", identity: MOCK_IDENTITY }
+      );
+      setIdentityNonce((value) => value + 1);
+    });
+  }, []);
 
   const handleNavigate = (screen: ScreenId) => {
     setCurrentScreen(screen);
@@ -72,31 +99,54 @@ export const AppContent: React.FC = () => {
   const handleToggleLiveMode = () => {
     const next = !isLiveMode;
     setIsLiveMode(next);
+    setIdentityState(
+      next ? { status: "loading" } : { status: "preview", identity: MOCK_IDENTITY }
+    );
     api.setLiveMode(next);
+  };
+
+  const modeKey = isLiveMode ? "live" : "preview";
+  const retryIdentity = () => {
+    setIdentityState({ status: "loading" });
+    setIdentityNonce((value) => value + 1);
   };
 
   const renderActiveScreen = () => {
     switch (currentScreen) {
       case "overview":
-        return <OverviewScreen onNavigate={handleNavigate} identity={identity} />;
+        return (
+          <OverviewScreen
+            key={modeKey}
+            onNavigate={handleNavigate}
+            identityState={identityState}
+            onRetryIdentity={retryIdentity}
+          />
+        );
       case "cores":
         return <CoreServicesScreen />;
       case "applications":
-        return <ApplicationsScreen />;
+        return <ApplicationsScreen key={modeKey} />;
       case "resources":
-        return <AccessResourcesScreen />;
+        return <AccessResourcesScreen key={modeKey} />;
       case "workflows":
-        return <WorkflowsScreen />;
+        return <WorkflowsScreen key={modeKey} />;
       case "api-explorer":
         return <ApiExplorerScreen />;
       case "security":
-        return <SecurityActivityScreen />;
+        return <SecurityActivityScreen key={modeKey} />;
       case "settings":
         return <PlatformSettingsScreen />;
       case "capabilities":
         return <CapabilitiesScreen />;
       default:
-        return <OverviewScreen onNavigate={handleNavigate} identity={identity} />;
+        return (
+          <OverviewScreen
+            key={modeKey}
+            onNavigate={handleNavigate}
+            identityState={identityState}
+            onRetryIdentity={retryIdentity}
+          />
+        );
     }
   };
 
@@ -106,7 +156,7 @@ export const AppContent: React.FC = () => {
       onNavigate={handleNavigate}
       isLiveMode={isLiveMode}
       onToggleLiveMode={handleToggleLiveMode}
-      identity={identity}
+      identityState={identityState}
     >
       {renderActiveScreen()}
     </AppShell>

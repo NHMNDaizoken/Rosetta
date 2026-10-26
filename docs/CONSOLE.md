@@ -9,9 +9,10 @@ SPDX-License-Identifier: Apache-2.0
 > PARTIALLY VERIFIED. Read the [source-based findings](architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions)
 > before interpreting the screen inventory as live functionality. There is no
 > Console PKCE implementation, hosting API or protected server audit viewer.
-> Tokens currently persist in localStorage; identity failure can return mock
-> identity, and resource/share methods remain local simulations in live mode.
-> These are gaps, not recommended authentication or authorization patterns.
+> The later S0 session-truthfulness slice keeps bearer tokens in tab memory only,
+> removes mock identity substitution in LIVE, and disables mock-only v2 writes in
+> LIVE. These remain UI safeguards, not authentication or authorization
+> guarantees.
 
 **Rosetta Console** is the official operational control center for the **Rosetta DX-OS** Layer-1 headless PaaS platform.
 
@@ -67,24 +68,24 @@ Rosetta Console
 
 | Screen | Implemented Live UI Actions | Read-Only Views | Unavailable / Out-of-Scope APIs | Planned Roadmap |
 | --- | --- | --- | --- | --- |
-| **A. Overview** | Live/Preview mode switch, manual refresh, quick action jumps | Process liveness (`/health`), dependency readiness (`/ready`), tenant ID, roles | Host CPU/RAM telemetry (omitted honestly; no fake metrics) | Platform-wide automated recovery |
+| **A. Overview** | Live/Preview mode switch, manual refresh, identity retry, quick action jumps | Process liveness (`/health`), dependency readiness (`/ready`), verified tenant ID and roles (`/v1/identity`); truthful missing/rejected/forbidden/unavailable/timeout states | Host CPU/RAM telemetry (omitted honestly; no fake metrics) | Platform-wide automated recovery |
 | **B. Core Services** | Detailed inspection drawer for each of the 5 Cores | Provider technology, protocols, port boundaries, verified health status | Direct upstream admin ports (kept private in internal Docker network) | Automated core component failover |
 | **C. Applications** | App proposal (`POST /v1/applications`), two-person approval (`POST /v1/approvals` + `/approve`), state transition (`/state`) | App lookup (`GET /v1/applications/{appId}`), ETag, revision, JCS SHA-256 digest | Global application directory listing (excluded in v1 to protect tenant isolation) | Dynamic capability grant allocation |
-| **D. Resources** | Preview/session simulation only; no live v2 writes established in apiClient | Mock/session record, object and share views; not a server listing | Live backend enrollment/delegation; unrestricted explorer and browser client secrets | Explicitly label/disable simulation in live mode; separately reviewed backend trust design |
+| **D. Resources** | Preview/session simulation only; v2 writes are disabled and rejected in LIVE | Mock/session record, object and share views; not a server listing | Live backend enrollment/delegation; unrestricted explorer and browser client secrets | Separately reviewed backend trust design for live v2 resource APIs |
 | **E. Workflows** | Start execution with `Idempotency-Key` (`POST /v1/workflows/executions`), complete task (`/complete`), cancel (`DELETE`) | Installed BPMN definitions (`/v1/workflows/definitions`), execution state & history | Public BPMN XML upload / script deployment (operator-installed only) | Multi-step user task assignment |
 | **F. API Explorer** | Search endpoints, tag filtering, copy cURL, copy TypeScript fetch | Request/response schemas, HTTP status codes, auth requirements for all 44 operations | Interactive API playground with privileged tokens (kept client-side safe) | Capability OpenAPI runtime testing |
-| **G. Security** | Browser-generated session activity, not authoritative server audit | Architecture/audit guidance | No public protected audit API; actual private table is `app_private.audit` | Separate protected audit contract |
+| **G. Security** | Browser-generated session activity, labeled as diagnostics; uses the verified LIVE identity only | Architecture/audit guidance | No public protected audit API; actual private table is `app_private.audit` | Separate protected audit contract |
 | **H. Capabilities** | Specification file references and architecture comparison | Architectural review of Registry, Resolver, Cross-App Trust, Composition | Active runtime APIs (clearly badged as "Planned / Design-Only") | Full Layer-2 Capability Runtime |
 
 ---
 
 ## 4. Security Architecture
 
-1. **Authentication**: Console currently accepts a manually supplied bearer token and stores it in `localStorage`. No Console PKCE exchange was found. Foundation's separate Keycloak PKCE fixture does not prove Console login.
-2. **Credential boundary**: Do not enter backend service secrets or credentials intended for application-private v2 calls in a browser. Persisted operator tokens and editable gateway destinations require the proposed S0 hardening.
-3. **Server enforcement**: Core and PostgreSQL fail closed. Console `getIdentity` can currently substitute mock identity after live failure; this UI behavior must be corrected and is not an authorization guarantee.
+1. **Authentication**: Console accepts a manually supplied bearer token and keeps it in tab memory only. Legacy persisted tokens are deleted on startup, and reloading clears the token. No Console PKCE exchange was found. Foundation's separate Keycloak PKCE fixture does not prove Console login.
+2. **Credential boundary**: Do not enter backend service secrets or credentials intended for application-private v2 calls in a browser. Gateway destinations are restricted to the same origin or loopback hosts; the Console refuses to send `Authorization` to any other origin and removes invalid persisted gateway URLs.
+3. **Server enforcement**: Core and PostgreSQL fail closed. In LIVE mode the Console uses only `/v1/identity` for tenant, subject, roles and permissions. Missing, rejected, forbidden, unavailable and timeout identities are shown distinctly; preview identity is never substituted.
 4. **Two-Person Rule Confirmation**: Sensitive operations (application activation, suspension, permanent revocation, execution cancellation, share deletion) require explicit confirmation dialogs with accessible focus traps.
-5. **Mode Transparency**: A header badge indicates selected live/preview mode, but some lists/resource methods still use mock/session data in live mode. The badge alone does not establish live API coverage.
+5. **Mode Transparency**: Switching PREVIEW → LIVE clears preview applications, approvals, executions, records, shares and session events. LIVE listings contain only data fetched or created in the current session; endpoints without a listing contract show an explicit notice, and mock-only v2 mutations fail instead of appearing successful. Preview is the only mode that displays mock data.
 
 ---
 
@@ -144,16 +145,15 @@ The Console will be accessible at `http://127.0.0.1:3000/` and proxies backend r
 
 ## 7. Verification Summary
 
-The architecture audit reran five preview/UI tests successfully with React act
-warnings; it did not build/launch the Console or repeat visual/accessibility QA.
-The build/visual items below are earlier implementation-report claims, not new
-audit evidence. [Current evidence and CI gaps](architecture/LAYER1_CORE_CATALOG.md)
-take precedence when assessing live functionality. Container proxy/reproducibility
-limitations are recorded there; do not assume the optional profile is verified.
+The S0 slice added API and component coverage for token non-persistence, gateway
+origin checks, identity failure states, PREVIEW → LIVE state clearing, and
+LIVE-mode rejection of mock-only operations. GitHub Actions now runs the Console
+suite and production build after the root checks. The optional Docker profile and
+full visual/accessibility QA were not rerun in S0; [current evidence and CI gaps](architecture/LAYER1_CORE_CATALOG.md)
+take precedence when assessing live functionality.
 
-- **Console Vitest Suite**: 5 unit & UI integration tests passed (`npm run console:test`).
-- **Production Build**: Verified with TypeScript 5.7 and Vite 6.1 (`npm run console:build`).
+- **Console Vitest Suite**: 21 tests passed (`npm run console:test`) — 8 API client tests and 13 UI integration tests.
+- **Production Build**: Verified with TypeScript and Vite (`npm run console:build`).
 - **Core Unit Tests**: 22 unit tests passed (`npm test`).
 - **Repository Hygiene & SPDX**: Verified with `npm run check`.
 - **OpenAPI Contract Validation**: 44 operations validated with `npm run check:contracts`.
-- **Visual & Responsive QA**: Verified with browser automation across 1440px desktop, 1024px laptop, 768px tablet, and 390px mobile viewports.

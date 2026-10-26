@@ -11,7 +11,7 @@ import {
   Building2,
   CheckCircle2,
 } from "lucide-react";
-import { ScreenId, UserIdentity } from "../../types";
+import { ScreenId, IdentityState } from "../../types";
 import { useI18n } from "../../locales/i18n";
 import { useTheme } from "../../services/themeContext";
 import { Breadcrumbs } from "./Breadcrumbs";
@@ -23,7 +23,7 @@ interface HeaderProps {
   onOpenMobileMenu: () => void;
   isLiveMode: boolean;
   onToggleLiveMode: () => void;
-  identity: UserIdentity;
+  identityState: IdentityState;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -32,10 +32,14 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenMobileMenu,
   isLiveMode,
   onToggleLiveMode,
-  identity,
+  identityState,
 }) => {
   const { language, toggleLanguage, t } = useI18n();
   const { isDark, toggleTheme } = useTheme();
+  const identity = identityState.identity;
+  const identityText = identity?.tenantId ?? t.identity[identityState.status];
+  const identityVerified =
+    identityState.status === "authenticated" || identityState.status === "preview";
 
   return (
     <header className="h-16 px-4 md:px-6 bg-white/95 dark:bg-[#0E1A23]/95 backdrop-blur-xs border-b border-slate-200/80 dark:border-[#223E50] flex items-center justify-between sticky top-0 z-30 select-none">
@@ -74,10 +78,15 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Tenant Indicator */}
-        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 dark:bg-[#172E3C] border border-slate-200/80 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 font-mono">
+        <div
+          className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 dark:bg-[#172E3C] border border-slate-200/80 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 font-mono"
+          title={identityState.status === "preview" ? t.identity.preview : undefined}
+        >
           <Building2 className="w-3.5 h-3.5 text-rosetta-blue dark:text-sky-400" />
-          <span>{identity.tenantId}</span>
-          <CheckCircle2 className="w-3 h-3 text-teal-600 dark:text-teal-400 ml-0.5" />
+          <span>{identityText}</span>
+          {identityVerified && (
+            <CheckCircle2 className="w-3 h-3 text-teal-600 dark:text-teal-400 ml-0.5" />
+          )}
         </div>
 
         {/* Language Toggle */}

@@ -30,6 +30,12 @@ jobs:
           package-manager-cache: false
       - name: Check source syntax
         run: npm run check
+      - name: Install Console dependencies
+        run: npm ci --prefix console
+      - name: Test and build Console
+        run: |
+          npm run console:test
+          npm run console:build
       - name: Install development-only contract validators
         run: python -m pip install -r requirements-contracts.txt
       - name: Validate implemented OpenAPI and validator regression controls

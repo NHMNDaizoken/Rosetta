@@ -31,6 +31,7 @@ import { CodeBlock } from "../common/CodeBlock";
 
 export const AccessResourcesScreen: React.FC = () => {
   const { t } = useI18n();
+  const isLive = api.getLiveMode();
   const [activeTab, setActiveTab] = useState<"records" | "objects" | "shares">("records");
 
   // Records state
@@ -75,6 +76,10 @@ export const AccessResourcesScreen: React.FC = () => {
 
   const handleCreateRecord = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLive) {
+      setRecordError(t.resources.previewOnlyOperation);
+      return;
+    }
     setRecordError(null);
     try {
       const parsed = JSON.parse(newRecordJson);
@@ -89,6 +94,10 @@ export const AccessResourcesScreen: React.FC = () => {
 
   const handleCreateShare = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLive) {
+      setShareError(t.resources.previewOnlyOperation);
+      return;
+    }
     setShareError(null);
     try {
       const expiresAt = new Date(Date.now() + shareMinutes * 60 * 1000).toISOString();
@@ -109,6 +118,10 @@ export const AccessResourcesScreen: React.FC = () => {
 
   const handleRevokeShare = async () => {
     if (!shareToRevoke) return;
+    if (isLive) {
+      setShareToRevoke(null);
+      return;
+    }
     setIsRevoking(true);
     try {
       await api.revokeResourceShare(shareToRevoke.shareId);
@@ -134,6 +147,8 @@ export const AccessResourcesScreen: React.FC = () => {
               size="md"
               onClick={() => setIsCreateRecordOpen(true)}
               leftIcon={<Plus className="w-4 h-4" />}
+              disabled={isLive}
+              title={isLive ? t.resources.liveActionsDisabled : undefined}
             >
               {t.resources.createRecord}
             </Button>
@@ -143,6 +158,8 @@ export const AccessResourcesScreen: React.FC = () => {
               size="md"
               onClick={() => setIsCreateShareOpen(true)}
               leftIcon={<Share2 className="w-4 h-4" />}
+              disabled={isLive}
+              title={isLive ? t.resources.liveActionsDisabled : undefined}
             >
               {t.resources.createShare}
             </Button>
@@ -157,6 +174,13 @@ export const AccessResourcesScreen: React.FC = () => {
           {t.resources.legacyNotice}
         </p>
       </div>
+
+      {isLive && (
+        <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 flex items-start gap-3 text-xs text-amber-900 dark:text-amber-200">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <p className="leading-relaxed">{t.resources.liveUnsupportedNotice}</p>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex border-b border-slate-200 dark:border-[#223E50] gap-6 text-xs font-semibold select-none">
@@ -231,6 +255,13 @@ export const AccessResourcesScreen: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-[#223E50]/70">
+                  {records.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-5 py-6 text-center text-slate-400">
+                        {isLive ? t.resources.liveEmptyList : t.common.noData}
+                      </td>
+                    </tr>
+                  )}
                   {records.map((r) => (
                     <tr
                       key={r.id}
@@ -287,6 +318,13 @@ export const AccessResourcesScreen: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-[#223E50]/70">
+                  {objects.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-5 py-6 text-center text-slate-400">
+                        {isLive ? t.resources.liveEmptyList : t.common.noData}
+                      </td>
+                    </tr>
+                  )}
                   {objects.map((obj) => (
                     <tr
                       key={obj.id}
@@ -333,6 +371,13 @@ export const AccessResourcesScreen: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-[#223E50]/70">
+                  {shares.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-5 py-6 text-center text-slate-400">
+                        {isLive ? t.resources.liveEmptyList : t.common.noData}
+                      </td>
+                    </tr>
+                  )}
                   {shares.map((s) => (
                     <tr
                       key={s.shareId}
@@ -359,6 +404,8 @@ export const AccessResourcesScreen: React.FC = () => {
                           size="sm"
                           onClick={() => setShareToRevoke(s)}
                           leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                          disabled={isLive}
+                          title={isLive ? t.resources.liveActionsDisabled : undefined}
                         >
                           Thu hồi
                         </Button>

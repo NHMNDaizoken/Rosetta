@@ -29,9 +29,11 @@ import { CodeBlock } from "../common/CodeBlock";
 
 export const WorkflowsScreen: React.FC = () => {
   const { t } = useI18n();
+  const isLive = api.getLiveMode();
   const [definitions, setDefinitions] = useState<WorkflowDefinition[]>([]);
   const [executions, setExecutions] = useState<WorkflowExecution[]>([]);
   const [selectedExecution, setSelectedExecution] = useState<WorkflowExecution | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Start execution state
   const [isStartOpen, setIsStartOpen] = useState(false);
@@ -48,15 +50,22 @@ export const WorkflowsScreen: React.FC = () => {
   const [isCancelling, setIsCancelling] = useState(false);
 
   const loadWorkflows = async () => {
-    const [defs, execs] = await Promise.all([
-      api.getWorkflowDefinitions(),
-      api.getWorkflowExecutions(),
-    ]);
-    setDefinitions(defs);
-    setExecutions(execs);
-    if (defs.length > 0 && !selectedDefId) {
-      setSelectedDefId(defs[0].id);
+    setLoadError(null);
+    try {
+      const defs = await api.getWorkflowDefinitions();
+      setDefinitions(defs);
+      if (defs.length > 0 && !selectedDefId) {
+        setSelectedDefId(defs[0].id);
+      }
+      if (defs.length === 0) {
+        setSelectedDefId("");
+      }
+    } catch {
+      setDefinitions([]);
+      setSelectedDefId("");
+      setLoadError(t.workflows.definitionsUnavailable);
     }
+    setExecutions(await api.getWorkflowExecutions());
   };
 
   useEffect(() => {
@@ -65,6 +74,10 @@ export const WorkflowsScreen: React.FC = () => {
 
   const handleStartSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedDefId) {
+      setStartError(t.workflows.noDefinitions);
+      return;
+    }
     setIsStarting(true);
     setStartError(null);
     try {
@@ -123,6 +136,7 @@ export const WorkflowsScreen: React.FC = () => {
             size="md"
             onClick={() => setIsStartOpen(true)}
             leftIcon={<Play className="w-4 h-4" />}
+            disabled={definitions.length === 0}
           >
             {t.workflows.startExecutionBtn}
           </Button>
@@ -137,6 +151,13 @@ export const WorkflowsScreen: React.FC = () => {
         </p>
       </div>
 
+      {loadError && (
+        <div className="p-4 rounded-lg bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 flex items-start gap-3 text-xs text-rose-700 dark:text-rose-300">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <p className="leading-relaxed">{loadError}</p>
+        </div>
+      )}
+
       {/* Available Definitions */}
       <Card>
         <CardHeader>
@@ -145,6 +166,11 @@ export const WorkflowsScreen: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          {definitions.length === 0 && (
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {loadError ?? t.workflows.noDefinitions}
+            </p>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {definitions.map((def) => (
               <div
@@ -196,6 +222,11 @@ export const WorkflowsScreen: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
+          {isLive && (
+            <p className="px-5 py-3 text-xs text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-[#223E50]/70">
+              {t.workflows.liveExecutionNotice}
+            </p>
+          )}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
               <thead className="bg-slate-50 dark:bg-[#172E3C]/40 border-b border-slate-200/80 dark:border-[#223E50] text-[11px] font-semibold uppercase text-slate-500 dark:text-slate-400">
@@ -208,6 +239,13 @@ export const WorkflowsScreen: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#223E50]/70">
+                {executions.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-6 text-center text-slate-400">
+                      {isLive ? t.workflows.liveEmptyExecutions : t.common.noData}
+                    </td>
+                  </tr>
+                )}
                 {executions.map((exec) => (
                   <tr
                     key={exec.id}

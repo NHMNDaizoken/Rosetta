@@ -42,6 +42,22 @@ export interface UserIdentity {
   issuer?: string;
 }
 
+export type IdentityStatus =
+  | "preview"
+  | "loading"
+  | "authenticated"
+  | "missing"
+  | "rejected"
+  | "forbidden"
+  | "unavailable"
+  | "timeout";
+
+export interface IdentityState {
+  status: IdentityStatus;
+  identity?: UserIdentity;
+  message?: string;
+}
+
 export interface CoreServiceInfo {
   id: string;
   name: string;

@@ -128,9 +128,14 @@ export const SecurityActivityScreen: React.FC = () => {
           <CardTitle className="text-sm">
             {t.security.sessionActivityTitle}
           </CardTitle>
-          <Badge variant="outline">{sessionEvents.length} Events Logged</Badge>
+          <Badge variant="outline">
+            {sessionEvents.length} {t.security.sessionEventsSuffix}
+          </Badge>
         </CardHeader>
         <CardContent className="p-0">
+          <p className="px-5 py-3 text-xs text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-[#223E50]/70">
+            {t.security.sessionDiagnosticsNotice}
+          </p>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
               <thead className="bg-slate-50 dark:bg-[#172E3C]/40 border-b border-slate-200/80 dark:border-[#223E50] text-[11px] font-semibold uppercase text-slate-500 dark:text-slate-400">
@@ -143,6 +148,13 @@ export const SecurityActivityScreen: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-[#223E50]/70 font-mono text-[11px]">
+                {sessionEvents.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-5 py-6 text-center font-sans text-slate-400">
+                      {t.common.noData}
+                    </td>
+                  </tr>
+                )}
                 {sessionEvents.map((evt) => (
                   <tr
                     key={evt.id}

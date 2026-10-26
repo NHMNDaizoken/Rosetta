@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Settings,
   Globe,
@@ -31,33 +31,62 @@ export const PlatformSettingsScreen: React.FC = () => {
   const [token, setToken] = useState(api.getToken() || "");
   const [isLive, setIsLive] = useState(api.getLiveMode());
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [probeResult, setProbeResult] = useState<string | null>(null);
+  const [probeError, setProbeError] = useState<string | null>(null);
   const [isProbing, setIsProbing] = useState(false);
+
+  useEffect(() => {
+    return api.subscribe(() => setIsLive(api.getLiveMode()));
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    api.setBaseUrl(gatewayUrl.trim());
-    api.setToken(token.trim() || null);
-    api.setLiveMode(isLive);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 3000);
+    setSaveError(null);
+    setSaveSuccess(false);
+    try {
+      api.setBaseUrl(gatewayUrl);
+      api.setToken(token.trim() || null);
+      api.setLiveMode(isLive);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err: unknown) {
+      setSaveError(
+        (err as Error).message === "gateway_origin_not_approved"
+          ? t.settings.invalidGateway
+          : (err as Error).message
+      );
+    }
+  };
+
+  const handleClearToken = () => {
+    api.setToken(null);
+    setToken("");
+    setSaveError(null);
   };
 
   const handleProbeGateway = async () => {
     setIsProbing(true);
     setProbeResult(null);
+    setProbeError(null);
+    if (!api.isApprovedGatewayUrl(gatewayUrl)) {
+      setProbeError(t.settings.invalidGateway);
+      setIsProbing(false);
+      return;
+    }
     try {
       const start = performance.now();
-      const res = await fetch(`${gatewayUrl}/health`, { signal: AbortSignal.timeout(3000) });
+      const base = gatewayUrl.trim().replace(/\/+$/, "");
+      const res = await fetch(`${base}/health`, { signal: AbortSignal.timeout(3000) });
       const latency = Math.round(performance.now() - start);
       if (res.ok) {
         const body = await res.json();
         setProbeResult(`Kết nối thành công! HTTP 200 (${latency}ms) — Dịch vụ: ${body.service}, Trạng thái: ${body.status}`);
       } else {
-        setProbeResult(`Gateway phản hồi mã lỗi: HTTP ${res.status}`);
+        setProbeError(`Gateway phản hồi mã lỗi: HTTP ${res.status}`);
       }
     } catch (err: unknown) {
-      setProbeResult(`Không thể kết nối đến Gateway: ${(err as Error).message}`);
+      setProbeError(`Không thể kết nối đến Gateway: ${(err as Error).message}`);
     } finally {
       setIsProbing(false);
     }
@@ -108,6 +137,11 @@ export const PlatformSettingsScreen: React.FC = () => {
                   {probeResult}
                 </p>
               )}
+              {probeError && (
+                <p className="mt-2 text-xs font-mono text-rose-600 dark:text-rose-400">
+                  {probeError}
+                </p>
+              )}
             </div>
 
             {/* Mode selection */}
@@ -155,6 +189,9 @@ export const PlatformSettingsScreen: React.FC = () => {
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               {t.settings.tokenSectionDesc}
             </p>
+            <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+              {t.settings.tokenMemoryNotice}
+            </p>
             <textarea
               rows={3}
               value={token}
@@ -162,6 +199,15 @@ export const PlatformSettingsScreen: React.FC = () => {
               placeholder={t.settings.tokenPlaceholder}
               className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
             />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleClearToken}
+              disabled={!token}
+            >
+              {t.settings.tokenClear}
+            </Button>
           </CardContent>
         </Card>
 
@@ -266,6 +312,12 @@ export const PlatformSettingsScreen: React.FC = () => {
             <span className="text-xs text-teal-600 dark:text-teal-400 font-medium flex items-center gap-1">
               <CheckCircle className="w-4 h-4" />
               Đã lưu cấu hình thành công!
+            </span>
+          )}
+          {saveError && (
+            <span className="text-xs text-rose-600 dark:text-rose-400 font-medium flex items-center gap-1">
+              <AlertCircle className="w-4 h-4" />
+              {saveError}
             </span>
           )}
         </div>

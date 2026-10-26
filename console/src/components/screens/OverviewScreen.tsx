@@ -16,7 +16,7 @@ import {
   Building2,
   Info,
 } from "lucide-react";
-import { HealthStatus, ReadyStatus, UserIdentity, ScreenId } from "../../types";
+import { HealthStatus, ReadyStatus, IdentityState, ScreenId } from "../../types";
 import { api } from "../../services/apiClient";
 import { useI18n } from "../../locales/i18n";
 import { BRAND } from "../../constants/brand";
@@ -29,11 +29,30 @@ import { Button } from "../common/Button";
 
 interface OverviewScreenProps {
   onNavigate: (screen: ScreenId) => void;
-  identity: UserIdentity;
+  identityState: IdentityState;
+  onRetryIdentity: () => void;
 }
 
-export const OverviewScreen: React.FC<OverviewScreenProps> = ({ onNavigate, identity }) => {
+export const OverviewScreen: React.FC<OverviewScreenProps> = ({
+  onNavigate,
+  identityState,
+  onRetryIdentity,
+}) => {
   const { t } = useI18n();
+  const identity = identityState.identity;
+  const identityStatusText = t.identity[identityState.status];
+  const identityBadgeVariant =
+    identityState.status === "authenticated"
+      ? "teal"
+      : identityState.status === "preview"
+        ? "sandstone"
+        : "destructive";
+  const identityBadgeText =
+    identityState.status === "authenticated"
+      ? t.identity.verified
+      : identityState.status === "preview"
+        ? t.identity.preview
+        : identityStatusText;
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [ready, setReady] = useState<ReadyStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -104,10 +123,18 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({ onNavigate, iden
         {/* Active Tenant Context */}
         <StatCard
           title={t.overview.activeTenant}
-          value={identity.tenantId}
-          subtitle={`Roles: ${identity.roles.join(", ")}`}
+          value={identity?.tenantId ?? identityStatusText}
+          subtitle={
+            identity
+              ? `${t.common.roles}: ${identity.roles.join(", ")}`
+              : t.overview.identityNoSubstitution
+          }
           icon={<Building2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
-          badge={<Badge variant="sandstone">Keycloak SSO</Badge>}
+          badge={
+            <Badge variant={identityBadgeVariant}>
+              {identityBadgeText}
+            </Badge>
+          }
         />
 
         {/* Control Plane Boundary */}
@@ -119,6 +146,30 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({ onNavigate, iden
           badge={<Badge variant="outline">No Public VPS</Badge>}
         />
       </div>
+
+      {api.getLiveMode() && identityState.status !== "authenticated" && (
+        <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 flex flex-col sm:flex-row sm:items-start gap-3 text-xs text-amber-900 dark:text-amber-200">
+          <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <div className="space-y-1 flex-1">
+            <p className="font-semibold">{t.overview.identityRequiredTitle}</p>
+            <p className="leading-relaxed">
+              {identityState.status === "missing"
+                ? t.overview.identityRequiredDesc
+                : identityState.status === "rejected"
+                  ? t.overview.identityRejectedDesc
+                  : `${identityStatusText}. ${t.overview.identityNoSubstitution}.`}
+            </p>
+          </div>
+          <div className="flex gap-2 sm:ml-auto">
+            <Button variant="outline" size="sm" onClick={onRetryIdentity}>
+              {t.common.retry}
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => onNavigate("settings")}>
+              {t.nav.settings}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Architectural Notice on Honest Telemetry */}
       <div className="p-4 rounded-lg bg-slate-50 dark:bg-[#12232F] border border-slate-200/80 dark:border-[#223E50] flex items-start gap-3 text-xs text-slate-600 dark:text-slate-300">
