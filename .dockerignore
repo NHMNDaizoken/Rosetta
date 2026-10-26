@@ -8,3 +8,10 @@
 !THIRD-PARTY.md
 !LICENSE
 !NOTICE
+!console
+!console/**
+console/node_modules
+console/dist
+console/coverage
+console/.env
+console/.env.*

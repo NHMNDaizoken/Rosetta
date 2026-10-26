@@ -32,10 +32,14 @@ jobs:
         run: npm run check
       - name: Install Console dependencies
         run: npm ci --prefix console
+      - name: Verify generated Console endpoint inventory
+        run: npm run console:check:endpoints
       - name: Test and build Console
         run: |
           npm run console:test
           npm run console:build
+      - name: Build and contract-test packaged Console
+        run: npm run test:console-container
       - name: Install development-only contract validators
         run: python -m pip install -r requirements-contracts.txt
       - name: Validate implemented OpenAPI and validator regression controls

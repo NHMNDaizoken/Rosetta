@@ -20,9 +20,10 @@
     "test:recovery": "node --env-file=.env --test integration/recovery.mjs",
     "test:applications": "node --env-file=.env --test integration/applications.mjs",
     "test:flowable-worker": "node --test integration/flowable-worker.mjs",
+    "test:console-container": "node scripts/check-console-container.mjs",
     "console": "npm --prefix console run dev",
     "console:build": "npm --prefix console run build",
     "console:test": "npm --prefix console test",
-    "console:preview": "npm --prefix console run preview"
+    "console:check:endpoints": "npm --prefix console run check:endpoints"
   }
 }

@@ -177,14 +177,30 @@ services:
     networks: [edge, identity]
   console:
     profiles: ["console"]
+    image: rosetta-console:local
     build:
-      context: ./console
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: console/Dockerfile
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:
       gateway:
         condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    init: true
+    stop_grace_period: 5s
+    healthcheck:
+      test: [CMD-SHELL, "curl -fsS http://127.0.0.1:3000/healthz >/dev/null"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
     networks: [edge]
 
 networks:

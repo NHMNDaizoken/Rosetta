@@ -15,7 +15,14 @@
       "502",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/health",
@@ -33,7 +40,14 @@
       "502",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": null,
+    "successHasBody": false
   },
   {
     "path": "/ready",
@@ -51,7 +65,14 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/identity",
@@ -77,7 +98,14 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/data/{collection}",
@@ -104,7 +132,36 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "collection",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [
+      {
+        "name": "limit",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 100
+        },
+        "description": "No cursor/offset. Item GET validates this value but returns at most one row. Repeated limit uses its first value."
+      }
+    ],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/data/{collection}",
@@ -134,7 +191,26 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [
+      {
+        "name": "collection",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "201",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/data/{collection}/{id}",
@@ -162,7 +238,45 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "collection",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        },
+        "description": ""
+      },
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [
+      {
+        "name": "limit",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 100
+        },
+        "description": "No cursor/offset. Item GET validates this value but returns at most one row. Repeated limit uses its first value."
+      }
+    ],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/data/{collection}/{id}",
@@ -193,7 +307,35 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [
+      {
+        "name": "collection",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        },
+        "description": ""
+      },
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/data/{collection}/{id}",
@@ -221,7 +363,33 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "collection",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        },
+        "description": ""
+      },
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "204",
+    "successContentType": null,
+    "successHasBody": false
   },
   {
     "path": "/v1/objects",
@@ -250,7 +418,16 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/octet-stream"
+    ],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "201",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/objects/{id}",
@@ -267,6 +444,7 @@
       }
     ],
     "responses": [
+      "200",
       "201",
       "400",
       "401",
@@ -278,10 +456,28 @@
       "429",
       "502",
       "503",
-      "504",
-      "200"
+      "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/octet-stream"
+    ],
+    "pathParameters": [
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/objects/{id}",
@@ -309,7 +505,24 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/octet-stream",
+    "successHasBody": true
   },
   {
     "path": "/v1/objects/{id}",
@@ -337,7 +550,24 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "204",
+    "successContentType": null,
+    "successHasBody": false
   },
   {
     "path": "/v2/data/{collection}",
@@ -364,7 +594,36 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "collection",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [
+      {
+        "name": "limit",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 100
+        },
+        "description": "No cursor/offset. Item GET validates this value but returns at most one row. Repeated limit uses its first value."
+      }
+    ],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v2/data/{collection}",
@@ -394,7 +653,26 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [
+      {
+        "name": "collection",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "201",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v2/data/{collection}/{id}",
@@ -422,7 +700,45 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "collection",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        },
+        "description": ""
+      },
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [
+      {
+        "name": "limit",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 100
+        },
+        "description": "No cursor/offset. Item GET validates this value but returns at most one row. Repeated limit uses its first value."
+      }
+    ],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v2/data/{collection}/{id}",
@@ -453,7 +769,35 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [
+      {
+        "name": "collection",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        },
+        "description": ""
+      },
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v2/data/{collection}/{id}",
@@ -481,7 +825,33 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "collection",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+        },
+        "description": ""
+      },
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "204",
+    "successContentType": null,
+    "successHasBody": false
   },
   {
     "path": "/v2/objects",
@@ -510,7 +880,16 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/octet-stream"
+    ],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "201",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v2/objects/{id}",
@@ -527,6 +906,7 @@
       }
     ],
     "responses": [
+      "200",
       "201",
       "400",
       "401",
@@ -538,10 +918,28 @@
       "429",
       "502",
       "503",
-      "504",
-      "200"
+      "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/octet-stream"
+    ],
+    "pathParameters": [
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v2/objects/{id}",
@@ -569,7 +967,24 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/octet-stream",
+    "successHasBody": true
   },
   {
     "path": "/v2/objects/{id}",
@@ -597,7 +1012,24 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "204",
+    "successContentType": null,
+    "successHasBody": false
   },
   {
     "path": "/v2/resource-shares",
@@ -626,7 +1058,16 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "201",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v2/resource-shares/{shareId}",
@@ -653,7 +1094,24 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "shareId",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "204",
+    "successContentType": null,
+    "successHasBody": false
   },
   {
     "path": "/v1/applications",
@@ -684,7 +1142,16 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "201",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/applications/{appId}",
@@ -712,7 +1179,24 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "appId",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/applications/{appId}/approve",
@@ -745,7 +1229,36 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [
+      {
+        "name": "appId",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [
+      {
+        "name": "If-Match",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": ""
+      }
+    ],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/applications/{appId}/state",
@@ -778,7 +1291,36 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [
+      {
+        "name": "appId",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [
+      {
+        "name": "If-Match",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": ""
+      }
+    ],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/approvals",
@@ -809,7 +1351,16 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "201",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/approvals/{approvalId}",
@@ -837,7 +1388,24 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "approvalId",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/approvals/{approvalId}/revoke",
@@ -870,7 +1438,36 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [
+      {
+        "name": "approvalId",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [
+      {
+        "name": "If-Match",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": ""
+      }
+    ],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/workflows/definitions",
@@ -896,7 +1493,14 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/workflows/executions",
@@ -913,6 +1517,7 @@
       }
     ],
     "responses": [
+      "200",
       "201",
       "400",
       "401",
@@ -924,10 +1529,28 @@
       "429",
       "502",
       "503",
-      "504",
-      "200"
+      "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [
+      {
+        "name": "Idempotency-Key",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "description": "Tenant-scoped workflow key; identical definition/input returns existing execution, changed logical input conflicts."
+      }
+    ],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/workflows/executions/{executionId}",
@@ -955,7 +1578,24 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "executionId",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9:_-]{1,128}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/v1/workflows/executions/{executionId}",
@@ -984,7 +1624,24 @@
       "503",
       "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [
+      {
+        "name": "executionId",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9:_-]{1,128}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "204",
+    "successContentType": null,
+    "successHasBody": false
   },
   {
     "path": "/v1/workflows/executions/{executionId}/complete",
@@ -1015,7 +1672,26 @@
       "503",
       "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/json"
+    ],
+    "pathParameters": [
+      {
+        "name": "executionId",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9:_-]{1,128}$"
+        },
+        "description": ""
+      }
+    ],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/identity/realms/rosetta/.well-known/openid-configuration",
@@ -1029,13 +1705,20 @@
     "security": [],
     "responses": [
       "200",
-      "502",
-      "504",
       "400",
       "401",
-      "403"
+      "403",
+      "502",
+      "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/identity/realms/rosetta/protocol/openid-connect/auth",
@@ -1049,14 +1732,86 @@
     "security": [],
     "responses": [
       "200",
-      "502",
-      "504",
+      "302",
       "400",
       "401",
       "403",
-      "302"
+      "502",
+      "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [
+      {
+        "name": "client_id",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      },
+      {
+        "name": "response_type",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      },
+      {
+        "name": "redirect_uri",
+        "required": true,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      },
+      {
+        "name": "scope",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      },
+      {
+        "name": "state",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      },
+      {
+        "name": "nonce",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      },
+      {
+        "name": "code_challenge",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      },
+      {
+        "name": "code_challenge_method",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      }
+    ],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "text/html",
+    "successHasBody": true
   },
   {
     "path": "/identity/realms/rosetta/protocol/openid-connect/token",
@@ -1075,13 +1830,22 @@
     ],
     "responses": [
       "200",
-      "502",
-      "504",
       "400",
       "401",
-      "403"
+      "403",
+      "502",
+      "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/x-www-form-urlencoded"
+    ],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/identity/realms/rosetta/protocol/openid-connect/certs",
@@ -1095,13 +1859,20 @@
     "security": [],
     "responses": [
       "200",
-      "502",
-      "504",
       "400",
       "401",
-      "403"
+      "403",
+      "502",
+      "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/identity/realms/rosetta/protocol/openid-connect/userinfo",
@@ -1119,13 +1890,20 @@
     ],
     "responses": [
       "200",
-      "502",
-      "504",
       "400",
       "401",
-      "403"
+      "403",
+      "502",
+      "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/identity/realms/rosetta/protocol/openid-connect/userinfo",
@@ -1143,13 +1921,20 @@
     ],
     "responses": [
       "200",
-      "502",
-      "504",
       "400",
       "401",
-      "403"
+      "403",
+      "502",
+      "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "application/json",
+    "successHasBody": true
   },
   {
     "path": "/identity/realms/rosetta/protocol/openid-connect/logout",
@@ -1163,13 +1948,22 @@
     "security": [],
     "responses": [
       "204",
-      "502",
-      "504",
       "400",
       "401",
-      "403"
+      "403",
+      "502",
+      "504"
     ],
-    "hasRequestBody": true
+    "hasRequestBody": true,
+    "requestContentTypes": [
+      "application/x-www-form-urlencoded"
+    ],
+    "pathParameters": [],
+    "queryParameters": [],
+    "headerParameters": [],
+    "successStatus": "204",
+    "successContentType": null,
+    "successHasBody": false
   },
   {
     "path": "/identity/realms/rosetta/protocol/openid-connect/logout",
@@ -1183,13 +1977,53 @@
     "security": [],
     "responses": [
       "200",
-      "502",
-      "504",
+      "302",
       "400",
       "401",
       "403",
-      "302"
+      "502",
+      "504"
     ],
-    "hasRequestBody": false
+    "hasRequestBody": false,
+    "requestContentTypes": [],
+    "pathParameters": [],
+    "queryParameters": [
+      {
+        "name": "id_token_hint",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      },
+      {
+        "name": "client_id",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      },
+      {
+        "name": "post_logout_redirect_uri",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      },
+      {
+        "name": "state",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": ""
+      }
+    ],
+    "headerParameters": [],
+    "successStatus": "200",
+    "successContentType": "text/html",
+    "successHasBody": true
   }
 ]

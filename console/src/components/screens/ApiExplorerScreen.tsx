@@ -20,6 +20,7 @@ import {
   ApiEndpointDef,
   generateCurlExample,
   generateFetchExample,
+  getAuthLabel,
 } from "../../constants/openapiData";
 import { useI18n } from "../../locales/i18n";
 import { PageHeader } from "../layout/PageHeader";
@@ -122,6 +123,7 @@ export const ApiExplorerScreen: React.FC = () => {
       <div className="space-y-3">
         {filteredEndpoints.map((ep) => {
           const isExpanded = expandedOpId === ep.operationId;
+          const authLabel = getAuthLabel(ep);
           return (
             <Card
               key={ep.operationId}
@@ -146,9 +148,9 @@ export const ApiExplorerScreen: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  {ep.security && ep.security.length > 0 && (
+                  {authLabel && (
                     <Badge variant="outline" className="hidden md:inline-flex text-[10px]">
-                      Bearer Token
+                      {authLabel}
                     </Badge>
                   )}
                   {isExpanded ? (

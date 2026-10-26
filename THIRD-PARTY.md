@@ -8,15 +8,16 @@ runtime/development components and their obligations. See
 | Component | Version | Upstream and license | Use and obligations |
 | --- | --- | --- | --- |
 | Node.js | 24.x; target 24.21.0 in `.node-version` | [Upstream](https://nodejs.org/), [license and bundled notices](https://github.com/nodejs/node/blob/v24.21.0/LICENSE); Node.js code is MIT, bundled components have additional terms | Runtime and built-in HTTP/test tooling. Native runtime is installed separately. Preserve upstream license and bundled notices when redistributing it; review the complete runtime inventory before release. |
-| Official Node Docker image | `node:24.21.0-bookworm-slim`, index digest `sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20` | [Image source at revision 93a7baf](https://github.com/nodejs/docker-node/tree/93a7bafc324a85ac1ee461604cff87cffacb6d7a/24/bookworm-slim), [image source license](https://github.com/nodejs/docker-node/blob/93a7bafc324a85ac1ee461604cff87cffacb6d7a/LICENSE) MIT; Debian/runtime packages have individual licenses | Local build base. Upstream notices are retained in the base layers; do not strip them. Review `/usr/share/doc/*/copyright`, the Node license and all bundled components before redistributing an image. No registry publishing is configured. |
+| Official Node Docker image | `node:24.21.0-bookworm-slim`, index digest `sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20` | [Image source at revision 93a7baf](https://github.com/nodejs/docker-node/tree/93a7bafc324a85ac1ee461604cff87cffacb6d7a/24/bookworm-slim), [image source license](https://github.com/nodejs/docker-node/blob/93a7bafc324a85ac1ee461604cff87cffacb6d7a/LICENSE) MIT; Debian/runtime packages have individual licenses | Core and Console build base. Upstream notices are retained in the base layers; do not strip them. Review `/usr/share/doc/*/copyright`, the Node license and all bundled components before redistributing an image. No registry publishing is configured. |
 | actions/checkout | v6.1.0, commit `d23441a48e516b6c34aea4fa41551a30e30af803` | [Source and MIT license](https://github.com/actions/checkout/tree/d23441a48e516b6c34aea4fa41551a30e30af803) | GitHub-hosted CI tool; referenced, not vendored. Preserve notices if later copied. Checkout does not persist repository credentials. |
 | actions/setup-node | v6.5.0, commit `249970729cb0ef3589644e2896645e5dc5ba9c38` | [Source and MIT license](https://github.com/actions/setup-node/tree/249970729cb0ef3589644e2896645e5dc5ba9c38) | GitHub-hosted CI runtime installer; referenced, not vendored. Preserve notices if later copied. |
 | GitHub CLI | 2.103.0 | [Source and MIT license](https://github.com/cli/cli/tree/v2.103.0) | Local publication tooling only, downloaded to temporary storage and verified against the official release asset SHA-256. Not included in Rosetta source or images. |
 
-There is no npm install step or lockfile because the package has no dependency
-graph. New packages, service images or borrowed assets require inventory updates
-and license review before use. This inventory is not a vulnerability or license
-audit of the host operating system.
+There is no npm dependency graph in the repository root. The optional Console has
+its own `console/package-lock.json`; the Console image installs exactly that lock
+with `npm ci`. New packages, service images or borrowed assets require inventory
+updates and license review before use. This inventory is not a vulnerability or
+license audit of the host operating system.
 
 ## Layer 1 infrastructure review
 
@@ -30,7 +31,7 @@ required corresponding-source offers; process separation alone is not an exempti
 | Component/image | Exact pin | Verified upstream terms and edition | Integration/obligations |
 | --- | --- | --- | --- |
 | Keycloak OSS | `26.8.1`, `sha256:79c623a22abacf3fe6c00a5fb30f5b7843d717b234033b80995891c06116d244` | [Apache-2.0](https://github.com/keycloak/keycloak/blob/26.8.1/LICENSE.txt), [official container](https://www.keycloak.org/server/containers) | Hosted OIDC/SSO server; keep upstream licenses/notice content and Java/base OS notices. No modifications or vendor source copying. |
-| Nginx OSS official image | `stable-bookworm`, `sha256:552e7481ca93ffccd046aa658dbbed22caefbc09c66fa7cd247cbb90b8a5c609` | [BSD-2-Clause](https://nginx.org/LICENSE), [official image source](https://github.com/nginx/docker-nginx) | Hosted reverse proxy/auth-request gateway; BSD notices must accompany binary redistribution. Debian and bundled library terms also apply. No Nginx Plus dependency. |
+| Nginx OSS official image | `stable-bookworm`, `sha256:552e7481ca93ffccd046aa658dbbed22caefbc09c66fa7cd247cbb90b8a5c609` | [BSD-2-Clause](https://nginx.org/LICENSE), [official image source](https://github.com/nginx/docker-nginx) | Hosted reverse proxy/auth-request gateway and packaged static Console server; BSD notices must accompany binary redistribution. Debian and bundled library terms also apply. No Nginx Plus dependency. |
 | PostgreSQL official image | `17-bookworm`, `sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27` | [PostgreSQL](https://www.postgresql.org/about/licence/), [official image source](https://github.com/docker-library/postgres) | Hosted persistence with separate database roles; preserve PostgreSQL copyright/permission and base-package notices. No source changes. |
 | PostgREST OSS | `v16.5`, `sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc` | [MIT](https://github.com/PostgREST/postgrest/blob/v16.5/LICENSE), [image build source](https://github.com/PostgREST/postgrest/tree/v16.5) | Hosted data API. Preserve copyright/permission notice for any redistribution; SQL authorization uses upstream RLS support. |
 | SeaweedFS OSS | `4.48`, `sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d` | [Apache-2.0](https://github.com/seaweedfs/seaweedfs/blob/4.48/LICENSE), [image source](https://github.com/seaweedfs/seaweedfs/tree/4.48/docker) | Hosted filer/object storage; not the Enterprise image. Preserve Apache notices and base-package obligations if redistributed. |
@@ -65,9 +66,25 @@ The optional `console/` package uses modern open-source frontend libraries for t
 | Package | Version | License | Upstream repository | Use and obligations |
 | --- | --- | --- | --- | --- |
 | React & React DOM | 19.x | MIT | [facebook/react](https://github.com/facebook/react) | UI component tree and rendering runtime. MIT license notice preserved. |
-| Lucide React | 1.16.x | ISC / MIT | [lucide-icons/lucide](https://github.com/lucide-icons/lucide) | Accessible SVG infrastructure iconography. ISC terms preserved. |
+| Lucide React | 1.61.x | ISC / MIT | [lucide-icons/lucide](https://github.com/lucide-icons/lucide) | Accessible SVG infrastructure iconography. ISC terms preserved. |
+| clsx | 2.1.x | MIT | [lukeed/clsx](https://github.com/lukeed/clsx) | Conditional CSS class composition. MIT notice preserved. |
+| tailwind-merge | 3.x | MIT | [dcastil/tailwind-merge](https://github.com/dcastil/tailwind-merge) | Conflict-free Tailwind class merging. MIT notice preserved. |
 | Tailwind CSS | 4.x | MIT | [tailwindlabs/tailwindcss](https://github.com/tailwindlabs/tailwindcss) | Build-time CSS utility token processing. Zero runtime overhead. |
-| Vite | 6.x | MIT | [vitejs/vite](https://github.com/vitejs/vite) | Build tool, local dev server and ESM bundler. |
+| Vite | 6.x | MIT | [vitejs/vite](https://github.com/vitejs/vite) | Build tool and local development server. The packaged Console does not use Vite preview. |
 | Vitest | 3.x | MIT | [vitest-dev/vitest](https://github.com/vitest-dev/vitest) | Testing framework for UI and component validation. |
 | Testing Library React | 16.x | MIT | [testing-library/react-testing-library](https://github.com/testing-library/react-testing-library) | User-centric DOM testing utilities. |
+| jsdom | 26.x | MIT | [jsdom/jsdom](https://github.com/jsdom/jsdom) | Test DOM environment. MIT notice preserved. |
+| @testing-library/jest-dom | 6.9.x | MIT | [testing-library/jest-dom](https://github.com/testing-library/jest-dom) | DOM assertions for tests. MIT notice preserved. |
+| @vitejs/plugin-react | 4.x | MIT | [vitejs/vite-plugin-react](https://github.com/vitejs/vite-plugin-react) | React transform for Vite. MIT notice preserved. |
+| TypeScript | 5.9.x | Apache-2.0 | [microsoft/TypeScript](https://github.com/microsoft/TypeScript) | Build-time type checking. Apache-2.0 notice preserved. |
+| @types React and Node packages | matching majors | MIT | [DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped) | Development-only type declarations. MIT notices preserved. |
+
+The Console loads Inter and JetBrains Mono stylesheets from Google Fonts at runtime;
+the font files are not bundled in the image. Inter and JetBrains Mono are distributed
+under the SIL Open Font License 1.1. An offline environment falls back to the system
+font stack; no font asset is claimed as Rosetta-owned.
+
+The packaged Console runtime image copies `LICENSE`, `NOTICE` and this inventory
+to `/usr/share/licenses/rosetta/`; the Nginx and Debian base-layer notices remain
+in the image. The static build is served by Nginx, not by a Node runtime.
 

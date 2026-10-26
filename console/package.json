@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "generate:endpoints": "node scripts/generate-endpoints.mjs",
+    "check:endpoints": "node scripts/generate-endpoints.mjs --check"
   },
   "dependencies": {
     "clsx": "^2.1.1",

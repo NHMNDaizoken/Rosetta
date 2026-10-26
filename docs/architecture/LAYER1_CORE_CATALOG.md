@@ -1,6 +1,6 @@
 # Layer-1 implementation and candidate catalog
 
-> Reviewed: 2026-10-26 | Branch: main | Audit baseline: `7fdd7fc381bdd29d81d56fb08a764efff8c41582`
+> Reviewed: 2026-10-26 | Branch: main | Audit baseline: `3bd6a2026becbce9a44bac6a18f72d0fc4ecd209`
 
 ## Evidence conventions
 
@@ -14,15 +14,15 @@ of these labels establishes a currently running public deployment.
 | E1 | This audit: `npm run check` | Source syntax/SPDX/project license-file checks passed; not a transitive license audit. |
 | E2 | This audit: `npm test` | 22 tests passed; local Node 24.13.1, ephemeral unit HTTP processes only. |
 | E3 | This audit: `npm run check:contracts`; `npm run test:contract-validator` | 44-operation OpenAPI and regression controls passed. |
-| E4 | This audit: `npm run console:test` | Five preview/UI tests passed with React act warnings; no live OIDC/resource end-to-end proof. |
-| E5 | [CI at exact baseline](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40211156038) | GitHub reports success for Foundation checks at `7fdd7fc381bdd29d81d56fb08a764efff8c41582`; includes container, Core/app isolation, worker and restore steps. |
+| E4 | This review: `npm run console:test`; `npm run console:build`; `npm run check:endpoints`; `npm run test:console-container` | 27 Console tests (8 API client, 13 UI, 6 OpenAPI example/inventory), the production bundle, the 44-operation endpoint freshness check and the packaged Nginx container contract test passed locally. No automated live-browser OIDC/visual/accessibility proof. |
+| E5 | [Foundation CI for S0](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40257293982) | GitHub reports success for Foundation checks at `3bd6a2026becbce9a44bac6a18f72d0fc4ecd209`; includes the Console suite/build plus container, Core/app isolation, worker and restore steps. |
 | E6 | [Previous Foundation CI](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40203682323), [local milestone ledger](../FOUNDATION_OPENAPI.md#local-verification-evidence) | Historical 2026-10-25 results at `431bca4`: 22 native/pinned units, nine Core, 13 app, one worker, one restore; 376 HTTP observations, all 44 successful operations. Not rerun here. |
 
-This audit deliberately does not start/build/deploy containers, run migrations or
-execute service-interruption/restore/worker suites. CI is external evidence, not
-a claim that those suites passed locally on 2026-10-26. Current workflow does not
-install/test/build Console. Test names/source establish planned assertions; only
-the execution records above establish executed evidence.
+This review executes unit, Console bundle and packaged-console contract checks
+locally. It deliberately does not run the full service-interruption/restore/worker
+suites or apply migrations. CI is external evidence, not a claim that every suite
+passed locally on 2026-10-26. The current workflow installs, tests and builds the
+Console and contract-tests its packaged image.
 
 ## Group A: five existing integrations
 
@@ -69,18 +69,19 @@ are the evidence; the screen matrix in older documentation alone is insufficient
 
 | Finding | Actual behavior and consequence | Required next evidence |
 | --- | --- | --- |
-| Authentication | Manual bearer token in `rosetta_token` localStorage; no Console PKCE exchange/session integration found. Foundation PKCE test does not prove Console login. | Memory-only operator credential or separately approved BFF/PKCE design; unauthorized sessions fail closed. |
-| Live identity | `getIdentity` returns `MOCK_IDENTITY` on missing token, denied response or fetch error; workflow definitions also fall back to mocks. | Explicit unavailable/unauthorized state; no fabricated live tenant/roles/definitions. |
-| v2 resources | Record/object/share methods at API client tail are session/mock operations even in live mode. | Disable/label preview-only in live UI. Browser cannot become an enrolled backend by supplying an app UUID. No new delegation shortcut. |
-| Application/workflow UI | Some methods call existing routes; lists are session caches seeded with mock applications/executions. | Keep mock and live stores disjoint; test exact route/status/schema/ETag bodies; no invented global listing. |
-| Explorer | [generator](../../console/src/constants/openapiData.ts) uses generic JSON for binary/form/approval actions and parses all results as JSON. | Treat snippets as unverified; reference tested [backend example](../../examples/foundation-http.mjs), then add media/204/action-specific fixture coverage. |
-| Session activity | Browser-generated events use mock tenant and random request IDs. | Label local diagnostic activity; never display as protected server audit. |
-| Optional container | `npm install` without copying lockfile; runtime globally installs Vite; copied config imports dev plugins excluded from production install. Preview has no configured `/api` proxy (dev proxy also targets container-local 127.0.0.1). | Packaging/startup/proxy/lockfile risks need tests in a separately approved slice. No Console image build or live container QA executed here. |
-| Coverage and assets | Five preview-oriented tests; Console absent from Foundation CI. Google Fonts fetched in index.html; upstream docs claim WCAG/visual results. | Lockfile/transitive license/font/offline review, UI CI and accessibility/live QA. This audit does not certify those claims. |
+| Authentication | Manual bearer token is held in memory only; the legacy `rosetta_token` localStorage entry is removed at startup. No Console PKCE exchange/BFF session exists, so a page reload requires re-entering the token. Foundation PKCE tests do not prove Console login. | Preserve non-persistence; operator login/session design remains future work and needs explicit approval. |
+| Live identity | LIVE mode shows explicit loading/unauthorized/unavailable states and never substitutes `MOCK_IDENTITY`; workflow definitions and resource lists fail closed instead of falling back to mocks. | Add automated live-browser OIDC proof without weakening the fail-closed states. |
+| v2 resources | Record/object/share writes are disabled or labeled preview-only in LIVE mode; switching PREVIEW to LIVE clears preview stores. A browser cannot become an enrolled backend by supplying an app UUID. | Exercise a real enrolled app flow when a Layer-2 client exists; no delegation shortcut. |
+| Application/workflow UI | Calls use existing application/workflow routes; live lists contain only data fetched or created in the session, and endpoints without a listing contract show an explicit notice. Mock stores are disjoint and cleared on mode change. | Test route/status/schema/ETag bodies against the real stack; no invented global listing. |
+| Explorer | [Endpoint inventory](../../console/scripts/generate-endpoints.mjs) is generated from the OpenAPI contract (44 operations) and checked in CI. [Example generator](../../console/src/constants/openapiData.ts) emits operation-specific JSON/form/binary/query bodies, required `If-Match`/`Idempotency-Key` headers, bearer placement, browser-navigation and empty-response handling; examples are schema-validated in tests. | Keep the generated inventory current when the contract changes; no real credentials are embedded. |
+| Session activity | Browser-generated events remain local diagnostic activity; the Security screen states that no protected server audit API exists and does not present the events as immutable server audit. | Add a server audit API only under a separate approved contract. |
+| Optional container | Multi-stage build uses the Console lockfile with `npm ci`, then serves static assets from the pinned non-root Nginx runtime. The container is read-only, drops all capabilities and proxies a narrow `/api` allowlist to `gateway:8080` over Docker DNS. The contract test covers startup, static/SPA behavior, allowed/blocked routes, headers, credentials, upstream errors and timeout. | Repeat browser visual/accessibility QA and re-check pins on dependency changes. |
+| Coverage and assets | 27 Console tests; Console install/test/build/endpoint check and packaged-container contract test run in Foundation CI. Google Fonts are fetched at runtime with a system-font offline fallback; no font assets are bundled. | Accessibility/live visual QA and full transitive license review remain separate work; this document does not certify them. |
 
 Core still enforces authorization even if the Console displays a misleading
-identity or success state. That does not make misleading UI or persisted tokens
-acceptable. The recommended first slice addresses these gaps without new Core APIs.
+identity or success state. S0 and its packaging slice addressed the trust and
+packaging gaps without adding Core APIs. Remaining Console work is live
+browser/accessibility QA and an approved operator-login/session design.
 
 ## Groups B/C: optional catalog, not installed services
 

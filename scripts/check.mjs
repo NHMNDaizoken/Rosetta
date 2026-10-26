@@ -23,10 +23,11 @@ function checkFile(file) {
   }
 }
 
-for (const root of ["src", "scripts", "tests", "integration", "examples", "infra", ".github"]) {
+for (const root of ["src", "scripts", "tests", "integration", "examples", "infra", ".github", "console/scripts", "console/nginx"]) {
   if (existsSync(root)) check(root);
 }
 checkFile("Dockerfile");
+checkFile("console/Dockerfile");
 checkFile("compose.yaml");
 assert.equal(JSON.parse(readFileSync("package.json", "utf8")).license, "Apache-2.0");
 const license = readFileSync("LICENSE", "utf8");
