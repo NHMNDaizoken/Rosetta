@@ -167,7 +167,7 @@ version. Rosetta ledger changes use additive, versioned SQL migrations.
 
 ## Proposed capability APIs
 
-The [Capability v1 specification](CAPABILITY_EXTENSIONS_V1.md), [trust/execution rules](CAPABILITY_TRUST_EXECUTION_V1.md) and [OpenAPI draft](contracts/capability-api-v1.openapi.json) describe the extension contracts. Application Registration and application-only approvals are the implemented subset below; registry, resolver and execution endpoints remain future work. This OpenAPI is not a description of the working foundation routes above and does not change their public claims or permissions.
+The [Capability v1 specification](CAPABILITY_EXTENSIONS_V1.md), [trust/execution rules](CAPABILITY_TRUST_EXECUTION_V1.md) and [OpenAPI draft](contracts/capability-api-v1.openapi.json) describe the extension contracts. Application Registration and application-only approvals are the implemented subset below; a bounded offline compatibility resolver exists in `src/capability-compatibility.mjs`, while registry, resolver and execution endpoints remain future work. This OpenAPI is not a description of the working foundation routes above and does not change their public claims or permissions.
 
 ## Application Registration
 

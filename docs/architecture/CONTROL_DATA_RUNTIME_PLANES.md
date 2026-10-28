@@ -11,7 +11,7 @@
 | Backend/data | Serve reusable authenticated application operations. | Identity integration, structured records, objects, workflow and exact read shares. | Only separately approved Foundation extensions/shared services. Both hosted/external backends use the same public APIs. |
 | Runtime | Execute approved artifacts and report actual instances. | No application-hosting controller/worker. Existing provider containers are operational infrastructure, not user deployments. | Narrow deployment controller and approved runtime worker on operator infrastructure. Worker handles only typed, scoped workload intents. |
 | Operational | Operate hosts, backups, builds, security policy, telemetry and recovery. | Compose/CI/health tests and partial restore. Docker/SQL administrators are privileged. | Protected audit sink, backup policy, measured admission, image verification, host supervision, node enrollment and incident handling. |
-| Capability | Optional discovery, directional compatibility, grants and orchestration overlay. | DESIGN ONLY beyond registration/approval subset. | Registry/Trust/Resolver/Composition reusing A+ and Flowable; no dependency from ordinary BaaS/hosting to this plane. |
+| Capability | Optional discovery, directional compatibility, grants and orchestration overlay. | Registration/approval implemented; bounded offline compatibility resolver; registry/trust/composition design only. | Registry/Trust/Resolver/Composition reusing A+ and Flowable; no dependency from ordinary BaaS/hosting to this plane. |
 
 Consoles are clients of the Control Plane. They may request an action and display
 observed status; they never run Docker commands, hold infrastructure secrets or

@@ -2,8 +2,9 @@
 
 The implemented control plane is described by the
 [Foundation OpenAPI](contracts/foundation-api.openapi.json). Its original design
-also appears in the separate Capability draft. Registry, resolver,
-composition and provider invocation remain unimplemented. Existing Core APIs do
+also appears in the separate Capability draft. Registry, resolver endpoint,
+composition and provider invocation remain unimplemented; the bounded offline
+compatibility proof module is implemented separately. Existing Core APIs do
 not change. Use a local/test stack; no production deployment is authorized.
 
 ## Apply and verify

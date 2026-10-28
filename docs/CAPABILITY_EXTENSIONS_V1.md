@@ -115,6 +115,8 @@ The question is directional: does every value allowed by producer output satisfy
 - Reject cycles, forward references and all non-whole-value bindings under this profile. A plan's declared input schema must be assignable to its first step input; every step output must be assignable to the next input; last output must fit the declared plan output.
 - Missing metadata, unresolved immutable versions/digests, unsupported schema profile or proof-limit exhaustion produces `indeterminate`, never success. Invalid/unsupported new manifests are rejected before publication. A mismatch with a concrete counterexample produces `incompatible`.
 
+The bounded offline reference implementation is `src/capability-compatibility.mjs`. Its result shape is `{status, reason?, producerPointer?, consumerPointer?, witness?}`; it performs no authorization, network access or execution. Registry integration, a public resolver endpoint and execution-time reauthorization remain future work.
+
 Equal types do not prove units, consent, business meaning, privacy, availability or lack of side effects. Provider-declared postconditions are validated against actual outputs, not assumed from static checks. SemVer compatibility is assessed separately by directional checks; broader inputs and narrower outputs may preserve a consumer contract, but permission/effect/timeout changes require review even if schemas still fit.
 
 ## Standards and interpretation

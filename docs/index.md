@@ -35,13 +35,13 @@ creating competing module, data and API inventories.
 | [Architecture entry](ARCHITECTURE.md) | Repository boundary rules and navigation |
 | [Foundation contract](FOUNDATION_OPENAPI.md) | Implemented public API; exact machine schemas remain in its linked OpenAPI |
 | [Resource authorization](RESOURCE_AUTHORIZATION.md) | Current v1/v2 security, sharing and migration contract |
-| [Capability design](CAPABILITY_EXTENSIONS_V1.md) | Future manifests, resolver, trust and composition contracts |
+| [Capability design](CAPABILITY_EXTENSIONS_V1.md) | Bounded offline resolver; future manifests, trust and composition contracts |
 | [Operations](OPERATIONS.md), [licensing](LICENSING.md), [workflow](WORKFLOW.md) | Existing operational and contribution policies |
 
 ## Baseline counts
 
-Tracked source inventory, excluding dependencies/generated output: 13 Core `.mjs`
-modules (688 lines), seven Core unit files (235 lines), five integration `.mjs` files
+Tracked source inventory, excluding dependencies/generated output: 14 Core `.mjs`
+modules (1,186 lines), eight Core unit files (493 lines), five integration `.mjs` files
 including the observer (947 lines), 44 Console TypeScript/TSX files (7,553 lines).
 Foundation has 44 operations on 30 paths. These counts describe this baseline,
 not code coverage or product completeness.

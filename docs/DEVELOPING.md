@@ -215,7 +215,7 @@ These are documented integration conventions, not implementations:
 | Search / data interoperability | Structured data | Index ownership, reindex/rebuild, tenant isolation |
 | Project / environment metadata | Rosetta Cloud | P1 contract, ownership rules, Console trust slice |
 | Application hosting / runtime | Rosetta Cloud | Admission, isolation, resource limits, operator controls |
-| Capability runtime | Rosetta Connect | Registry/trust/resolver contracts and approved execution model |
+| Capability runtime | Rosetta Connect | Registry/trust endpoints and approved execution model; bounded offline resolver exists |
 
 Each requires its own approved slice and its own failure/denial tests. DX1 does
 not authorize any of them.

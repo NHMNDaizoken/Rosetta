@@ -280,7 +280,7 @@ flowchart TB
   OPT["DEFERRED OPT<br/>selected shared extension"]
   REG["DESIGN ONLY C1 Registry"]
   TRUST["DESIGN ONLY C2 Trust"]
-  RES["DESIGN ONLY C3 Resolver"]
+  RES["OFFLINE C3 Resolver"]
   COMP["DESIGN ONLY C4 Composition"]
   L2["DEFERRED L2 business GUI"]
   REL["DEFERRED REL source release/demo"]
@@ -363,7 +363,8 @@ sequenceDiagram
 ```
 
 Only Foundation/Flowable in this map are current integrations. Publication,
-discovery, grants, compatibility and cross-app dispatch are future steps; no
-running capability route is implied. Application business decisions remain in
+discovery, grants, compatibility routes and cross-app dispatch are future steps;
+the bounded offline compatibility module exists but no running capability route
+is implied. Application business decisions remain in
 A/B. Hosting changes execution location; BaaS supplies reusable infrastructure;
 Capability Composition supplies optional authorized reuse.

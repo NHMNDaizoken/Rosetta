@@ -95,7 +95,7 @@ contract decisions, acceptance checks and SynapseDX reference review.
 
 ## Capability extension design boundary
 
-[Capability extensions v1](CAPABILITY_EXTENSIONS_V1.md) specifies proposed registry, compatibility, trust and composition contracts. Registry, compatibility and composition remain design-only. Application Registration is implemented as the bounded subset below, with one additive migration and no new service or network. The existing Flowable integration remains the sole workflow engine. Identity enrichment and new authority stores must preserve current public claims/responses and APIs; internal app bindings are not extra fields promised by GET /v1/identity.
+[Capability extensions v1](CAPABILITY_EXTENSIONS_V1.md) specifies proposed registry, compatibility, trust and composition contracts. Application Registration and a pure offline compatibility resolver are implemented as bounded subsets; registry, trust, composition and resolver endpoints remain design-only. Application Registration uses one additive migration and no new service or network. The existing Flowable integration remains the sole workflow engine. Identity enrichment and new authority stores must preserve current public claims/responses and APIs; internal app bindings are not extra fields promised by GET /v1/identity.
 
 ## Application resource authorization
 
@@ -112,4 +112,4 @@ tenant-scoped and is outside this milestone.
 
 ## Application Registration implementation
 
-The [runtime review](CAPABILITY_RUNTIME_REVIEW_V1.md) adds tenant-scoped application registration and application-only approvals to the existing Core adapter. Private PostgreSQL authority tables and a separate RPC role isolate administration from generic CRUD records. The remaining capability registry, resolver, delegation, provider execution and composition modules are not implemented. Existing five-Core contracts and GET /v1/identity stay unchanged.
+The [runtime review](CAPABILITY_RUNTIME_REVIEW_V1.md) adds tenant-scoped application registration and application-only approvals to the existing Core adapter. Private PostgreSQL authority tables and a separate RPC role isolate administration from generic CRUD records. The capability registry, resolver endpoint, delegation, provider execution and composition remain unimplemented; only the offline compatibility proof module exists. Existing five-Core contracts and GET /v1/identity stay unchanged.

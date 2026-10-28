@@ -19,7 +19,7 @@ An application can use Identity/SSO, the Gateway, structured records, opaque obj
 
 In the proposed capability-enabled path, an application also publishes explicitly described operations or consumes operations published by other authorized applications. A composition links those operations after platform checks. This path builds on the foundational Cores and their authorization boundaries.
 
-HTTP APIs are the interoperability boundary. Future language-specific SDKs can improve usability, but must remain optional. The [extension contract](CAPABILITY_EXTENSIONS_V1.md) and [OpenAPI](contracts/capability-api-v1.openapi.json) specify the capability direction. [Application Registration](APPLICATION_REGISTRATION.md) is the first implemented control-plane subset; registry, resolver and composition remain proposed. The [Foundation OpenAPI](FOUNDATION_OPENAPI.md) now describes implemented APIs separately; SDKs remain planned. Current working APIs are also described in [CORE_API.md](CORE_API.md).
+HTTP APIs are the interoperability boundary. Future language-specific SDKs can improve usability, but must remain optional. The [extension contract](CAPABILITY_EXTENSIONS_V1.md) and [OpenAPI](contracts/capability-api-v1.openapi.json) specify the capability direction. [Application Registration](APPLICATION_REGISTRATION.md) is the first implemented control-plane subset; a bounded offline compatibility resolver exists, while registry, resolver endpoints and composition remain proposed. The [Foundation OpenAPI](FOUNDATION_OPENAPI.md) now describes implemented APIs separately; SDKs remain planned. Current working APIs are also described in [CORE_API.md](CORE_API.md).
 
 ## Ownership and architectural boundaries
 
@@ -53,7 +53,7 @@ A discoverable description is evidence about an operation's declared interface, 
 
 The resolver would check supported connections between declared outputs and inputs, together with relevant permissions and workflow constraints. It should report what was checked, what failed and what remains unproven. Unsupported or ambiguous transformations must not be silently treated as compatible.
 
-Schema compatibility alone cannot establish semantic equivalence. Two fields with the same type can represent different units or business concepts. The supported schema dialect, compatibility rules and any explicit transformations remain design decisions; no resolver or automatic adapter exists today.
+Schema compatibility alone cannot establish semantic equivalence. Two fields with the same type can represent different units or business concepts. The supported schema dialect, compatibility rules and any explicit transformations remain design decisions; a bounded offline pure resolver exists, but no resolver API, automatic adapter or permission/workflow integration exists today.
 
 ### Composition & Execution Core
 

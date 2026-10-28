@@ -7,7 +7,7 @@
 | **Rosetta Backend** | The five Foundation capabilities, Application Authority and resource authorization. | **IMPLEMENTED** — runs locally with Docker Compose and is exercised by real-service tests. |
 | **Rosetta Developer Experience** | Admin Console, Foundation OpenAPI, API Explorer, HTTP example and application registration workflow. | **PARTIAL** — useful today; operator enrollment and some Console screens are limited. |
 | **Rosetta Cloud** | Projects/environments, application hosting, deployments, runtime workers, domains and bindings. | **PROPOSED** — architecture only; nothing runs. |
-| **Rosetta Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **DESIGN ONLY** — contracts exist; no runtime. |
+| **Rosetta Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **PARTIAL** — the bounded offline compatibility resolver has unit tests; registry, trust, composition and execution remain design-only. |
 
 There is no public demo, SDK, Layer-2 GUI or hosting runtime in this repository. Do not read a design document as a working feature. The authoritative, itemized status list is [docs/PRODUCT.md](docs/PRODUCT.md).
 
@@ -82,11 +82,11 @@ These are the five foundational capabilities in the project requirements. Applic
 | Proposed Core | Intended responsibility | Status |
 | --- | --- | --- |
 | Capability Registry Core | Publish and discover versioned capability descriptions, input/output contracts, permission requirements and execution conditions. | Proposal; no registry API or service. |
-| Compatibility Resolver Core | Check whether selected contracts and composition constraints are compatible; report incompatible or unproven connections. | Proposal; no resolver implementation. |
+| Compatibility Resolver Core | Check whether selected contracts and composition constraints are compatible; report incompatible or unproven connections. | Bounded offline module with unit tests; no resolver API or service. |
 | Composition & Execution Core | Validate a composition plan, bind authorized inputs and coordinate execution through the underlying Workflow Engine. | Proposal; no composition runtime. |
 | Cross-App Trust Core | Define and enforce which applications may publish, discover, invoke or delegate capabilities within an explicit trust scope. | Proposal; current tenant/role checks do not implement cross-app delegation. |
 
-These extensions are Rosetta's proposed product direction, not additional claims about mandatory competition requirements. Their API contracts and security model need review before implementation.
+These extensions are Rosetta's proposed product direction, not additional claims about mandatory competition requirements. The resolver's bounded offline proof is implemented; the remaining API contracts and security model need review before implementation.
 
 ## Verifiable Capability Composition
 

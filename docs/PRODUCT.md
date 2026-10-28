@@ -65,11 +65,12 @@ them. The design is bounded by
 [DEPLOYMENT_MODEL.md](architecture/DEPLOYMENT_MODEL.md) and the
 [implementation handoff](architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md).
 
-### Rosetta Connect — DESIGN ONLY
+### Rosetta Connect — PARTIAL
 
-The Capability Registry, Compatibility Resolver, Cross-App Trust and
-Composition & Execution Cores have design contracts only. There is no registry
-service, no resolver endpoint, no trust grant store and no execution runtime.
+The Capability Registry, Cross-App Trust and Composition & Execution Cores have
+design contracts only. The Compatibility Resolver is a bounded offline pure
+module (`src/capability-compatibility.mjs`) with unit tests; there is no registry
+service, resolver endpoint, trust grant store or execution runtime.
 See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 [CAPABILITY_TRUST_EXECUTION_V1.md](CAPABILITY_TRUST_EXECUTION_V1.md).
 
@@ -94,7 +95,7 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 | File quarantine | DEFERRED | Requires an owning subsystem and scan-worker contract. |
 | Protected audit API | DEFERRED | Design sketch only; no public audit endpoint. |
 | Messaging, notification, search | DEFERRED | No broker, queue or index is deployed. |
-| Capability registry/trust/resolver/composition | DESIGN ONLY | Contracts require review before any implementation. |
+| Capability registry/trust/resolver/composition | PARTIAL | Bounded offline resolver module and unit tests; registry, trust, composition and execution require separate approval. |
 | Layer-2 GUI application | DEFERRED | Required by OLP and tracked separately; the Console is not a substitute. |
 
 ## What a developer can do today
@@ -109,6 +110,8 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
    an explicit share.
 7. Explore all implemented operations in the Console without claiming plan-only
    features work.
+8. Run the offline bounded compatibility resolver against the committed manifest,
+   composition and compatibility vectors; no resolver endpoint exists.
 
 See the [developer guide](DEVELOPING.md) for commands and the
 [HTTP example](../examples/foundation-http.mjs) for the executable journey.

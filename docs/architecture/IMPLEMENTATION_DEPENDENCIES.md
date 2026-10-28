@@ -28,7 +28,7 @@ not that software must run in the same process. IDs match the handoff and
 | OPT | Selected B/C extension — DEFERRED | K0 | Per candidate additional prerequisites; no blanket approval or automatic new process. |
 | C1 | Registry publication metadata — DESIGN ONLY runtime | K0, A1 | Exact immutable manifests, authority and schema validation; independent of hosting. |
 | C2 | Capability Trust — DESIGN ONLY runtime | C1 | Grants/approvals/provider enforcement, revocation; resource shares not reused as invocation grants. |
-| C3 | Compatibility Resolver — DESIGN ONLY runtime | K0 | Pure bounded profile/witness tests can progress independently of live registry/hosting; live resolution later queries immutable Registry state. |
+| C3 | Compatibility Resolver — OFFLINE MODULE | K0 | `src/capability-compatibility.mjs` and unit tests implement the bounded profile/witness proof; live resolution and registry integration remain future work. |
 | C4 | Composition/Execution — DESIGN ONLY runtime | C1, C2, C3, A1 | Existing Flowable, tenant-safe dispatcher, SSRF, leases and provider idempotency gates; no second engine. |
 | L2 | Separate Layer-2 GUI — DEFERRED implementation | BASE | Independent business product and end-to-end user journey; need not wait for hosting or capabilities. |
 | REL | Competition source release/demo — DEFERRED | BASE, L2 | Eligibility/rule/release/license/clean-build/changelog gates; hosting is not a dependency. |
@@ -80,7 +80,7 @@ L2 -> REL
 The list is data, not an ASCII architecture diagram. All maps are Mermaid.
 No target dependency points back from hosting/Capability Runtime into BASE.
 S0 hardening can proceed while P1/other ADRs are reviewed. P1 does not depend on
-secret management or runtime. C3 can validate offline schema vectors before C1.
+secret management or runtime. The C3 offline module already validates schema vectors without C1.
 L2 and release compliance remain independently deliverable.
 
 ## Notes

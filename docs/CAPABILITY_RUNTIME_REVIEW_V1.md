@@ -1,9 +1,10 @@
 # Capability runtime review and Application Registration v1
 
-Status: implementation decisions for Application Registration only. The manifest,
-registry, resolver, delegation, provider execution and composition APIs remain design
-contracts. This review supersedes blanket "documentation only" statements in the
-original drafts for the application subset described below.
+Status: implementation decisions for Application Registration and the bounded offline
+compatibility resolver. The manifest, registry, trust/delegation, provider execution
+and composition APIs remain design contracts. This review supersedes blanket
+"documentation only" statements in the original drafts for the subsets described
+below.
 
 ## Decisions before implementation
 
@@ -13,8 +14,9 @@ original drafts for the application subset described below.
    checking. Recursively compare type, interval, homogeneous items and closed object
    properties; integer may widen to number, never the reverse. Unknown keywords,
    missing immutable metadata or proof limits fail closed as indeterminate. The
-   vectors in `contracts/examples/compatibility-cases.json` are the baseline. No
-   resolver is implemented by this task. Full JSON Schema compatibility is excluded.
+   vectors in `contracts/examples/compatibility-cases.json` are the baseline.
+   `src/capability-compatibility.mjs` implements the bounded offline proof; there is
+   no resolver endpoint or registry integration. Full JSON Schema compatibility is excluded.
 2. **Authentication leases.** Registration performs live OIDC introspection on every
    request and retains no token. Future execution leases are single-owner memory
    records, expiring at the earliest token/policy/deadline bound. Restart loses the
@@ -58,9 +60,10 @@ additional service, framework, database driver or workflow engine is required.
 The accepted profile remains the existing recursive grammar, not full JSON Schema.
 Before proof, reject unsupported keywords, inconsistent bounds, undeclared required
 keys, duplicate keys, invalid Unicode and excessive size/depth. Count at most 4096
-schema nodes and 10000 recursive proof comparisons per request; exhaustion returns
-indeterminate and cannot authorize publication. These limits are future resolver
-requirements, not code delivered in this increment.
+schema nodes and 10000 recursive proof comparisons per request; witness generation
+is capped at 100000 units (containers, scalars and string code points). Exhaustion
+returns indeterminate and cannot authorize publication. The offline resolver
+enforces these limits; publication authorization remains future work.
 
 For validated producer P and consumer C:
 
@@ -81,8 +84,9 @@ For validated producer P and consumer C:
 
 This conservative algorithm may reject a valid composition as indeterminate; it
 must never claim safety by guessing. It proves structure only. Semantics, external
-effects, live permissions and availability require runtime checks. No implementation
-of the general validator, witness generator or resolver is included here.
+effects, live permissions and availability require runtime checks. The offline
+resolver implements this contract; a general JSON Schema validator, registry
+integration and execution-time enforcement are not included.
 
 ## Application authority and enrollment
 
