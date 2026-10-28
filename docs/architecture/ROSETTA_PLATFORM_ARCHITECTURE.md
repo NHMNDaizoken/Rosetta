@@ -52,8 +52,9 @@ hosts distinct identity/data/workflow databases and roles in one container.
 Application authority and resource metadata use private tables in the data
 database; they are logical modules, not additional services.
 
-Migrations 001–004 implement legacy records, the workflow idempotency ledger,
-application authority and v2 resources/shares. Named volumes persist PostgreSQL
+Migrations 001–005 implement legacy records, the workflow idempotency ledger,
+application authority, v2 resources/shares and the bounded protected audit
+boundary. Named volumes persist PostgreSQL
 and SeaweedFS state. Gateway/Core repeat authentication at their own boundaries.
 Only Gateway normally publishes loopback port 8080; the optional Console profile
 also publishes loopback 3000. No hosting runtime controller or project namespace
@@ -72,7 +73,7 @@ qualify older Console claims.
 | A — Foundational Cores | Identity, Gateway, structured data, object storage, workflow | IMPLEMENTED; bounded verification evidence |
 | A+ — Platform control | Registration/authority, ownership, shares, static API contract governance | IMPLEMENTED; no separate sixth required Core |
 | B — Foundation extensions | Quarantine, cleanup, data history, automation workers, OAuth credential lifecycle | PROPOSED; extend A, do not duplicate providers |
-| C — Shared services | Protected audit, events, notification, search, secrets, PII processing | PROPOSED candidates; reuse must be demonstrated |
+| C — Shared services | Protected audit, events, notification, search, secrets, PII processing | Audit boundary is IMPLEMENTED in PostgreSQL; independent export/integrity and other candidates are PROPOSED; reuse must be demonstrated |
 | D — Capability platform | Registry, Resolver, Cross-App Trust, Composition & Execution | DESIGN ONLY; application registration subset already in A+ |
 | E — Operations | Telemetry, CI/CD, GitOps, backups, supply chain, host operations | Existing CI/health/partial restore; production controls PROPOSED |
 | F — Developer cloud | F1 projects; F2 deployments; F3 runtime; F4 routes/domains; F5 bindings; F6 diagnostics | PROPOSED logical modules, not six services |

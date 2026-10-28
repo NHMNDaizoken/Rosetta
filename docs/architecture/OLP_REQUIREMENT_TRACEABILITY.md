@@ -40,7 +40,7 @@ minimum services.
 | Structured transactions | PostgreSQL/PostgREST, RLS. | Data history, analytical isolation, semantic reporting absent. |
 | Files/records | SeaweedFS opaque objects. | Generic search, document lifecycle/template generation absent; domain records remain Layer 2. |
 | Workflow/automation | Flowable checkpoint/ledger. | General jobs, script runtime, batch ingestion absent. |
-| Operations/audit | CI, health, partial audit/restore. | Immutable audit, GitOps runtime, full DR/telemetry absent. |
+| Operations/audit | CI, health, bounded protected audit (internal tenant query/role separation/redaction) and partial restore. | Immutable/exported audit, GitOps runtime, full DR/telemetry absent. |
 | Communication/delivery | No shared service. | Messaging, notification/realtime candidates require contracts and consumers. |
 
 ## Four technical principles: explicit gaps

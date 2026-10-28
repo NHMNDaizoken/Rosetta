@@ -1,7 +1,7 @@
 # Implementation dependencies and feasibility
 
-> Reviewed: 2026-10-26 | Branch: main | Audit baseline: `7fdd7fc381bdd29d81d56fb08a764efff8c41582`
-> Status: PROPOSED implementation plan; no slice is executed by this task.
+> Reviewed: 2026-10-28 | Branch: main | Audit baseline: `360a7dd741442a2e3dbfc0f10d45a1e387d3b697`
+> Status: PROPOSED implementation plan; A1 is implemented with bounded evidence, other slices remain unauthorized.
 
 ## Dependency register
 
@@ -18,7 +18,7 @@ not that software must run in the same process. IDs match the handoff and
 | P1 | Project/environment metadata — PROPOSED | K0 | Medium: ADR 003, private schema/API/RLS; no controller or secrets needed. |
 | P2 | Membership/app attachment/entitlements — PROPOSED | P1 | Medium/large: explicit management policy; no data-right inheritance. |
 | O1 | Admission, backup and operational safety design/proof — PROPOSED | K0 | Large; measured host budgets, artifact policy, full recovery and failure harness. Deployment enablement gate, not a new public service. |
-| A1 | Protected audit acceptance — PROPOSED | K0 | Medium/large; independent integrity threat model and redacted tenant reading. |
+| A1 | Protected audit acceptance — IMPLEMENTED bounded evidence | K0 | Migration 005, [AUDIT.md](../AUDIT.md), `integration/audit.mjs`; application roles are untrusted, DBAs trusted. Independent export/integrity sink remains deferred. |
 | B1 | Scoped binding/credential delivery — PROPOSED | P2, A1, O1 | Large; ADR 007 and IdP/secret recovery decisions. No frontend secret values. |
 | D1 | Deployment intent and reconciliation metadata — PROPOSED | P2, A1 | Medium/large; durable state/outbox, fake typed worker tests before privilege. |
 | R0 | Restricted runtime spike — PROPOSED | D1, O1 | Large security scope; approved disposable node and no service credential in health image. Prove quotas/egress/fencing, stop before production enablement. |

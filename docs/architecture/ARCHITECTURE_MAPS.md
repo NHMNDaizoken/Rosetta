@@ -183,7 +183,7 @@ flowchart TB
   HOST["PROPOSED hosting permission<br/>deployment and route intent"]
   SEC["PROPOSED service binding<br/>exact app/environment secret delivery"]
   TRUST["DESIGN ONLY capability grant<br/>Trust authorizes invocation"]
-  AUDIT["PROPOSED protected audit domain<br/>existing app_private.audit subset"]
+  AUDIT["A1 bounded audit IMPLEMENTED<br/>export/integrity PROPOSED"]
   ID -->|verified context only| AUTH
   AUTH -->|resolves backend subject| A
   AUTH -->|resolves backend subject| B
@@ -222,7 +222,7 @@ sequenceDiagram
   participant UI as Console PARTIAL
   participant CP as Control PROPOSED
   participant AA as Authority VERIFIED
-  participant AU as Audit PROPOSED
+  participant AU as Audit A1 bounded
   participant C as Controller PROPOSED
   participant W as Worker PROPOSED
   participant I as Ingress PROPOSED
@@ -271,7 +271,7 @@ flowchart TB
   META["PROPOSED P1 then P2<br/>project/environment metadata and policy"]
   CONTROL["PROPOSED D1<br/>hosting intent and reconciliation"]
   SAFE["PROPOSED O1<br/>admission and recovery proof"]
-  AUDIT["PROPOSED A1<br/>protected audit"]
+  AUDIT["A1 IMPLEMENTED<br/>bounded protected audit"]
   SECRET["PROPOSED B1<br/>scoped bindings"]
   RUN["PROPOSED R0<br/>restricted runtime integration"]
   TLS["PROPOSED T1<br/>app ingress and TLS"]

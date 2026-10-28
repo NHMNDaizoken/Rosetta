@@ -68,6 +68,8 @@ jobs:
           npm run test:flowable-worker
       - name: Verify isolated backup and restore with tenant RLS
         run: npm run test:recovery
+      - name: Verify protected audit boundary, redaction and persistence
+        run: npm run test:audit
       - name: Collect container diagnostics on failure
         if: failure()
         run: docker compose logs --no-color

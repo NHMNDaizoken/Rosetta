@@ -19,6 +19,7 @@
     "test:integration": "node --env-file=.env --test integration/core.mjs",
     "test:recovery": "node --env-file=.env --test integration/recovery.mjs",
     "test:applications": "node --env-file=.env --test integration/applications.mjs",
+    "test:audit": "node --env-file=.env --test integration/audit.mjs",
     "test:flowable-worker": "node --test integration/flowable-worker.mjs",
     "test:console-container": "node scripts/check-console-container.mjs",
     "console": "npm --prefix console run dev",

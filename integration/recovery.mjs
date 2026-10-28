@@ -42,7 +42,14 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
       INSERT INTO app_private.enrollments(tenant_id,issuer,oauth_client_id,owner_subject,provider_origin,resource_subject)
         VALUES('tenant-a','https://recovery.example.invalid','restore-${id}','restore-${id}','https://recovery.example.invalid','subject-${id}'),
         ('tenant-a','https://recovery.example.invalid','restore-${otherApp}','restore-${id}','https://recovery.example.invalid','subject-${otherApp}');
-      INSERT INTO core.app_records(tenant_id,id,owner_app_id,collection,data) VALUES('tenant-a','${id}','${id}','recovery_fixture','{"private":true}');`);
+      INSERT INTO core.app_records(tenant_id,id,owner_app_id,collection,data) VALUES('tenant-a','${id}','${id}','recovery_fixture','{"private":true}');
+      INSERT INTO app_private.principals(tenant_id,issuer,subject,management_client,permissions)
+        VALUES('tenant-a','https://recovery.example.invalid','recovery-${id}','restore-${id}',ARRAY['audit.read']::text[]);
+      SET ROLE rosetta_app_owner;
+      SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-a","iss":"https://recovery.example.invalid","sub":"recovery-${id}","client_id":"restore-${id}"}',false);
+      INSERT INTO app_private.audit(tenant_id,issuer,subject,management_client,event,resource_id,revision)
+        VALUES('tenant-a','https://recovery.example.invalid','recovery-${id}','restore-${id}','application.recovery_fixture','${id}',1);
+      RESET ROLE;`);
     const started = await docker(["run", "--detach", "--rm", "--name", `rosetta-restore-${randomBytes(6).toString("hex")}`,
       "--network", "none", "--tmpfs", "/var/lib/postgresql/data:rw", "--env", "POSTGRES_USER=rosetta_admin",
       "--env", "POSTGRES_PASSWORD", image], { env: { ...process.env, POSTGRES_PASSWORD: randomBytes(32).toString("hex") } });
@@ -59,7 +66,7 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     }
     assert.ok(ready, "Isolated PostgreSQL completed initialization");
     await docker(["exec", target, "createdb", "-U", "rosetta_admin", "recovered"]);
-    await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-c", "CREATE ROLE rosetta_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_owner NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_resource_api NOLOGIN NOBYPASSRLS;"]);
+    await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-c", "CREATE ROLE rosetta_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_owner NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_resource_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_audit_api NOLOGIN NOBYPASSRLS;"]);
     const dump = spawn("docker", ["compose", "exec", "-T", "database", "pg_dump", "-U", "rosetta_admin", "--format=custom", "rosetta_data"], { stdio: ["ignore", "pipe", "pipe"] });
     const restore = spawn("docker", ["exec", "-i", target, "pg_restore", "-U", "rosetta_admin", "--exit-on-error", "--dbname=recovered"], { stdio: ["pipe", "ignore", "pipe"] });
     const dumpCode = closeCode(dump);
@@ -92,9 +99,24 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     const resourceAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
       "SELECT has_table_privilege('rosetta_api','core.app_records','SELECT'),has_schema_privilege('rosetta_resource_api','app_private','USAGE');"]);
     assert.equal(resourceAcl.stdout.trim(),'f|f','Restore preserves resource role separation');
+    const auditAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
+      "SELECT has_function_privilege('rosetta_audit_api','core.audit_query(jsonb)','EXECUTE'),has_table_privilege('rosetta_audit_api','app_private.audit','INSERT'),has_table_privilege('rosetta_app_api','app_private.audit','INSERT');"]);
+    assert.equal(auditAcl.stdout.trim(),'t|f|f','Restore preserves audit role separation');
+    for(const [tenant,expected] of [['tenant-a','1'],['tenant-b','0']]) {
+      const claims=JSON.stringify({tenant_id:tenant,iss:'https://recovery.example.invalid',sub:`recovery-${id}`,client_id:`restore-${id}`});
+      const result=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
+        `SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims','${claims}',false); SELECT count(*) FROM app_private.audit WHERE resource_id='${id}';`]);
+      assert.equal(result.stdout.trim().split(/\r?\n/).at(-1),expected,`Restored audit RLS for ${tenant}`);
+    }
+    const auditClaims=JSON.stringify({tenant_id:'tenant-a',iss:'https://recovery.example.invalid',sub:`recovery-${id}`,client_id:`restore-${id}`});
+    const auditQuery=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
+      `SET ROLE rosetta_audit_api; SELECT set_config('request.jwt.claims','${auditClaims}',false); SELECT EXISTS(SELECT 1 FROM jsonb_array_elements(core.audit_query('{"limit":100}'::jsonb)->'value'->'items') item WHERE item->>'resourceId'='${id}');`]);
+    assert.equal(auditQuery.stdout.trim().split(/\r?\n/).at(-1),'t','Restored protected audit query returns the event');
   } finally {
     if (target && /^[0-9a-f]{64}$/.test(target)) await docker(["stop", target]);
     if (applicationSeeded) await sourceSql(`DELETE FROM core.app_records WHERE owner_app_id='${id}' AND collection='recovery_fixture';
+      DELETE FROM app_private.audit WHERE tenant_id='tenant-a' AND resource_id='${id}';
+      DELETE FROM app_private.principals WHERE tenant_id='tenant-a' AND subject='recovery-${id}' AND management_client='restore-${id}';
       DELETE FROM app_private.enrollments WHERE oauth_client_id IN ('restore-${id}','restore-${otherApp}');
       DELETE FROM app_private.applications WHERE app_id IN ('${id}','${otherApp}') AND owner_subject='restore-${id}';`);
     if (seeded) await sourceSql(`${sourceClaim} DELETE FROM core.records WHERE id='${id}' AND collection='recovery_fixture';`);

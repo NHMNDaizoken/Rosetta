@@ -93,7 +93,7 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 | Application bindings | PROPOSED | P2 gate; no credential lifecycle. |
 | Hosting, deployments, runtime workers | PROPOSED | Separate approval; no controller or runtime. |
 | File quarantine | DEFERRED | Requires an owning subsystem and scan-worker contract. |
-| Protected audit API | DEFERRED | Design sketch only; no public audit endpoint. |
+| Protected audit boundary | PARTIAL | Internal tenant query, derived actor metadata, redaction, role separation and fail-closed append are implemented; no public audit endpoint, export/sink, cryptographic sealing or DBA tamper resistance. See [AUDIT.md](AUDIT.md). |
 | Messaging, notification, search | DEFERRED | No broker, queue or index is deployed. |
 | Capability registry/trust/resolver/composition | PARTIAL | Bounded offline resolver module and unit tests; registry, trust, composition and execution require separate approval. |
 | Layer-2 GUI application | DEFERRED | Required by OLP and tracked separately; the Console is not a substitute. |
@@ -123,5 +123,5 @@ See the [developer guide](DEVELOPING.md) for commands and the
   platform administrator or an application resource reader.
 - Preview data in the Console is synthetic and never server truth.
 - Proposed and design-only items must not be presented as available controls.
-- Hosting, bindings, audit, quarantine, messaging, search and capability runtime
-  require separate approved implementation slices.
+- Hosting, bindings, independent audit export/integrity, quarantine, messaging,
+  search and capability runtime require separate approved implementation slices.

@@ -125,7 +125,8 @@ This example is illustrative. Neither application nor its capabilities is includ
 | Tenant isolation and input limits | Implemented in adapters and database RLS. | Tests cover foreign IDs, spoofed tenant headers, read-only roles, malformed/oversized requests and direct SQL RLS. |
 | Workflow retry handling | Implemented with a tenant-scoped SQL reservation and history reconciliation. | Tests cover replay, input conflicts, concurrent starts and ambiguous outcome reconciliation; no exactly-once claim for external business effects. |
 | Dependency failure and persistence | Implemented liveness/readiness and named volumes. | Tests interrupt/recreate services and verify stored records, object bytes and workflow state. |
-| Structured-data restore | Isolated `pg_dump`/`pg_restore` test implemented. | Restored data and tenant RLS verified; full-platform disaster recovery remains unverified. |
+| Structured-data restore | Isolated `pg_dump`/`pg_restore` test implemented. | Restored data, tenant RLS and audit role/ACL/query verified; full-platform disaster recovery remains unverified. |
+| Protected authority audit | Transactional audit with derived actor/tenant metadata, redaction, internal tenant query and fail-closed admission. | Negative/role/restart tests pass; DBAs are trusted, and public export, cryptographic sealing and independent retention remain unimplemented. See [AUDIT.md](docs/AUDIT.md). |
 | CI and source licensing | GitHub Actions and approved Apache-2.0 project licensing in place. | CI runs source/unit/container/integration/restore checks; binary redistribution and vulnerability audits remain separate work. |
 | Four capability extensions and composition | Proposed. | Review contracts, deterministic validation, trust/delegation and execution semantics before coding. |
 | OpenAPI and optional SDKs | Implemented Foundation OpenAPI with structural and real HTTP conformance checks; separate Capability design draft. No SDK. | Keep route/schema/authorization coverage current before optional client generation. |
@@ -245,13 +246,14 @@ npm run test:integration
 npm run test:applications
 npm run test:flowable-worker
 npm run test:recovery
+npm run test:audit
 ```
 
-Install the pinned development tools with `python -m pip install -r requirements-contracts.txt` before contract/integration checks. The suite has 22 unit tests, 9 foundational integration tests, 13 registration/resource/example tests, 1 private-worker contract probe and 1 isolated PostgreSQL restore test. Real HTTP conformance requires positive coverage of all 44 implemented operations, plus negative responses from the existing isolation and failure cases. Restore verifies legacy tenant RLS and app-private RLS. These checks do not prove capability composition, exhaustive vendor behavior or full-platform disaster recovery.
+Install the pinned development tools with `python -m pip install -r requirements-contracts.txt` before contract/integration checks. The suite has 34 unit tests, 9 foundational integration tests, 13 registration/resource/example tests, 7 audit-boundary tests, 1 private-worker contract probe and 1 isolated PostgreSQL restore test. Real HTTP conformance requires positive coverage of all 44 implemented operations, plus negative responses from the existing isolation and failure cases. Restore verifies legacy tenant RLS, app-private RLS and the audit role/query boundary. These checks do not prove capability composition, exhaustive vendor behavior or full-platform disaster recovery.
 
-The integration suite intentionally interrupts local services, restarts PostgreSQL and recreates containers. Use a development/test stack without application traffic. The recovery suite restores into its own network-isolated temporary PostgreSQL; it does not restore over project data. These checks do not establish coordinated recovery of identity, objects and workflow databases.
+The integration suite intentionally interrupts local services, restarts PostgreSQL and recreates containers. Use a development/test stack without application traffic. The recovery suite restores into its own network-isolated temporary PostgreSQL; it does not restore over project data. Run the audit suite last because it also restarts PostgreSQL. These checks do not establish coordinated recovery of identity, objects and workflow databases.
 
-[GitHub Actions](https://github.com/NHMNDaizoken/Rosetta/actions/workflows/ci.yml) runs source/license-header checks, native and pinned-container unit tests, a Compose build/start, health probes, integration tests and isolated restore. It stops its test stack afterwards and does not publish images or deploy. The source check verifies syntax and project license conventions; it is not a full license or vulnerability audit of container packages.
+[GitHub Actions](https://github.com/NHMNDaizoken/Rosetta/actions/workflows/ci.yml) runs source/license-header checks, native and pinned-container unit tests, a Compose build/start, health probes, integration tests, isolated restore and the audit-boundary suite. It stops its test stack afterwards and does not publish images or deploy. The source check verifies syntax and project license conventions; it is not a full license or vulnerability audit of container packages.
 
 ## Repository structure
 
@@ -323,6 +325,7 @@ Original Rosetta source and documentation are licensed under [Apache License 2.0
 - [Architecture](docs/ARCHITECTURE.md): Layer boundaries, current providers and isolation.
 - [Core API contracts](docs/CORE_API.md): routes, permissions, payloads and retry semantics.
 - [Local operations](docs/OPERATIONS.md): startup, persistence, migrations and recovery limits.
+- [Protected audit](docs/AUDIT.md): audit threat model, roles, write/read boundary, redaction and recovery.
 - [Integration roadmap](docs/INTEGRATION_ROADMAP.md): foundational acceptance criteria and reference review.
 - [Development workflow](docs/WORKFLOW.md): verification, handoff and release procedure.
 - [Licensing](docs/LICENSING.md): approved project terms and dependency obligations.

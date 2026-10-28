@@ -1,7 +1,7 @@
 # OpenCode implementation handoff
 
-> Reviewed: 2026-10-26 | Branch: main | Audit baseline: `7fdd7fc381bdd29d81d56fb08a764efff8c41582`
-> Status: PROPOSED backlog. No implementation slice is authorized by publishing this file.
+> Reviewed: 2026-10-28 | Branch: main | Audit baseline: `360a7dd741442a2e3dbfc0f10d45a1e387d3b697`
+> Status: PROPOSED backlog. A1 is implemented with bounded evidence; no other slice is authorized by publishing this file.
 
 ## How to use this handoff
 
@@ -150,25 +150,34 @@ no new dependency. **Rollback:** retain mappings and IDs, disable attachment rou
 never remove app data. **Dependencies/approval:** P1 + ADR 003/008; decide detach/move
 policy separately. Stop before binding secrets or deploying containers.
 
-## A1 — Protected audit boundary
+## A1 — Protected audit boundary — IMPLEMENTED (bounded)
 
-**Objective/why:** support sensitive control changes and reliable operational
-evidence. **Reuse/files:** existing `app_private.audit` owner functions, separate
-audit contract/query/redaction module, tests, next migration and operations docs.
-**API/DB:** restricted tenant/time-filtered paginated query if approved; append via
-owner-controlled transaction interface, no API update/delete. Preserve current
-authority audit. Broader metadata includes actor, target, policy/generation and
-outcome; never tokens/secret values/private payloads.
+**Delivered:** migration 005 extends the existing `app_private.audit` with derived
+actor/tenant metadata, event/outcome/reason validation, redaction, an explicit
+`audit.read` permission, `rosetta_audit_api`, internal tenant/time keyset query
+`core.audit_query(jsonb)` and an owner-only `audit_append` helper. Existing
+application/approval/share inserts remain transactional; append failure rolls the
+mutation back. No public audit HTTP route or generic payload column exists.
+See [AUDIT.md](../AUDIT.md).
 
-**Acceptance:** owner-scoped readers see only authorized events; foreign tenant,
-unapproved admin/data-writer and write attempts fail; audit append failure rolls
-back sensitive intent. Verify independently controlled export/integrity design
-under ADR 012, including unavailable sink/retention/key recovery behavior. A local
-outbox record is not proof of remote tamper resistance. **Docker/CI/license:**
-synthetic fault/restore tests; new sink/tool only after pin/license review.
-**Rollback:** keep events, deny new sensitive changes when required audit cannot
-be guaranteed. **Dependencies/approval:** K0 + ADR 012; stop at accepted threat model
-and protected audit slice, no generic telemetry stack by default.
+**Verified:** `integration/audit.mjs` covers actor/tenant derivation, redaction,
+forged claims/targets, role ACLs, direct update/delete denial, pagination/time
+filters, concurrent appends, application rollback and database restart. The
+isolated restore test checks audit role/ACL/RLS/query after `pg_dump`/`pg_restore`;
+`npm run test:applications` and `test:integration` remain green. CI runs
+`test:audit` after `test:recovery`.
+
+**Threat model/non-goals:** application roles and ordinary tenant users are
+untrusted; DBAs, database owners and a malicious host/operator remain trusted.
+Independent export/sink, cryptographic sealing, WORM retention, legal hold,
+complete access/deployment audit and key recovery are deferred. Do not claim
+remote tamper evidence from a local PostgreSQL row or outbox.
+
+**Next gate if extended:** reviewed export contract, sink/key/retention design,
+unavailable-sink admission behavior, DBA/operator tamper tests and coordinated
+restore. **Rollback:** keep audit rows/roles/migration; disable new callers or deny
+sensitive changes rather than dropping evidence. **Dependencies/approval:** K0 +
+ADR 012; this bounded slice is complete, no generic telemetry stack implied.
 
 ## O1 — Hosting admission and operational recovery proof
 

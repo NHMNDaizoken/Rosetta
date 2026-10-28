@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 > Audit qualification, 2026-10-26 at `3bd6a20` on main: IMPLEMENTED management UI,
 > PARTIALLY VERIFIED. Read the [source-based findings](architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions)
 > before interpreting the screen inventory as live functionality. There is no
-> Console PKCE implementation, hosting API or protected server audit viewer.
+> Console PKCE implementation, hosting API or public protected audit viewer.
 > S0 keeps bearer tokens in tab memory only, removes mock identity substitution
 > in LIVE, and disables mock-only v2 writes in LIVE. These remain UI safeguards,
 > not authentication or authorization guarantees. S0B packages the built assets
@@ -78,7 +78,7 @@ Rosetta Console
 | **D. Data & Resource Sharing** | Preview/session simulation only; v2 writes are disabled and rejected in LIVE | Mock/session record, object and share views; not a server listing | Live backend enrollment/delegation; unrestricted explorer and browser client secrets | Separately reviewed backend trust design for live v2 resource APIs |
 | **E. Workflows & Tasks** | Start execution with `Idempotency-Key` (`POST /v1/workflows/executions`), complete task (`/complete`), cancel (`DELETE`) | Installed BPMN definitions (`/v1/workflows/definitions`), execution state & history | Public BPMN XML upload / script deployment (operator-installed only) | Multi-step user task assignment |
 | **F. API Explorer** | Search endpoints, tag filtering, copy cURL, copy TypeScript fetch | Request/response schemas, HTTP status codes, auth requirements for all 44 operations | Interactive API playground with privileged tokens (kept client-side safe) | Capability OpenAPI runtime testing |
-| **G. Security** | Browser-generated session activity, labeled as diagnostics; uses the verified LIVE identity only | Architecture/audit guidance | No public protected audit API; actual private table is `app_private.audit` | Separate protected audit contract |
+| **G. Security** | Browser-generated session activity, labeled as diagnostics; uses the verified LIVE identity only | Architecture/audit guidance | No public protected audit API/viewer; internal tenant query is `core.audit_query(jsonb)` over `app_private.audit` | Separate public audit contract |
 | **H. Hosting & Capabilities** | Specification file references and architecture comparison; visibly labelled planned | Architectural review of Registry, Resolver, Cross-App Trust, Composition and Rosetta Cloud hosting | Active runtime APIs (clearly badged as "Planned / Design-Only") | Full Layer-2 Capability Runtime |
 | **I. Getting Started** | Static prerequisites, enrollment link, executable example commands and cleanup guidance; never accepts or displays secrets | Links to product, developer, registration, authorization and API docs | No self-service enrollment or credential provisioning | Hosted onboarding and SDK quickstarts |
 
@@ -103,8 +103,8 @@ During our audit of the Foundation OpenAPI 3.1 specification, we identified the 
    - *Current State:* `GET /v1/applications/{appId}` requires knowing the exact UUID.
    - *Recommendation:* Expose a tenant-scoped administrative listing endpoint restricted strictly to operators with the `admin` or `applications.approve` permission.
 2. **Platform Audit Events (`GET /v1/admin/audit-events`)**:
-   - *Current State:* Application/approval/share audit events are recorded internally in PostgreSQL table `app_private.audit`; this is not a platform-wide immutable audit service.
-   - *Recommendation:* Expose a paginated, time-filtered endpoint returning audit events for verified administrators.
+   - *Current State:* Application/approval/share audit events are recorded internally in PostgreSQL table `app_private.audit`; `core.audit_query(jsonb)` provides an internal tenant/time-filtered read for principals with `audit.read`. This is not a public or platform-wide immutable audit service.
+   - *Recommendation:* Expose a public paginated, time-filtered endpoint only after a separate authorization/contract review; do not expose the internal function directly.
 3. **Component Health Diagnostic (`GET /v1/admin/diagnostics`)**:
    - *Current State:* `/ready` returns a binary `ready` or `503 not_ready`.
    - *Recommendation:* Expose granular sub-component latency metrics for Identity, PostgREST, SeaweedFS, and Flowable to privileged operators.

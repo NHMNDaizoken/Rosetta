@@ -147,6 +147,7 @@ npm run test:integration
 npm run test:applications
 npm run test:flowable-worker
 npm run test:recovery
+npm run test:audit
 ```
 
 Do not claim a suite passed if it was not executed. Integration suites restart
@@ -210,7 +211,7 @@ These are documented integration conventions, not implementations:
 | Future module | Owning area | Required before implementation |
 | --- | --- | --- |
 | File quarantine | Objects | Separate scan-worker network, admission state machine, failure policy |
-| Protected audit | Platform security | Append-only store, admin authorization, retention and redaction |
+| Audit export/integrity | Platform security | Independent sink, public/admin contract if approved, retention and key recovery; the bounded PostgreSQL boundary is implemented in [AUDIT.md](AUDIT.md) |
 | Messaging / notification | Platform services | Broker ownership, delivery semantics, tenant quotas |
 | Search / data interoperability | Structured data | Index ownership, reindex/rebuild, tenant isolation |
 | Project / environment metadata | Rosetta Cloud | P1 contract, ownership rules, Console trust slice |

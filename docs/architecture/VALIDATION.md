@@ -71,6 +71,29 @@ An authorized documentation push may automatically trigger the repository's
 unchanged Foundation workflow on GitHub's disposable runner. That external result
 must be reported separately from local audit checks; it does not deploy production.
 
+## A1 implementation evidence (2026-10-28)
+
+This later change is not documentation-only. Starting from
+`360a7dd741442a2e3dbfc0f10d45a1e387d3b697`, it adds migration 005, Compose
+wiring, `integration/audit.mjs`, the audit recovery assertions, package/CI steps
+and documentation.
+
+| Check executed | Result and boundary |
+| --- | --- |
+| `docker compose run --rm data-migrate` (migration 005, applied then reapplied) | Passed transactionally and idempotently on the local stack. |
+| `npm run check` | Passed source syntax, SPDX header and project license-file checks. |
+| `npm run check:contracts` | 44 reviewed OpenAPI operations passed. |
+| `npm test` | 34 Core unit tests passed. |
+| `npm run test:integration` | Nine real-service Core tests passed, including restart/recovery. |
+| `npm run test:applications` | 13 application/resource/example tests passed, including audit rollback. |
+| `npm run test:recovery` | One isolated `pg_dump`/`pg_restore` test passed with audit role/ACL/RLS/query checks. |
+| `npm run test:audit` | Seven audit-boundary tests passed, including role denial, redaction, pagination, concurrency, rollback and restart. |
+
+The audit tests use the local Compose database and synthetic, self-cleaning
+fixtures. They do not prove DBA tamper resistance, independent export/sink
+durability, coordinated full-platform recovery or production retention. CI
+execution must be reported from GitHub after the commit is pushed.
+
 ## Explicitly unverified or unresolved
 
 No public production availability, live Console session/PKCE, complete WCAG,

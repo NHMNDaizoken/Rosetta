@@ -62,7 +62,8 @@ starts real services. `npm run test:integration` verifies discovery, real token
 issuance, two tenant identities, spoofed-header denial and a complete PKCE
 authorization-code/login/logout flow using the upstream provider.
 It also interrupts/recreates local dependencies and verifies recovery. Run only
-against a local test stack, sequentially with `npm run test:recovery`.
+against a local test stack, sequentially with `npm run test:recovery` and
+`npm run test:audit`.
 
 Keycloak imports the realm only into an empty database. Editing the JSON does
 not migrate an existing realm. Use reviewed administrator changes for an
@@ -164,6 +165,19 @@ start calls; it is not a promise of exactly-once external business effects.
 Flowable performs its upstream schema initialization in its own database on
 first boot. Review migrations and backups before changing the pinned engine
 version. Rosetta ledger changes use additive, versioned SQL migrations.
+
+## Internal protected audit contract
+
+Authority and control-plane mutations append `app_private.audit` rows in the same
+transaction. Migration 005 derives actor/tenant metadata, validates event/outcome
+and redacts free text; failure to append rolls back the mutation. The internal
+`core.audit_query(jsonb)` function accepts only `since`, `until`, `limit` and
+`cursor`, requires a principal with `audit.read`, and is executable only by
+`rosetta_audit_api`; application roles cannot read or write the table directly.
+
+This is not a Foundation route and has no public OpenAPI operation. Do not expose
+it through PostgREST or `/v1`/`/v2` without a separately reviewed contract,
+authorization mapping and pagination policy. See [AUDIT.md](AUDIT.md).
 
 ## Proposed capability APIs
 

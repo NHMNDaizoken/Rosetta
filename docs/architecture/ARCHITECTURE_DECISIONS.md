@@ -1,6 +1,6 @@
 # Architecture decision records
 
-> Reviewed: 2026-10-26 | Branch: main | Audit baseline: `7fdd7fc381bdd29d81d56fb08a764efff8c41582`
+> Reviewed: 2026-10-28 | Branch: main | Audit baseline: `360a7dd741442a2e3dbfc0f10d45a1e387d3b697`
 
 ## Decision status and approval
 
@@ -132,12 +132,38 @@ Evidence may move an ADR to accepted in a later reviewed change.
 - Approval evidence: control/node/VPS crash, halfway route/start, disk loss, revocation,
   backup-key restore and retry reconciliation tests. Blocks hosting enablement.
 
+## ADR 012 - Protected audit boundary
+
+- Accepted baseline: `app_private.audit` is the single authority audit table;
+  migrations 003/004 append within the mutating transaction, and ordinary API
+  roles cannot modify it. Migration 005 adds server-derived actor/tenant metadata,
+  event/outcome/reason validation, best-effort secret redaction, tenant/time
+  keyset reads through `core.audit_query(jsonb)`, an explicit `audit.read`
+  principal permission and a `rosetta_audit_api` role with no table write access.
+  Audit append failure rolls back the authority mutation. Evidence:
+  [AUDIT.md](../AUDIT.md), `integration/audit.mjs`, `integration/recovery.mjs` and
+  the existing application rollback test.
+- Bounded threat model: application callers and ordinary tenant users are
+  untrusted; PostgreSQL superusers, the database owner and a malicious host or
+  operator are trusted. No cryptographic tamper evidence is claimed against a
+  privileged database administrator.
+- Proposed/deferred: independently controlled export or integrity sink, remote
+  retention/legal hold, cryptographic sealing, key recovery, WORM storage and
+  complete access/deployment audit. Each requires a separately approved contract
+  and operations proof.
+- Rejected alternative: a browser/session activity log, generic app JSON, a
+  mutable table exposed through PostgREST, or granting `audit.read` implicitly
+  through reader/writer/approver roles.
+- Approval evidence for any extension: threat model, DBA/operator tamper tests,
+  redaction, unavailable-sink admission behavior, retention and independent
+  restore. No public audit HTTP route is approved today.
+
 ## Preserved unresolved decisions
 
 | ADR / topic | Accepted baseline | Proposed direction / deferred choice | Rejected shortcut | Evidence required |
 | --- | --- | --- | --- | --- |
 | 011 — Quarantine | Objects currently publish opaque bytes immediately. | Version-bound scan before visibility; scan engine/resource/migration semantics unresolved. | Quietly making current PUT asynchronous or treating a successful upload as clean. | Reviewed API compatibility; clean/infected/unknown/timeouts/races; rollback cannot expose unscanned versions. |
-| 012 — Audit integrity | Atomic authority/share audit, API role restrictions; DBAs trusted. | Protected tenant query and separate integrity/retention boundary; cryptographic design deferred. | Browser session log or mutable app JSON as immutable audit. | Threat model, DBA/operator tamper tests, redaction, independent backup and audit-failure admission. |
+| 012 — Audit integrity (residual) | Atomic authority/share audit plus the bounded A1 tenant query, role separation, redaction and fail-closed admission; DBAs trusted. | Independent export/integrity sink, remote retention and cryptographic design deferred. | Treating the protected PostgreSQL boundary as DBA tamper evidence. | Independent sink/export, retention/key recovery, DBA/operator tamper and coordinated restore tests. |
 | 013 — Messaging | No public bus. | Outbox then optional durable broker when two apps need it; transport unresolved. | “Exactly once” delivery without consumer idempotency. | ACL/replay/backpressure/dedup/recovery and version/license pin. |
 | 014 — Search | No shared search; PostgreSQL available. | Prefer scoped PostgreSQL proof first; additional engine/edition deferred. | Raw index access or post-revocation snippets; blanket MIT claim for mixed-license Meilisearch. | Query-time authority and stale-index deletion/share revocation tests; capacity/license evidence. |
 | 015 — Workflow app scope | Tenant-scoped execution/variables, reader/writer authorization. | Keep documented limitation; app-private workflows require new boundary/version/migration. | Assume resource suspension blocks current workflow routes. | Same-tenant isolation, history/task ownership, old execution migration and legacy compatibility review. |

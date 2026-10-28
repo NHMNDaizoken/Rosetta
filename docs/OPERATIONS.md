@@ -18,7 +18,9 @@ docker compose up --build --detach --wait --wait-timeout 240
 npm run healthcheck
 docker compose exec -T core node scripts/check-health.mjs
 npm run test:integration
+npm run test:applications
 npm run test:recovery
+npm run test:audit
 docker compose ps
 docker compose down
 ```
@@ -37,8 +39,10 @@ Readiness is a bounded dependency check, not a guarantee of transaction success.
 The integration suite intentionally stops dependencies and restarts PostgreSQL,
 recreates data/object/workflow/Core containers, and stops/starts Identity. It
 checks denied access during outages and recovery with persistent state. Use a
-local test stack without application traffic. Run integration and restore tests
-sequentially because they share the source database.
+local test stack without application traffic. Run integration, application,
+restore and audit tests sequentially because they share the source database. The
+audit suite restarts PostgreSQL to prove durable events and the read boundary;
+run it after suites that rely on uninterrupted provider sessions.
 
 ## Persistent state and upgrades
 
@@ -50,7 +54,9 @@ pruning, or a destructive reset to apply a configuration change.
 
 The data migrator applies versioned SQL transactionally, with an error stopping
 startup. A repeated run is safe and does not drop stored records. Add a new
-migration for later schema changes. Keycloak realm import initializes an empty
+migration for later schema changes. Migration 005 preserves `app_private.audit`,
+adds the protected audit metadata/read role and has no down migration; retain the
+table, roles and events on rollback. Keycloak realm import initializes an empty
 realm only; changes to its JSON do not migrate an existing realm. Flowable owns
 its database schema initialization. Review each upstream migration before an
 image upgrade, retain the old pins and take a consistent backup first. Reverting
@@ -63,13 +69,16 @@ subject bindings. See [resource authorization](RESOURCE_AUTHORIZATION.md) before
 upgrading, configuring the legacy allowlist or rolling back. Keep v2 object bytes
 and metadata together. Logical object deletion retains tombstones and bytes;
 reclamation is an operator task, not an automatic cleanup of application data.
-The isolated restore test also checks the resource role and same-tenant app RLS.
+The isolated restore test also checks the resource role, same-tenant app RLS and
+the audit role/ACL/tenant query. See [protected audit](AUDIT.md).
 
 `npm run test:recovery` seeds its own UUID record, creates a temporary PostgreSQL
 using the pinned image, and streams `pg_dump --format=custom` into `pg_restore`.
 The target has no network or published ports and keeps its database in temporary
 memory. The test preserves table ownership, ACLs and policies, then checks the
 record is visible to tenant A and invisible to tenant B under `rosetta_api`.
+It also checks that the audit role cannot write the audit table but can run the
+tenant-scoped query after restore, and that tenant B cannot read tenant A's event.
 It stops only its own temporary container and removes only its own source fixture.
 It does not restore over the project database or remove project volumes.
 
