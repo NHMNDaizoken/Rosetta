@@ -108,16 +108,23 @@ Evidence may move an ADR to accepted in a later reviewed change.
 
 ## ADR 009 — Capability independence
 
-- Accepted baseline: Foundation OpenAPI implemented; Capability v1 is DESIGN ONLY
-  beyond application registration/approvals.
+- Accepted baseline: Foundation/OpenAPI and Application Authority; C1 Registry,
+  bounded C2 direct grants/discovery and internal live eligibility; C3 offline
+  compatibility proof. A1 Audit uses the trusted-DBA model. C2 approval covers
+  exact same-tenant backend subjects, separate discover/invoke operations and
+  independent human approval, not human delegation or provider execution.
 - Proposed decision: keep Registry/Trust/Resolver/Composition optional; reuse exact
   application authority and existing Flowable. Existing profile/version/digest/
   lease/trust limits remain the starting design, not overwritten by hosting.
-- Deferred: acceptance of Capability runtime gates and provider execution transport.
+- Deferred: human delegation, resolver HTTP endpoints, C4 invocation/composition,
+  provider transport and all associated execution/worker/network/lease gates.
 - Rejected alternative: publish proposed routes as current, second workflow engine,
   or mandatory Capability registration for deploying/using BaaS.
 - Approval evidence: existing [acceptance gates](../CAPABILITY_ACCEPTANCE_V1.md),
   schema vectors, tenant-safe worker/SSRF/lease/dispatch evidence. No hosting prerequisite.
+  The maintainer explicitly authorized the bounded direct C2 slice starting at
+  `91685326a3fa12bf8517366b8ff5ac0921cfe135`; current evidence and remaining gates
+  are in [direct Trust](../CAPABILITY_DIRECT_TRUST.md). Hosting remains proposed.
 
 ## ADR 010 — Deployment/recovery semantics
 

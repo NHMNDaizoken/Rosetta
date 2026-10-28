@@ -1,8 +1,8 @@
 # Capability-Driven Layer-1 extensions v1
 
-Implementation update (2026-10-28): C1 Registry is implemented, C3 is a bounded offline resolver, and A1 Audit is implemented under the trusted-DBA threat model. C2 direct grant lifecycle is implemented; consumer discovery remains increment C work. Human delegation and C4 execution remain unimplemented; hosting is proposed. See [direct Trust](CAPABILITY_DIRECT_TRUST.md) and [Registry](CAPABILITY_REGISTRY.md). This current notice supersedes historical blanket design-only statements below.
+Implementation update (2026-10-29): C1 Registry is implemented, C3 is a bounded offline resolver, and A1 Audit is implemented under the trusted-DBA threat model. C2 direct grants/authorized discovery and a live internal eligibility predicate are implemented within the backend-subject subset. Human delegation and C4 execution remain unimplemented; hosting is proposed. See [direct Trust](CAPABILITY_DIRECT_TRUST.md) and [Registry](CAPABILITY_REGISTRY.md).
 
-Status: **design draft for review; no extension runtime is implemented**. MUST/SHOULD describe the proposed v1 contract, not current server behavior. This task authorizes specification only. Existing [Core APIs](CORE_API.md), claims, migrations, images and tests retain their behavior; every new endpoint below is unimplemented and MUST NOT be advertised as available. This design follows the [project vision](PROJECT_VISION.md) and [architecture boundaries](ARCHITECTURE.md).
+This document retains the full v1 manifest/lifecycle/compatibility design. Current implemented subsets are listed above; remaining execution/delegation endpoints are unavailable. Existing [Core APIs](CORE_API.md), public identity claims and headless platform boundaries remain unchanged.
 
 ## Contract artifacts and reading order
 

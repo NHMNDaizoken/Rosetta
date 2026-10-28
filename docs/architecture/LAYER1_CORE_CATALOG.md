@@ -4,7 +4,12 @@
 
 ## Evidence conventions
 
-Source review covers `src/`, migrations 001–005, Compose/provider configuration,
+Current C2 update (2026-10-29): C1 Registry, bounded direct C2 grants/discovery and
+live internal eligibility are implemented; C3 is offline and A1 Audit trusts DBAs.
+See [direct Trust](../CAPABILITY_DIRECT_TRUST.md) for current verification and
+the remaining delegation/C4 gates. The older E1–E7 ledger below is historical.
+
+Source review covers `src/`, migrations 001–009, Compose/provider configuration,
 Core unit/integration tests, Console API client/screens and CI. Relative links
 below navigate to actual files. VERIFIED uses the bounded evidence here; none
 of these labels establishes a currently running public deployment.
@@ -19,7 +24,7 @@ of these labels establishes a currently running public deployment.
 | E6 | [Previous Foundation CI](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40203682323), [local milestone ledger](../FOUNDATION_OPENAPI.md#local-verification-evidence) | Historical 2026-10-25 results at `431bca4`: 22 native/pinned units, nine Core, 13 app, one worker, one restore; 376 HTTP observations, all 44 successful operations. Not rerun here. |
 | E7 | This change: `npm run test:audit`; `npm run test:recovery`; `npm run test:applications`; `npm run test:integration` | Seven audit-boundary tests, one isolated restore and the affected application/Core suites passed locally on 2026-10-28. Evidence for migration 005; no public audit route. |
 
-This change executes the A1 audit, isolated restore, application and Core
+The historical A1 review executed the audit, isolated restore, application and Core
 integration suites locally after applying migration 005. It does not rerun the
 Console/worker suites or claim production recovery. CI is external evidence, not
 a claim that every historical suite passed locally on 2026-10-28. The current
@@ -58,7 +63,7 @@ selection is changed by this document.
 | Application Authority — VERIFIED within E2/E5/E6 | [applications.mjs](../../src/applications.mjs), [003](../../infra/postgres/003-applications.sql). Seven operations across application create/get/approve/state and approval create/get/revoke. Private `core.application_command` RPC. `app_private.principals`, `enrollments`, `applications`, `approvals`. | Exact verified tenant/issuer/subject/client matches operator enrollment. Explicit register/approve/trust permissions; independent approver, digest/revision/expiry checks, ETag preconditions. No public tenant/principal/client provisioning, listing or ownership transfer. Registration never contacts provider origins. |
 | Resource authority and shares — VERIFIED within E2/E5/E6 | [resources.mjs](../../src/resources.mjs), migration 004: `resource_actor`, `resource_readable`, `resource_command`, private `resource_objects`, `resource_shares`. Public share POST/DELETE only. | Exact backend `resource_subject`, active app/enrollment, owner-only mutations, same-tenant exact read grant ≤24 hours. Ordinary admin authority does not grant v2 data access. No wildcard/write/reshare/delegation or share-list endpoint. |
 | Protected authority audit — VERIFIED within E7 | Actual table is `app_private.audit`, not `app_private.audit_events`. Migrations 003/004 append app/approval/share mutations in the transaction; migration 005 adds derived actor/tenant metadata, redaction, `audit.read`, `rosetta_audit_api` and internal `core.audit_query(jsonb)`. | API roles cannot read/append/update/delete audit authority; append failure rolls back the mutation. [Audit tests](../../integration/audit.mjs) cover forged tenant/actor, redaction, pagination, concurrency, restart and role denial; [recovery](../../integration/recovery.mjs) checks restore ACL/RLS. No public audit route, cryptographic sealing, independent retention/export or DBA tamper resistance. |
-| Contract governance — VERIFIED within E3/E5/E6 | [Foundation OpenAPI](../contracts/foundation-api.openapi.json), [validator](../../scripts/check-contracts.py), [HTTP observer](../../integration/contract.mjs). Static files/tooling, not a registry service. | 44 operations/30 paths; known successful requests and negative responses validated. Independent reviewed route matrix requires maintenance. Keycloak full vendor surface and all fault branches are not exhaustively modeled. Capability contract remains separate DESIGN ONLY. |
+| Contract governance — VERIFIED within E3/E5/E6 | [Foundation OpenAPI](../contracts/foundation-api.openapi.json), [validator](../../scripts/check-contracts.py), [HTTP observer](../../integration/contract.mjs). | Foundation retains 44 operations/30 paths. The separate Capability OpenAPI now marks C1/C2 implemented subsets; real Trust bodies are schema-checked. Future delegation/execution remains design-only. The Console inventory still covers Foundation only. |
 | Legacy v1 compatibility — VERIFIED within E2/E5/E6 | [resource contract](../RESOURCE_AUTHORIZATION.md#contract-and-migration-decision-before-implementation), `LEGACY_RESOURCE_CLIENTS`, `core.records`, separate object prefix. | Explicit operator allowlist; no automatic ownership adoption. App suspension does not remove legacy allowlist or disable Keycloak; operator actions are separate. v2 has no automatic fallback. |
 
 ## Console evidence and contradictions
@@ -113,8 +118,11 @@ minimums. New dependency versions/editions must enter THIRD-PARTY before use.
 
 ## Groups D/E/F status and gaps
 
-Registry/Resolver/Trust/Composition are DESIGN ONLY in existing Capability files;
-schemas and fixtures do not imply endpoints. Group E has source CI, health probes,
+C1 Registry and bounded direct C2 Trust/discovery are implemented in the existing
+Core process with private persistence and protected Audit; C3 is offline. Human
+delegation, resolver HTTP endpoints and C4 execution/composition remain
+unimplemented. See the [Registry](../CAPABILITY_REGISTRY.md) and
+[direct Trust](../CAPABILITY_DIRECT_TRUST.md) for exact evidence. Group E has source CI, health probes,
 named volumes and structured restore evidence, but no complete DR, operational
 telemetry stack, protected deployment audit or production GitOps. Group F has no
 project/environment/deployment/domain/binding/controller implementation. Its

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { createHash, randomBytes } from "node:crypto";
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { before, after, test } from "node:test";
 import { promisify } from "node:util";
@@ -19,6 +19,7 @@ const run = (...args) => promisify(execFile)("docker", args, { timeout: 180000 }
 const sql = text => run("compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1", "-Atc", text);
 const q = value => `'${String(value).replaceAll("'", "''")}'`;
 let adminToken, owner, approver, publisher, stranger, foreign, foreignApprover, consumer, foreignConsumer, app, appEtag, capabilityId;
+const visibility = {};
 
 async function operatorToken() {
   const deadline = Date.now() + 30000;
@@ -97,7 +98,7 @@ async function approvalFor(value, decision = "approve", patch = {}) {
   });
 }
 
-async function backend(label, principal = owner, administrator = approver, tenant = "tenant-a") {
+async function backend(label, principal = owner, administrator = approver, tenant = "tenant-a", writer = true) {
   const clientId = `${prefix}-${label}`;
   const template = (await (await admin("clients?clientId=tenant-a")).json())[0];
   const source = await (await admin(`clients/${template.id}`)).json();
@@ -111,7 +112,7 @@ async function backend(label, principal = owner, administrator = approver, tenan
   const subject = (await (await admin(`clients/${id}/service-account-user`)).json()).id;
   const group = (await (await admin(`groups?search=${tenant}&exact=true`)).json()).find(value => value.name === tenant);
   assert.equal((await admin(`users/${subject}/groups/${group.id}`, undefined, "PUT")).status, 204);
-  const roles = await Promise.all(["core-reader", "core-writer"].map(async name => (await admin(`roles/${name}`)).json()));
+  const roles = await Promise.all(["core-reader", ...(writer ? ["core-writer"] : [])].map(async name => (await admin(`roles/${name}`)).json()));
   assert.equal((await admin(`users/${subject}/role-mappings/realm`, roles, "POST")).status, 204);
   const secret = (await (await admin(`clients/${id}/client-secret`)).json()).value;
   const issued = await fetch(`${issuer}/protocol/openid-connect/token`, { method: "POST", body: new URLSearchParams({ grant_type: "client_credentials", client_id: clientId, client_secret: secret }) });
@@ -130,8 +131,9 @@ async function backend(label, principal = owner, administrator = approver, tenan
   return { app: await active.json(), token, subject, clientId, etag: active.headers.get("etag") };
 }
 
-async function published(version) {
-  const created = await register(version); assert.equal(created.status, 201); const value = await created.json();
+async function published(version, permissions) {
+  const created = permissions ? await api(`/v1/capabilities/${encodeURIComponent(capabilityId)}/versions`, owner, { ...manifest(version), requiredPermissions: permissions }) : await register(version);
+  assert.equal(created.status, 201); const value = await created.json();
   assert.equal((await action(version, "validate", owner, {}, created.headers.get("etag"))).status, 200);
   const decision = await approvalFor(value); assert.equal(decision.status, 201);
   const result = await action(version, "publish", publisher, { approvalId: (await decision.json()).approvalId }, created.headers.get("etag"));
@@ -148,9 +150,32 @@ async function grantDecision(g, actor = approver, patch = {}) {
     resourceRevision: g.revision, requesterSubject: owner.id, requesterAppId: app.appId, decision: "approve",
     expiresAt: new Date(Date.now() + 120000).toISOString(), ...patch });
 }
-async function proposed(value, operations = ["discover"]) {
-  const r = await api("/v1/trust/grants", owner, grantBody(value, operations)); assert.equal(r.status, 201);
+async function proposed(value, operations = ["discover"], patch = {}) {
+  const r = await api("/v1/trust/grants", owner, grantBody(value, operations, patch)); assert.equal(r.status, 201);
   return { ...await r.json(), etag: r.headers.get("etag") };
+}
+
+const versionPath = value => `/v1/capabilities/${encodeURIComponent(capabilityId)}/versions/${value.version}`;
+async function eligible(value, operation = "invoke", actor = consumer, patch = {}) {
+  const reference = { capabilityId, version: value.version, manifestDigest: value.digest, operation, ...patch };
+  // Tokens/config stay in memory and stdin, never process arguments or files.
+  return new Promise((resolve, reject) => {
+    const child = spawn("docker", ["compose", "exec", "-T", "core", "node", "--input-type=module", "-"], { stdio: ["pipe", "pipe", "pipe"] });
+    let output = ""; child.stdout.on("data", chunk => output += chunk); child.stderr.on("data", chunk => output += chunk);
+    child.on("error", reject); child.on("close", code => code === 0 ? resolve(JSON.parse(output)) : reject(new Error("Internal eligibility probe failed")));
+    child.stdin.end(`import { evaluateCapabilityEligibility } from './src/trust.mjs';
+      const config={issuer:process.env.OIDC_ISSUER,identityUrl:process.env.IDENTITY_URL,clientSecret:process.env.CORE_CLIENT_SECRET,dataUrl:process.env.DATA_URL,dataSecret:process.env.DATA_JWT_SECRET};
+      console.log(JSON.stringify(await evaluateCapabilityEligibility({headers:{authorization:${JSON.stringify(`Bearer ${actor.token}`)}}},config,${JSON.stringify(reference)})));`);
+  });
+}
+async function activeGrant(value, operations, patch = {}, administrator = approver) {
+  const g = await proposed(value, operations, patch); const d = await grantDecision(g, administrator); assert.equal(d.status, 201);
+  const r = await activate(g, (await d.json()).approvalId, administrator); assert.equal(r.status, 200);
+  return { ...await r.json(), etag: r.headers.get("etag") };
+}
+async function revokeGrant(g) {
+  const r = await api(`/v1/trust/grants/${g.grantId}/revoke`, owner, { reason: "technical discovery revocation" }, { "If-Match": g.etag });
+  assert.equal(r.status, 200); return { ...await r.json(), etag: r.headers.get("etag") };
 }
 async function activate(g, approvalId, actor = approver) {
   return api(`/v1/trust/grants/${g.grantId}/activate`, actor, { approvalId }, { "If-Match": g.etag });
@@ -463,4 +488,147 @@ test("pending migrations and real restart preserve Trust authority, ACLs and ter
   assert.equal((await activate(g, approvalId)).status, 409);
   const consumed = await api(`/v1/approvals/${approvalId}`, approver);
   assert.equal(consumed.status, 200); assert.equal((await consumed.json()).state, "consumed");
+});
+
+test("discover and invoke rights stay separate with exact versions, permissions and subject binding", async () => {
+  const prior = JSON.parse((await sql(`SELECT coalesce(json_agg(grant_id),'[]') FROM trust_private.grants WHERE created_by=${q(owner.id)} AND state<>'revoked';`)).stdout);
+  for (const grantId of prior) {
+    const r = await api(`/v1/trust/grants/${grantId}`, owner); const g = await r.json();
+    await revokeGrant({ ...g, etag: r.headers.get("etag") });
+  }
+  const before = await api("/v1/capabilities", consumer); assert.equal(before.status, 200); assert.deepEqual((await before.json()).items, []);
+  for (const [label, version, operations] of [["discover", "3.0.0", ["discover"]], ["invoke", "3.0.1", ["invoke"]], ["both", "3.0.2", ["discover", "invoke"]]]) {
+    const v = await published(version); const g = await activeGrant(v, operations); visibility[label] = { v, g };
+    const read = await api(versionPath(v), consumer);
+    assert.equal(read.status, label === "invoke" ? 404 : 200);
+    if (read.ok) {
+      const metadata = await read.json(); trustCases.push({ schema: "CapabilityVersion", value: metadata });
+      assert.equal(metadata.digest, v.digest);
+      for (const hidden of ["createdBy", "updatedBy", "validation", "approvals", "ownerSubject", "providerOrigin"]) assert.equal(Object.hasOwn(metadata, hidden), false, hidden);
+    }
+    for (const operation of ["discover", "invoke"]) {
+      const result = await eligible(v, operation); assert.equal(result.allowed, operations.includes(operation), `${label}/${operation}`);
+      assert.deepEqual(Object.keys(result).sort(), ["allowed", "reason"], "decision is not a transferable authorization artifact");
+    }
+  }
+  const missingPermission = await published("3.0.3", [`urn:rosetta:permission:${app.appId}:invoke`, `urn:rosetta:permission:${app.appId}:extra`]);
+  for (const permission of missingPermission.manifest.requiredPermissions) await activeGrant(missingPermission, ["discover", "invoke"], { permissions: [permission] });
+  assert.equal((await eligible(missingPermission)).allowed, false, "partial grants cannot be unioned");
+  assert.equal((await api(versionPath(missingPermission), consumer)).status, 404);
+  const ungranted = await published("3.0.4");
+  assert.equal((await api(versionPath(ungranted), consumer)).status, 404, "no automatic version inheritance");
+  assert.equal((await eligible(ungranted)).allowed, false);
+  assert.equal((await eligible(visibility.invoke.v, "invoke", consumer, { manifestDigest: `sha256:${"0".repeat(64)}` })).allowed, false);
+  assert.equal((await eligible(visibility.invoke.v, "invoke", consumer, { tenantId: "tenant-b" })).reason, "invalid_reference");
+  assert.equal((await eligible(visibility.invoke.v, "invoke", foreignConsumer)).allowed, false);
+  assert.equal((await eligible(visibility.invoke.v, "invoke", owner)).allowed, false, "provider owner has no backend bypass");
+  assert.equal((await eligible(visibility.invoke.v, "invoke", { token: "invalid-token" })).reason, "principal_required");
+  assert.equal((await api(versionPath(visibility.discover.v), foreignConsumer)).status, 404);
+  assert.deepEqual((await (await api("/v1/capabilities", foreignConsumer)).json()).items, []);
+  const draft = await register("3.0.5"); assert.equal(draft.status, 201); const draftValue = await draft.json();
+  assert.equal((await api(versionPath(draftValue), consumer, undefined, { "X-Tenant-Id": "tenant-a", "X-App-Id": app.appId, "X-Subject": owner.id })).status, 404);
+  assert.equal((await api("/v1/trust/grants", owner, grantBody(draftValue))).status, 409, "unpublished version cannot gain authority");
+  assert.equal((await api(`/v1/approvals/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa`, consumer)).status, 403);
+});
+
+test("pagination filters before counting and cursors never retain revoked discovery authority", async () => {
+  const first = await api("/v1/capabilities?limit=1", consumer); assert.equal(first.status, 200); const page = await first.json();
+  assert.equal(page.items.length, 1); assert.equal(page.items[0].version, "3.0.2"); assert.ok(page.nextCursor);
+  const second = await api(`/v1/capabilities?limit=1&cursor=${page.nextCursor}`, consumer); const end = await second.json();
+  assert.equal(end.items.length, 1); assert.equal(end.items[0].version, "3.0.0"); assert.equal(end.nextCursor, null, "hidden versions do not create hidden counts");
+  assert.equal((await api(`/v1/capabilities?cursor=${page.nextCursor}`, foreignConsumer)).status, 400, "cursor is tenant/app-bound");
+  const owned = await api("/v1/capabilities?limit=1", owner); const ownerPage = await owned.json();
+  assert.ok(ownerPage.nextCursor); assert.equal((await api(`/v1/capabilities?cursor=${ownerPage.nextCursor}`, owner)).status, 200, "C1 cursor compatibility");
+  assert.equal((await api(`/v1/capabilities?cursor=${ownerPage.nextCursor}`, consumer)).status, 400);
+  visibility.discover.g = await revokeGrant(visibility.discover.g);
+  const after = await api(`/v1/capabilities?limit=1&cursor=${page.nextCursor}`, consumer); const remaining = await after.json();
+  assert.deepEqual(remaining.items, []); assert.equal(remaining.nextCursor, null);
+  assert.equal((await api(versionPath(visibility.discover.v), consumer)).status, 404);
+  assert.equal((await eligible(visibility.discover.v, "discover")).allowed, false);
+});
+
+test("live capability, app, subject and administrator authority immediately bound new use", async () => {
+  const deprecated = await action(visibility.both.v.version, "deprecate", owner, { reason: "technical discovery retirement" }, visibility.both.v.etag);
+  assert.equal(deprecated.status, 200);
+  assert.equal((await api(versionPath(visibility.both.v), consumer)).status, 404);
+  assert.equal((await eligible(visibility.both.v)).allowed, false);
+  const revoked = await action(visibility.both.v.version, "revoke", owner, { reason: "technical capability revocation" }, deprecated.headers.get("etag"));
+  assert.equal(revoked.status, 200);
+  assert.equal((await api("/v1/trust/grants", owner, grantBody(visibility.both.v))).status, 409);
+  assert.equal((await eligible(visibility.both.v)).allowed, false);
+  const trustAdmin = await human("trust-only-administrator", "tenant-a", ["trust.approve"]);
+  const v = await published("3.1.0"); const g = await activeGrant(v, ["discover", "invoke"], {}, trustAdmin); visibility.live = { v, g };
+  assert.equal((await eligible(v)).allowed, true, "trust.approve is independent of app/capability permissions");
+  const reader = await backend("reader-consumer", owner, approver, "tenant-a", false);
+  await activeGrant(v, ["discover", "invoke"], { consumerAppId: reader.app.appId, subjectIds: [reader.subject] });
+  assert.equal((await eligible(v, "discover", reader)).allowed, true);
+  assert.equal((await eligible(v, "invoke", reader)).allowed, false, "invoke eligibility still requires baseline writer authority");
+  await applicationState(reader, "revoke");
+  assert.equal((await eligible(v, "discover", reader)).allowed, false, "terminal consumer revocation removes existing authority");
+  const provider = { app, etag: appEtag };
+  for (const target of [provider, consumer]) {
+    await applicationState(target, "suspend");
+    assert.notEqual((await api(versionPath(v), consumer)).status, 200); assert.equal((await eligible(v)).allowed, false);
+    await applicationState(target, "reactivate"); assert.equal((await eligible(v)).allowed, true);
+  }
+  app = provider.app; appEtag = provider.etag;
+  for (const mutation of [
+    [`UPDATE app_private.enrollments SET resource_subject=NULL WHERE oauth_client_id=${q(consumer.clientId)}`, `UPDATE app_private.enrollments SET resource_subject=${q(consumer.subject)} WHERE oauth_client_id=${q(consumer.clientId)}`],
+    [`UPDATE app_private.principals SET enabled=false WHERE subject=${q(trustAdmin.id)}`, `UPDATE app_private.principals SET enabled=true WHERE subject=${q(trustAdmin.id)}`],
+    [`UPDATE app_private.principals SET enabled=false WHERE subject=${q(owner.id)}`, `UPDATE app_private.principals SET enabled=true WHERE subject=${q(owner.id)}`],
+  ]) {
+    await sql(mutation[0]);
+    try { assert.equal((await eligible(v)).allowed, false); assert.notEqual((await api(versionPath(v), consumer)).status, 200); }
+    finally { await sql(mutation[1]); }
+    assert.equal((await eligible(v)).allowed, true, "no positive authorization cache");
+  }
+  const expiring = await published("3.1.1"); const expiresAt = new Date(Date.now() + 10000).toISOString();
+  const pending = await proposed(expiring, ["discover", "invoke"], { expiresAt });
+  const decision = await grantDecision(pending, approver, { expiresAt }); assert.equal(decision.status, 201);
+  const activated = await activate(pending, (await decision.json()).approvalId); assert.equal(activated.status, 200);
+  const expiredGrant = { ...await activated.json(), etag: activated.headers.get("etag") };
+  assert.equal((await eligible(expiring)).allowed, true);
+  await new Promise(resolve => setTimeout(resolve, Math.max(0, Date.parse(expiresAt) - Date.now() + 250)));
+  const expired = await api(`/v1/trust/grants/${expiredGrant.grantId}`, owner); assert.equal((await expired.json()).state, "expired");
+  assert.equal((await api(versionPath(expiring), consumer)).status, 404); assert.equal((await eligible(expiring)).allowed, false);
+  visibility.expired = { v: expiring, g: expiredGrant };
+});
+
+test("internal eligibility fails closed during authority outage and rechecks after restart", async () => {
+  const { v } = visibility.live;
+  await run("compose", "stop", "data");
+  try { assert.equal((await eligible(v)).reason, "authority_unavailable"); assert.equal((await api(versionPath(v), consumer)).status, 503); }
+  finally { await run("compose", "up", "--detach", "--no-deps", "--wait", "data"); }
+  await run("compose", "restart", "database");
+  await run("compose", "up", "--detach", "--no-deps", "--force-recreate", "--wait", "data", "core");
+  let decision; const deadline = Date.now() + 30000;
+  do { decision = await eligible(v); if (decision.allowed) break; await new Promise(resolve => setTimeout(resolve, 500)); } while (Date.now() < deadline);
+  assert.equal(decision.allowed, true); assert.equal((await eligible(visibility.invoke.v)).allowed, true);
+  assert.equal((await eligible(visibility.expired.v)).allowed, false); assert.equal((await eligible(visibility.discover.v, "discover")).allowed, false);
+  const acl = await sql("SELECT has_function_privilege('rosetta_trust_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('rosetta_capability_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('rosetta_api','core.trust_eligibility(jsonb)','EXECUTE');");
+  assert.equal(acl.stdout.trim(), "t|f|f");
+});
+
+test("isolated backup/restore preserves real OIDC grant decisions and revocation/expiration evidence", { timeout: 120000 }, async () => {
+  const fixture = { tenant: "tenant-a", issuer, subject: consumer.subject, clientId: consumer.clientId,
+    cases: [[visibility.live, "active"], [visibility.discover, "revoked"], [visibility.expired, "expired"]].map(([item, state]) => ({
+      grantId: item.g.grantId, state, reference: { capabilityId, version: item.v.version, manifestDigest: item.v.digest, operation: state === "revoked" ? "discover" : "invoke" },
+    })) };
+  const childEnv = { ...process.env, TRUST_RECOVERY_CASES: JSON.stringify(fixture) };
+  // Launch an independent runner rather than inheriting Node's child IPC mode.
+  delete childEnv.NODE_TEST_CONTEXT;
+  const restored = await promisify(execFile)(process.execPath, ["--env-file=.env", "--test", "integration/recovery.mjs"], {
+    timeout: 120000, env: childEnv,
+  });
+  assert.match(restored.stdout, /Trust restore: 3 live grants/);
+  console.log("Live OIDC Trust backup/restore verified active, revoked and expired grants");
+});
+
+test("terminal app revocation cannot be bypassed by an already approved grant", async () => {
+  const { v } = visibility.live; const g = await proposed(v); const d = await grantDecision(g); assert.equal(d.status, 201);
+  const provider = { app, etag: appEtag }; await applicationState(provider, "revoke");
+  assert.equal((await activate(g, (await d.json()).approvalId)).status, 409);
+  assert.equal((await eligible(v)).allowed, false); assert.equal((await api(versionPath(v), consumer)).status, 404);
+  assert.equal((await api(versionPath(v), owner)).status, 200, "C1 owner history remains visible");
+  await applicationState(consumer, "revoke"); assert.equal((await eligible(v)).allowed, false);
 });

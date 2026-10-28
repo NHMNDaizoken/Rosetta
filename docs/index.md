@@ -36,7 +36,7 @@ creating competing module, data and API inventories.
 | [Foundation contract](FOUNDATION_OPENAPI.md) | Implemented public API; exact machine schemas remain in its linked OpenAPI |
 | [Resource authorization](RESOURCE_AUTHORIZATION.md) | Current v1/v2 security, sharing and migration contract |
 | [Protected audit](AUDIT.md) | Audit threat model, write/read boundary, roles, redaction, recovery and remaining integrity gaps |
-| [Capability design](CAPABILITY_EXTENSIONS_V1.md) | Bounded offline resolver; future manifests, trust and composition contracts |
+| [Capability contracts](CAPABILITY_EXTENSIONS_V1.md), [Registry](CAPABILITY_REGISTRY.md), [direct Trust](CAPABILITY_DIRECT_TRUST.md) | Implemented C1, bounded C2 and offline C3; future human delegation and C4 execution |
 | [Operations](OPERATIONS.md), [licensing](LICENSING.md), [workflow](WORKFLOW.md) | Existing operational and contribution policies |
 
 ## Baseline counts
@@ -58,7 +58,8 @@ not code coverage or product completeness.
 6. Workflow variables/executions remain tenant-scoped, including for suspended apps
    whose Keycloak tokens still satisfy that separate contract.
 7. Console preview/session state and browser activity logs are not server truth.
-8. No hosting controller, projects, deployments or Capability Runtime exists.
+8. No hosting controller, projects, deployments, human delegation or C4 execution
+   exists. C1 Registry and bounded direct C2 grants/discovery are implemented.
 9. Local Compose is not production HA or hostile-workload isolation.
 10. Audit is transactional and tenant-queryable internally; DBAs are trusted and
     there is no public route, independent export or cryptographic sealing.

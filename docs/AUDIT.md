@@ -57,6 +57,13 @@ audit table privileges and cannot execute the query function.
 
 ## Write path
 
+Direct Trust uses this same boundary for proposal, decision/denial, approval
+consumption, activation and terminal revocation. Each required append and state
+change share one transaction; append failure rolls back consumption and mutation.
+Self-approval denials append a bounded `authorization.denied` event. Eligibility
+is a read-only predicate; this is not universal HTTP access logging. See
+[direct Trust](CAPABILITY_DIRECT_TRUST.md) for tested scope and recovery.
+
 Existing owner functions insert directly into `app_private.audit`; new
 control-plane domains may call `app_private.audit_append(...)` inside their own
 transaction. The `BEFORE INSERT` guard:

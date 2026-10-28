@@ -108,6 +108,29 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     const trustAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
       "SELECT n.nspowner::regrole, bool_and(c.relrowsecurity AND c.relforcerowsecurity) FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='trust_private' AND c.relkind='r' GROUP BY n.nspowner; SELECT has_schema_privilege('rosetta_api','trust_private','USAGE'),has_table_privilege('rosetta_app_api','trust_private.grants','INSERT');"]);
     assert.equal(trustAcl.stdout.trim(),'rosetta_app_owner|t\nf|f','Restore preserves Trust ownership, forced RLS and private ACLs');
+    // The capability suite supplies real OIDC-enrolled live grants while its
+    // fixtures still exist. This offline restore verifies persisted authority;
+    // issuer authentication itself is exercised against Keycloak in that suite.
+    const liveTrust = process.env.TRUST_RECOVERY_CASES ? JSON.parse(process.env.TRUST_RECOVERY_CASES) : null;
+    if (liveTrust) {
+      const literal = value => `'${String(value).replaceAll("'", "''")}'`;
+      for (const fixture of liveTrust.cases) {
+        for (const tenant of [liveTrust.tenant, 'tenant-b']) {
+          const claims = JSON.stringify({tenant_id:tenant,iss:liveTrust.issuer,sub:liveTrust.subject,client_id:liveTrust.clientId,trust_writer:true});
+          const result = await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
+            `SET ROLE rosetta_trust_api; SELECT set_config('request.jwt.claims',${literal(claims)},false); SELECT core.trust_eligibility(${literal(JSON.stringify(fixture.reference))}::jsonb)->>'allowed';`]);
+          assert.equal(result.stdout.trim().split(/\r?\n/).at(-1), String(tenant===liveTrust.tenant && fixture.state==='active'), 'Restored live Trust decision');
+          const stored = await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
+            `SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims',${literal(claims)},false); SELECT coalesce((SELECT trust_private.grant_view(g)->>'state' FROM trust_private.grants g WHERE grant_id=${literal(fixture.grantId)}::uuid),'hidden');`]);
+          assert.equal(stored.stdout.trim().split(/\r?\n/).at(-1), tenant===liveTrust.tenant ? fixture.state : 'hidden', 'Restored grant state and tenant RLS');
+        }
+      }
+      const revoked = liveTrust.cases.find(fixture=>fixture.state==='revoked');
+      const evidence = await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
+        `SELECT count(*) FROM app_private.audit WHERE resource_id=${literal(revoked.grantId)}::uuid AND event='grant.revoked'; SELECT has_function_privilege('rosetta_trust_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('rosetta_api','core.trust_eligibility(jsonb)','EXECUTE'),has_table_privilege('rosetta_trust_api','trust_private.grants','UPDATE');`]);
+      assert.equal(evidence.stdout.trim(),'1\nt|f|f','Restored revocation audit and Trust ACLs');
+      console.log(`Trust restore: ${liveTrust.cases.length} live grants, tenant RLS, revocation audit and ACLs passed`);
+    }
     for(const [tenant,expected] of [['tenant-a','1'],['tenant-b','0']]) {
       const claims=JSON.stringify({tenant_id:tenant,iss:'https://recovery.example.invalid',sub:`recovery-${id}`,client_id:`restore-${id}`});
       const result=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',

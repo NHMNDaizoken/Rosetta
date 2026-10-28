@@ -1,7 +1,7 @@
 # Implementation dependencies and feasibility
 
 > Reviewed: 2026-10-28 | Branch: main | Audit baseline: `360a7dd741442a2e3dbfc0f10d45a1e387d3b697`
-> Status: PROPOSED implementation plan; A1 is implemented with bounded evidence, other slices remain unauthorized.
+> Current status (2026-10-29): A1, C1, offline C3 and bounded C2 direct grants/discovery are implemented; broader backlog items require their own approval.
 
 ## Dependency register
 
@@ -26,8 +26,8 @@ not that software must run in the same process. IDs match the handoff and
 | T2 | Custom domain lifecycle — DEFERRED | T1 | Large operations: ownership proof, renewals, takeover/SSRF/release semantics. |
 | H1 | Integrated hosted BaaS acceptance — PROPOSED | T1, B1, O1 | Two apps, common Foundation auth, failed update/restore/revocation evidence. No Capability dependency. |
 | OPT | Selected B/C extension — DEFERRED | K0 | Per candidate additional prerequisites; no blanket approval or automatic new process. |
-| C1 | Registry publication metadata — DESIGN ONLY runtime | K0, A1 | Exact immutable manifests, authority and schema validation; independent of hosting. |
-| C2 | Capability Trust — DESIGN ONLY runtime | C1 | Grants/approvals/provider enforcement, revocation; resource shares not reused as invocation grants. |
+| C1 | Registry publication metadata — IMPLEMENTED, bounded | K0, A1 | Exact immutable manifests, authority and publication approval; see Registry evidence and remaining audit coverage qualification. |
+| C2 | Direct Capability Trust / Discovery — IMPLEMENTED, bounded | C1, A1 | Exact backend-subject grants, independent approval, live discovery/eligibility, expiry/revocation and recovery; human delegation deferred, no provider dispatch. |
 | C3 | Compatibility Resolver — OFFLINE MODULE | K0 | `src/capability-compatibility.mjs` and unit tests implement the bounded profile/witness proof; live resolution and registry integration remain future work. |
 | C4 | Composition/Execution — DESIGN ONLY runtime | C1, C2, C3, A1 | Existing Flowable, tenant-safe dispatcher, SSRF, leases and provider idempotency gates; no second engine. |
 | L2 | Separate Layer-2 GUI — DEFERRED implementation | BASE | Independent business product and end-to-end user journey; need not wait for hosting or capabilities. |

@@ -53,8 +53,10 @@ metadata. Retain both named volumes. `docker compose down` stops/removes project
 containers and networks while retaining volumes. Never use `down -v`, volume
 pruning, or a destructive reset to apply a configuration change.
 
-The data migrator applies versioned SQL transactionally, with an error stopping
-startup. A repeated run is safe and does not drop stored records. Add a new
+The data migrator applies only pending numbered SQL files transactionally, with an
+error stopping startup. Run one migrator at a time. It does not replay historical
+permission constraints/functions over newer authority. A repeated run does not
+drop stored records. Add a new
 migration for later schema changes. Migration 005 preserves `app_private.audit`,
 adds the protected audit metadata/read role and has no down migration; retain the
 table, roles and events on rollback. Keycloak realm import initializes an empty
@@ -72,6 +74,16 @@ and metadata together. Logical object deletion retains tombstones and bytes;
 reclamation is an operator task, not an automatic cleanup of application data.
 The isolated restore test also checks the resource role, same-tenant app RLS and
 the audit role/ACL/tenant query. See [protected audit](AUDIT.md).
+
+Migrations 006–009 add Registry and bounded direct Trust/discovery. Retain
+`trust_private`, `app_private`, Registry versions, approvals, enrolled identities
+and Audit together. Restore requires `rosetta_app_owner`, `rosetta_capability_api`
+and `rosetta_trust_api` in addition to the existing roles. The capability suite
+invokes the isolated restore harness while its real OIDC fixtures exist, checking
+active, revoked and expired grant decisions, tenant RLS, private ownership/ACLs
+and revocation audit. Run `npm run test:capabilities` followed by the ordinary
+`npm run test:recovery` sequentially. Roll back code without dropping history or
+replaying old authority migrations. See [direct Trust](CAPABILITY_DIRECT_TRUST.md).
 
 `npm run test:recovery` seeds its own UUID record, creates a temporary PostgreSQL
 using the pinned image, and streams `pg_dump --format=custom` into `pg_restore`.

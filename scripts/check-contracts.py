@@ -99,6 +99,14 @@ def check_value(spec, schema, value, label):
     require(error is None, label + ': schema mismatch' + (f' ({error.validator})' if error else ''))
 
 
+def validate_official_structure(spec):
+    with urllib.request.urlopen(META, timeout=20) as response:
+        raw = response.read()
+    require(hashlib.sha256(raw).hexdigest() == META_SHA, 'Official metaschema digest changed; review before updating pin')
+    error = next(Draft202012Validator(json.loads(raw)).iter_errors(spec), None)
+    require(error is None, 'Official OpenAPI structural validation failed')
+
+
 def validate_document(spec, official=True):
     require(spec.get('openapi') == '3.1.1', 'Expected OpenAPI 3.1.1')
     require(spec.get('x-rosetta-status') == 'implemented', 'Foundation must describe implemented routes')
@@ -141,11 +149,7 @@ def validate_document(spec, official=True):
             if path.startswith('/v2/'):
                 require(operation['x-rosetta-authority'] == 'app-resource', oid + ': app boundary missing')
     if official:
-        with urllib.request.urlopen(META, timeout=20) as response:
-            raw = response.read()
-        require(hashlib.sha256(raw).hexdigest() == META_SHA, 'Official metaschema digest changed; review before updating pin')
-        error = next(Draft202012Validator(json.loads(raw)).iter_errors(spec), None)
-        require(error is None, 'Official OpenAPI structural validation failed')
+        validate_official_structure(spec)
     return len(ids)
 
 
@@ -271,6 +275,8 @@ def capability_contract(cases=None):
     """Validate local extension schemas and real Trust bodies without logging them."""
     contract = ROOT / 'docs/contracts/capability-api-v1.openapi.json'
     spec = json.loads(contract.read_text(encoding='utf-8'))
+    if cases is None:
+        validate_official_structure(spec)
     registry = Registry().with_resources(
         (p.as_uri(), Resource.from_contents(json.loads(p.read_text(encoding='utf-8')), default_specification=DRAFT202012))
         for p in contract.parent.glob('*.json'))
@@ -300,7 +306,7 @@ def main():
     else:
         count = validate_document(spec)
         capability_contract()
-        print(f'OpenAPI 3.1 structure, schemas, local refs, IDs, authorization and {count} reviewed operations passed')
+        print(f'Foundation {count} operations and Capability OpenAPI structure/schemas/examples passed; Foundation authorization/ref inventory verified')
 
 
 if __name__ == '__main__':

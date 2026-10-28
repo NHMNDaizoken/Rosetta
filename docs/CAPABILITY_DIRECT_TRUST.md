@@ -1,7 +1,7 @@
 # Direct capability trust (C2)
 
-Increments A/B supply private persistence, input validation and the direct grant
-lifecycle. Consumer discovery is not enabled yet. C1 Registry is implemented, C3 is a
+Status (2026-10-29): bounded C2 direct grants, authorized discovery and the live
+internal eligibility predicate are implemented. C1 Registry is implemented, C3 is a
 bounded offline resolver, and A1 Audit is implemented with trusted DBAs. Human
 delegation is deferred; C4 execution is unimplemented; hosting is proposed.
 
@@ -30,7 +30,7 @@ require the baseline writer role as well as explicit management authority.
 
 | Operation | Required authority | State / concurrency | Concealment / audit |
 | --- | --- | --- | --- |
-| POST `/v1/trust/grants` | Provider owner, `trust.write` | Published exact digest, active apps/enrollments; new immutable pending proposal | Foreign/hidden target 404; atomic `grant.proposed` |
+| POST `/v1/trust/grants` | Provider owner, `trust.write` | Published exact digest, active apps/enrollments; new immutable pending proposal | Foreign/missing target 404, non-owner 403; atomic `grant.proposed` |
 | GET `/v1/trust/grants/{grantId}` | Provider owner with `trust.write` or `trust.approve` administrator | Live tenant authority | Other resources 404; no public approval history |
 | POST `/v1/approvals` (`grant`) | Independent human with `trust.approve` | Exact requester/provider/revision/digest, bounded expiry; decision recorded without activation | Hidden grant 404; atomic `approval.decided` |
 | POST `.../{grantId}/activate` | The independent deciding administrator, `trust.approve` | Exact If-Match, locked pending grant, single approval consumption; live app/capability/subject checks | 428 missing ETag, 412 stale ETag, 409 stale approval; atomic consumption + activation audit |
@@ -73,8 +73,51 @@ data-migrate -h database -U rosetta_admin -d rosetta_data -v ON_ERROR_STOP=1
 -f /migrations/008-trust-lifecycle.sql`.
 Keep both private schemas, role ownership/ACLs, Registry and Audit in coordinated
 backups. Roll back code without dropping authority/history tables. No destructive
-down migration or purge is provided. Grant lifecycle/discovery recovery proof for
-C2 is pending.
+down migration or purge is provided. The verification section below records
+grant lifecycle/discovery and restored-decision evidence.
+
+Migration 009 keeps C1 management mutations behind the existing private command
+and adds filtered GET/list visibility. Owners with C1 read authority and
+`capabilities.publish` administrators retain C1 history visibility. Consumers
+receive only published manifest/version metadata, without creator identities,
+private validation reports, approvals, OAuth configuration or credentials.
+Authorization filters precede `LIMIT` and cursor creation; `nextCursor` counts
+only visible rows. Consumer cursors bind tenant/app, while C1 management cursor
+format remains compatible. Reusing a cursor never preserves a grant's authority.
+
+## Internal eligibility and consistency
+
+`evaluateCapabilityEligibility(request, config, reference)` in `src/trust.mjs`
+accepts exactly `capabilityId`, `version`, `manifestDigest` and `operation`
+(`discover` or `invoke`). It performs fresh OIDC introspection itself, then calls
+the private `core.trust_eligibility(jsonb)` RPC. Only `rosetta_trust_api` may call
+that RPC. The result contains only `{allowed, reason}`; reason codes are bounded
+internal diagnostics, not a public enumeration API or transferable authority.
+
+The same SQL predicate governs consumer discovery and eligibility. It checks
+current issuer/subject/client/tenant binding, active apps/enrollments, exact
+published version/digest, active unexpired direct grant, exact subject and
+operation, consumed matching independent approval and current creator/approver
+management authority. One grant must cover the complete manifest permission set;
+partial grants are never unioned. `invoke` also requires the baseline writer
+role. A subset proposal may be valid without authorizing a request requiring more.
+
+Disabling an enrolled creator or approver, clearing/rebinding a consumer subject,
+suspending/revoking either app, deprecating/revoking a capability, or expiring/
+revoking a grant blocks subsequent checks. There is no positive authorization
+cache. Reads use a current database statement snapshot; an in-flight authorized
+read may finish across a concurrent change. Previously returned metadata cannot
+be recalled. This predicate admits new use only, not continuation of an existing
+C4 execution.
+
+No HTTP invocation/eligibility endpoint, provider request, execution ticket,
+queue, workflow start, human forwarding or unattended execution is added. C4
+must independently recheck live authority immediately before dispatch/redemption,
+enforce invocation-specific approvals and validate input/output/preconditions.
+It still needs approved provider enrollment/network/SSRF controls, tickets,
+credential leases, idempotency/unknown outcomes, tenant-safe Flowable workers and
+recovery evidence. Accepted-execution deprecation semantics require the future
+execution reservation context; a caller-supplied bypass is not permitted.
 
 ## Increment A local evidence
 
@@ -103,10 +146,88 @@ single consumption, denied/revoked/expired/stale approvals, inactive targets,
 audit-failure rollback and actual database/Core restart. The same suite validates
 real successful Trust request/response bodies against the extension schemas.
 Direct lifecycle is implemented; discovery and internal eligibility remain
-increment C work. No provider dispatch, token exchange or delegation exists.
+increment C work in this historical B checkpoint. No provider dispatch, token
+exchange or delegation exists.
 
 Verified locally: source/SPDX checks, 41 unit tests, contract validation and
 validator controls; 11 capability/Trust cases and 64 real Trust schema cases;
 13 application/v2 isolation cases; 9 Core cases; 7 Audit cases; isolated restore
 and the existing worker probe. Migration 008 reapplied successfully. These are
 local results; GitHub Actions must be verified for each pushed increment.
+
+## Verification and recovery commands
+
+Final local results (2026-10-29): source/SPDX checks; 41 unit tests; both OpenAPI
+structures, Capability schemas/examples and Foundation validator controls;
+17 capability/Trust integration cases with 130 real schema cases; 13 application
+cases; 9 Core cases; 7 Audit cases; isolated restore and the worker probe all
+passed. Migration 009 applied/reapplied, and startup skipped already-applied
+history without removing Trust permissions. Console checks were not rerun locally
+for this Core slice; exact-commit CI runs its test/build/container checks.
+
+Run sequentially against an isolated authorized stack:
+
+```sh
+npm run check
+npm test
+npm run check:contracts
+npm run test:contract-validator
+npm run test:capabilities
+npm run test:applications
+npm run test:integration
+npm run test:audit
+npm run test:recovery
+npm run test:flowable-worker
+```
+
+The capability suite checks real OIDC identities in two tenants, separate
+management actors, discover-only/invoke-only/both grants, complete permission
+intersection, unauthorized versions/drafts, concealed metadata and pagination,
+live authority changes, real elapsed expiry, terminal app/grant revocation,
+concurrency, protected Audit rollback and dependency outages. It invokes the
+existing isolated `pg_dump`/`pg_restore` harness while its actual OIDC grant
+fixtures still exist. That restore checks active/revoked/expired decisions,
+private ownership/ACLs, tenant RLS, consumed approval evidence and revocation audit.
+The child runner must execute and report these checks; empty output is a failure.
+
+Operator enrollment remains a trusted attestation mechanism, not a new identity
+directory. Verify backend client/subject and tenant membership through the
+existing IdP administration procedure, and maintain the private enabled records.
+Core also validates the current consuming token on every request. Arbitrary
+subjects and human delegation remain unsupported. No default account receives
+Trust permissions, and a reader/writer/Console/resource share supplies none.
+
+DBAs/database owners and host operators remain trusted. PostgreSQL restore is
+not coordinated full-platform DR: Keycloak keys/sessions, Flowable history and
+SeaweedFS bytes/metadata are not restored by this harness. No production rollout,
+full binary license audit, penetration test or load benchmark is claimed. No
+dependency or project license changed.
+
+Remaining source-review finding: the preexisting C1 validation-report branch
+returns before its shared audit append. C2's tested transactional mutations are
+protected; complete Registry validation-report audit coverage needs a separate
+correction. See [Registry audit](CAPABILITY_REGISTRY.md#audit).
+
+## Changed-file map
+
+- Persistence: `infra/postgres/007-direct-trust.sql`, `008-trust-lifecycle.sql`,
+  `009-authorized-discovery.sql`, `migrate.sh`, and `compose.yaml`.
+- Runtime: `src/trust.mjs`, `src/capabilities.mjs`, `src/applications.mjs` and
+  `src/api.mjs`; the offline resolver and v2 Data/Object handlers are unchanged.
+- Verification: `tests/trust.test.mjs`, `integration/capabilities.mjs`,
+  `integration/recovery.mjs`, `integration/contract.mjs` and
+  `scripts/check-contracts.py`.
+- Contracts/docs: Capability OpenAPI, Registry/Trust/acceptance/runtime reviews,
+  Core/Audit/operations documentation, README/product status and the architecture
+  catalog, maps, ADRs, dependency register, index and implementation handoff.
+
+Verified source checkpoints:
+
+- A: `9cfe71488ed52c9378c203b9c435f96e3d732573` — [CI passed](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40726148042).
+- B: `09a614cf9defea659d8ca70cdf806e792b3885f3` — [CI passed](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40730650339).
+- Final C commit and matching CI outcome are reported in the implementation handoff;
+  inspect the Actions run for the exact checked-out SHA rather than a branch badge.
+
+GitHub MCP was unavailable during implementation; remote SHAs and CI/issue status
+were verified through Git and GitHub's public API. No issues were open at the A/B
+checkpoints; none were opened or closed by those increments.

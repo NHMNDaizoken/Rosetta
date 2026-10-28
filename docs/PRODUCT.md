@@ -67,10 +67,12 @@ them. The design is bounded by
 
 ### Rosetta Connect — PARTIAL
 
-The Capability Registry, Cross-App Trust and Composition & Execution Cores have
-design contracts only. The Compatibility Resolver is a bounded offline pure
-module (`src/capability-compatibility.mjs`) with unit tests; there is no registry
-service, resolver endpoint, trust grant store or execution runtime.
+C1 Registry and bounded C2 direct grants/authorized discovery are implemented
+inside the headless Core, with private Registry/Trust persistence, independent
+human approval and protected Audit. Direct subjects use operator-verified backend
+enrollment. C3 is an offline pure resolver (`src/capability-compatibility.mjs`).
+Human delegation and C4 invocation/composition remain unimplemented; there is no
+resolver endpoint or provider execution. See [direct Trust](CAPABILITY_DIRECT_TRUST.md).
 See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 [CAPABILITY_TRUST_EXECUTION_V1.md](CAPABILITY_TRUST_EXECUTION_V1.md).
 
@@ -95,7 +97,10 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 | File quarantine | DEFERRED | Requires an owning subsystem and scan-worker contract. |
 | Protected audit boundary | PARTIAL | Internal tenant query, derived actor metadata, redaction, role separation and fail-closed append are implemented; no public audit endpoint, export/sink, cryptographic sealing or DBA tamper resistance. See [AUDIT.md](AUDIT.md). |
 | Messaging, notification, search | DEFERRED | No broker, queue or index is deployed. |
-| Capability registry/trust/resolver/composition | PARTIAL | Bounded offline resolver module and unit tests; registry, trust, composition and execution require separate approval. |
+| C1 Registry | IMPLEMENTED, bounded | [Registry](CAPABILITY_REGISTRY.md): exact manifests, independent publication approval and terminal revocation. |
+| C2 Direct Trust / Discovery | IMPLEMENTED, bounded | [Direct Trust](CAPABILITY_DIRECT_TRUST.md): exact grants, separate rights, live eligibility, audit atomicity and real OIDC restore/denial evidence. Human delegation is deferred. |
+| C3 Resolver | IMPLEMENTED, offline | Restricted schema compatibility proof; no public resolver endpoint. |
+| C4 Invocation / Composition | DEFERRED | No provider call, ticket, queue or composition worker is implemented. |
 | Layer-2 GUI application | DEFERRED | Required by OLP and tracked separately; the Console is not a substitute. |
 
 ## What a developer can do today
@@ -108,10 +113,13 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 5. Start, inspect, complete and cancel the installed technical workflow.
 6. Prove a denied cross-application request and the same request succeeding after
    an explicit share.
-7. Explore all implemented operations in the Console without claiming plan-only
-   features work.
+7. Explore implemented Foundation operations in the Console. Capability extensions
+   use their HTTP contract and are not new Console controls.
 8. Run the offline bounded compatibility resolver against the committed manifest,
    composition and compatibility vectors; no resolver endpoint exists.
+9. Publish an exact capability through C1 and independently approve a direct
+   consumer grant. Discover metadata only with `discover` authority; `invoke`
+   establishes future eligibility and does not execute the provider.
 
 See the [developer guide](DEVELOPING.md) for commands and the
 [HTTP example](../examples/foundation-http.mjs) for the executable journey.
@@ -124,4 +132,4 @@ See the [developer guide](DEVELOPING.md) for commands and the
 - Preview data in the Console is synthetic and never server truth.
 - Proposed and design-only items must not be presented as available controls.
 - Hosting, bindings, independent audit export/integrity, quarantine, messaging,
-  search and capability runtime require separate approved implementation slices.
+  search, human delegation and C4 execution require separate approved slices.

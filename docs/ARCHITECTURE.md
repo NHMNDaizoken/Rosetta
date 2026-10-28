@@ -95,7 +95,7 @@ contract decisions, acceptance checks and SynapseDX reference review.
 
 ## Capability extension design boundary
 
-[Capability extensions v1](CAPABILITY_EXTENSIONS_V1.md) specifies proposed registry, compatibility, trust and composition contracts. Application Registration and a pure offline compatibility resolver are implemented as bounded subsets; registry, trust, composition and resolver endpoints remain design-only. Application Registration uses one additive migration and no new service or network. The existing Flowable integration remains the sole workflow engine. Identity enrichment and new authority stores must preserve current public claims/responses and APIs; internal app bindings are not extra fields promised by GET /v1/identity.
+[Capability extensions v1](CAPABILITY_EXTENSIONS_V1.md) retains the full design. Implemented subsets are Application Registration, [C1 Registry](CAPABILITY_REGISTRY.md), [C2 direct Trust/discovery](CAPABILITY_DIRECT_TRUST.md) and the offline C3 resolver. C2 adds private tenant-qualified grants, independent approval and a live internal eligibility check; it adds no service or network. Human delegation, resolver HTTP endpoints and C4 execution/composition remain unimplemented. Flowable remains the sole workflow engine. GET /v1/identity retains its existing public representation.
 
 ## Application resource authorization
 
@@ -112,4 +112,4 @@ tenant-scoped and is outside this milestone.
 
 ## Application Registration implementation
 
-The [runtime review](CAPABILITY_RUNTIME_REVIEW_V1.md) adds tenant-scoped application registration and application-only approvals to the existing Core adapter. Private PostgreSQL authority tables and a separate RPC role isolate administration from generic CRUD records. The capability registry, resolver endpoint, delegation, provider execution and composition remain unimplemented; only the offline compatibility proof module exists. Existing five-Core contracts and GET /v1/identity stay unchanged.
+The [runtime review](CAPABILITY_RUNTIME_REVIEW_V1.md) records Application Authority. Private owner-controlled PostgreSQL RPCs now separate application, Registry, Trust and protected Audit authority from generic CRUD records. The existing approval HTTP boundary supports applications, capability versions and direct grants with independent resource-specific permissions. Migration 009 integrates filtered discovery with C1; no provider execution, delegation or composition is enabled. Existing five-Core contracts and GET /v1/identity stay unchanged.

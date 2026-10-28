@@ -7,7 +7,7 @@
 | **Rosetta Backend** | The five Foundation capabilities, Application Authority and resource authorization. | **IMPLEMENTED** — runs locally with Docker Compose and is exercised by real-service tests. |
 | **Rosetta Developer Experience** | Admin Console, Foundation OpenAPI, API Explorer, HTTP example and application registration workflow. | **PARTIAL** — useful today; operator enrollment and some Console screens are limited. |
 | **Rosetta Cloud** | Projects/environments, application hosting, deployments, runtime workers, domains and bindings. | **PROPOSED** — architecture only; nothing runs. |
-| **Rosetta Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **PARTIAL** — the bounded offline compatibility resolver has unit tests; registry, trust, composition and execution remain design-only. |
+| **Rosetta Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **PARTIAL** — C1 Registry and bounded C2 direct grants/discovery are implemented; C3 is an offline resolver. Human delegation and C4 execution remain deferred. |
 
 There is no public demo, SDK, Layer-2 GUI or hosting runtime in this repository. Do not read a design document as a working feature. The authoritative, itemized status list is [docs/PRODUCT.md](docs/PRODUCT.md).
 
@@ -113,7 +113,7 @@ Consider an independently developed intake application and a review application,
 
 An authorized caller could propose a composition connecting those operations. Rosetta would check the declared schemas, trust scope and execution constraints before coordinating the accepted plan through the Workflow Engine. Each application would still own its submission and review rules. An optional AI planner could suggest the connection, subject to the same checks as a human-authored plan.
 
-This example is illustrative. Neither application nor its capabilities is included. The current integration suite exercises a technical record/object/workflow flow; it does not prove capability discovery or automated composition.
+This example is illustrative. Neither business application is included. Foundation tests exercise a technical record/object/workflow flow; separate capability tests now prove bounded metadata discovery and eligibility. They do not execute provider capabilities or composition.
 
 ## Implementation status
 
@@ -128,8 +128,8 @@ This example is illustrative. Neither application nor its capabilities is includ
 | Structured-data restore | Isolated `pg_dump`/`pg_restore` test implemented. | Restored data, tenant RLS and audit role/ACL/query verified; full-platform disaster recovery remains unverified. |
 | Protected authority audit | Transactional audit with derived actor/tenant metadata, redaction, internal tenant query and fail-closed admission. | Negative/role/restart tests pass; DBAs are trusted, and public export, cryptographic sealing and independent retention remain unimplemented. See [AUDIT.md](docs/AUDIT.md). |
 | CI and source licensing | GitHub Actions and approved Apache-2.0 project licensing in place. | CI runs source/unit/container/integration/restore checks; binary redistribution and vulnerability audits remain separate work. |
-| Four capability extensions and composition | Proposed. | Review contracts, deterministic validation, trust/delegation and execution semantics before coding. |
-| OpenAPI and optional SDKs | Implemented Foundation OpenAPI with structural and real HTTP conformance checks; separate Capability design draft. No SDK. | Keep route/schema/authorization coverage current before optional client generation. |
+| Capability extensions | C1 Registry and bounded C2 direct grants/discovery implemented; C3 offline resolver. | [Direct Trust](docs/CAPABILITY_DIRECT_TRUST.md) records real OIDC denial, pagination, audit and restore checks. Human delegation and C4 invocation/composition remain unimplemented. |
+| OpenAPI and optional SDKs | Foundation OpenAPI plus a Capability contract with explicit implemented/proposed operation statuses. No SDK. | Keep route/schema/authorization coverage current before optional client generation. |
 | Optional Rosetta Console | React management UI implemented; partially connected, with preview/session resource behavior. | [Audit qualifications](docs/architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions): fail-closed live identity, memory-only token, preview-only v2 methods and a tested packaged Nginx image. No operator login/session or automated live-browser visual/accessibility proof. |
 | Developer Cloud / application hosting | Proposed architecture only; no project/deployment/controller runtime. | Approve one [handoff slice](docs/architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md) and its ADRs before implementation. |
 | Layer-2 GUI and optional AI planning | Future work; no implementation here. | Build separately against public contracts; an AI integration needs its own approved scope. |

@@ -10,6 +10,10 @@ participant labels and captions identify the current providers. CONTEXT identifi
 not running components. PARTIALLY VERIFIED identifies Console/operations limits.
 All eight diagrams are editable Mermaid; they do not authorize implementation.
 
+Current update (2026-10-29): C1 Registry, bounded direct C2 Trust/discovery and
+A1 Audit are implemented; C3 is offline. Human delegation and C4 execution are
+unimplemented. See [direct Trust](../CAPABILITY_DIRECT_TRUST.md) for scope/evidence.
+
 ## MAP 01: Competition and product context
 
 ```mermaid
@@ -20,7 +24,7 @@ flowchart TB
   EX["PROPOSED product model A<br/>external application"]
   HO["PROPOSED product model B<br/>Rosetta-hosted application"]
   UI["PARTIALLY VERIFIED<br/>optional management Console"]
-  CAP["DESIGN ONLY<br/>Capability overlay"]
+  CAP["PARTIAL Capability overlay<br/>C1/direct C2; offline C3; C4 future"]
   EXT["PROPOSED Rosetta extensions<br/>projects and hosting"]
   L3 -.->|business capabilities use| L2
   L2 -.->|required demo consumes APIs| L1
@@ -49,6 +53,7 @@ flowchart TB
     RT["API router / auth"]
     AA["Application Authority adapter"]
     RA["Resource authorization adapter"]
+    CR["C1 Registry / direct C2 Trust"]
     DA["Record adapter"]
     OA["Object adapter"]
     WA["Workflow adapter"]
@@ -70,6 +75,8 @@ flowchart TB
   NG -->|auth_request and versioned APIs| RT
   RT -->|live introspection| KC
   RT -->|management dispatch| AA
+  RT -->|capability and grant dispatch| CR
+  CR -->|private Registry/Trust RPC and Audit| PR
   RT -->|record dispatch| DA
   RT -->|object dispatch| OA
   RT -->|workflow dispatch| WA
@@ -99,8 +106,8 @@ flowchart TB
   A["VERIFIED A<br/>Identity; Gateway; Data; Objects; Workflow"]
   AP["VERIFIED A+<br/>Authority; ownership; read sharing; contracts"]
   B["PROPOSED B<br/>quarantine; cleanup; history; workers; credential lifecycle"]
-  C["PROPOSED C<br/>protected audit; events; notifications; search; secrets; PII"]
-  D["DESIGN ONLY D<br/>Registry; Resolver; Trust; Composition"]
+  C["PARTIAL C<br/>A1 audit implemented; other candidates proposed"]
+  D["PARTIAL D<br/>C1/direct C2 implemented; offline C3; C4 future"]
   E["PARTIALLY VERIFIED E<br/>CI and health; PROPOSED production operations"]
   F["PROPOSED F<br/>projects; deployments; runtime; routing; bindings; diagnostics"]
   UI["PARTIALLY VERIFIED Console<br/>management client"]
@@ -142,7 +149,7 @@ flowchart TB
   ING["PROPOSED app ingress<br/>separate hostname and route revision"]
   DATA["VERIFIED Foundation BaaS"]
   OPS["PROPOSED operational systems<br/>audit; backup; telemetry; image policy"]
-  CAP["DESIGN ONLY Capability overlay"]
+  CAP["PARTIAL Capability overlay<br/>C1/direct C2 implemented; C4 future"]
   CON -->|selected existing APIs| AA
   CON -.->|authorized management intent| MG
   DEV -.->|authorized management intent| MG
@@ -182,7 +189,7 @@ flowchart TB
   ENV["PROPOSED environment<br/>app mapping; no owner rewrite"]
   HOST["PROPOSED hosting permission<br/>deployment and route intent"]
   SEC["PROPOSED service binding<br/>exact app/environment secret delivery"]
-  TRUST["DESIGN ONLY capability grant<br/>Trust authorizes invocation"]
+  TRUST["IMPLEMENTED direct grant<br/>discover / future invoke eligibility"]
   AUDIT["A1 bounded audit IMPLEMENTED<br/>export/integrity PROPOSED"]
   ID -->|verified context only| AUTH
   AUTH -->|resolves backend subject| A
@@ -199,11 +206,11 @@ flowchart TB
   ENV -.->|separate permission evaluated| HOST
   ENV -.->|approved binding target| SEC
   SEC -.->|private delivery to exact backend| A
-  AUTH -.->|active app prerequisite| TRUST
+  AUTH -->|active app prerequisite| TRUST
   HOST -.->|sensitive change evidence| AUDIT
-  TRUST -.->|trust evidence| AUDIT
+  TRUST -->|atomic trust evidence| AUDIT
   classDef future fill:#fff8eb,stroke:#92734b,stroke-dasharray:5 5
-  class PROJ,ENV,HOST,SEC,TRUST,AUDIT future
+  class PROJ,ENV,HOST,SEC future
 ```
 
 Project/deployment rights never imply v2 reads. Domain authorization belongs in
@@ -278,8 +285,8 @@ flowchart TB
   DOMAIN["DEFERRED T2<br/>custom domains"]
   HOST["PROPOSED H1<br/>integrated hosted BaaS"]
   OPT["DEFERRED OPT<br/>selected shared extension"]
-  REG["DESIGN ONLY C1 Registry"]
-  TRUST["DESIGN ONLY C2 Trust"]
+  REG["IMPLEMENTED C1 Registry"]
+  TRUST["IMPLEMENTED direct C2 Trust<br/>human delegation deferred"]
   RES["OFFLINE C3 Resolver"]
   COMP["DESIGN ONLY C4 Composition"]
   L2["DEFERRED L2 business GUI"]
@@ -303,8 +310,8 @@ flowchart TB
   SAFE -.->|failure and restore acceptance| HOST
   K0 -.->|choice| OPT
   K0 -.->|contract| REG
-  AUDIT -.->|publication evidence| REG
-  REG -.->|exact capability authority| TRUST
+  AUDIT -->|publication evidence| REG
+  REG -->|exact capability authority| TRUST
   K0 -.->|profile| RES
   REG -.->|immutable metadata| COMP
   TRUST -.->|live permission| COMP
@@ -313,7 +320,7 @@ flowchart TB
   BASE -.->|independent public API consumer| L2
   L2 -.->|required product demonstration| REL
   classDef future fill:#fff8eb,stroke:#92734b,stroke-dasharray:5 5
-  class K0,S0,META,CONTROL,SAFE,AUDIT,SECRET,RUN,TLS,DOMAIN,HOST,OPT,REG,TRUST,RES,COMP,L2,REL future
+  class K0,S0,META,CONTROL,SAFE,SECRET,RUN,TLS,DOMAIN,HOST,OPT,COMP,L2,REL future
 ```
 
 This is an acyclic prerequisite graph, not a progress chart. Metadata needs no
@@ -331,9 +338,9 @@ sequenceDiagram
   participant B as App B PROPOSED
   participant F as BaaS VERIFIED
   participant H as Hosting PROPOSED
-  participant R as Registry DESIGN ONLY
-  participant T as Trust DESIGN ONLY
-  participant V as Resolver DESIGN ONLY
+  participant R as Registry C1 IMPLEMENTED
+  participant T as Direct Trust C2 IMPLEMENTED
+  participant V as Resolver OFFLINE
   participant C as Composition DESIGN ONLY
   participant W as Flowable VERIFIED
   Note over A,W: PROPOSED reuse scenario, existing providers do not imply implemented capability steps
@@ -362,9 +369,9 @@ sequenceDiagram
   C-->>B: Authorized result and execution evidence
 ```
 
-Only Foundation/Flowable in this map are current integrations. Publication,
-discovery, grants, compatibility routes and cross-app dispatch are future steps;
-the bounded offline compatibility module exists but no running capability route
-is implied. Application business decisions remain in
+Foundation/Flowable, C1 publication and bounded direct C2 grants/discovery are
+current integrations. The complete sequence above remains a future composition
+scenario: resolver HTTP routes, provider dispatch and C4 coordination do not
+exist. The compatibility module is offline only. Application business decisions remain in
 A/B. Hosting changes execution location; BaaS supplies reusable infrastructure;
 Capability Composition supplies optional authorized reuse.

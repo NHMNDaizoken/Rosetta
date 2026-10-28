@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.1",
   "info": {
-    "title": "Rosetta Capability Extensions v1 - DESIGN ONLY",
+    "title": "Rosetta Capability Extensions v1",
     "version": "1.0.0-draft",
-    "description": "C1 Registry and Application Registration are implemented. C2 direct grant lifecycle is implemented with independent human approval and operator-verified backend subjects. Authorized consumer discovery is pending increment C. C3 is an offline bounded resolver; human delegation and C4 execution remain unimplemented. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
+    "description": "Implemented subsets: Application Registration, C1 Registry and bounded C2 direct grants/authorized discovery. C3 is an offline resolver and A1 Audit uses trusted DBAs. Human delegation, resolver HTTP endpoints and C4 invocation/composition remain unimplemented. Hosting is proposed. Per-operation status is authoritative; see CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
     "license": {
       "name": "Apache License 2.0",
       "identifier": "Apache-2.0"
@@ -401,7 +401,7 @@
       "get": {
         "operationId": "discoverCapabilities",
         "summary": "Discover only exact published versions with an active discover grant",
-        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
+        "description": "Implemented C1 Registry lifecycle. C1 provider-owner/capabilities.publish visibility is retained. Consumer GET/list requires a current exact discover grant, verified active backend binding, the complete required permission set and live provider/consumer/approval authority. Hidden versions/drafts/approval metadata are concealed. No invocation is performed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -472,18 +472,19 @@
             "in": "query",
             "schema": {
               "type": "string",
-              "maxLength": 1024
-            }
+              "maxLength": 512
+            },
+            "description": "Opaque hex position. Consumer cursors bind tenant and backend app; every page rechecks current grants. C1 management cursors retain their existing representation."
           }
         ],
-        "x-rosetta-status": "implemented-c1"
+        "x-rosetta-status": "implemented-authorized-discovery"
       }
     },
     "/v1/capabilities/{capabilityId}/versions": {
       "post": {
         "operationId": "registerCapabilityVersion",
         "summary": "Register a provider-owned draft version",
-        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
+        "description": "Implemented C1 Registry lifecycle. C1 provider-owner/capabilities.publish visibility is retained. Consumer GET/list requires a current exact discover grant, verified active backend binding, the complete required permission set and live provider/consumer/approval authority. Hidden versions/drafts/approval metadata are concealed. No invocation is performed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -573,7 +574,7 @@
       "get": {
         "operationId": "getCapabilityVersion",
         "summary": "Read an authorized exact capability version",
-        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
+        "description": "Implemented C1 Registry lifecycle. C1 provider-owner/capabilities.publish visibility is retained. Consumer GET/list requires a current exact discover grant, verified active backend binding, the complete required permission set and live provider/consumer/approval authority. Hidden versions/drafts/approval metadata are concealed. No invocation is performed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -655,12 +656,12 @@
             }
           }
         ],
-        "x-rosetta-status": "implemented-c1"
+        "x-rosetta-status": "implemented-authorized-discovery"
       },
       "put": {
         "operationId": "replaceCapabilityDraft",
         "summary": "Replace a draft; published versions are immutable",
-        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
+        "description": "Implemented C1 Registry lifecycle. C1 provider-owner/capabilities.publish visibility is retained. Consumer GET/list requires a current exact discover grant, verified active backend binding, the complete required permission set and live provider/consumer/approval authority. Hidden versions/drafts/approval metadata are concealed. No invocation is performed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -768,7 +769,7 @@
       "post": {
         "operationId": "validateCapabilityVersion",
         "summary": "Validate exact capability version",
-        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
+        "description": "Implemented C1 Registry lifecycle. C1 provider-owner/capabilities.publish visibility is retained. Consumer GET/list requires a current exact discover grant, verified active backend binding, the complete required permission set and live provider/consumer/approval authority. Hidden versions/drafts/approval metadata are concealed. No invocation is performed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -876,7 +877,7 @@
       "post": {
         "operationId": "publishCapabilityVersion",
         "summary": "Publish exact capability version",
-        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
+        "description": "Implemented C1 Registry lifecycle. C1 provider-owner/capabilities.publish visibility is retained. Consumer GET/list requires a current exact discover grant, verified active backend binding, the complete required permission set and live provider/consumer/approval authority. Hidden versions/drafts/approval metadata are concealed. No invocation is performed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -984,7 +985,7 @@
       "post": {
         "operationId": "deprecateCapabilityVersion",
         "summary": "Deprecate exact capability version",
-        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
+        "description": "Implemented C1 Registry lifecycle. C1 provider-owner/capabilities.publish visibility is retained. Consumer GET/list requires a current exact discover grant, verified active backend binding, the complete required permission set and live provider/consumer/approval authority. Hidden versions/drafts/approval metadata are concealed. No invocation is performed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -1092,7 +1093,7 @@
       "post": {
         "operationId": "revokeCapabilityVersion",
         "summary": "Revoke exact capability version",
-        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
+        "description": "Implemented C1 Registry lifecycle. C1 provider-owner/capabilities.publish visibility is retained. Consumer GET/list requires a current exact discover grant, verified active backend binding, the complete required permission set and live provider/consumer/approval authority. Hidden versions/drafts/approval metadata are concealed. No invocation is performed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -1273,7 +1274,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-direct-lifecycle",
+        "x-rosetta-status": "implemented-direct-grants",
         "x-rosetta-core-roles": [
           "core-reader",
           "core-writer"
@@ -1345,7 +1346,7 @@
           }
         },
         "x-rosetta-required-permissions": [
-          "live-resource-policy"
+          "live-trust-management-policy"
         ],
         "parameters": [
           {
@@ -1358,7 +1359,7 @@
             }
           }
         ],
-        "x-rosetta-status": "implemented-direct-lifecycle",
+        "x-rosetta-status": "implemented-direct-grants",
         "x-rosetta-core-roles": [
           "core-reader"
         ]
@@ -1461,7 +1462,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-direct-lifecycle",
+        "x-rosetta-status": "implemented-direct-grants",
         "x-rosetta-core-roles": [
           "core-reader",
           "core-writer"
@@ -1533,7 +1534,7 @@
           }
         },
         "x-rosetta-required-permissions": [
-          "trust.write"
+          "live-trust-management-policy"
         ],
         "parameters": [
           {
@@ -1565,7 +1566,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-direct-lifecycle",
+        "x-rosetta-status": "implemented-direct-grants",
         "x-rosetta-core-roles": [
           "core-reader",
           "core-writer"

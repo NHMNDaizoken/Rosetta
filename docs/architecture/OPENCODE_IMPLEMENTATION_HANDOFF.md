@@ -1,7 +1,7 @@
 # OpenCode implementation handoff
 
 > Reviewed: 2026-10-28 | Branch: main | Audit baseline: `360a7dd741442a2e3dbfc0f10d45a1e387d3b697`
-> Status: PROPOSED backlog. A1 is implemented with bounded evidence; no other slice is authorized by publishing this file.
+> Current status (2026-10-29): A1, C1, offline C3 and bounded C2 direct grants/discovery are implemented. Human delegation and C4 remain deferred; hosting is proposed. Publishing this backlog does not authorize additional slices.
 
 ## How to use this handoff
 
@@ -334,6 +334,12 @@ Stop after that one candidate's acceptance and report.
 
 ## C1 — Registry publication
 
+**Implemented bounded subset:** migration 006, manifest validation, independent
+publication approval, immutable published versions and terminal revocation.
+Migration 007 fixes malformed approval references without changing application
+approvals. See [Registry](../CAPABILITY_REGISTRY.md) for verified scope and the
+preexisting validation-report audit coverage gap. The original plan follows.
+
 **Objective/why:** publish exact, owned capability versions independently of hosting.
 **Reuse/files:** Application Authority, existing manifest schema/vectors/OpenAPI
 design, separate Registry owner module/private migration and tests. **Contract/DB:**
@@ -349,6 +355,19 @@ K0+A1, Capability acceptance gates and ADR 009; stop before trust/invocation.
 
 ## C2 — Cross-App Trust
 
+**Implemented bounded direct subset:** migrations 007–009 and `src/trust.mjs`.
+Exact same-tenant provider/consumer/version/digest grants use the existing
+operator-verified backend subject binding; both delegation flags are false.
+`trust.write` and independent human `trust.approve` authority, approval consumption,
+expiry, terminal revocation and Audit are checked transactionally. Filtered
+discovery and a fresh-authentication internal eligibility predicate share live
+authority. Real OIDC denial/concurrency/pagination/outage/restart and live-grant
+backup/restore cases are in `integration/capabilities.mjs` and `integration/recovery.mjs`.
+See [direct Trust](../CAPABILITY_DIRECT_TRUST.md) for exact APIs, tests and limits.
+Human delegation is **DEFERRED**, not implemented by this subset. No provider
+invocation, execution ticket, queue or workflow start exists. The broader plan
+below remains future scope where it exceeds the direct subset.
+
 **Objective/why:** permission to discover is not permission to invoke. **Reuse/files:**
 C1 metadata, existing approval patterns and trust design; dedicated Trust owner
 tables/contract/negative tests, not the resource-share table. **Acceptance:** exact
@@ -362,6 +381,10 @@ ADR 009/016 and separately approved grant/delegation contract; no provider calls
 until later execution approval. Stop at trust-state acceptance.
 
 ## C3 — Bounded compatibility proof
+
+**Implemented offline:** `src/capability-compatibility.mjs` and deterministic
+profile/witness tests. No public resolver endpoint or live registry resolver is
+implemented. The original acceptance plan follows.
 
 **Objective/why:** deterministic structural proof with inspectable limits.
 **Reuse/files:** existing manifest/profile, compatibility cases and runtime-review

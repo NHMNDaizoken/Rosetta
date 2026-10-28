@@ -1,8 +1,8 @@
 # Capability trust, composition and execution v1
 
-Implementation update (2026-10-28): C1 Registry is implemented, C3 is a bounded offline resolver, and A1 Audit is implemented under the trusted-DBA threat model. C2 direct grant lifecycle is implemented; consumer discovery remains increment C work. Human delegation and C4 execution remain unimplemented; hosting is proposed. See [direct Trust](CAPABILITY_DIRECT_TRUST.md) and [Registry](CAPABILITY_REGISTRY.md). This current notice supersedes historical blanket design-only statements below.
+Implementation update (2026-10-29): C1 Registry is implemented, C3 is a bounded offline resolver, and A1 Audit is implemented under the trusted-DBA threat model. C2 direct grants/authorized discovery and a live internal eligibility predicate are implemented within the backend-subject subset. Human delegation and C4 execution remain unimplemented; hosting is proposed. See [direct Trust](CAPABILITY_DIRECT_TRUST.md) and [Registry](CAPABILITY_REGISTRY.md).
 
-Status: **design draft, not implemented**. Read [the manifest/lifecycle specification](CAPABILITY_EXTENSIONS_V1.md) first. Structural request/response models are in the [OpenAPI draft](contracts/capability-api-v1.openapi.json). All examples are synthetic technical fixtures. None of these routes is added to the current server by this task.
+This document retains the full proposed v1 trust, delegation and execution design. The current implemented subset is listed above; delegation and C4 sections remain design-only. Structural models are in the [extension OpenAPI](contracts/capability-api-v1.openapi.json); examples are synthetic technical fixtures.
 
 ## Identity, caller context and authority
 

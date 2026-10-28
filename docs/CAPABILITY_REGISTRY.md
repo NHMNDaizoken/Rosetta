@@ -4,8 +4,10 @@
 
 The C1 slice implements provider-owned capability drafts, manifest validation,
 publication approval, immutable publication and terminal revocation. It does
-not implement grants, discovery, invocation, composition or a public catalog.
-Those remain C2/C4 work.
+not itself execute providers or create a public catalog. Bounded
+[C2 direct Trust/discovery](CAPABILITY_DIRECT_TRUST.md) now extends its GET/list
+visibility with exact grants. Human delegation and C4 invocation/composition are
+unimplemented.
 
 ## Storage and roles
 
@@ -68,10 +70,33 @@ approval fails publication. Application approval behavior is unchanged.
 
 ## Audit
 
-Every mutation appends an audit event in the same transaction through
+Registration, draft replacement, publication/deprecation/revocation and approval
+changes append an audit event in the same transaction through
 `app_private.audit_append`. Capability events use the internal `version_id` as
 the audit resource ID because the audit table requires UUIDs; approvals use the
 approval ID.
+
+The existing C1 validation-report branch returns before its shared mutation audit
+append (migration 006, source inspection). That preexisting coverage gap is not
+changed by C2; publication and the new Trust lifecycle use protected transactional
+appends. It requires a separately scoped correction before claiming complete
+Registry mutation audit coverage.
+
+## C2 integration
+
+Migration 009 retains owner/`capabilities.publish` management visibility and all
+C1 mutations. Consumer reads require the shared live Trust predicate for exact
+`discover` authority; invoke-only grants supply no metadata visibility. Consumers
+receive no private validation/approval/creator or OAuth data. Pagination filters
+before limiting/counting and binds consumer cursors to tenant/app. Revoked,
+expired, inactive or deprecated authority is rechecked on every request.
+The original C1 management cursor format remains supported.
+
+Migration 007 and the HTTP approval validator reject malformed capability
+references before lookup with 400. Valid missing/foreign references stay 404;
+application approvals and normal C1 lifecycle behavior remain intact. The known
+malformed-reference failure reproduced as 503 on the starting checkpoint, then
+passed the new HTTP/private-RPC negative tests after correction.
 
 ## Verification
 

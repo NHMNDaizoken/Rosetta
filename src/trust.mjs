@@ -3,6 +3,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { canonicalize, parseManifestText } from "./capability-manifest.mjs";
 import { applicationToken, validateApplicationBody } from "./applications.mjs";
+import { createAuthorizer } from "./auth.mjs";
 import { HttpError, json, readBody, readFlatJsonObject, requireWriter, uuidPattern } from "./http.mjs";
 
 const capabilityId = /^urn:rosetta:capability:([0-9a-f-]{36}):[a-z][a-z0-9-]{0,62}$/;
@@ -91,4 +92,28 @@ export async function handleTrust(request, response, identity, config, url) {
   response.setHeader("ETag", `"grant-${value.grantId}-${value.revision}"`);
   if (operation === "create") response.setHeader("Location", `/v1/trust/grants/${value.grantId}`);
   return json(response, operation === "create" ? 201 : 200, value);
+}
+
+// INTERNAL only. Authenticate anew for every check; C4 must call this immediately
+// before dispatch and still enforce invocation approvals/preconditions itself.
+export async function evaluateCapabilityEligibility(request, config, reference) {
+  const deny = reason => ({ allowed: false, reason });
+  if (!reference || typeof reference !== "object" || Array.isArray(reference) ||
+    Object.keys(reference).sort().join(",") !== "capabilityId,manifestDigest,operation,version" ||
+    !["capabilityId", "version", "manifestDigest"].every(key => cleanString(reference[key])) ||
+    !capabilityId.test(reference.capabilityId) || !exactVersion.test(reference.version) || !digest.test(reference.manifestDigest) ||
+    !["discover", "invoke"].includes(reference.operation)) return deny("invalid_reference");
+  let identity;
+  try { identity = await createAuthorizer(config)(request, true); }
+  catch (error) { return deny(error.status === 503 ? "identity_unavailable" : "principal_required"); }
+  if (!identity.clientId) return deny("consumer_binding_required");
+  try {
+    const response = await fetch(`${config.dataUrl}/rpc/trust_eligibility`, { method: "POST",
+      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "rosetta_trust_api")}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ payload: reference }), signal: AbortSignal.timeout(5000), redirect: "error" });
+    if (!response.ok) return deny("authority_unavailable");
+    const decision = await response.json();
+    if (decision.allowed === true && decision.reason === "eligible") return { allowed: true, reason: "eligible" };
+    return deny(["invalid_reference", "principal_required", "consumer_binding_required", "capability_unavailable", "grant_not_authorized"].includes(decision.reason) ? decision.reason : "authority_unavailable");
+  } catch { return deny("authority_unavailable"); }
 }
