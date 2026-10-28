@@ -19,6 +19,7 @@ npm run healthcheck
 docker compose exec -T core node scripts/check-health.mjs
 npm run test:integration
 npm run test:applications
+npm run test:capabilities
 npm run test:recovery
 npm run test:audit
 docker compose ps

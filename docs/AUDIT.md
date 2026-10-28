@@ -119,6 +119,7 @@ policy, error mapping and authorization review.
 npm run test:audit
 npm run test:recovery
 npm run test:applications
+npm run test:capabilities
 ```
 
 `integration/audit.mjs` covers derived metadata, redaction, forged tenant/actor

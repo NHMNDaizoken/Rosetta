@@ -62,9 +62,10 @@ jobs:
         run: docker compose run --rm --no-deps --volume "$PWD/tests:/app/tests:ro" --volume "$PWD/docs/contracts/examples:/app/docs/contracts/examples:ro" core node --test
       - name: Verify real Core integrations
         run: npm run test:integration
-      - name: Verify registration, app resource isolation and private worker API contract
+      - name: Verify registration, capability lifecycle, app resource isolation and private worker API contract
         run: |
           npm run test:applications
+          npm run test:capabilities
           npm run test:flowable-worker
       - name: Verify isolated backup and restore with tenant RLS
         run: npm run test:recovery
