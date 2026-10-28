@@ -55,7 +55,7 @@ services:
   data-migrate:
     image: postgres:17-bookworm@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27
     entrypoint: [psql]
-    command: [-h, database, -U, rosetta_admin, -d, rosetta_data, -v, ON_ERROR_STOP=1, -f, /migrations/001-data.sql, -f, /migrations/002-workflow-requests.sql, -f, /migrations/003-applications.sql, -f, /migrations/004-resource-authorization.sql, -f, /migrations/005-audit-protection.sql, -f, /migrations/006-capability-registry.sql]
+    command: [-h, database, -U, rosetta_admin, -d, rosetta_data, -v, ON_ERROR_STOP=1, -f, /migrations/001-data.sql, -f, /migrations/002-workflow-requests.sql, -f, /migrations/003-applications.sql, -f, /migrations/004-resource-authorization.sql, -f, /migrations/005-audit-protection.sql, -f, /migrations/006-capability-registry.sql, -f, /migrations/007-direct-trust.sql]
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD:?Run npm run setup first}
     volumes:
@@ -65,6 +65,7 @@ services:
       - ./infra/postgres/004-resource-authorization.sql:/migrations/004-resource-authorization.sql:ro
       - ./infra/postgres/005-audit-protection.sql:/migrations/005-audit-protection.sql:ro
       - ./infra/postgres/006-capability-registry.sql:/migrations/006-capability-registry.sql:ro
+      - ./infra/postgres/007-direct-trust.sql:/migrations/007-direct-trust.sql:ro
     depends_on:
       database:
         condition: service_healthy

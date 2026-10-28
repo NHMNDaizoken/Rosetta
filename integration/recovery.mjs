@@ -105,6 +105,9 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     const capabilityAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
       "SELECT has_function_privilege('rosetta_capability_api','core.capability_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_capability_api','core.application_command(text,jsonb)','EXECUTE'),has_table_privilege('rosetta_capability_api','app_private.capability_versions','SELECT');"]);
     assert.equal(capabilityAcl.stdout.trim(),'t|f|f','Restore preserves capability registry role separation');
+    const trustAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
+      "SELECT n.nspowner::regrole, bool_and(c.relrowsecurity AND c.relforcerowsecurity) FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='trust_private' AND c.relkind='r' GROUP BY n.nspowner; SELECT has_schema_privilege('rosetta_api','trust_private','USAGE'),has_table_privilege('rosetta_app_api','trust_private.grants','INSERT');"]);
+    assert.equal(trustAcl.stdout.trim(),'rosetta_app_owner|t\nf|f','Restore preserves Trust ownership, forced RLS and private ACLs');
     for(const [tenant,expected] of [['tenant-a','1'],['tenant-b','0']]) {
       const claims=JSON.stringify({tenant_id:tenant,iss:'https://recovery.example.invalid',sub:`recovery-${id}`,client_id:`restore-${id}`});
       const result=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',

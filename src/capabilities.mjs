@@ -185,6 +185,11 @@ function validateCapabilityApproval(body) {
     [...body.requesterSubject].length > 255) {
     throw new HttpError(400, "invalid_capability_approval");
   }
+  const reference = body.resourceId.split("@");
+  if (/[\s\u0000-\u001f\u007f]/u.test(body.resourceId) || (!uuidPattern.test(body.resourceId) && !(CAPABILITY_ID.test(reference[0]) &&
+    (reference.length === 1 || (reference.length === 2 && VERSION.test(reference[1])))))) {
+    throw new HttpError(400, "invalid_capability_approval");
+  }
 }
 
 function validateReason(body) {

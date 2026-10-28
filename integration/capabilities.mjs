@@ -100,7 +100,7 @@ before(async () => {
   approver = await human("approver", "tenant-a", ["applications.approve", "trust.approve", "capabilities.approve"]);
   publisher = await human("publisher", "tenant-a", ["capabilities.write", "capabilities.publish"]);
   stranger = await human("stranger", "tenant-a", ["capabilities.write"]);
-  foreign = await human("foreign", "tenant-b", ["capabilities.write"]);
+  foreign = await human("foreign", "tenant-b", ["capabilities.write", "capabilities.approve"]);
 
   const providerClient = await admin("clients", { clientId: `${prefix}-provider`, enabled: true, protocol: "openid-connect", publicClient: false, serviceAccountsEnabled: true, standardFlowEnabled: false }, "POST");
   assert.equal(providerClient.status, 201); clientIds.push(providerClient.headers.get("location").split("/").at(-1));
@@ -211,4 +211,35 @@ test("stale approval after draft change, foreign tenant and non-owner isolation"
 test("private registry roles cannot read tables or invoke other command functions", async () => {
   const acl = await sql("SELECT has_schema_privilege('rosetta_capability_api','app_private','USAGE'),has_table_privilege('rosetta_capability_api','app_private.capability_versions','SELECT'),has_function_privilege('rosetta_capability_api','core.capability_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_capability_api','core.application_command(text,jsonb)','EXECUTE');");
   assert.equal(acl.stdout.trim(), "f|f|t|f");
+});
+
+test("approval resource syntax is rejected before lookup and foreign versions stay concealed", async () => {
+  const proposal = { version: "1.0.0", digest: `sha256:${"0".repeat(64)}`, revision: 1 };
+  for (const resourceId of [`${capabilityId}@latest`, `${capabilityId}@01.0.0`, `${capabilityId}@1.0`, `${capabilityId}@1.0.0@2.0.0`, `${capabilityId}@1.0.0\n`, "not-a-capability"]) {
+    const response = await approvalFor(proposal, "approve", { resourceId });
+    assert.equal(response.status, 400, `malformed reference: ${resourceId}`);
+  }
+  const missing = await approvalFor(proposal, "approve", { resourceId: `${capabilityId}@99.0.0` });
+  assert.equal(missing.status, 404, "well-formed missing version");
+  assert.equal((await approvalFor(proposal, "approve", { resourceId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" })).status, 404);
+  const hidden = await api("/v1/approvals", foreign, {
+    resourceType: "capability-version", resourceId: `${capabilityId}@1.0.0`,
+    resourceDigest: proposal.digest, resourceRevision: 1, requesterSubject: owner.id,
+    requesterAppId: app.appId, decision: "approve", expiresAt: new Date(Date.now() + 120000).toISOString(),
+  });
+  assert.equal(hidden.status, 404, "authorized foreign approver cannot detect version existence");
+  const claims = JSON.stringify({ tenant_id: "tenant-a", iss: issuer, sub: approver.id, client_id: `${prefix}-management-tenant-a` });
+  const invalid = await sql(`SET ROLE rosetta_capability_api; SELECT set_config('request.jwt.claims',${q(claims)},false);
+    SELECT core.capability_command('approval_create','{"decision":{"resourceId":"malformed@latest"}}'::jsonb)->>'status';`);
+  assert.equal(invalid.stdout.trim().split(/\r?\n/).at(-1), "400", "private RPC rejects malformed IDs too");
+});
+
+test("private Trust persistence is owner-controlled and tenant RLS is forced", async () => {
+  const acl = await sql(`SELECT n.nspowner::regrole, bool_and(c.relrowsecurity AND c.relforcerowsecurity)
+    FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='trust_private' AND c.relkind='r' GROUP BY n.nspowner;
+    SELECT has_schema_privilege('rosetta_api','trust_private','USAGE'),
+      has_table_privilege('rosetta_app_api','trust_private.grants','INSERT'),
+      has_table_privilege('rosetta_capability_api','trust_private.approvals','UPDATE'),
+      has_function_privilege('rosetta_capability_api','app_private.capability_command_c1(text,jsonb)','EXECUTE');`);
+  assert.equal(acl.stdout.trim(), "rosetta_app_owner|t\nf|f|f|f");
 });

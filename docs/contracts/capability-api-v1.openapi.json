@@ -1260,7 +1260,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/GrantCreate"
+                "$ref": "#/components/schemas/DirectGrantCreate"
               }
             }
           }
@@ -4881,6 +4881,28 @@
           }
         ],
         "description": "Implemented application-only decision. resourceId and requesterAppId must equal the stored appId; requesterSubject, digest and revision must match that app. expiresAt must be future UTC Z within ten minutes; approver must be independent."
+      },
+      "DirectGrantCreate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/GrantCreate"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "capabilities": {
+                "maxItems": 1
+              },
+              "delegationAllowed": {
+                "const": false
+              },
+              "acceptDelegation": {
+                "const": false
+              }
+            }
+          }
+        ],
+        "description": "Approved C2 direct subset: one exact capability version/digest and existing operator-verified consumer backend subject only. Human delegation is deferred. HTTP runtime is not enabled by increment A."
       }
     },
     "responses": {
