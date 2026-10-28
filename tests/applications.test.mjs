@@ -3,8 +3,9 @@
 import assert from "node:assert/strict";
 import { Readable } from "node:stream";
 import { test } from "node:test";
-import { applicationDigest, readApplicationBody, validateApplicationBody } from "../src/applications.mjs";
+import { applicationDigest, validateApplicationBody } from "../src/applications.mjs";
 import { createAuthorizer } from "../src/auth.mjs";
+import { readFlatJsonObject } from "../src/http.mjs";
 
 const proposal = { displayName: "Technical provider A", oauthClientId: "provider-a", providerOrigin: "https://provider-a.example.invalid", ownerSubject: "synthetic-owner" };
 test("application digest matches the documented JCS string/object fixture", () => {
@@ -22,10 +23,10 @@ test("registration accepts only canonical HTTPS origins and closed request field
 test("application wire reader rejects duplicate/escaped duplicate keys, malformed Unicode and nested authority", async () => {
   for (const text of ['{"displayName":"a","displayName":"b"}', '{"name":"a","na\\u006de":"b"}', '{"name":"\\ud800"}', '{"permissions":{}}', '{"x":1e400}', '[]']) {
     const request = Readable.from([Buffer.from(text)]); request.headers = { "content-type": "application/json" };
-    await assert.rejects(readApplicationBody(request), error => error.status === 400);
+    await assert.rejects(readFlatJsonObject(request), error => error.status === 400);
   }
   const request = Readable.from([Buffer.from([123,34,120,34,58,34,255,34,125])]); request.headers = { "content-type": "application/json" };
-  await assert.rejects(readApplicationBody(request), error => error.status === 400);
+  await assert.rejects(readFlatJsonObject(request), error => error.status === 400);
 });
 test("application context uses introspected client_id without changing the existing identity contract", async () => {
   const issuer = "https://identity.example.invalid";

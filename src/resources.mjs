@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { applicationToken, readApplicationBody } from "./applications.mjs";
-import { HttpError, json, requireWriter, uuidPattern } from "./http.mjs";
+import { applicationToken } from "./applications.mjs";
+import { HttpError, json, readFlatJsonObject, requireWriter, uuidPattern } from "./http.mjs";
 
 export function requireLegacyClient(identity, config) {
   if (!identity.clientId || !(config.legacyResourceClients ?? []).includes(identity.clientId)) {
@@ -54,7 +54,7 @@ export async function handleShares(request, response, identity, config, url) {
   requireWriter(identity);
   if (url.search) throw new HttpError(400, "invalid_query");
   if (url.pathname === "/v2/resource-shares" && request.method === "POST") {
-    const result = await resourceCommand(config, identity, "share_create", validateShare(await readApplicationBody(request)));
+    const result = await resourceCommand(config, identity, "share_create", validateShare(await readFlatJsonObject(request)));
     return json(response, result.status, result.value);
   }
   const match = url.pathname.match(/^\/v2\/resource-shares\/([0-9a-f-]+)$/);

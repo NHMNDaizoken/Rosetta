@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { isIP } from "node:net";
-import { createHash, createHmac, randomUUID } from "node:crypto";
-import { HttpError, json, readBody, uuidPattern } from "./http.mjs";
+import { createHash, randomUUID } from "node:crypto";
+import { HttpError, json, readFlatJsonObject, uuidPattern } from "./http.mjs";
+import { signInternalToken } from "./internal-token.mjs";
 
 // Application proposals contain only objects and well-formed strings. This is
 // the JCS subset needed here, not a general manifest/number canonicalizer.
@@ -15,29 +16,6 @@ export function applicationDigest(appId, tenantId, proposal) {
     throw new HttpError(400, "invalid_proposal");
   }
   return `sha256:${createHash("sha256").update(canonical({ resourceId: appId, tenantId, proposal })).digest("hex")}`;
-}
-
-export async function readApplicationBody(request) {
-  if (request.headers["content-type"]?.split(";", 1)[0].trim() !== "application/json") throw new HttpError(415, "json_required");
-  const bytes = await readBody(request, 65536);
-  try {
-    const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-    const body = JSON.parse(text);
-    if (!body || typeof body !== "object" || Array.isArray(body)) throw Error();
-    // All registration/approval request models are flat objects of scalars.
-    for (const value of Object.values(body)) {
-      if ((typeof value !== "string" || !value.isWellFormed()) && (typeof value !== "number" || !Number.isSafeInteger(value))) throw Error();
-    }
-    const keys = new Set();
-    for (const match of text.matchAll(/"(?:[^"\\]|\\.)*"/g)) {
-      if (text.slice(match.index + match[0].length).trimStart().startsWith(":")) {
-        const key = JSON.parse(match[0]);
-        if (keys.has(key) || !key.isWellFormed()) throw Error();
-        keys.add(key);
-      }
-    }
-    return body;
-  } catch { throw new HttpError(400, "invalid_json"); }
 }
 
 export function validateApplicationBody(body, operation) {
@@ -72,12 +50,9 @@ export function validateApplicationBody(body, operation) {
 }
 
 export function applicationToken(identity, secret, role = "rosetta_app_api") {
-  const encode = value => Buffer.from(JSON.stringify(value)).toString("base64url");
-  const head = encode({ alg: "HS256", typ: "JWT" });
-  const body = encode({ role, tenant_id: identity.tenantId, sub: identity.subject,
+  return signInternalToken(secret, { role, tenant_id: identity.tenantId, sub: identity.subject,
     ...(role === "rosetta_resource_api" ? { resource_writer: identity.roles.includes("core-writer") } : {}),
     iss: identity.issuer, client_id: identity.clientId, aud: "rosetta-data", exp: Math.floor(Date.now() / 1000) + 30 });
-  return `${head}.${body}.${createHmac("sha256", secret).update(`${head}.${body}`).digest("base64url")}`;
 }
 
 export async function handleApplications(request, response, identity, config, url) {
@@ -91,7 +66,7 @@ export async function handleApplications(request, response, identity, config, ur
     ? !id && request.method === "POST" ? "create" : id && !action && request.method === "GET" ? "get" : id && ["approve", "state"].includes(action) && request.method === "POST" ? action : undefined
     : !id && request.method === "POST" ? "approval_create" : id && !action && request.method === "GET" ? "approval_get" : id && action === "revoke" && request.method === "POST" ? "approval_revoke" : undefined;
   if (!operation) throw new HttpError(405, "method_not_allowed");
-  const body = request.method === "POST" ? validateApplicationBody(await readApplicationBody(request), operation) : {};
+  const body = request.method === "POST" ? validateApplicationBody(await readFlatJsonObject(request), operation) : {};
   let payload = { ...body };
   if (operation === "create") {
     const appId = randomUUID();

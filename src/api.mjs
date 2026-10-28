@@ -4,10 +4,10 @@ import { randomUUID } from "node:crypto";
 import { handleApplications } from "./applications.mjs";
 import { createAuthorizer } from "./auth.mjs";
 import { HttpError, json } from "./http.mjs";
-import { dataRequest, handleData } from "./data.mjs";
-import { checkObjectReadiness, handleObjects } from "./objects.mjs";
+import { handleData } from "./data.mjs";
+import { handleObjects } from "./objects.mjs";
+import { checkReadiness } from "./readiness.mjs";
 import { handleWorkflow } from "./workflow.mjs";
-import { workflowRequest } from "./workflow-client.mjs";
 import { handleShares, requireLegacyClient, resourceIdentity } from "./resources.mjs";
 
 export function createApi(config) {
@@ -16,11 +16,7 @@ export function createApi(config) {
     const path = request.url?.split("?", 1)[0];
     if (path === "/ready" && request.method === "GET") {
       try {
-        const result = await fetch(`${config.identityUrl}/.well-known/openid-configuration`, { signal: AbortSignal.timeout(3000) });
-        if (!result.ok || (await result.json()).issuer !== config.issuer) throw new Error("Identity not ready");
-        if (config.dataUrl) await dataRequest(config, "readiness", new URLSearchParams({ select: "id", limit: "0" }));
-        if (config.objectsUrl) await checkObjectReadiness(config);
-        if (config.workflowUrl) await workflowRequest(config, "management/engine");
+        await checkReadiness(config);
         return json(response, 200, { status: "ready" });
       } catch { throw new HttpError(503, "not_ready"); }
     }

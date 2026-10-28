@@ -42,6 +42,30 @@ export async function readJson(request) {
   return value;
 }
 
+// Strict reader for flat registration/share bodies. It rejects duplicate keys,
+// malformed Unicode and nested values; it is not a general schema validator.
+export async function readFlatJsonObject(request) {
+  if (request.headers["content-type"]?.split(";", 1)[0].trim() !== "application/json") throw new HttpError(415, "json_required");
+  const bytes = await readBody(request, 65536);
+  try {
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    const body = JSON.parse(text);
+    if (!body || typeof body !== "object" || Array.isArray(body)) throw Error();
+    for (const value of Object.values(body)) {
+      if ((typeof value !== "string" || !value.isWellFormed()) && (typeof value !== "number" || !Number.isSafeInteger(value))) throw Error();
+    }
+    const keys = new Set();
+    for (const match of text.matchAll(/"(?:[^"\\]|\\.)*"/g)) {
+      if (text.slice(match.index + match[0].length).trimStart().startsWith(":")) {
+        const key = JSON.parse(match[0]);
+        if (keys.has(key) || !key.isWellFormed()) throw Error();
+        keys.add(key);
+      }
+    }
+    return body;
+  } catch { throw new HttpError(400, "invalid_json"); }
+}
+
 export function requireWriter(identity) {
   if (!identity.roles.includes("core-writer")) throw new HttpError(403, "write_forbidden");
 }

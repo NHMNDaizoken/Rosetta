@@ -1,15 +1,13 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { createHmac, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { HttpError, json, readJson, requireWriter, uuidPattern } from "./http.mjs";
+import { signInternalToken } from "./internal-token.mjs";
 import { resourceRequest } from "./resources.mjs";
 
 export function dataToken(tenantId, secret) {
-  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
-  const payload = Buffer.from(JSON.stringify({ role: "rosetta_api", tenant_id: tenantId,
-    aud: "rosetta-data", exp: Math.floor(Date.now() / 1000) + 30 })).toString("base64url");
-  const signature = createHmac("sha256", secret).update(`${header}.${payload}`).digest("base64url");
-  return `${header}.${payload}.${signature}`;
+  return signInternalToken(secret, { role: "rosetta_api", tenant_id: tenantId,
+    aud: "rosetta-data", exp: Math.floor(Date.now() / 1000) + 30 });
 }
 
 export async function dataRequest(config, tenantId, query, options = {}, resource = "records") {
