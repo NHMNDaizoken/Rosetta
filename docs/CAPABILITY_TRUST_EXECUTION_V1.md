@@ -1,6 +1,6 @@
 # Capability trust, composition and execution v1
 
-Implementation update: [runtime review and application subset](CAPABILITY_RUNTIME_REVIEW_V1.md) supersedes the original design-only status for Application Registration and application-only approvals. All other extension runtimes remain unimplemented.
+Implementation update (2026-10-28): C1 Registry is implemented, C3 is a bounded offline resolver, and A1 Audit is implemented under the trusted-DBA threat model. C2 direct grant lifecycle is implemented; consumer discovery remains increment C work. Human delegation and C4 execution remain unimplemented; hosting is proposed. See [direct Trust](CAPABILITY_DIRECT_TRUST.md) and [Registry](CAPABILITY_REGISTRY.md). This current notice supersedes historical blanket design-only statements below.
 
 Status: **design draft, not implemented**. Read [the manifest/lifecycle specification](CAPABILITY_EXTENSIONS_V1.md) first. Structural request/response models are in the [OpenAPI draft](contracts/capability-api-v1.openapi.json). All examples are synthetic technical fixtures. None of these routes is added to the current server by this task.
 

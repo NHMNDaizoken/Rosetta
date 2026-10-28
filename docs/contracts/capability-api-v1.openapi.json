@@ -3,7 +3,7 @@
   "info": {
     "title": "Rosetta Capability Extensions v1 - DESIGN ONLY",
     "version": "1.0.0-draft",
-    "description": "Capability-Driven Layer-1 contracts. Application Registration and application-only approvals are implemented for operator-enrolled humans. All other operations remain design-only and unavailable. See docs/CAPABILITY_RUNTIME_REVIEW_V1.md and docs/APPLICATION_REGISTRATION.md. Existing five-Core APIs remain unchanged.",
+    "description": "C1 Registry and Application Registration are implemented. C2 direct grant lifecycle is implemented with independent human approval and operator-verified backend subjects. Authorized consumer discovery is pending increment C. C3 is an offline bounded resolver; human delegation and C4 execution remain unimplemented. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
     "license": {
       "name": "Apache License 2.0",
       "identifier": "Apache-2.0"
@@ -401,7 +401,7 @@
       "get": {
         "operationId": "discoverCapabilities",
         "summary": "Discover only exact published versions with an active discover grant",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -475,14 +475,15 @@
               "maxLength": 1024
             }
           }
-        ]
+        ],
+        "x-rosetta-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions": {
       "post": {
         "operationId": "registerCapabilityVersion",
         "summary": "Register a provider-owned draft version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -564,14 +565,15 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions/{version}": {
       "get": {
         "operationId": "getCapabilityVersion",
         "summary": "Read an authorized exact capability version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -652,12 +654,13 @@
               "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
             }
           }
-        ]
+        ],
+        "x-rosetta-status": "implemented-c1"
       },
       "put": {
         "operationId": "replaceCapabilityDraft",
         "summary": "Replace a draft; published versions are immutable",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -757,14 +760,15 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions/{version}/validate": {
       "post": {
         "operationId": "validateCapabilityVersion",
         "summary": "Validate exact capability version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -864,14 +868,15 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions/{version}/publish": {
       "post": {
         "operationId": "publishCapabilityVersion",
         "summary": "Publish exact capability version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -971,14 +976,15 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions/{version}/deprecate": {
       "post": {
         "operationId": "deprecateCapabilityVersion",
         "summary": "Deprecate exact capability version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -1078,14 +1084,15 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions/{version}/revoke": {
       "post": {
         "operationId": "revokeCapabilityVersion",
         "summary": "Revoke exact capability version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented C1 provider-owned Registry lifecycle and management visibility. Consumer discovery is pending C2 increment C. Capability permission assignments are independent from Trust permissions. See CAPABILITY_REGISTRY.md.",
         "tags": [
           "capabilities"
         ],
@@ -1185,14 +1192,15 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c1"
       }
     },
     "/v1/trust/grants": {
       "post": {
         "operationId": "proposeTrustGrant",
         "summary": "Provider-owner proposal; separate admin activation required",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented bounded direct grants only: one exact published capability version/digest, same-tenant active consumer, existing operator-verified backend subject, and delegation flags false. Explicit tenant trust permissions and independent human approval are mandatory. See CAPABILITY_DIRECT_TRUST.md.",
         "tags": [
           "trust"
         ],
@@ -1264,14 +1272,19 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-direct-lifecycle",
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ]
       }
     },
     "/v1/trust/grants/{grantId}": {
       "get": {
         "operationId": "getTrustGrant",
         "summary": "Read an authorized tenant grant",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented bounded direct grants only: one exact published capability version/digest, same-tenant active consumer, existing operator-verified backend subject, and delegation flags false. Explicit tenant trust permissions and independent human approval are mandatory. See CAPABILITY_DIRECT_TRUST.md.",
         "tags": [
           "trust"
         ],
@@ -1344,6 +1357,10 @@
               "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
             }
           }
+        ],
+        "x-rosetta-status": "implemented-direct-lifecycle",
+        "x-rosetta-core-roles": [
+          "core-reader"
         ]
       }
     },
@@ -1351,7 +1368,7 @@
       "post": {
         "operationId": "activateTrustGrant",
         "summary": "Activate a grant",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented bounded direct grants only: one exact published capability version/digest, same-tenant active consumer, existing operator-verified backend subject, and delegation flags false. Explicit tenant trust permissions and independent human approval are mandatory. See CAPABILITY_DIRECT_TRUST.md.",
         "tags": [
           "trust"
         ],
@@ -1443,14 +1460,19 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-direct-lifecycle",
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ]
       }
     },
     "/v1/trust/grants/{grantId}/revoke": {
       "post": {
         "operationId": "revokeTrustGrant",
         "summary": "Revoke a grant",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Implemented bounded direct grants only: one exact published capability version/digest, same-tenant active consumer, existing operator-verified backend subject, and delegation flags false. Explicit tenant trust permissions and independent human approval are mandatory. See CAPABILITY_DIRECT_TRUST.md.",
         "tags": [
           "trust"
         ],
@@ -1542,14 +1564,19 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-direct-lifecycle",
+        "x-rosetta-core-roles": [
+          "core-reader",
+          "core-writer"
+        ]
       }
     },
     "/v1/approvals": {
       "post": {
         "operationId": "decideApproval",
         "summary": "Create an immutable independent tenant-admin approval/denial",
-        "description": "Implemented for operator-enrolled human principals. Live server-owned tenant permissions and enrollment are required. Application approvals only; other resource types are not implemented. Errors from the gateway may use its standard representation. See CAPABILITY_RUNTIME_REVIEW_V1.md.",
+        "description": "Implemented application, capability-version and bounded direct grant approvals. Live resource-specific permissions, exact digest/revision/requester and independent human approval are required. Grant mutations additionally require core-writer. Unsupported resource types fail closed; foreign and hidden IDs are concealed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "approvals"
         ],
@@ -1613,27 +1640,36 @@
           }
         },
         "x-rosetta-required-permissions": [
-          "applications.approve",
-          "trust.approve"
+          "resource-specific-approval-policy"
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ApplicationApprovalCreate"
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ApplicationApprovalCreate"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CapabilityApprovalCreate"
+                  },
+                  {
+                    "$ref": "#/components/schemas/GrantApprovalCreate"
+                  }
+                ]
               }
             }
           }
         },
-        "x-rosetta-status": "implemented-application-only"
+        "x-rosetta-status": "implemented-application-capability-grant"
       }
     },
     "/v1/approvals/{approvalId}/revoke": {
       "post": {
         "operationId": "revokeApproval",
         "summary": "Reduce authority of an existing approval",
-        "description": "Implemented for operator-enrolled human principals. Live server-owned tenant permissions and enrollment are required. Application approvals only; other resource types are not implemented. Errors from the gateway may use its standard representation. See CAPABILITY_RUNTIME_REVIEW_V1.md.",
+        "description": "Implemented application, capability-version and bounded direct grant approvals. Live resource-specific permissions, exact digest/revision/requester and independent human approval are required. Grant mutations additionally require core-writer. Unsupported resource types fail closed; foreign and hidden IDs are concealed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "approvals"
         ],
@@ -1697,8 +1733,7 @@
           }
         },
         "x-rosetta-required-permissions": [
-          "applications.approve",
-          "trust.approve"
+          "resource-specific-approval-policy"
         ],
         "parameters": [
           {
@@ -1730,7 +1765,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-application-only"
+        "x-rosetta-status": "implemented-application-capability-grant"
       }
     },
     "/v1/delegations": {
@@ -3340,7 +3375,7 @@
       "get": {
         "operationId": "getApproval",
         "summary": "Read an authorized approval",
-        "description": "Implemented for operator-enrolled human principals. Live server-owned tenant permissions and enrollment are required. Application approvals only; other resource types are not implemented. Errors from the gateway may use its standard representation. See CAPABILITY_RUNTIME_REVIEW_V1.md.",
+        "description": "Implemented application, capability-version and bounded direct grant approvals. Live resource-specific permissions, exact digest/revision/requester and independent human approval are required. Grant mutations additionally require core-writer. Unsupported resource types fail closed; foreign and hidden IDs are concealed. See CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
         "tags": [
           "approvals"
         ],
@@ -3404,7 +3439,7 @@
           }
         },
         "x-rosetta-required-permissions": [
-          "live-application-policy"
+          "resource-specific-approval-policy"
         ],
         "parameters": [
           {
@@ -3417,7 +3452,7 @@
             }
           }
         ],
-        "x-rosetta-status": "implemented-application-only"
+        "x-rosetta-status": "implemented-application-capability-grant"
       }
     },
     "/v1/delegations/{delegationId}": {
@@ -4902,7 +4937,45 @@
             }
           }
         ],
-        "description": "Approved C2 direct subset: one exact capability version/digest and existing operator-verified consumer backend subject only. Human delegation is deferred. HTTP runtime is not enabled by increment A."
+        "description": "Implemented bounded direct subset: one exact capability version/digest and existing operator-verified consumer backend subject only; both delegation flags false. Human delegation is deferred."
+      },
+      "GrantApprovalCreate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApprovalCreate"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "const": "grant"
+              },
+              "resourceId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "inputDigest": false
+            }
+          }
+        ],
+        "description": "Independent enrolled human with trust.approve; exact current pending grant digest/revision/requester/provider and expiry bounded by ten minutes and grant expiry."
+      },
+      "CapabilityApprovalCreate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApprovalCreate"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "const": "capability-version"
+              },
+              "inputDigest": false
+            }
+          }
+        ],
+        "description": "C1 approval for exact capabilityId@version or version UUID; documented bare-ID alias must resolve one exact digest/revision. Malformed resource IDs return 400 before lookup; valid missing/hidden references return 404."
       }
     },
     "responses": {

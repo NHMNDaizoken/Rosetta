@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { createHash } from "node:crypto";
-import { canonicalize } from "./capability-manifest.mjs";
-import { HttpError, uuidPattern } from "./http.mjs";
+import { createHash, randomUUID } from "node:crypto";
+import { canonicalize, parseManifestText } from "./capability-manifest.mjs";
+import { applicationToken, validateApplicationBody } from "./applications.mjs";
+import { HttpError, json, readBody, readFlatJsonObject, requireWriter, uuidPattern } from "./http.mjs";
 
 const capabilityId = /^urn:rosetta:capability:([0-9a-f-]{36}):[a-z][a-z0-9-]{0,62}$/;
 const exactVersion = /^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$/;
@@ -38,4 +39,56 @@ export function validateGrant(body) {
 export function grantDigest(grantId, identity, proposal) {
   return `sha256:${createHash("sha256").update(canonicalize({ grantId, tenantId: identity.tenantId,
     issuer: identity.issuer, createdBy: identity.subject, proposal })).digest("hex")}`;
+}
+
+export async function trustCommand(config, identity, operation, payload) {
+  if (!config.dataUrl) throw new HttpError(503, "trust_unavailable");
+  if (!identity.clientId) throw new HttpError(403, "verified_client_required");
+  let result;
+  try {
+    const response = await fetch(`${config.dataUrl}/rpc/trust_command`, { method: "POST",
+      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "rosetta_trust_api")}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ operation, payload }), signal: AbortSignal.timeout(5000), redirect: "error" });
+    if (!response.ok) throw Error();
+    result = await response.json();
+  } catch { throw new HttpError(503, "trust_unavailable"); }
+  if (result.error) throw new HttpError(result.status, result.error);
+  return result.value;
+}
+
+export function validateGrantApproval(body, identity) {
+  requireWriter(identity);
+  // Grant approvals use the existing closed UUID approval body and UTC rules.
+  validateApplicationBody({ ...body, resourceType: "application" }, "approval_create");
+}
+
+export async function handleTrust(request, response, identity, config, url) {
+  if (url.search) throw new HttpError(400, "invalid_query");
+  const match = url.pathname.match(/^\/v1\/trust\/grants(?:\/([^/]+)(?:\/(activate|revoke))?)?$/);
+  if (!match || (match[1] && (match[1].length !== 36 || !uuidPattern.test(match[1])))) throw new HttpError(400, "invalid_grant_path");
+  const [, grantId, action] = match;
+  const operation = !grantId && request.method === "POST" ? "create" : grantId && !action && request.method === "GET" ? "get"
+    : grantId && action && request.method === "POST" ? action : undefined;
+  if (!operation) throw new HttpError(405, "method_not_allowed");
+  if (request.method !== "GET") requireWriter(identity);
+  let payload = { grantId };
+  if (operation === "create") {
+    if (request.headers["content-type"]?.split(";", 1)[0].trim() !== "application/json") throw new HttpError(415, "json_required");
+    const bytes = await readBody(request, 65536);
+    let body;
+    try { body = parseManifestText(new TextDecoder("utf-8", { fatal: true }).decode(bytes)); }
+    catch { throw new HttpError(400, "invalid_json"); }
+    const proposal = validateGrant(body);
+    const id = randomUUID();
+    payload = { grantId: id, proposal, digest: grantDigest(id, identity, proposal) };
+  } else if (operation !== "get") {
+    const body = await readFlatJsonObject(request);
+    validateApplicationBody(body, operation === "activate" ? "approve" : "approval_revoke");
+    payload = { ...payload, ...body };
+  }
+  if (request.headers["if-match"] !== undefined) payload.etag = request.headers["if-match"];
+  const value = await trustCommand(config, identity, operation, payload);
+  response.setHeader("ETag", `"grant-${value.grantId}-${value.revision}"`);
+  if (operation === "create") response.setHeader("Location", `/v1/trust/grants/${value.grantId}`);
+  return json(response, operation === "create" ? 201 : 200, value);
 }

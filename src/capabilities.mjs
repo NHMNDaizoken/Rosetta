@@ -9,6 +9,7 @@ import {
   validateManifest,
 } from "./capability-manifest.mjs";
 import { HttpError, json, readBody, readFlatJsonObject, uuidPattern } from "./http.mjs";
+import { trustCommand, validateGrantApproval } from "./trust.mjs";
 
 const CAPABILITY_PATH = /^\/v1\/capabilities\/([^/]+)\/versions(?:\/([^/]+))?(?:\/(validate|publish|deprecate|revoke))?$/;
 const CAPABILITY_ID = /^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$/;
@@ -86,6 +87,11 @@ export async function handleApprovals(request, response, identity, config, url) 
 
   if (operation === "approval_create") {
     const body = await readFlatJsonObject(request);
+    if (body.resourceType === "grant") {
+      validateGrantApproval(body, identity);
+      return approvalCommand(response, 201, await trustCommand(config, identity, operation,
+        { grantId: body.resourceId, approvalId: randomUUID(), decision: body }));
+    }
     if (body.resourceType === "application") {
       validateApplicationBody(body, "approval_create");
       return approvalCommand(response, 201, await command(config, identity, "rosetta_app_api", "application_command", operation,
@@ -109,7 +115,17 @@ export async function handleApprovals(request, response, identity, config, url) 
   } catch (error) {
     if (!(error instanceof HttpError) || error.status !== 404) throw error;
   }
-  if (!result) result = await command(config, identity, "rosetta_capability_api", "capability_command", operation, payload);
+  if (!result) {
+    try { result = await command(config, identity, "rosetta_capability_api", "capability_command", operation, payload); }
+    catch (error) { if (!(error instanceof HttpError) || error.status !== 404) throw error; }
+  }
+  if (!result) {
+    try { result = await trustCommand(config, identity, operation, payload); }
+    catch (error) {
+      if (error instanceof HttpError && error.message === "trust_permission_required") throw new HttpError(404, "not_found");
+      throw error;
+    }
+  }
   return approvalCommand(response, 200, result);
 }
 

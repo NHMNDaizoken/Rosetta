@@ -267,9 +267,31 @@ def self_test(spec):
     print('Validator controls passed: wire/schema errors, auth bypass, missing routes/refs, duplicate IDs and legacy regressions rejected')
 
 
+def capability_contract(cases=None):
+    """Validate local extension schemas and real Trust bodies without logging them."""
+    contract = ROOT / 'docs/contracts/capability-api-v1.openapi.json'
+    spec = json.loads(contract.read_text(encoding='utf-8'))
+    registry = Registry().with_resources(
+        (p.as_uri(), Resource.from_contents(json.loads(p.read_text(encoding='utf-8')), default_specification=DRAFT202012))
+        for p in contract.parent.glob('*.json'))
+    for schema in spec['components']['schemas'].values():
+        Draft202012Validator.check_schema(schema)
+    supplied = cases if cases is not None else list(json.loads((contract.parent / 'examples/api-examples.json').read_text(encoding='utf-8')).values())
+    require(bool(supplied), 'Capability contract observations are empty')
+    for item in supplied:
+        validator = Draft202012Validator({'$ref': contract.as_uri() + '#/components/schemas/' + item['schema']}, registry=registry, format_checker=FORMATS)
+        error = next(validator.iter_errors(item['value']), None)
+        require(error is None, 'Capability ' + item['schema'] + ': schema mismatch')
+    return len(supplied)
+
+
 def main():
     spec = json.loads(CONTRACT.read_text(encoding='utf-8'))
-    if '--runtime' in sys.argv:
+    if '--capability-runtime' in sys.argv:
+        batch = json.load(sys.stdin)
+        count = capability_contract(batch['observations'])
+        print(f'Capability contract: {count} real Trust request/response schema cases passed')
+    elif '--runtime' in sys.argv:
         batch = json.load(sys.stdin)
         count, covered = validate_observations(spec, batch['observations'], batch['suite'])
         print(f'Foundation conformance: {count} responses, {covered} successful operations ({batch["suite"]})')
@@ -277,6 +299,7 @@ def main():
         self_test(spec)
     else:
         count = validate_document(spec)
+        capability_contract()
         print(f'OpenAPI 3.1 structure, schemas, local refs, IDs, authorization and {count} reviewed operations passed')
 
 

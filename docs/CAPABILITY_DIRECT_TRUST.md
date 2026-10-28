@@ -1,7 +1,7 @@
 # Direct capability trust (C2)
 
-Increment A supplies private persistence and input validation. Trust HTTP routes
-and consumer discovery are not enabled yet. C1 Registry is implemented, C3 is a
+Increments A/B supply private persistence, input validation and the direct grant
+lifecycle. Consumer discovery is not enabled yet. C1 Registry is implemented, C3 is a
 bounded offline resolver, and A1 Audit is implemented with trusted DBAs. Human
 delegation is deferred; C4 execution is unimplemented; hosting is proposed.
 
@@ -56,7 +56,21 @@ The same migration guards the C1 approval RPC before resource lookup. Malformed
 references return 400; valid missing references remain concealed. The existing
 C1 command is private behind the unchanged RPC, including the bare-ID alias.
 
-Apply through the development Compose migration service before rebuilding Core.
+Migration 008 adds the owner-controlled `core.trust_command` RPC and a dedicated
+nonlogin `rosetta_trust_api` with no private schema/table access. It uses the
+existing approval HTTP dispatcher and fixed approval semantics, with private
+grant approval records; it does not add an approval workflow/service. The deciding
+administrator activates and consumes its exact decision. Consumed approval
+expiry is an activation deadline; grant expiry controls subsequent authority.
+An approval's consumption and grant activation commit together with both audit
+events. A partial unique index permits only one consumed approval per grant.
+
+Run `docker compose run --rm data-migrate` before rebuilding Core. The migrator
+now applies only pending numbered files: replaying older permission constraints
+would otherwise remove/reject later Trust assignments. Run one migrator at a time.
+For an explicit reapplication of 008, use `docker compose run --rm --entrypoint psql
+data-migrate -h database -U rosetta_admin -d rosetta_data -v ON_ERROR_STOP=1
+-f /migrations/008-trust-lifecycle.sql`.
 Keep both private schemas, role ownership/ACLs, Registry and Audit in coordinated
 backups. Roll back code without dropping authority/history tables. No destructive
 down migration or purge is provided. Grant lifecycle/discovery recovery proof for
@@ -78,3 +92,21 @@ Local checks passed: `npm run check`, `npm test` (41), `npm run check:contracts`
 include Trust schema ownership, forced RLS and ordinary-role write denial.
 These results do not establish C2 lifecycle/discovery completion. No dependencies
 or license changes were introduced.
+
+## Increment B verification
+
+`npm run test:capabilities` includes real issuer-verified backend subjects and
+independent PKCE human actors in two tenants. It covers explicit permissions,
+non-owner denial, forged tokens, unsupported subjects, foreign consumers,
+self-approval, exact digest/revision/requester binding, concurrent decisions and
+single consumption, denied/revoked/expired/stale approvals, inactive targets,
+audit-failure rollback and actual database/Core restart. The same suite validates
+real successful Trust request/response bodies against the extension schemas.
+Direct lifecycle is implemented; discovery and internal eligibility remain
+increment C work. No provider dispatch, token exchange or delegation exists.
+
+Verified locally: source/SPDX checks, 41 unit tests, contract validation and
+validator controls; 11 capability/Trust cases and 64 real Trust schema cases;
+13 application/v2 isolation cases; 9 Core cases; 7 Audit cases; isolated restore
+and the existing worker probe. Migration 008 reapplied successfully. These are
+local results; GitHub Actions must be verified for each pushed increment.

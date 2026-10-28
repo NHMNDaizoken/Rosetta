@@ -47,10 +47,9 @@ export async function contractFetch(input, options = {}) {
   return response;
 }
 
-export async function verifyContracts(suite) {
-  const batch = observations.splice(0);
+export async function verifyContracts(suite, batch = observations.splice(0), mode = '--runtime') {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.env.PYTHON ?? 'python', ['-B', 'scripts/check-contracts.py', '--runtime'], { stdio: ['pipe', 'pipe', 'pipe'] });
+    const child = spawn(process.env.PYTHON ?? 'python', ['-B', 'scripts/check-contracts.py', mode], { stdio: ['pipe', 'pipe', 'pipe'] });
     let output = '';
     child.stdout.on('data', chunk => output += chunk); child.stderr.on('data', chunk => output += chunk);
     child.on('error', reject);

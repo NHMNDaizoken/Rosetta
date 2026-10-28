@@ -10,6 +10,7 @@ import { handleObjects } from "./objects.mjs";
 import { checkReadiness } from "./readiness.mjs";
 import { handleWorkflow } from "./workflow.mjs";
 import { handleShares, requireLegacyClient, resourceIdentity } from "./resources.mjs";
+import { handleTrust } from "./trust.mjs";
 
 export function createApi(config) {
   const authorize = createAuthorizer(config);
@@ -55,6 +56,17 @@ export function createApi(config) {
         if (error.status === 413) response.setHeader("Connection", "close");
         return json(response, error instanceof HttpError ? error.status : 503,
           { error: error instanceof HttpError ? error.message : "capabilities_unavailable", issues: error.issues, requestId });
+      }
+    }
+    if (path === "/v1/trust/grants" || path?.startsWith("/v1/trust/grants/")) {
+      const requestId = randomUUID();
+      response.setHeader("X-Request-Id", requestId);
+      try {
+        return await handleTrust(request, response, await authorize(request, true), config, new URL(request.url, "http://core"));
+      } catch (error) {
+        if (error.status === 413) response.setHeader("Connection", "close");
+        return json(response, error instanceof HttpError ? error.status : 503,
+          { error: error instanceof HttpError ? error.message : "trust_unavailable", requestId });
       }
     }
     if (path?.startsWith("/v1/data/") || path?.startsWith("/v2/data/")) {

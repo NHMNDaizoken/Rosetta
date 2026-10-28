@@ -1,10 +1,11 @@
 # Capability runtime review and Application Registration v1
 
-Status: implementation decisions for Application Registration and the bounded offline
-compatibility resolver. The manifest, registry, trust/delegation, provider execution
-and composition APIs remain design contracts. This review supersedes blanket
-"documentation only" statements in the original drafts for the subsets described
-below.
+Current status: Application Registration, C1 Registry and bounded C2 direct grant
+lifecycle are implemented. C3 is an offline bounded resolver; A1 Audit uses the
+trusted-DBA model. Consumer discovery is pending increment C; human delegation and
+C4 provider execution/composition remain unimplemented. See [Registry](CAPABILITY_REGISTRY.md)
+and [direct Trust](CAPABILITY_DIRECT_TRUST.md), which supersede historical subset
+limits below. Hosting remains proposed.
 
 ## Decisions before implementation
 
