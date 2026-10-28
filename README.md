@@ -1,10 +1,25 @@
 # Rosetta DX-OS
 
-A headless platform for independent applications and verifiable capability composition.
+**A self-hostable backend platform for independent applications.** Rosetta gives every authorized application shared Foundation services — identity, API gateway, structured data, object storage and workflow — with authoritative application ownership and explicitly controlled resource sharing.
 
-Rosetta is an open-source Layer-1 platform as a service (PaaS). It provides reusable identity, gateway, data and workflow services for Layer-2 products written in different programming languages. Its proposed capability-driven extensions would let authorized applications discover and compose each other's explicitly defined capabilities, with deterministic validation before execution. Authorized AI agents are also proposed as future consumers, subject to the same contracts, validation and trust rules.
+| Product area | What it means today | Status |
+| --- | --- | --- |
+| **Rosetta Backend** | The five Foundation capabilities, Application Authority and resource authorization. | **IMPLEMENTED** — runs locally with Docker Compose and is exercised by real-service tests. |
+| **Rosetta Developer Experience** | Admin Console, Foundation OpenAPI, API Explorer, HTTP example and application registration workflow. | **PARTIAL** — useful today; operator enrollment and some Console screens are limited. |
+| **Rosetta Cloud** | Projects/environments, application hosting, deployments, runtime workers, domains and bindings. | **PROPOSED** — architecture only; nothing runs. |
+| **Rosetta Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **DESIGN ONLY** — contracts exist; no runtime. |
 
-The five foundational Cores are implemented and tested in a local Docker Compose stack. Capability-driven extensions remain proposals. The repository currently contains no Layer-2 GUI, SDK or AI integration.
+There is no public demo, SDK, Layer-2 GUI or hosting runtime in this repository. Do not read a design document as a working feature. The authoritative, itemized status list is [docs/PRODUCT.md](docs/PRODUCT.md).
+
+**Start here:** [What works today](docs/PRODUCT.md) · [Quickstart](#quickstart) · [First API request](#core-api-usage) · [Developer guide](docs/DEVELOPING.md) · [Architecture](#layer-1-and-layer-2) · [Roadmap](#development-roadmap)
+
+```sh
+git clone https://github.com/NHMNDaizoken/Rosetta.git
+cd Rosetta
+npm run setup
+docker compose up --build --detach --wait --wait-timeout 240
+npm run healthcheck
+```
 
 [Architecture](#layer-1-and-layer-2) · [Quickstart](#quickstart) · [API usage](#core-api-usage) · [Status](#implementation-status) · [Roadmap](#development-roadmap) · [Documentation](#documentation-and-self-hosting)
 
@@ -271,6 +286,10 @@ Original Rosetta source and documentation are licensed under [Apache License 2.0
 
 ## Documentation and self-hosting
 
+- [Product definition and status](docs/PRODUCT.md): the four product areas,
+  status vocabulary and an accurate implemented-versus-planned catalog.
+- [Developer and extension guide](docs/DEVELOPING.md): backend module map,
+  add-an-API checklist, tests, Console rules and future module conventions.
 - [Architecture index and implementation evidence](docs/index.md): current versus target, eight maps, official traceability, decisions and the OpenCode backlog.
 
 - [Rosetta Console](docs/CONSOLE.md): Layer-1 operational control plane design, setup, architecture and feature matrix.
