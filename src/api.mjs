@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { handleApplications } from "./applications.mjs";
 import { createAuthorizer } from "./auth.mjs";
+import { handleApprovals, handleCapabilities } from "./capabilities.mjs";
 import { HttpError, json } from "./http.mjs";
 import { handleData } from "./data.mjs";
 import { handleObjects } from "./objects.mjs";
@@ -20,7 +21,7 @@ export function createApi(config) {
         return json(response, 200, { status: "ready" });
       } catch { throw new HttpError(503, "not_ready"); }
     }
-    if (["/v1/applications", "/v1/approvals"].some(prefix => path === prefix || path?.startsWith(`${prefix}/`))) {
+    if (path === "/v1/applications" || path?.startsWith("/v1/applications/")) {
       const requestId = randomUUID();
       response.setHeader("X-Request-Id", requestId);
       try {
@@ -30,6 +31,30 @@ export function createApi(config) {
         if (error.status === 413) response.setHeader("Connection", "close");
         return json(response, error instanceof HttpError ? error.status : 503,
           { error: error instanceof HttpError ? error.message : "applications_unavailable", requestId });
+      }
+    }
+    if (path === "/v1/approvals" || path?.startsWith("/v1/approvals/")) {
+      const requestId = randomUUID();
+      response.setHeader("X-Request-Id", requestId);
+      try {
+        const identity = await authorize(request, true);
+        return await handleApprovals(request, response, identity, config, new URL(request.url, "http://core"));
+      } catch (error) {
+        if (error.status === 413) response.setHeader("Connection", "close");
+        return json(response, error instanceof HttpError ? error.status : 503,
+          { error: error instanceof HttpError ? error.message : "approvals_unavailable", requestId });
+      }
+    }
+    if (path === "/v1/capabilities" || path?.startsWith("/v1/capabilities/")) {
+      const requestId = randomUUID();
+      response.setHeader("X-Request-Id", requestId);
+      try {
+        const identity = await authorize(request, true);
+        return await handleCapabilities(request, response, identity, config, new URL(request.url, "http://core"));
+      } catch (error) {
+        if (error.status === 413) response.setHeader("Connection", "close");
+        return json(response, error instanceof HttpError ? error.status : 503,
+          { error: error instanceof HttpError ? error.message : "capabilities_unavailable", issues: error.issues, requestId });
       }
     }
     if (path?.startsWith("/v1/data/") || path?.startsWith("/v2/data/")) {

@@ -31,6 +31,8 @@ routes and explicit contracts.
 | `src/readiness.mjs` | Dependency readiness aggregation. | `GET /ready` |
 | `src/internal-token.mjs` | Internal short-lived JWT signing for provider adapters. | Shared security |
 | `src/applications.mjs` | Application registration/approval models and command forwarding. | `/v1/applications*`, `/v1/approvals*` |
+| `src/capabilities.mjs` | Capability registry and publication approval command forwarding. | `/v1/capabilities*`, `/v1/approvals*` |
+| `src/capability-manifest.mjs` | Closed manifest validation and JCS digest. | Shared capability contract |
 | `src/resources.mjs` | Application context, resource commands, share validation. | Shared authority |
 | `src/data.mjs` | Structured-data adapter and record routes. | `/v1/data/*`, `/v2/data/*` |
 | `src/objects.mjs` | Object readiness, storage adapter and object routes. | `/v1/objects*`, `/v2/objects*` |
@@ -145,6 +147,7 @@ docker compose up --build --detach --wait --wait-timeout 240
 npm run healthcheck
 npm run test:integration
 npm run test:applications
+npm run test:capabilities
 npm run test:flowable-worker
 npm run test:recovery
 npm run test:audit

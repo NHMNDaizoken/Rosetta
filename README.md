@@ -244,12 +244,13 @@ npm run test:contract-validator
 npm test
 npm run test:integration
 npm run test:applications
+npm run test:capabilities
 npm run test:flowable-worker
 npm run test:recovery
 npm run test:audit
 ```
 
-Install the pinned development tools with `python -m pip install -r requirements-contracts.txt` before contract/integration checks. The suite has 34 unit tests, 9 foundational integration tests, 13 registration/resource/example tests, 7 audit-boundary tests, 1 private-worker contract probe and 1 isolated PostgreSQL restore test. Real HTTP conformance requires positive coverage of all 44 implemented operations, plus negative responses from the existing isolation and failure cases. Restore verifies legacy tenant RLS, app-private RLS and the audit role/query boundary. These checks do not prove capability composition, exhaustive vendor behavior or full-platform disaster recovery.
+Install the pinned development tools with `python -m pip install -r requirements-contracts.txt` before contract/integration checks. The suite has 39 unit tests, 9 foundational integration tests, 13 registration/resource/example tests, 3 capability-registry tests, 7 audit-boundary tests, 1 private-worker contract probe and 1 isolated PostgreSQL restore test. Real HTTP conformance requires positive coverage of all 44 implemented operations, plus negative responses from the existing isolation and failure cases. Restore verifies legacy tenant RLS, app-private RLS and the audit role/query boundary. These checks do not prove capability composition, exhaustive vendor behavior or full-platform disaster recovery.
 
 The integration suite intentionally interrupts local services, restarts PostgreSQL and recreates containers. Use a development/test stack without application traffic. The recovery suite restores into its own network-isolated temporary PostgreSQL; it does not restore over project data. Run the audit suite last because it also restarts PostgreSQL. These checks do not establish coordinated recovery of identity, objects and workflow databases.
 
