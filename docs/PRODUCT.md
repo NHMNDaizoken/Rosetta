@@ -86,7 +86,7 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 | Foundation OpenAPI and API Explorer | IMPLEMENTED | Contract checks plus generated endpoint inventory freshness check. |
 | Console management UI | PARTIAL | Read/management flows, preview-only mutations in some screens; no admin session. |
 | Server-side HTTP developer example | IMPLEMENTED | `npm run example:foundation`; exercised by the application integration suite. |
-| Getting Started / onboarding | PARTIAL | Documented, but enrollment is operator-run rather than self-service. |
+| Getting Started / onboarding | PARTIAL | Console quickstart, commands, expected proofs and cleanup guidance; enrollment is operator-run rather than self-service. |
 | SDKs | DEFERRED | Generate only after client/auth requirements are reviewed. |
 | Projects and environments | PROPOSED | P1 gate; no tables or routes. |
 | Application bindings | PROPOSED | P2 gate; no credential lifecycle. |

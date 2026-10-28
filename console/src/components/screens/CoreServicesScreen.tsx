@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Server,
   ShieldCheck,
@@ -14,6 +14,8 @@ import {
   Info,
 } from "lucide-react";
 import { BRAND } from "../../constants/brand";
+import { api } from "../../services/apiClient";
+import { ReadyStatus } from "../../types";
 import { useI18n } from "../../locales/i18n";
 import { PageHeader } from "../layout/PageHeader";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "../common/Card";
@@ -25,6 +27,20 @@ import { DetailDrawer } from "../common/DetailDrawer";
 export const CoreServicesScreen: React.FC = () => {
   const { t, language } = useI18n();
   const [selectedCore, setSelectedCore] = useState<(typeof BRAND.cores)[0] | null>(null);
+  const [ready, setReady] = useState<ReadyStatus | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    api.getReady().then((result) => {
+      if (!cancelled) setReady(result);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const readiness =
+    ready?.status === "ready" ? "ready" : ready?.status === "not_ready" ? "error" : "unknown";
 
   const getCoreIcon = (id: string) => {
     switch (id) {
@@ -59,6 +75,11 @@ export const CoreServicesScreen: React.FC = () => {
         </p>
       </div>
 
+      <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300">
+        <StatusIndicator status={readiness} />
+        <span>{t.cores.readinessNote}</span>
+      </div>
+
       {/* Five Core Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {BRAND.cores.map((core) => (
@@ -76,7 +97,6 @@ export const CoreServicesScreen: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                <StatusIndicator status="ready" />
               </CardHeader>
 
               <CardContent className="space-y-4 pt-4">

@@ -1,6 +1,6 @@
 # Rosetta architecture and codebase context
 
-> Reviewed: 2026-10-26 | Branch: main | Audit baseline: `7fdd7fc381bdd29d81d56fb08a764efff8c41582`
+> Reviewed: 2026-10-28 | Branch: main | DX1 baseline: `e4f67f078c0e66efc09abefde0d676b3b2730870`
 
 Rosetta currently integrates five headless backend capabilities through a small
 Node adapter, private providers and PostgreSQL authorization. An optional React
@@ -40,9 +40,9 @@ creating competing module, data and API inventories.
 
 ## Baseline counts
 
-Tracked source inventory, excluding dependencies/generated output: 11 Core `.mjs`
-modules (709 lines), six Core unit files (234 lines), five integration `.mjs` files
-including the observer (984 lines), 41 Console TypeScript/TSX files (6,155 lines).
+Tracked source inventory, excluding dependencies/generated output: 13 Core `.mjs`
+modules (688 lines), seven Core unit files (235 lines), five integration `.mjs` files
+including the observer (947 lines), 44 Console TypeScript/TSX files (7,553 lines).
 Foundation has 44 operations on 30 paths. These counts describe this baseline,
 not code coverage or product completeness.
 

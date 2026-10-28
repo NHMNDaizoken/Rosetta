@@ -7,6 +7,7 @@ export type ScreenId =
   | "applications"
   | "resources"
   | "workflows"
+  | "getting-started"
   | "api-explorer"
   | "security"
   | "settings"

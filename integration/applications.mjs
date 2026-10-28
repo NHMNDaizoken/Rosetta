@@ -286,11 +286,14 @@ test('registered backends own private records and objects; browser and unenrolle
 
 test('documented backend HTTP example authenticates, stores, shares and executes the technical workflow',async()=>{
   const result=await foundationExample({base,clientId:resourceA.clientId,clientSecret:resourceA.clientSecret,
-    granteeAppId:resourceB.app.appId,fetcher:fetch});
+    granteeAppId:resourceB.app.appId,granteeClientId:resourceB.clientId,granteeClientSecret:resourceB.clientSecret,fetcher:fetch});
+  assert.equal(result.deniedBeforeShare,true);
+  assert.equal(result.sharedReadAllowed,true);
   try {
     const cli=await promisify(execFile)(process.execPath,['examples/foundation-http.mjs'],{
       env:{...process.env,PUBLIC_URL:base,ROSETTA_APP_CLIENT_ID:resourceA.clientId,
-        ROSETTA_APP_CLIENT_SECRET:resourceA.clientSecret,ROSETTA_GRANTEE_APP_ID:resourceB.app.appId},timeout:30000});
+        ROSETTA_APP_CLIENT_SECRET:resourceA.clientSecret,ROSETTA_GRANTEE_APP_ID:resourceB.app.appId,
+        ROSETTA_GRANTEE_CLIENT_ID:resourceB.clientId,ROSETTA_GRANTEE_CLIENT_SECRET:resourceB.clientSecret},timeout:30000});
     assert.match(cli.stdout,/HTTP example succeeded/);
     assert.equal((await api(`/v2/data/http_example/${result.recordId}`,resourceB)).status,200);
     assert.equal((await api(`/v2/data/http_example/${result.recordId}`,resourceB,{data:{}},{},'PATCH')).status,404);

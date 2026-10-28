@@ -208,6 +208,30 @@ The identity includes `subject`, `tenantId: 'tenant-a'` and supported roles. Tok
 
 Foundational reads require `core-reader`; resource/workflow writes also require `core-writer`. Registration uses separately enrolled administrative permissions. V2 resources additionally require an active registered backend with an exact operator-enrolled service-account subject. V1 data/objects are a separate deprecated namespace restricted to an explicit legacy client allowlist; local Compose allows only its three service fixtures. Browsers use an authorized application backend. See [ownership, sharing and migration](docs/RESOURCE_AUTHORIZATION.md) before upgrading. OIDC discovery and health/readiness remain public; verified context, never ownership headers, supplies authority. Detailed contracts are in [CORE_API.md](docs/CORE_API.md).
 
+### Executable end-to-end example
+
+After the stack is healthy and an operator has enrolled two applications, the
+server-side example verifies identity, creates and reads a private record,
+uploads and downloads a private object, starts and completes the technical
+workflow, grants an expiring read share, and (when grantee credentials are
+supplied) proves a denied cross-app read before the share and an allowed read
+after it. It calls only the public Gateway.
+
+```sh
+ROSETTA_APP_CLIENT_ID=<enrolled-backend-client> \
+ROSETTA_APP_CLIENT_SECRET=<backend-secret> \
+ROSETTA_GRANTEE_APP_ID=<second-enrolled-app-uuid> \
+ROSETTA_GRANTEE_CLIENT_ID=<grantee-client> \
+ROSETTA_GRANTEE_CLIENT_SECRET=<grantee-secret> \
+node --env-file=.env examples/foundation-http.mjs
+```
+
+Enrollment is operator-run; there is no self-service flow. The example does not
+clean up automatically because a failed POST may have an ambiguous outcome.
+Credentials stay in the server process and must never be committed or embedded
+in a browser. See [the developer guide](docs/DEVELOPING.md) for prerequisites,
+expected results, common errors and cleanup.
+
 ## Integration verification
 
 With the local stack running, execute the suites sequentially:

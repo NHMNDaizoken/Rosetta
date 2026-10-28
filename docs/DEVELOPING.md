@@ -152,6 +152,47 @@ npm run test:recovery
 Do not claim a suite passed if it was not executed. Integration suites restart
 services and alter local test state; they are not unit tests.
 
+## Developer journey and cleanup
+
+Prerequisites: a healthy local stack, an enrolled backend application and a
+second enrolled application to act as the grantee. Enrollment is operator-run;
+see [APPLICATION_REGISTRATION.md](APPLICATION_REGISTRATION.md) and
+[RESOURCE_AUTHORIZATION.md](RESOURCE_AUTHORIZATION.md). The application backend
+must use its own service-account credentials; never put them in a browser.
+
+```sh
+ROSETTA_APP_CLIENT_ID=<enrolled-backend-client> \
+ROSETTA_APP_CLIENT_SECRET=<backend-secret> \
+ROSETTA_GRANTEE_APP_ID=<second-enrolled-app-uuid> \
+ROSETTA_GRANTEE_CLIENT_ID=<grantee-client> \
+ROSETTA_GRANTEE_CLIENT_SECRET=<grantee-secret> \
+node --env-file=.env examples/foundation-http.mjs
+```
+
+Expected behavior, in order:
+
+1. OIDC client-credentials authentication succeeds.
+2. `GET /v1/identity` returns the verified subject, tenant and roles.
+3. A `/v2` record is created and read back by its owner.
+4. A `/v2` object is uploaded and downloaded with identical bytes.
+5. The `rosetta_checkpoint` workflow starts, is inspected and completes.
+6. An expiring read share is created for the grantee.
+7. If grantee credentials are supplied, the grantee is denied before the share
+   and allowed after it. Without them, those two steps are skipped.
+
+The CLI prints the created IDs. It intentionally does not delete them because a
+failed POST may have an ambiguous outcome. To clean up, use the owner backend
+with the same credentials and public routes:
+
+```sh
+# Replace values with the IDs printed by the example.
+curl -X DELETE -H "Authorization: Bearer $TOKEN" "$PUBLIC_URL/v2/resource-shares/$SHARE_ID"
+curl -X DELETE -H "Authorization: Bearer $TOKEN" "$PUBLIC_URL/v2/data/http_example/$RECORD_ID"
+curl -X DELETE -H "Authorization: Bearer $TOKEN" "$PUBLIC_URL/v2/objects/$OBJECT_ID"
+```
+
+Do not use `docker compose down -v` or delete volumes to clean test data.
+
 ## Add tests
 
 - Unit tests live in `tests/*.test.mjs` and use `node:test`.

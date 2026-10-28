@@ -56,6 +56,14 @@ export const CapabilitiesScreen: React.FC = () => {
       specFile: "CAPABILITY_EXTENSIONS_V1.md",
       specEndpoint: "POST /v1/compositions/execute (Planned)",
     },
+    {
+      id: "hosting",
+      title: t.capabilities.hostingTitle,
+      description: t.capabilities.hostingDesc,
+      icon: <Cpu className="w-5 h-5 text-slate-600 dark:text-slate-300" />,
+      specFile: "DEPLOYMENT_MODEL.md",
+      specEndpoint: "No runtime (Proposed)",
+    },
   ];
 
   return (

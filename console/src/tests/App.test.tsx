@@ -100,6 +100,14 @@ describe("Rosetta Console Application Tests", () => {
     expect(screen.getAllByText(/Workflow Engine/i).length).toBeGreaterThan(0);
   });
 
+  it("renders the getting-started journey with an executable example", async () => {
+    window.history.replaceState(null, "", "/#/getting-started");
+    render(<App />);
+    await screen.findByRole("heading", { name: viStrings.nav.gettingStarted });
+    expect(screen.getAllByText(/npm run setup/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/examples\/foundation-http\.mjs/)).toBeInTheDocument();
+  });
+
   it("api client returns valid health and readiness in preview mode", async () => {
     api.setLiveMode(false);
     const health = await api.getHealth();

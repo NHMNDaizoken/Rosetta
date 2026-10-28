@@ -48,19 +48,22 @@ The unified application shell contains a persistent, collapsible sidebar, top na
 
 ```
 Rosetta Console
-├── Workspace
-│   ├── Overview (Screen A) — Health, readiness, core summaries, quick actions
-│   ├── Core Services (Screen B) — 5 foundational cores in-depth inspection
-│   └── Applications (Screen C) — Application registration, two-person approvals, state
-├── Platform Control
-│   ├── Access & Resources v2 (Screen D) — v2 structured records, binary objects, shares
-│   ├── Workflows (Screen E) — BPMN 2.0 definitions, executions, timeline, task completion
-│   └── API Explorer (Screen F) — Foundation OpenAPI 3.1 explorer (44 operations)
-├── Operations & Security
-│   ├── Security & Activity (Screen G) — Defense-in-depth, audit boundaries, session tracker
-│   └── Platform Settings — Gateway configuration, tokens, theme & language
-└── Future Extensions
-    └── Capabilities (Screen H) — Roadmap: Registry, Resolver, Trust, Composition
+├── Overview
+│   └── Platform Overview (Screen A)
+├── Backend Services
+│   ├── Foundation Services (Screen B)
+│   ├── Data & Resource Sharing (Screen D)
+│   └── Workflows & Tasks (Screen E)
+├── Applications
+│   └── Applications & Approvals (Screen C)
+├── Developers
+│   ├── Getting Started (Screen I)
+│   └── API Explorer & Examples (Screen F)
+├── Platform Operations
+│   ├── Security & Activity (Screen G)
+│   └── Platform Settings
+└── Coming Later (planned, no controls)
+    └── Hosting & Capabilities (Screen H)
 ```
 
 ---
@@ -70,13 +73,14 @@ Rosetta Console
 | Screen | Implemented Live UI Actions | Read-Only Views | Unavailable / Out-of-Scope APIs | Planned Roadmap |
 | --- | --- | --- | --- | --- |
 | **A. Overview** | Live/Preview mode switch, manual refresh, identity retry, quick action jumps | Process liveness (`/health`), dependency readiness (`/ready`), verified tenant ID and roles (`/v1/identity`); truthful missing/rejected/forbidden/unavailable/timeout states | Host CPU/RAM telemetry (omitted honestly; no fake metrics) | Platform-wide automated recovery |
-| **B. Core Services** | Detailed inspection drawer for each of the 5 Cores | Provider technology, protocols, port boundaries, verified health status | Direct upstream admin ports (kept private in internal Docker network) | Automated core component failover |
+| **B. Foundation Services** | Detailed inspection drawer for each of the 5 Cores | Provider technology, protocols, port boundaries, aggregate `GET /ready` status (no per-provider metrics) | Direct upstream admin ports (kept private in internal Docker network) | Automated core component failover |
 | **C. Applications** | App proposal (`POST /v1/applications`), two-person approval (`POST /v1/approvals` + `/approve`), state transition (`/state`) | App lookup (`GET /v1/applications/{appId}`), ETag, revision, JCS SHA-256 digest | Global application directory listing (excluded in v1 to protect tenant isolation) | Dynamic capability grant allocation |
-| **D. Resources** | Preview/session simulation only; v2 writes are disabled and rejected in LIVE | Mock/session record, object and share views; not a server listing | Live backend enrollment/delegation; unrestricted explorer and browser client secrets | Separately reviewed backend trust design for live v2 resource APIs |
-| **E. Workflows** | Start execution with `Idempotency-Key` (`POST /v1/workflows/executions`), complete task (`/complete`), cancel (`DELETE`) | Installed BPMN definitions (`/v1/workflows/definitions`), execution state & history | Public BPMN XML upload / script deployment (operator-installed only) | Multi-step user task assignment |
+| **D. Data & Resource Sharing** | Preview/session simulation only; v2 writes are disabled and rejected in LIVE | Mock/session record, object and share views; not a server listing | Live backend enrollment/delegation; unrestricted explorer and browser client secrets | Separately reviewed backend trust design for live v2 resource APIs |
+| **E. Workflows & Tasks** | Start execution with `Idempotency-Key` (`POST /v1/workflows/executions`), complete task (`/complete`), cancel (`DELETE`) | Installed BPMN definitions (`/v1/workflows/definitions`), execution state & history | Public BPMN XML upload / script deployment (operator-installed only) | Multi-step user task assignment |
 | **F. API Explorer** | Search endpoints, tag filtering, copy cURL, copy TypeScript fetch | Request/response schemas, HTTP status codes, auth requirements for all 44 operations | Interactive API playground with privileged tokens (kept client-side safe) | Capability OpenAPI runtime testing |
 | **G. Security** | Browser-generated session activity, labeled as diagnostics; uses the verified LIVE identity only | Architecture/audit guidance | No public protected audit API; actual private table is `app_private.audit` | Separate protected audit contract |
-| **H. Capabilities** | Specification file references and architecture comparison | Architectural review of Registry, Resolver, Cross-App Trust, Composition | Active runtime APIs (clearly badged as "Planned / Design-Only") | Full Layer-2 Capability Runtime |
+| **H. Hosting & Capabilities** | Specification file references and architecture comparison; visibly labelled planned | Architectural review of Registry, Resolver, Cross-App Trust, Composition and Rosetta Cloud hosting | Active runtime APIs (clearly badged as "Planned / Design-Only") | Full Layer-2 Capability Runtime |
+| **I. Getting Started** | Static prerequisites, enrollment link, executable example commands and cleanup guidance; never accepts or displays secrets | Links to product, developer, registration, authorization and API docs | No self-service enrollment or credential provisioning | Hosted onboarding and SDK quickstarts |
 
 ---
 

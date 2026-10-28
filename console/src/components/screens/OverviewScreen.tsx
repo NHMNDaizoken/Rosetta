@@ -111,11 +111,23 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
         {/* 5 Core Dependencies Readiness */}
         <StatCard
           title={t.overview.dependencyReadiness}
-          value={ready?.status === "ready" ? "READY (5/5)" : "CHECKING"}
-          subtitle="All adapters healthy"
+          value={
+            ready?.status === "ready"
+              ? "READY (5/5)"
+              : ready?.status === "not_ready"
+                ? "NOT READY"
+                : "CHECKING"
+          }
+          subtitle={
+            ready?.status === "ready"
+              ? "All configured dependencies responded"
+              : ready?.status === "not_ready"
+                ? "At least one dependency failed"
+                : "Awaiting /ready"
+          }
           icon={<Server className="w-4 h-4 text-teal-600 dark:text-teal-400" />}
           statusIndicator={
-            <StatusIndicator status={ready?.status === "ready" ? "ready" : "warning"} />
+            <StatusIndicator status={ready?.status === "ready" ? "ready" : ready?.status === "not_ready" ? "error" : "unknown"} />
           }
           badge={<Badge variant="teal">GET /ready</Badge>}
         />
@@ -221,7 +233,15 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
                       </span>
                     </div>
                   </div>
-                  <StatusIndicator status="ready" />
+                  <StatusIndicator
+                    status={
+                      ready?.status === "ready"
+                        ? "ready"
+                        : ready?.status === "not_ready"
+                          ? "error"
+                          : "unknown"
+                    }
+                  />
                 </div>
               </CardHeader>
               <CardContent className="py-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">

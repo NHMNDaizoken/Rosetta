@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Settings,
   Sparkles,
+  BookOpen,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
@@ -53,15 +54,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: t.nav.workspace,
       items: [
         { id: "overview", label: t.nav.overview, icon: LayoutDashboard },
-        { id: "cores", label: t.nav.cores, icon: Server },
-        { id: "applications", label: t.nav.applications, icon: Layers },
       ],
     },
     {
       label: t.nav.platform,
       items: [
+        { id: "cores", label: t.nav.cores, icon: Server },
         { id: "resources", label: t.nav.resources, icon: Database },
         { id: "workflows", label: t.nav.workflows, icon: GitBranch },
+      ],
+    },
+    {
+      label: t.nav.applicationsSection,
+      items: [
+        { id: "applications", label: t.nav.applications, icon: Layers },
+      ],
+    },
+    {
+      label: t.nav.developers,
+      items: [
+        { id: "getting-started", label: t.nav.gettingStarted, icon: BookOpen },
         { id: "api-explorer", label: t.nav.apiExplorer, icon: Terminal },
       ],
     },

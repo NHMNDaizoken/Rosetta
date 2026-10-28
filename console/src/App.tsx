@@ -11,28 +11,33 @@ import { CoreServicesScreen } from "./components/screens/CoreServicesScreen";
 import { ApplicationsScreen } from "./components/screens/ApplicationsScreen";
 import { AccessResourcesScreen } from "./components/screens/AccessResourcesScreen";
 import { WorkflowsScreen } from "./components/screens/WorkflowsScreen";
+import { GettingStartedScreen } from "./components/screens/GettingStartedScreen";
 import { ApiExplorerScreen } from "./components/screens/ApiExplorerScreen";
 import { SecurityActivityScreen } from "./components/screens/SecurityActivityScreen";
 import { PlatformSettingsScreen } from "./components/screens/PlatformSettingsScreen";
 import { CapabilitiesScreen } from "./components/screens/CapabilitiesScreen";
 import { MOCK_IDENTITY } from "./services/mockData";
 
+const VALID_SCREENS: ScreenId[] = [
+  "overview",
+  "cores",
+  "applications",
+  "resources",
+  "workflows",
+  "getting-started",
+  "api-explorer",
+  "security",
+  "settings",
+  "capabilities",
+];
+
+function screenFromHash(): ScreenId {
+  const hash = window.location.hash.replace(/^#\/?/, "") as ScreenId;
+  return VALID_SCREENS.includes(hash) ? hash : "overview";
+}
+
 export const AppContent: React.FC = () => {
-  const [currentScreen, setCurrentScreen] = useState<ScreenId>(() => {
-    const hash = window.location.hash.replace(/^#\/?/, "") as ScreenId;
-    const valid: ScreenId[] = [
-      "overview",
-      "cores",
-      "applications",
-      "resources",
-      "workflows",
-      "api-explorer",
-      "security",
-      "settings",
-      "capabilities",
-    ];
-    return valid.includes(hash) ? hash : "overview";
-  });
+  const [currentScreen, setCurrentScreen] = useState<ScreenId>(screenFromHash);
 
   const [isLiveMode, setIsLiveMode] = useState<boolean>(api.getLiveMode());
   const [identityState, setIdentityState] = useState<IdentityState>(() =>
@@ -45,18 +50,7 @@ export const AppContent: React.FC = () => {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace(/^#\/?/, "") as ScreenId;
-      const valid: ScreenId[] = [
-        "overview",
-        "cores",
-        "applications",
-        "resources",
-        "workflows",
-        "api-explorer",
-        "security",
-        "settings",
-        "capabilities",
-      ];
-      if (valid.includes(hash)) {
+      if (VALID_SCREENS.includes(hash)) {
         setCurrentScreen(hash);
       }
     };
@@ -130,6 +124,8 @@ export const AppContent: React.FC = () => {
         return <AccessResourcesScreen key={modeKey} />;
       case "workflows":
         return <WorkflowsScreen key={modeKey} />;
+      case "getting-started":
+        return <GettingStartedScreen />;
       case "api-explorer":
         return <ApiExplorerScreen />;
       case "security":
