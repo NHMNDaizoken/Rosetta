@@ -36,7 +36,8 @@ export function createAuthorizer(config, fetcher = fetch) {
       const claims = await response.json();
       const identity = validateIdentity(claims, config.issuer);
       return withContext ? { ...identity, issuer: config.issuer,
-        clientId: typeof claims.client_id === "string" && claims.client_id.length <= 255 ? claims.client_id : undefined } : identity;
+        clientId: typeof claims.client_id === "string" && claims.client_id.length <= 255 ? claims.client_id : undefined,
+        credentialExpiresAt: claims.exp * 1000 } : identity;
     } catch (error) {
       if (error instanceof HttpError) throw error;
       throw new HttpError(503, "identity_unavailable");

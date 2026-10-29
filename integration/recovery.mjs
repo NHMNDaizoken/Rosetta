@@ -66,7 +66,7 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     }
     assert.ok(ready, "Isolated PostgreSQL completed initialization");
     await docker(["exec", target, "createdb", "-U", "rosetta_admin", "recovered"]);
-    await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-c", "CREATE ROLE rosetta_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_owner NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_resource_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_audit_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_capability_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_trust_api NOLOGIN NOBYPASSRLS;"]);
+    await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-c", "CREATE ROLE rosetta_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_owner NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_resource_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_audit_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_capability_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_trust_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_execution_api NOLOGIN NOBYPASSRLS;"]);
     const dump = spawn("docker", ["compose", "exec", "-T", "database", "pg_dump", "-U", "rosetta_admin", "--format=custom", "rosetta_data"], { stdio: ["ignore", "pipe", "pipe"] });
     const restore = spawn("docker", ["exec", "-i", target, "pg_restore", "-U", "rosetta_admin", "--exit-on-error", "--dbname=recovered"], { stdio: ["pipe", "ignore", "pipe"] });
     const dumpCode = closeCode(dump);
@@ -108,6 +108,9 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     const trustAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
       "SELECT n.nspowner::regrole, bool_and(c.relrowsecurity AND c.relforcerowsecurity) FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='trust_private' AND c.relkind='r' GROUP BY n.nspowner; SELECT has_schema_privilege('rosetta_api','trust_private','USAGE'),has_table_privilege('rosetta_app_api','trust_private.grants','INSERT');"]);
     assert.equal(trustAcl.stdout.trim(),'rosetta_app_owner|t\nf|f','Restore preserves Trust ownership, forced RLS and private ACLs');
+    const executionAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
+      "SELECT n.nspowner::regrole,c.relrowsecurity AND c.relforcerowsecurity FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='execution_private' AND c.relname='executions'; SELECT has_function_privilege('rosetta_execution_api','core.execution_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_api','core.execution_command(text,jsonb)','EXECUTE'),has_schema_privilege('rosetta_execution_api','execution_private','USAGE');"]);
+    assert.equal(executionAcl.stdout.trim(),'rosetta_app_owner|t\nt|f|f','Restore preserves private execution authority and forced RLS');
     // The capability suite supplies real OIDC-enrolled live grants while its
     // fixtures still exist. This offline restore verifies persisted authority;
     // issuer authentication itself is exercised against Keycloak in that suite.

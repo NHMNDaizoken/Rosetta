@@ -272,7 +272,7 @@ def self_test(spec):
 
 
 def capability_contract(cases=None):
-    """Validate local extension schemas and real Trust bodies without logging them."""
+    """Validate local extension schemas and observed bodies without logging them."""
     contract = ROOT / 'docs/contracts/capability-api-v1.openapi.json'
     spec = json.loads(contract.read_text(encoding='utf-8'))
     if cases is None:
@@ -296,7 +296,7 @@ def main():
     if '--capability-runtime' in sys.argv:
         batch = json.load(sys.stdin)
         count = capability_contract(batch['observations'])
-        print(f'Capability contract: {count} real Trust request/response schema cases passed')
+        print(f'Capability contract: {count} observed schema cases passed')
     elif '--runtime' in sys.argv:
         batch = json.load(sys.stdin)
         count, covered = validate_observations(spec, batch['observations'], batch['suite'])

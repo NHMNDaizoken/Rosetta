@@ -69,6 +69,7 @@ services:
       - ./infra/postgres/007-direct-trust.sql:/migrations/007-direct-trust.sql:ro
       - ./infra/postgres/008-trust-lifecycle.sql:/migrations/008-trust-lifecycle.sql:ro
       - ./infra/postgres/009-authorized-discovery.sql:/migrations/009-authorized-discovery.sql:ro
+      - ./infra/postgres/010-capability-execution.sql:/migrations/010-capability-execution.sql:ro
     depends_on:
       database:
         condition: service_healthy

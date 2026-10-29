@@ -50,6 +50,8 @@ jobs:
         run: npm test
       - name: Verify guarded provider transport with host OpenSSL
         run: npm run test:provider-network
+      - name: Verify fresh private execution authority and audit rollback
+        run: npm run test:execution-ledger
       - name: Validate Compose configuration
         run: |
           npm run setup
