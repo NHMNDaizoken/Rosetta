@@ -22,6 +22,7 @@
     "test:capabilities": "node --env-file=.env --test integration/capabilities.mjs",
     "test:audit": "node --env-file=.env --test integration/audit.mjs",
     "test:flowable-worker": "node --test integration/flowable-worker.mjs",
+    "test:provider-network": "node --test integration/provider-network.mjs",
     "test:console-container": "node scripts/check-console-container.mjs",
     "console": "npm --prefix console run dev",
     "console:build": "npm --prefix console run build",

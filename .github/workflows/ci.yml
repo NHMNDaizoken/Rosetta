@@ -48,6 +48,8 @@ jobs:
           npm run test:contract-validator
       - name: Test HTTP contract and startup validation
         run: npm test
+      - name: Verify guarded provider transport with host OpenSSL
+        run: npm run test:provider-network
       - name: Validate Compose configuration
         run: |
           npm run setup

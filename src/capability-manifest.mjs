@@ -86,6 +86,16 @@ export function validateManifest(manifest, expected = {}) {
   return issues;
 }
 
+// Reuses the manifest profile so runtime payload validation never accepts
+// schema keywords that registration would have rejected.
+export function validatePayloadSchema(schema) {
+  const issues = [];
+  validateSchema(schema, "/", 1, { nodes: 0 }, (path, code, message) => {
+    if (issues.length < 256) issues.push({ path, code, message });
+  });
+  return issues;
+}
+
 export function assertManifest(manifest, expected = {}) {
   const issues = validateManifest(manifest, expected);
   if (issues.length) throw new ManifestValidationError(issues);

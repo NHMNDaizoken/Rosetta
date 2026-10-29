@@ -57,6 +57,16 @@ is fetched into memory, not vendored; SHA-256
 `da01ba28852cac0de53893797cb8d1942bc3b05084f526dcc216717dec314ed0`
 pins its reviewed bytes. CI requires HTTPS access and fails on a digest change.
 
+`integration/provider-network.mjs` uses the host `openssl` CLI only to generate
+ephemeral self-signed certificates for loopback transport tests. It is not a
+Core runtime dependency, is not installed in the Core image, and no generated
+key is committed. The observed host tool was OpenSSL 3.6.1 (Strawberry Perl
+distribution on the development machine); the Ubuntu 24.04 CI runner supplies
+its own OpenSSL 3.x. OpenSSL 3.x is Apache-2.0
+([upstream](https://github.com/openssl/openssl),
+[license](https://www.openssl.org/source/license.html)); preserve its notices
+only if the tool is later redistributed.
+
 The Capability v1 documentation was checked using the already installed Python 3.14.3 environment ([PSF terms and bundled notices](https://docs.python.org/3/license.html)), jsonschema 4.23.0 ([MIT](https://github.com/python-jsonschema/jsonschema/blob/v4.23.0/COPYING)), [referencing 0.37.0](https://pypi.org/project/referencing/0.37.0/), [attrs 25.4.0](https://pypi.org/project/attrs/25.4.0/), [rpds-py 0.30.0](https://pypi.org/project/rpds-py/0.30.0/) and [jsonschema-specifications 2025.9.1](https://pypi.org/project/jsonschema-specifications/2025.9.1/) (each reports MIT in its installed distribution metadata). These are host validation tools, not new Rosetta runtime/package dependencies, vendored sources or shipped binaries. No packages were installed for that earlier documentation task. Preserve each upstream distribution license if these tools are later bundled. The official OpenAPI validation schema was fetched into memory from its standards publisher, not copied into Rosetta.
 
 ## Rosetta Console frontend package dependencies
