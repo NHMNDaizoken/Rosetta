@@ -4,33 +4,18 @@
 // per run with the host OpenSSL CLI and never committed; the Core image does not
 // need OpenSSL and these tests are not part of the in-container unit suite.
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { createServer as createHttpServer } from "node:https";
 import { createServer as createTcpServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { createProviderNetwork, ProviderNetworkError } from "../src/provider-network.mjs";
+import { generateTls, removeTlsDirectory } from "./fixtures/tls.mjs";
 
 const TICKET = "a".repeat(43);
 const OPERATION = "11111111-1111-4111-8111-111111111111";
 const failure = (code) => (error) => error instanceof ProviderNetworkError && error.code === code;
-
-function generateTls(directory, name, alternative) {
-  const keyPath = join(directory, `${name}.key.pem`);
-  const certPath = join(directory, `${name}.cert.pem`);
-  const configPath = join(directory, `${name}.cnf`);
-  writeFileSync(configPath, "[req]\ndistinguished_name=dn\nprompt=no\n[dn]\nCN=localhost\n");
-  const environment = { ...process.env };
-  delete environment.OPENSSL_CONF;
-  const result = spawnSync("openssl", ["req", "-x509", "-newkey", "rsa:2048", "-sha256", "-days", "1", "-nodes",
-    "-config", configPath, "-keyout", keyPath, "-out", certPath,
-    "-subj", `/CN=${alternative}`, "-addext", `subjectAltName=${alternative}`], { encoding: "utf8", env: environment });
-  if (result.error) throw new Error(`host OpenSSL is required for transport tests: ${result.error.message}`);
-  if (result.status !== 0) throw new Error(`openssl failed: ${result.stderr}`);
-  return { key: readFileSync(keyPath, "utf8"), cert: readFileSync(certPath, "utf8") };
-}
 
 async function startTlsServer(tlsOptions) {
   const sockets = new Set();
@@ -88,6 +73,7 @@ async function startTlsServer(tlsOptions) {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   return {
     requests,
+    connections: () => sockets.size,
     origin: `https://localhost:${server.address().port}`,
     close: async () => {
       for (const timer of timers) clearInterval(timer);
@@ -106,7 +92,7 @@ async function withTls(run) {
       wrong: generateTls(directory, "wrong", "DNS:wrong.local"),
       loopback: async () => [{ address: "127.0.0.1", family: 4 }],
     });
-  } finally { rmSync(directory, { recursive: true, force: true }); }
+  } finally { removeTlsDirectory(directory); }
 }
 
 test("real TLS transport uses the provider protocol headers and pins the first address", async () => {
@@ -156,6 +142,23 @@ test("redirects are rejected without forwarding credentials or following", async
       await assert.rejects(network.postJson(service.origin, "/redirect", {}, { ticket: TICKET, operationId: OPERATION }),
         failure("redirect"));
       assert.deepEqual(service.requests.map((entry) => entry.url), ["/redirect"]);
+    } finally { await service.close(); }
+  });
+});
+
+test("the durable dispatch guard runs after resolution and before any socket, within the total deadline", async () => {
+  await withTls(async ({ tls, loopback }) => {
+    const service = await startTlsServer({ key: tls.key, cert: tls.cert });
+    let resolved = false;
+    const network = createProviderNetwork({ origins: [], testOrigins: [service.origin], testAddresses: ["127.0.0.1"], allowTestNetwork: true,
+      ca: tls.cert, resolve: async () => { resolved = true; return loopback(); } });
+    try {
+      await assert.rejects(network.postJson(service.origin, "/echo", {}, { ticket: TICKET, operationId: OPERATION,
+        beforeConnect: async () => { assert.equal(resolved, true); throw new Error("synthetic audit failure"); } }), /synthetic audit failure/);
+      assert.equal(service.connections(), 0);
+      await assert.rejects(network.postJson(service.origin, "/echo", {}, { ticket: TICKET, operationId: OPERATION, timeoutMs: 100,
+        beforeConnect: () => new Promise(resolve => setTimeout(resolve, 200)) }), failure("timeout"));
+      assert.equal(service.connections(), 0);
     } finally { await service.close(); }
   });
 });

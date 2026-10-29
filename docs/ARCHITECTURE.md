@@ -9,8 +9,10 @@ Start with the [architecture index](index.md) and
 This consolidation accounts for Application Authority, v2 ownership/sharing,
 Foundation OpenAPI and the partially connected Console. It proposes external
 and Rosetta-hosted application models while preserving optional Verifiable
-Capability Composition. Hosting, projects, deployments and Capability Runtime
-are not implemented or approved by this documentation.
+Capability Composition. Hosting, projects, deployments and composition
+are not implemented or approved by this documentation. The separately authorized
+[C4A runtime](CAPABILITY_EXECUTION.md) implements only opt-in guarded single-capability
+execution, with Flowable as its sole engine and technical providers outside Core.
 
 The [catalog](architecture/LAYER1_CORE_CATALOG.md) owns implementation/evidence;
 [ownership](architecture/RESOURCE_OWNERSHIP.md),

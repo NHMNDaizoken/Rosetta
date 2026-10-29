@@ -2,8 +2,9 @@
 
 Current status: Application Registration, C1 Registry and bounded C2 direct grant
 lifecycle, authorized discovery and a live internal eligibility predicate are implemented.
-C3 is an offline bounded resolver; A1 Audit uses the trusted-DBA model. Human delegation and
-C4 provider execution/composition remain unimplemented. See [Registry](CAPABILITY_REGISTRY.md)
+C3 is an offline bounded resolver; A1 Audit uses the trusted-DBA model. Opt-in
+[C4A single-capability execution](CAPABILITY_EXECUTION.md) is implemented and disabled
+by default; human delegation and composition remain unimplemented. See [Registry](CAPABILITY_REGISTRY.md)
 and [direct Trust](CAPABILITY_DIRECT_TRUST.md), which supersede historical subset
 limits below. Hosting remains proposed.
 

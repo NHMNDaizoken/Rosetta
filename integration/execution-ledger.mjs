@@ -80,7 +80,7 @@ before(async () => {
   assert.ok(ready, "fresh disposable database ready");
   await sql("CREATE ROLE rosetta_data NOLOGIN NOINHERIT; ALTER DATABASE rosetta_data OWNER TO rosetta_data;");
   await docker("exec", name, "sh", "/migrations/migrate.sh", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1");
-  assert.equal(await sql("SELECT max(version) FROM core.schema_migrations;"), "10");
+  assert.equal(await sql("SELECT max(version) FROM core.schema_migrations;"), "11");
   await sql(`INSERT INTO app_private.principals(tenant_id,issuer,subject,management_client,permissions) VALUES
     (${q(tenant)},${q(issuer)},'owner','management',ARRAY['applications.register','capabilities.write','trust.write']),
     (${q(tenant)},${q(issuer)},'approver','management',ARRAY['applications.approve','capabilities.approve','trust.approve']),
@@ -154,6 +154,11 @@ test("reservations recheck exact authority, serialize identical keys and reject 
   assert.equal(results.filter(result => result.status === 202).length, 1);
   assert.equal(new Set(results.map(result => result.value.executionId)).size, 1);
   assert.equal((await reserve(key, { value: "changed" })).error, "idempotency_conflict");
+  const retainedKey = randomUUID(), retained = (await reserve(retainedKey)).value;
+  await sql(`UPDATE execution_private.executions SET created_at=clock_timestamp()-interval '25 hours',
+    result_expires_at=clock_timestamp()-interval '1 hour' WHERE execution_id=${q(retained.executionId)};`);
+  assert.equal((await reserve(retainedKey)).error, "result_expired", "expired result keeps its idempotency tombstone");
+  assert.equal(await sql(`SELECT count(*) FROM execution_private.executions WHERE execution_id=${q(retained.executionId)};`), "1");
   const e = results[0].value;
   assert.equal((await command("get", { executionId: e.executionId }, claims("other-service", "other"))).status, 404);
   assert.equal((await command("get", { executionId: e.executionId }, claims("foreign-service", "foreign", "tenant-b"))).status, 404);
@@ -184,6 +189,11 @@ test("tickets require exact provider, original memory proof, input and single at
 });
 
 test("revocation, expiry, forged correlation, audit outage and restart stop future dispatch", async () => {
+  for (const state of ["failed", "timed_out"]) {
+    const untouched = (await reserve()).value;
+    assert.equal((await command("finish", { executionId: untouched.executionId, state, error: "synthetic_stop" })).value.state, state);
+    assert.equal(await sql(`SELECT ticket_hash IS NULL AND ticket_expires_at IS NULL FROM execution_private.executions WHERE execution_id=${q(untouched.executionId)};`), "t");
+  }
   const first = await prepared();
   assert.equal((await command("dispatch", { executionId: first.e.executionId, jobId: "forged" }, withProof(first.e))).error, "dispatch_not_available");
   assert.equal((await command("dispatch", { executionId: first.e.executionId, jobId: first.correlation.jobId })).error, "auth_required");
@@ -224,5 +234,5 @@ test("revocation, expiry, forged correlation, audit outage and restart stop futu
   assert.equal(await sql("SELECT relrowsecurity AND relforcerowsecurity FROM pg_class WHERE oid='execution_private.executions'::regclass;"), "t");
   assert.equal(await sql("SELECT count(*) FROM information_schema.columns WHERE table_schema='execution_private' AND column_name IN ('token','credential','authorization','ticket');"), "0");
   const repeat = await docker("exec", name, "sh", "/migrations/migrate.sh", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1");
-  assert.match(repeat.stdout, /Migration 010 already applied/);
+  assert.match(repeat.stdout, /Migration 011 already applied/);
 });

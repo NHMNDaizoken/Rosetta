@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { before, after, test } from "node:test";
 import { promisify } from "node:util";
 import { verifyContracts } from "./contract.mjs";
+import { createRuntimeFixture } from "./capability-runtime-fixture.mjs";
 
 const base = process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
 const issuer = `${base}/identity/realms/rosetta`;
@@ -20,6 +21,7 @@ const sql = text => run("compose", "exec", "-T", "database", "psql", "-U", "rose
 const q = value => `'${String(value).replaceAll("'", "''")}'`;
 let adminToken, owner, approver, publisher, stranger, foreign, foreignApprover, consumer, foreignConsumer, app, appEtag, capabilityId;
 const visibility = {};
+let c4aFixture, c4aProvider, c4aConsumer, c4aReference, c4aGrant;
 
 async function operatorToken() {
   const deadline = Date.now() + 30000;
@@ -98,7 +100,8 @@ async function approvalFor(value, decision = "approve", patch = {}) {
   });
 }
 
-async function backend(label, principal = owner, administrator = approver, tenant = "tenant-a", writer = true) {
+async function backend(label, principal = owner, administrator = approver, tenant = "tenant-a", writer = true, providerOrigin) {
+  adminToken = await operatorToken();
   const clientId = `${prefix}-${label}`;
   const template = (await (await admin("clients?clientId=tenant-a")).json())[0];
   const source = await (await admin(`clients/${template.id}`)).json();
@@ -118,7 +121,7 @@ async function backend(label, principal = owner, administrator = approver, tenan
   const issued = await fetch(`${issuer}/protocol/openid-connect/token`, { method: "POST", body: new URLSearchParams({ grant_type: "client_credentials", client_id: clientId, client_secret: secret }) });
   assert.equal(issued.status, 200); const token = (await issued.json()).access_token;
   assert.equal((await api("/v1/identity", token)).status, 200, "issuer verifies backend tenant membership");
-  const body = { displayName: "Technical trust consumer", oauthClientId: clientId, providerOrigin: `https://${clientId}.example.invalid` };
+  const body = { displayName: "Technical trust consumer", oauthClientId: clientId, providerOrigin: providerOrigin ?? `https://${clientId}.example.invalid` };
   await sql(`INSERT INTO app_private.enrollments(tenant_id,issuer,oauth_client_id,owner_subject,provider_origin,resource_subject)
     VALUES(${q(tenant)},${q(issuer)},${q(clientId)},${q(principal.id)},${q(body.providerOrigin)},${q(subject)});`);
   const created = await api("/v1/applications", principal, body); assert.equal(created.status, 201); const pending = await created.json();
@@ -230,15 +233,26 @@ before(async () => {
 
 after(async () => {
   adminToken = await operatorToken();
+  if (c4aFixture) {
+    if (c4aProvider) {
+      const rows = await sql(`SELECT coalesce(jsonb_agg(engine_process_id) FILTER (WHERE engine_process_id IS NOT NULL),'[]'::jsonb) FROM execution_private.executions WHERE provider_app_id=${q(c4aProvider.app.appId)};`);
+      for (const processId of JSON.parse(rows.stdout.trim())) {
+        await c4aFixture.engine(`/service/runtime/process-instances/${encodeURIComponent(processId)}`, undefined, "DELETE").catch(() => {});
+        await c4aFixture.engine(`/service/history/historic-process-instances/${encodeURIComponent(processId)}`, undefined, "DELETE").catch(() => {});
+      }
+    }
+    await c4aFixture.close();
+  }
   if (users.length) {
     const ids = users.map(q).join(",");
     const apps = `SELECT app_id FROM app_private.applications WHERE owner_subject IN (${ids})`;
-    await sql(`UPDATE trust_private.grants SET activation_approval_id=NULL WHERE provider_app_id IN (${apps});
+    await sql(`DELETE FROM execution_private.executions WHERE provider_app_id IN (${apps}) OR consumer_app_id IN (${apps});
+      UPDATE trust_private.grants SET activation_approval_id=NULL WHERE provider_app_id IN (${apps});
       DELETE FROM trust_private.approvals WHERE grant_id IN (SELECT grant_id FROM trust_private.grants WHERE provider_app_id IN (${apps}));
       DELETE FROM trust_private.grants WHERE provider_app_id IN (${apps});
       DELETE FROM app_private.capability_publication_approvals WHERE requester_app_id IN (${apps}) OR version_id IN (SELECT version_id FROM app_private.capability_versions WHERE provider_app_id IN (${apps}));
       DELETE FROM app_private.capability_versions WHERE provider_app_id IN (${apps});
-      DELETE FROM app_private.audit WHERE subject IN (${ids});
+      DELETE FROM app_private.audit WHERE subject IN (${ids}) OR actor_app_id IN (${apps});
       DELETE FROM app_private.approvals WHERE app_id IN (${apps}); DELETE FROM app_private.applications WHERE owner_subject IN (${ids});
       DELETE FROM app_private.enrollments WHERE owner_subject IN (${ids}); DELETE FROM app_private.principals WHERE subject IN (${ids});`);
   }
@@ -622,6 +636,319 @@ test("isolated backup/restore preserves real OIDC grant decisions and revocation
   });
   assert.match(restored.stdout, /Trust restore: 3 live grants/);
   console.log("Live OIDC Trust backup/restore verified active, revoked and expired grants");
+});
+
+const executionBody = (value = "héllo 🙂") => ({ target: { kind: "capability", capability: c4aReference }, input: { value } });
+async function c4aApi(path, who = c4aConsumer, body, headers = {}, method) {
+  const result = await c4aFixture.api(path, who, body, headers, method);
+  if (result.body?.executionId && result.body.target?.kind === "capability") {
+    trustCases.push({ schema: "Execution", value: result.body });
+    if (body && [200, 202].includes(result.status) && path === "/v1/capability-executions") trustCases.push({ schema: "SingleCapabilityExecutionCreate", value: body });
+  }
+  if (path === "/v1/capability-authorizations/introspect" && result.status === 200) trustCases.push({ schema: "TicketResult", value: result.body });
+  return result;
+}
+async function c4aStart(body = executionBody(), key = crypto.randomUUID(), who = c4aConsumer) {
+  return c4aApi("/v1/capability-executions", who, body, { "Idempotency-Key": key });
+}
+async function c4aWait(executionId, expected) {
+  const deadline = Date.now() + 15000;
+  let result;
+  do {
+    result = await c4aApi(`/v1/capability-executions/${executionId}`);
+    if (result.status === 200 && expected.includes(result.body.state)) return result.body;
+    await new Promise(resolve => setTimeout(resolve, 100));
+  } while (Date.now() < deadline);
+  assert.fail(`C4A did not reach ${expected.join("/")} (HTTP ${result?.status}, state ${result?.body?.state ?? "none"})`);
+}
+async function c4aProviderWait(predicate) {
+  const deadline = Date.now() + 10000;
+  do {
+    const state = (await c4aFixture.providerState()).body;
+    if (predicate(state)) return state;
+    await new Promise(resolve => setTimeout(resolve, 100));
+  } while (Date.now() < deadline);
+  assert.fail("Technical provider did not reach the expected state");
+}
+async function c4aCreateGrant(reference = c4aReference, provider = c4aProvider, receiver = c4aConsumer) {
+  const response = await api("/v1/trust/grants", owner, { ...grantBody({ manifest: { requiredPermissions: [`urn:rosetta:permission:${provider.app.appId}:invoke`] } }, ["invoke"]),
+    providerAppId: provider.app.appId, consumerAppId: receiver.app.appId, capabilities: [reference], subjectIds: [receiver.subject] });
+  assert.equal(response.status, 201); const proposed = { ...await response.json(), etag: response.headers.get("etag") };
+  const decision = await grantDecision(proposed, approver, { requesterAppId: provider.app.appId }); assert.equal(decision.status, 201);
+  const active = await activate(proposed, (await decision.json()).approvalId); assert.equal(active.status, 200);
+  return { ...await active.json(), etag: active.headers.get("etag") };
+}
+async function c4aPublish(provider, version = "1.0.0") {
+  const id = `urn:rosetta:capability:${provider.app.appId}:guarded-echo`;
+  const body = { ...structuredClone(fixture), capabilityId: id, providerAppId: provider.app.appId, version, timeoutMs: 10000,
+    requiredPermissions: [`urn:rosetta:permission:${provider.app.appId}:invoke`] };
+  const created = await api(`/v1/capabilities/${encodeURIComponent(id)}/versions`, owner, body); assert.equal(created.status, 201);
+  const value = await created.json(), path = `/v1/capabilities/${encodeURIComponent(id)}/versions/${version}`, etag = created.headers.get("etag");
+  assert.equal((await api(`${path}/validate`, owner, {}, { "If-Match": etag })).status, 200);
+  const decision = await api("/v1/approvals", approver, { resourceType: "capability-version", resourceId: `${id}@${version}`, resourceDigest: value.digest,
+    resourceRevision: value.revision, requesterSubject: owner.id, requesterAppId: provider.app.appId, decision: "approve", expiresAt: new Date(Date.now() + 120000).toISOString() });
+  assert.equal(decision.status, 201);
+  const published = await api(`${path}/publish`, publisher, { approvalId: (await decision.json()).approvalId }, { "If-Match": etag });
+  assert.equal(published.status, 200);
+  return { reference: { capabilityId: id, version, manifestDigest: value.digest }, etag: published.headers.get("etag"), path };
+}
+
+test("C4A real two-application OIDC invocation redeems a ticket and completes the exact Flowable process", { timeout: 120000 }, async () => {
+  const origin = `https://${prefix}-c4a-provider.example.invalid:8443`;
+  c4aProvider = await backend("c4a-provider", owner, approver, "tenant-a", true, origin);
+  c4aConsumer = await backend("c4a-consumer");
+  assert.notEqual(c4aProvider.subject, c4aConsumer.subject);
+  c4aReference = (await c4aPublish(c4aProvider)).reference;
+  c4aGrant = await c4aCreateGrant();
+  assert.equal((await api("/v1/capability-executions", c4aConsumer, executionBody(), { "Idempotency-Key": crypto.randomUUID() })).status, 404, "normal gateway still has execution disabled");
+  c4aFixture = await createRuntimeFixture({ origin, token: c4aProvider.token, providerAppId: c4aProvider.app.appId,
+    capability: c4aReference, tenantId: "tenant-a" });
+  const foreignProcess = await c4aFixture.forgeJob("tenant-b");
+  assert.equal((await c4aFixture.engine(`/service/runtime/process-instances/${foreignProcess}`)).body.tenantId, "tenant-b");
+  await c4aFixture.control("resume");
+  assert.equal((await c4aFixture.control("tick")).body.quarantined, 1, "global acquisition quarantines a foreign, unreserved job");
+  assert.equal((await c4aFixture.providerState()).body.received, 0);
+  await c4aFixture.mode("hold-redemption");
+  const started = await c4aStart(); assert.equal(started.status, 202);
+  assert.equal(started.headers.location, `/v1/capability-executions/${started.body.executionId}`);
+  const held = await c4aProviderWait(state => state.pending === 1);
+  const redemption = { ticket: held.last.ticket, invocationId: held.last.invocationId, inputDigest: held.last.inputDigest };
+  assert.deepEqual((await c4aApi("/v1/capability-authorizations/introspect", consumer, redemption)).body, { active: false }, "wrong provider gets no context");
+  assert.deepEqual((await c4aApi("/v1/capability-authorizations/introspect", c4aProvider, { ...redemption, inputDigest: `sha256:${"0".repeat(64)}` })).body, { active: false });
+  await c4aFixture.mode("normal");
+  const completed = await c4aWait(started.body.executionId, ["succeeded"]);
+  assert.deepEqual(completed.output, executionBody().input);
+  const state = (await c4aFixture.providerState()).body;
+  assert.equal(state.count, 1); assert.equal(state.received, 1);
+  assert.equal(state.last.ticket === c4aConsumer.token || state.last.ticket === c4aProvider.token, false, "only an opaque ticket reaches provider");
+  trustCases.push({ schema: "TicketResult", value: state.last.authorization });
+  assert.equal(state.last.authorization.context.subject, c4aConsumer.subject);
+  assert.equal(state.last.authorization.context.actorAppId, c4aConsumer.app.appId);
+  assert.equal(state.last.authorization.context.operationId, completed.executionId);
+  assert.deepEqual((await c4aApi("/v1/capability-authorizations/introspect", c4aProvider, redemption)).body, { active: false }, "single-use replay denied");
+  assert.equal((await c4aApi(`/v1/capability-executions/${completed.executionId}`, consumer)).status, 404);
+  assert.equal((await c4aApi(`/v1/capability-executions/${completed.executionId}`, foreignConsumer)).status, 404);
+  const stored = JSON.parse((await sql(`SELECT to_jsonb(e) FROM execution_private.executions e WHERE execution_id=${q(completed.executionId)};`)).stdout.trim());
+  assert.equal(JSON.stringify(stored).includes(c4aConsumer.token) || JSON.stringify(stored).includes(held.last.ticket), false);
+  assert.equal((await api("/v1/workflows/executions", c4aConsumer, { definitionId: stored.engine_definition_id }, { "Idempotency-Key": crypto.randomUUID() })).status, 404);
+  assert.equal((await api(`/v1/workflows/executions/${stored.engine_process_id}`, c4aConsumer)).status, 404);
+  const engineDeadline = Date.now() + 5000; let history;
+  do { history = await c4aFixture.engine(`/service/history/historic-process-instances/${stored.engine_process_id}`); if (history.body?.endTime) break; await new Promise(resolve => setTimeout(resolve, 100)); } while (Date.now() < engineDeadline);
+  assert.ok(history.body.endTime); assert.equal(history.body.tenantId, "tenant-a");
+  assert.equal(history.body.processDefinitionId, stored.engine_definition_id);
+  const audit = await sql(`SELECT count(*) FROM app_private.audit WHERE resource_id=${q(completed.executionId)} AND event IN ('execution.accepted','invocation.dispatched','authorization.redeemed','execution.completed');`);
+  assert.equal(audit.stdout.trim(), "4");
+  console.log(`C4A proof: ${JSON.stringify({ executionId: completed.executionId, processId: stored.engine_process_id, definitionId: stored.engine_definition_id, providerExecutions: state.count, engineEnded: true })}`);
+});
+
+test("C4A rejects untrusted bodies and isolated callers; concurrent replays invoke the provider once", { timeout: 60000 }, async () => {
+  const before = (await c4aFixture.providerState()).body;
+  assert.equal((await c4aStart(executionBody(), crypto.randomUUID(), consumer)).status, 403);
+  assert.equal((await c4aStart(executionBody(), crypto.randomUUID(), foreignConsumer)).status, 404);
+  assert.equal((await c4aStart({ ...executionBody(), input: { value: 12 } })).status, 422);
+  assert.equal((await c4aStart({ ...executionBody(), tenantId: "tenant-b" })).status, 400);
+  const duplicate = `{"target":${JSON.stringify(executionBody().target)},"input":{"value":"a"},"input":{"value":"b"}}`;
+  assert.equal((await c4aApi("/v1/capability-executions", c4aConsumer, duplicate, { "Idempotency-Key": crypto.randomUUID() })).status, 400);
+  assert.equal((await c4aApi("/v1/capability-executions", c4aConsumer, { ...executionBody(), input: { value: "x".repeat(65536) } }, { "Idempotency-Key": crypto.randomUUID() })).status, 413);
+  assert.equal((await c4aFixture.providerState()).body.received, before.received);
+  const key = crypto.randomUUID();
+  const starts = await Promise.all(Array.from({ length: 4 }, () => c4aStart(executionBody("concurrent"), key)));
+  assert.equal(starts.filter(result => result.status === 202).length, 1);
+  assert.equal(starts.every(result => [200, 202].includes(result.status)), true);
+  assert.equal(new Set(starts.map(result => result.body.executionId)).size, 1);
+  await c4aWait(starts[0].body.executionId, ["succeeded"]);
+  assert.equal((await c4aStart(executionBody("conflict"), key)).status, 409);
+  assert.equal((await c4aFixture.providerState()).body.count, before.count + 1);
+});
+
+async function c4aFaultAudit(event, action) {
+  const name = `c4a_fault_${randomBytes(6).toString("hex")}`;
+  await sql(`CREATE FUNCTION public.${name}() RETURNS trigger LANGUAGE plpgsql AS $f$ BEGIN
+    IF NEW.event=${q(event)} AND NEW.actor_app_id=${q(c4aConsumer.app.appId)}::uuid THEN RAISE EXCEPTION 'synthetic audit outage'; END IF; RETURN NEW; END $f$;
+    CREATE TRIGGER ${name} BEFORE INSERT ON app_private.audit FOR EACH ROW EXECUTE FUNCTION public.${name}();`);
+  try { return await action(); }
+  finally { await sql(`DROP TRIGGER IF EXISTS ${name} ON app_private.audit; DROP FUNCTION IF EXISTS public.${name}();`); }
+}
+async function c4aStored(executionId) {
+  return JSON.parse((await sql(`SELECT to_jsonb(e) FROM execution_private.executions e WHERE execution_id=${q(executionId)};`)).stdout.trim());
+}
+async function c4aStoredWait(executionId, states) {
+  const deadline = Date.now() + 10000; let row;
+  do { row = await c4aStored(executionId); if (states.includes(row.state)) return row; await new Promise(resolve => setTimeout(resolve, 100)); } while (Date.now() < deadline);
+  assert.fail(`Private execution did not reach ${states.join("/")}; state ${row?.state}`);
+}
+
+test("C4A validates provider output, requires redemption and never retries unavailable or ambiguous attempts", { timeout: 120000 }, async () => {
+  for (const [mode, expectedState, expectedError, expectedEffects] of [
+    ["offline", "failed", "provider_connection_refused", 0],
+    ["unavailable", "failed", "provider_failed", 0],
+    ["no-redemption", "failed", "provider_authorization_required", 0],
+    ["invalid-output", "failed", "invalid_execution_output", 1],
+    ["invalid-json", "failed", "invalid_execution_output", 1],
+    ["lost-response", "outcome_unknown", ["provider_response_failed", "provider_transport_error"], 1],
+  ]) {
+    const before = (await c4aFixture.providerState()).body;
+    await c4aFixture.mode(mode);
+    const key = crypto.randomUUID(), body = executionBody(mode);
+    const accepted = await c4aStart(body, key); assert.equal(accepted.status, 202, mode);
+    const result = await c4aWait(accepted.body.executionId, [expectedState]);
+    assert.equal([expectedError].flat().includes(result.error), true, mode);
+    assert.equal(Object.hasOwn(result, "output"), false, mode);
+    assert.equal(JSON.stringify(result).includes("synthetic-private-provider-detail"), false);
+    const replay = await c4aStart(body, key); assert.equal(replay.status, 200); assert.equal(replay.body.executionId, accepted.body.executionId);
+    await c4aFixture.control("tick");
+    const after = (await c4aFixture.providerState()).body;
+    assert.equal(after.count, before.count + expectedEffects, mode);
+    assert.equal(after.received, before.received + (mode === "offline" ? 0 : 1), "no automatic second request");
+    assert.equal((await c4aStored(result.executionId)).attempt, 1);
+    await c4aFixture.mode("normal");
+  }
+});
+
+test("C4A durable audit failure prevents dispatch and post-receipt result failure becomes outcome_unknown", { timeout: 60000 }, async () => {
+  await c4aFixture.mode("normal");
+  const before = (await c4aFixture.providerState()).body;
+  const oldCount = (await sql(`SELECT count(*) FROM execution_private.executions WHERE consumer_app_id=${q(c4aConsumer.app.appId)};`)).stdout.trim();
+  await c4aFaultAudit("execution.accepted", async () => assert.equal((await c4aStart()).status, 503));
+  assert.equal((await sql(`SELECT count(*) FROM execution_private.executions WHERE consumer_app_id=${q(c4aConsumer.app.appId)};`)).stdout.trim(), oldCount);
+  await c4aFaultAudit("invocation.dispatched", async () => {
+    const accepted = await c4aStart(); assert.equal(accepted.status, 202);
+    const result = await c4aWait(accepted.body.executionId, ["failed"]); assert.equal(result.error, "executions_unavailable");
+  });
+  assert.equal((await c4aFixture.providerState()).body.received, before.received);
+  await c4aFaultAudit("execution.completed", async () => {
+    const accepted = await c4aStart(); assert.equal(accepted.status, 202);
+    const result = await c4aWait(accepted.body.executionId, ["outcome_unknown"]);
+    assert.equal(result.error, "executions_unavailable");
+    assert.equal(Object.hasOwn(result, "output"), false);
+    assert.equal((await c4aFixture.providerState()).body.count, before.count + 1);
+  });
+});
+
+test("C4A live grant revocation stops both queued dispatch and provider ticket redemption", { timeout: 60000 }, async () => {
+  await c4aFixture.mode("normal");
+  await c4aFixture.control("pause");
+  const before = (await c4aFixture.providerState()).body;
+  const accepted = await c4aStart(); assert.equal(accepted.status, 202);
+  await revokeGrant(c4aGrant);
+  await c4aFixture.control("resume");
+  await c4aStoredWait(accepted.body.executionId, ["failed"]);
+  assert.equal((await c4aFixture.providerState()).body.received, before.received);
+  assert.equal((await c4aApi(`/v1/capability-executions/${accepted.body.executionId}`)).status, 403, "revocation also protects old results");
+  c4aGrant = await c4aCreateGrant();
+  await c4aFixture.mode("hold-redemption");
+  const next = await c4aStart(); assert.equal(next.status, 202);
+  await c4aProviderWait(state => state.pending === 1);
+  await revokeGrant(c4aGrant);
+  await c4aFixture.mode("normal");
+  await c4aStoredWait(next.body.executionId, ["failed"]);
+  const denied = (await c4aFixture.providerState()).body;
+  assert.equal(denied.received, before.received + 1);
+  assert.equal(denied.count, before.count, "provider did not execute after revoked ticket authority");
+  c4aGrant = await c4aCreateGrant();
+});
+
+test("C4A real process restart loses authentication leases and never redispatches a possible receipt", { timeout: 120000 }, async () => {
+  await c4aFixture.mode("normal");
+  await c4aFixture.control("pause");
+  const before = (await c4aFixture.providerState()).body;
+  const key = crypto.randomUUID(), body = executionBody("restart-before-dispatch");
+  const accepted = await c4aStart(body, key); assert.equal(accepted.status, 202);
+  const original = await c4aStored(accepted.body.executionId);
+  await c4aFixture.restart();
+  const required = await c4aWait(accepted.body.executionId, ["auth_required"]);
+  assert.equal(required.deadlineAt, accepted.body.deadlineAt);
+  assert.equal((await c4aFixture.providerState()).body.count, before.count);
+  assert.equal((await c4aStart(body, key, consumer)).status, 403, "another initiator cannot resume it");
+  const resumed = await c4aStart(body, key); assert.equal(resumed.status, 200); assert.equal(resumed.body.executionId, required.executionId);
+  await c4aFixture.control("resume");
+  await c4aWait(required.executionId, ["succeeded"]);
+  assert.equal((await c4aStored(required.executionId)).engine_process_id, original.engine_process_id, "same engine process, no blind restart");
+  await c4aFixture.mode("slow-response");
+  const ambiguousKey = crypto.randomUUID(), ambiguousBody = executionBody("restart-after-receipt");
+  const pending = await c4aStart(ambiguousBody, ambiguousKey); assert.equal(pending.status, 202);
+  await c4aProviderWait(state => state.count === before.count + 2);
+  await c4aFixture.restart();
+  const unknown = await c4aWait(pending.body.executionId, ["outcome_unknown"]);
+  assert.equal(Object.hasOwn(unknown, "output"), false);
+  assert.equal((await c4aStart(ambiguousBody, ambiguousKey)).body.state, "outcome_unknown");
+  await c4aFixture.mode("normal"); await c4aFixture.control("resume"); await c4aFixture.control("tick");
+  assert.equal((await c4aFixture.providerState()).body.count, before.count + 2);
+});
+
+test("C4A Flowable deadline prevents any later provider dispatch", { timeout: 60000 }, async () => {
+  await c4aFixture.control("pause");
+  const before = (await c4aFixture.providerState()).body;
+  const accepted = await c4aStart(); assert.equal(accepted.status, 202);
+  const row = await c4aStored(accepted.body.executionId);
+  await new Promise(resolve => setTimeout(resolve, Math.max(0, Date.parse(accepted.body.deadlineAt) - Date.now()) + 500));
+  const ended = await c4aWait(accepted.body.executionId, ["timed_out"]);
+  assert.equal(ended.deadlineAt, accepted.body.deadlineAt);
+  await c4aFixture.control("resume"); await c4aFixture.control("tick");
+  assert.equal((await c4aFixture.providerState()).body.received, before.received);
+  const timerDeadline = Date.now() + 35000;
+  let history;
+  do {
+    history = await c4aFixture.engine(`/service/history/historic-process-instances/${row.engine_process_id}`);
+    if (history.body?.endTime) break;
+    await new Promise(resolve => setTimeout(resolve, 250));
+  } while (Date.now() < timerDeadline);
+  assert.ok(history.body?.endTime, "the fixed BPMN timer terminates the process independently of dispatch");
+});
+
+test("C4A backup restores real execution outcomes and tenant isolation without credentials or redispatch", { timeout: 120000 }, async () => {
+  await c4aFixture.control("pause");
+  const accepted = await c4aStart(); assert.equal(accepted.status, 202);
+  await c4aFixture.restart();
+  await c4aWait(accepted.body.executionId, ["auth_required"]);
+  const rows = JSON.parse((await sql(`SELECT jsonb_agg(to_jsonb(e)) FROM (
+    SELECT DISTINCT ON (state) execution_id,tenant_id,consumer_app_id,provider_app_id,manifest_digest,input_digest,
+      idempotency_key,operation_id,ticket_hash,state,attempt,engine_process_id,output
+    FROM execution_private.executions WHERE consumer_app_id=${q(c4aConsumer.app.appId)}
+      AND state IN ('succeeded','outcome_unknown','auth_required') ORDER BY state,created_at DESC) e;`)).stdout);
+  assert.deepEqual(rows.map(row => row.state).sort(), ["auth_required", "outcome_unknown", "succeeded"]);
+  const childEnv = { ...process.env, EXECUTION_RECOVERY_CASES: JSON.stringify(rows) };
+  delete childEnv.NODE_TEST_CONTEXT;
+  const restored = await promisify(execFile)(process.execPath, ["--env-file=.env", "--test", "integration/recovery.mjs"], {
+    timeout: 120000, env: childEnv,
+  });
+  assert.match(restored.stdout, /Execution restore: 3 live outcomes/);
+  console.log("Live C4A backup/restore preserved success, unknown outcome, lost lease, ticket hashes and correlation");
+});
+
+test("C4A terminal consumer, capability and provider revocation each prevent queued and new dispatch", { timeout: 90000 }, async () => {
+  const deniedConsumer = await backend("c4a-revoked-consumer");
+  await c4aCreateGrant(c4aReference, c4aProvider, deniedConsumer);
+  await c4aFixture.mode("normal");
+  await c4aFixture.control("pause");
+  const before = (await c4aFixture.providerState()).body;
+  const consumerPending = await c4aStart(executionBody(), crypto.randomUUID(), deniedConsumer);
+  assert.equal(consumerPending.status, 202);
+  await applicationState(deniedConsumer, "revoke");
+  await c4aFixture.control("resume"); await c4aFixture.control("tick");
+  assert.equal((await c4aStart(executionBody(), crypto.randomUUID(), deniedConsumer)).status, 403);
+  assert.equal((await c4aApi(`/v1/capability-executions/${consumerPending.body.executionId}`, deniedConsumer)).status, 403);
+  assert.equal((await c4aFixture.providerState()).body.received, before.received);
+
+  await c4aFixture.control("pause");
+  const capabilityPending = await c4aStart(); assert.equal(capabilityPending.status, 202);
+  const path = `/v1/capabilities/${encodeURIComponent(c4aReference.capabilityId)}/versions/${c4aReference.version}`;
+  const current = await api(path, owner); assert.equal(current.status, 200);
+  assert.equal((await api(`${path}/revoke`, owner, { reason: "technical C4A revocation" }, { "If-Match": current.headers.get("etag") })).status, 200);
+  await c4aFixture.control("resume");
+  await c4aStoredWait(capabilityPending.body.executionId, ["failed"]);
+  assert.equal((await c4aStart()).status, 404);
+  assert.equal((await c4aFixture.providerState()).body.received, before.received);
+
+  c4aReference = (await c4aPublish(c4aProvider, "2.0.0")).reference;
+  c4aGrant = await c4aCreateGrant();
+  await c4aFixture.control("pause");
+  const providerPending = await c4aStart(); assert.equal(providerPending.status, 202);
+  await applicationState(c4aProvider, "revoke");
+  await c4aFixture.control("resume");
+  await c4aStoredWait(providerPending.body.executionId, ["failed"]);
+  assert.equal((await c4aStart()).status, 403);
+  assert.equal((await c4aFixture.providerState()).body.received, before.received);
 });
 
 test("terminal app revocation cannot be bypassed by an already approved grant", async () => {

@@ -105,7 +105,7 @@ Composition coordinates capabilities; the Workflow Engine remains responsible fo
 
 Current clients use HTTP, JSON, OIDC and opaque binary uploads. They can use their language's HTTP and authentication libraries without adopting the Core's Node.js runtime or accessing provider databases directly.
 
-[Foundation OpenAPI 3.1](docs/contracts/foundation-api.openapi.json) describes the implemented public APIs, including v1/v2 resources and registration. [Validation and tested HTTP examples](docs/FOUNDATION_OPENAPI.md) explain the 44-operation coverage, provider boundaries and development tools. [CORE_API.md](docs/CORE_API.md) remains the human-readable guide. The separate [Capability design contract](docs/contracts/capability-api-v1.openapi.json) includes proposed registry, resolver, trust and composition APIs; those runtimes remain unavailable. Optional SDKs are not implemented.
+[Foundation OpenAPI 3.1](docs/contracts/foundation-api.openapi.json) describes the implemented public APIs, including v1/v2 resources and registration. [Validation and tested HTTP examples](docs/FOUNDATION_OPENAPI.md) explain the 44-operation coverage, provider boundaries and development tools. [CORE_API.md](docs/CORE_API.md) remains the human-readable guide. The separate [Capability contract](docs/contracts/capability-api-v1.openapi.json) distinguishes implemented C1/C2 registry/trust and opt-in [C4A guarded single-capability execution](docs/CAPABILITY_EXECUTION.md) from design-only composition and delegation. C4A is disabled by default. Optional SDKs are not implemented.
 
 ## Illustrative cross-application use case
 

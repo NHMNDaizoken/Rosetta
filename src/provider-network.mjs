@@ -51,7 +51,7 @@ export function createProviderNetwork(options) {
   // Only the provider protocol headers are emitted. Caller credentials, OIDC
   // tokens and arbitrary headers cannot be forwarded. The socket connects to a
   // pre-validated address while Host and TLS SNI retain the approved hostname.
-  async function postJson(origin, path, value, { ticket, operationId, timeoutMs } = {}) {
+  async function postJson(origin, path, value, { ticket, operationId, timeoutMs, beforeConnect } = {}) {
     const isTest = assertOrigin(origin);
     if (typeof path !== "string" || path.length > MAX_PATH || !PATH.test(path)) {
       throw new ProviderNetworkError("path_not_allowed");
@@ -96,6 +96,13 @@ export function createProviderNetwork(options) {
         throw new ProviderNetworkError("private_address_forbidden");
       }
     }
+    // Trusted Core callback, never a request-body field. Authority and durable
+    // audit commit after DNS validation and immediately before the pinned socket.
+    if (beforeConnect !== undefined) {
+      if (typeof beforeConnect !== "function") throw new ProviderNetworkError("invalid_dispatch_guard");
+      if (remaining() <= 0) throw new ProviderNetworkError("timeout");
+      await withTimeout(Promise.resolve().then(beforeConnect), remaining(), "timeout");
+    }
     const remainingBudget = remaining();
     if (remainingBudget <= 0) throw new ProviderNetworkError("timeout");
     const pinned = resolved[0].address;
@@ -124,6 +131,7 @@ function send({ url, path, address, headers, body, connectTimeoutMs, totalTimeou
     let settled = false;
     let connectTimer;
     let totalTimer;
+    let mayHaveBeenSent = false;
     const clearTimers = () => {
       clearTimeout(connectTimer);
       clearTimeout(totalTimer);
@@ -132,6 +140,7 @@ function send({ url, path, address, headers, body, connectTimeoutMs, totalTimeou
       if (settled) return;
       settled = true;
       clearTimers();
+      if (value instanceof ProviderNetworkError) value.mayHaveBeenSent = mayHaveBeenSent;
       callback(value);
     };
     const request = httpsRequest({
@@ -177,7 +186,7 @@ function send({ url, path, address, headers, body, connectTimeoutMs, totalTimeou
       });
       response.on("error", () => finish(reject, new ProviderNetworkError("response_failed")));
     });
-    request.on("socket", (socket) => socket.once("secureConnect", () => clearTimeout(connectTimer)));
+    request.on("socket", (socket) => socket.once("secureConnect", () => { mayHaveBeenSent = true; clearTimeout(connectTimer); }));
     request.on("close", () => clearTimeout(totalTimer));
     request.on("error", (error) => {
       finish(reject, error instanceof ProviderNetworkError ? error : new ProviderNetworkError(transportCode(error)));

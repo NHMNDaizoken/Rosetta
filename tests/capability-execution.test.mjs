@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { test } from "node:test";
-import { createAuthenticationLeases, jsonDigest, leaseProof, ticketDigest, validateExecutionCreate } from "../src/capability-execution.mjs";
+import { createAuthenticationLeases, jsonDigest, leaseProof, reserveExecution, ticketDigest, validateExecutionCreate } from "../src/capability-execution.mjs";
 
 const identity = { tenantId: "tenant-a", issuer: "https://issuer.example", subject: "consumer-service", clientId: "consumer", roles: ["core-reader", "core-writer"], credentialExpiresAt: 2000 };
 const execution = { executionId: randomUUID(), deadlineAt: new Date(1500).toISOString() };
@@ -58,4 +58,33 @@ test("execution bodies accept only one exact capability and canonical digests bi
   assert.equal(proof.subject, identity.subject);
   assert.equal(proof.writer, true);
   assert.equal(JSON.stringify(proof).includes("Bearer"), false);
+});
+
+test("idempotent replays preserve a live initiating credential and cannot recreate a prepared lease", async t => {
+  const now = Date.now(), id = randomUUID();
+  const current = { ...identity, credentialExpiresAt: now + 8000 };
+  const e = { executionId: id, state: "accepted", deadlineAt: new Date(now + 9000).toISOString() };
+  const body = { target: { kind: "capability", capability: { capabilityId: "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+    version: "1.0.0", manifestDigest: `sha256:${"a".repeat(64)}` } }, input: {} };
+  const config = { dataUrl: "https://data.example.invalid", dataSecret: "synthetic-test-signing-secret-with-no-authority" };
+  const request = { headers: { "idempotency-key": randomUUID(), authorization: "Bearer synthetic-fresh" } };
+  const resolved = { manifest: { timeoutMs: 10000 }, authorityExpiresAt: new Date(now + 9000).toISOString() };
+  let attempt = 1;
+  t.mock.method(globalThis, "fetch", async (_url, options) => {
+    const { operation } = JSON.parse(options.body);
+    return Response.json({ status: 200, value: operation === "reserve" ? e : { attempt, dispatch_phase: attempt ? "prepared" : "reserved" } });
+  });
+  const live = createAuthenticationLeases();
+  live.put(e, { ...current, credentialExpiresAt: now + 2000 }, "Bearer synthetic-original");
+  await reserveExecution(config, current, request, body, live, resolved);
+  await live.use(id, current, (_bound, authorization, expiry) => {
+    assert.equal(authorization, "Bearer synthetic-original");
+    assert.equal(expiry, now + 2000, "a replay cannot extend the original credential lifetime");
+  });
+  const lost = createAuthenticationLeases();
+  await assert.rejects(reserveExecution(config, current, request, body, lost, resolved), /dispatch_not_available/);
+  assert.equal(lost.has(id), false, "prepared work cannot receive a replacement lease");
+  attempt = 0;
+  await reserveExecution(config, current, request, body, lost, resolved);
+  assert.equal(lost.has(id), true, "untouched work can be reauthenticated within its original deadline");
 });

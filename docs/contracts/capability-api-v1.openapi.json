@@ -2845,8 +2845,8 @@
     "/v1/capability-executions": {
       "post": {
         "operationId": "createCapabilityExecution",
-        "summary": "Accept one pinned capability or composition execution",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "summary": "Accept one guarded pinned capability execution",
+        "description": "C4A opt-in runtime; disabled by default. Requires an enrolled same-tenant backend initiator, live direct invoke grant, exact published version/digest, sideEffects none, approval none and operator-approved HTTPS origin. Only target and input are accepted. The original initiator may replay the same key to reauthenticate untouched work within its original deadline. No composition, delegation, automatic retry or general resume. See CAPABILITY_EXECUTION.md.",
         "tags": [
           "capability-executions"
         ],
@@ -2935,7 +2935,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ExecutionCreate"
+                "$ref": "#/components/schemas/SingleCapabilityExecutionCreate"
               }
             }
           }
@@ -2946,7 +2946,7 @@
       "get": {
         "operationId": "getCapabilityExecution",
         "summary": "Read an authorized execution without exposing engine internals",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "C4A opt-in runtime; disabled by default. Requires the original enrolled initiator and current bound C2 authority. Authenticated reads reconcile deadline expiry and memory-lease loss. Engine IDs, credentials, ticket hashes and input are not exposed. See CAPABILITY_EXECUTION.md.",
         "tags": [
           "capability-executions"
         ],
@@ -3224,7 +3224,7 @@
       "post": {
         "operationId": "redeemProviderAuthorization",
         "summary": "Enrolled provider redeems one opaque input-bound ticket",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "C4A opt-in runtime; disabled by default. The provider must authenticate independently with its enrolled backend OIDC identity. Atomically consumes one input-bound ticket only while the original initiator memory lease, original grant and exact published capability remain eligible. Invalid, expired, replayed or wrong-provider tickets return active false without context. See CAPABILITY_EXECUTION.md.",
         "tags": [
           "capability-authorizations"
         ],
@@ -4422,7 +4422,25 @@
           "propertyName": "kind"
         }
       },
+      "SingleCapabilityExecutionCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "target": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": { "const": "capability" },
+              "capability": { "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef" }
+            },
+            "required": ["kind", "capability"]
+          },
+          "input": { "$ref": "#/components/schemas/JsonValue" }
+        },
+        "required": ["target", "input"]
+      },
       "ExecutionCreate": {
+        "description": "Full design schema. C4A serves only SingleCapabilityExecutionCreate.",
         "type": "object",
         "additionalProperties": false,
         "properties": {

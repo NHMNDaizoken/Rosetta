@@ -22,6 +22,8 @@ async function execution(config, tenantId, id) {
   const result = await history(config, tenantId, { processInstanceId: id });
   const item = result.data[0];
   if (!item || item.tenantId !== tenantId || item.id !== id) throw new HttpError(404, "not_found");
+  const definition = await workflowRequest(config, `repository/process-definitions/${encodeURIComponent(item.processDefinitionId)}`);
+  if (definition.key === "rosetta_c4a_single") throw new HttpError(404, "not_found");
   const input = item.variables?.find((variable) => variable.name === "input")?.value;
   return { id: item.id, definitionId: item.processDefinitionId,
     status: item.endTime ? (item.deleteReason ? "cancelled" : "completed") : "running",
@@ -40,7 +42,7 @@ async function start(request, identity, config) {
   }
   const input = canonicalInput(body.input ?? {});
   const definition = await workflowRequest(config, `repository/process-definitions/${encodeURIComponent(body.definitionId)}`);
-  if (definition.tenantId !== identity.tenantId) throw new HttpError(404, "not_found");
+  if (definition.tenantId !== identity.tenantId || definition.key === "rosetta_c4a_single") throw new HttpError(404, "not_found");
   const hash = createHash("sha256").update(JSON.stringify({ definitionId: body.definitionId, input })).digest("hex");
   const query = new URLSearchParams({ key: `eq.${key}` });
   const ledger = (options) => dataRequest(config, identity.tenantId, query, options, "workflow_requests");
@@ -77,7 +79,7 @@ export async function handleWorkflow(request, response, identity, config, url) {
   if (url.search) throw new HttpError(400, "invalid_query");
   if (url.pathname === "/v1/workflows/definitions" && request.method === "GET") {
     const result = await workflowRequest(config, `repository/process-definitions?${new URLSearchParams({ tenantId: identity.tenantId, latest: "true", size: "100" })}`);
-    return json(response, 200, { items: result.data.map(({ id, key, version, name }) => ({ id, key, version, name })) });
+    return json(response, 200, { items: result.data.filter(item => item.key !== "rosetta_c4a_single").map(({ id, key, version, name }) => ({ id, key, version, name })) });
   }
   if (url.pathname === "/v1/workflows/executions" && request.method === "POST") {
     const result = await start(request, identity, config);

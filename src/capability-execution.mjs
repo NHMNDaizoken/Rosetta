@@ -47,6 +47,7 @@ export function createAuthenticationLeases({ capacity = 1000, now = Date.now } =
       if (!Number.isFinite(expiry) || expiry <= now()) throw new HttpError(409, "auth_required");
       const previous = leases.get(execution.executionId);
       if (previous && !sameIdentity(previous.identity, identity)) throw new HttpError(403, "initiator_mismatch");
+      if (previous) return; // Concurrent replays retain the first live credential and expiry.
       if (!previous && leases.size >= capacity) throw new HttpError(429, "execution_capacity_exceeded");
       const boundIdentity = { tenantId: identity.tenantId, issuer: identity.issuer, subject: identity.subject, clientId: identity.clientId };
       leases.set(execution.executionId, { identity: boundIdentity, authorization, expiresAt: expiry });
@@ -58,7 +59,11 @@ export function createAuthenticationLeases({ capacity = 1000, now = Date.now } =
       if (identity && !sameIdentity(lease.identity, identity)) throw new HttpError(403, "initiator_mismatch");
       return callback({ ...lease.identity }, lease.authorization, lease.expiresAt);
     },
-    has(executionId) { prune(); return leases.has(executionId); },
+    has(executionId) {
+      const lease = leases.get(executionId);
+      if (lease && lease.expiresAt <= now()) leases.delete(executionId);
+      return leases.has(executionId);
+    },
     delete(executionId) { leases.delete(executionId); },
     clear() { leases.clear(); },
   });
@@ -117,7 +122,13 @@ export async function reserveExecution(config, identity, request, body, leases, 
   const deadline = Math.min(Date.now() + resolved.manifest.timeoutMs, Date.parse(resolved.authorityExpiresAt));
   let result = await executionCommand(config, identity, "reserve", { executionId, idempotencyKey: key,
     target: body.target.capability, input: body.input, inputDigest, requestDigest, deadlineAt: new Date(deadline).toISOString() });
-  if (["accepted", "auth_required"].includes(result.value.state)) leases.put(result.value, identity, request.headers.authorization);
+  if (["accepted", "auth_required"].includes(result.value.state) && !leases.has(result.value.executionId)) {
+    const { value: row } = await executionCommand(config, identity, "internal_get", { executionId: result.value.executionId });
+    if (!leases.has(result.value.executionId)) {
+      if (row.attempt !== 0 || row.dispatch_phase !== "reserved") throw new HttpError(409, "dispatch_not_available");
+      leases.put(result.value, identity, request.headers.authorization);
+    }
+  }
   if (result.value.state === "auth_required") {
     result = await recheckLease(config, leases, result.value.executionId, identity, body.target.capability,
       (current, proof) => executionCommand(config, current, "reauthorize", { executionId: result.value.executionId }, proof));

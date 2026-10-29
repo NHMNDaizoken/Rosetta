@@ -70,6 +70,7 @@ services:
       - ./infra/postgres/008-trust-lifecycle.sql:/migrations/008-trust-lifecycle.sql:ro
       - ./infra/postgres/009-authorized-discovery.sql:/migrations/009-authorized-discovery.sql:ro
       - ./infra/postgres/010-capability-execution.sql:/migrations/010-capability-execution.sql:ro
+      - ./infra/postgres/011-execution-finalization.sql:/migrations/011-execution-finalization.sql:ro
     depends_on:
       database:
         condition: service_healthy
@@ -150,6 +151,8 @@ services:
       OBJECTS_MASTER_URL: http://objects:9333
       WORKFLOW_URL: http://workflow:8080/flowable-rest/service
       WORKFLOW_ADMIN_PASSWORD: ${WORKFLOW_ADMIN_PASSWORD:?Run npm run setup first}
+      C4A_ENABLED: ${C4A_ENABLED:-false}
+      C4A_PROVIDER_ORIGINS: ${C4A_PROVIDER_ORIGINS:-[]}
     depends_on:
       identity:
         condition: service_healthy

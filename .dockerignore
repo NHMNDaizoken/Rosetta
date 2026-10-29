@@ -5,6 +5,11 @@
 !scripts/
 !scripts/check-health.mjs
 !scripts/init-workflows.mjs
+!infra/
+infra/*
+!infra/flowable/
+infra/flowable/*
+!infra/flowable/capability-single.bpmn20.xml
 !THIRD-PARTY.md
 !LICENSE
 !NOTICE

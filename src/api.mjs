@@ -22,6 +22,18 @@ export function createApi(config) {
         return json(response, 200, { status: "ready" });
       } catch { throw new HttpError(503, "not_ready"); }
     }
+    if (config.executionRuntime && (path === "/v1/capability-executions" || path?.startsWith("/v1/capability-executions/") || path === "/v1/capability-authorizations/introspect")) {
+      const requestId = randomUUID();
+      response.setHeader("X-Request-Id", requestId);
+      try {
+        const identity = await authorize(request, true);
+        return await config.executionRuntime.handle(request, response, identity, new URL(request.url, "http://core"));
+      } catch (error) {
+        if (error.status === 413) response.setHeader("Connection", "close");
+        return json(response, error instanceof HttpError ? error.status : 503,
+          { error: error instanceof HttpError ? error.message : "executions_unavailable", requestId });
+      }
+    }
     if (path === "/v1/applications" || path?.startsWith("/v1/applications/")) {
       const requestId = randomUUID();
       response.setHeader("X-Request-Id", requestId);

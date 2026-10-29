@@ -111,6 +111,25 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     const executionAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
       "SELECT n.nspowner::regrole,c.relrowsecurity AND c.relforcerowsecurity FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='execution_private' AND c.relname='executions'; SELECT has_function_privilege('rosetta_execution_api','core.execution_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_api','core.execution_command(text,jsonb)','EXECUTE'),has_schema_privilege('rosetta_execution_api','execution_private','USAGE');"]);
     assert.equal(executionAcl.stdout.trim(),'rosetta_app_owner|t\nt|f|f','Restore preserves private execution authority and forced RLS');
+    // Only synthetic execution metadata is passed here, never credentials or
+    // ticket plaintext. The isolated restore has no network and runs no worker.
+    const liveExecutions = process.env.EXECUTION_RECOVERY_CASES ? JSON.parse(process.env.EXECUTION_RECOVERY_CASES) : [];
+    for (const fixture of liveExecutions) {
+      assert.match(fixture.execution_id, /^[0-9a-f-]{36}$/);
+      assert.match(fixture.tenant_id, /^[a-z][a-z0-9-]{0,62}$/);
+      const fields = ['execution_id','tenant_id','consumer_app_id','provider_app_id','manifest_digest','input_digest',
+        'idempotency_key','operation_id','ticket_hash','state','attempt','engine_process_id','output'];
+      assert.deepEqual(Object.keys(fixture).sort(), [...fields].sort());
+      for (const tenant of [fixture.tenant_id, 'tenant-b']) {
+        const query = `SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims','${JSON.stringify({tenant_id:tenant})}',false);
+          SELECT coalesce((SELECT jsonb_build_object(${fields.map(key => `'${key}',e.${key}`).join(',')})
+            FROM execution_private.executions e WHERE execution_id='${fixture.execution_id}'),'null'::jsonb);`;
+        const result = await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',query]);
+        assert.deepEqual(JSON.parse(result.stdout.trim().split(/\r?\n/).at(-1)), tenant===fixture.tenant_id ? fixture : null,
+          'Restored execution bindings, outcome and forced tenant RLS');
+      }
+    }
+    if (liveExecutions.length) console.log(`Execution restore: ${liveExecutions.length} live outcomes, hashes, correlation and tenant RLS passed`);
     // The capability suite supplies real OIDC-enrolled live grants while its
     // fixtures still exist. This offline restore verifies persisted authority;
     // issuer authentication itself is exercised against Keycloak in that suite.

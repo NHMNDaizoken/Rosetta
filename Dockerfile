@@ -5,6 +5,7 @@ FROM node:24.21.0-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080
 WORKDIR /app
 COPY --chown=node:node src/ ./src/
+COPY --chown=node:node infra/flowable/capability-single.bpmn20.xml ./infra/flowable/capability-single.bpmn20.xml
 COPY --chown=node:node scripts/check-health.mjs ./scripts/check-health.mjs
 COPY --chown=node:node scripts/init-workflows.mjs ./scripts/init-workflows.mjs
 COPY --chown=node:node LICENSE NOTICE THIRD-PARTY.md ./

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: 2026 Rosetta Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="urn:rosetta:c4a">
+  <process id="rosetta_c4a_single" name="Guarded single capability" isExecutable="true">
+    <startEvent id="start" />
+    <sequenceFlow id="to_invoke" sourceRef="start" targetRef="invoke" />
+    <serviceTask id="invoke" name="Guarded provider invocation"
+                 flowable:type="external-worker" flowable:topic="rosetta-c4a-invoke" />
+    <sequenceFlow id="to_end" sourceRef="invoke" targetRef="end" />
+    <endEvent id="end" />
+    <boundaryEvent id="deadline" attachedToRef="invoke" cancelActivity="true">
+      <timerEventDefinition><timeDate>${deadlineAt}</timeDate></timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="to_deadline_end" sourceRef="deadline" targetRef="deadline_end" />
+    <endEvent id="deadline_end"><terminateEventDefinition /></endEvent>
+  </process>
+</definitions>
