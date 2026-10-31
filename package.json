@@ -25,6 +25,8 @@
     "test:flowable-worker": "node --test integration/flowable-worker.mjs",
     "test:provider-network": "node --test integration/provider-network.mjs",
     "test:execution-ledger": "node --test integration/execution-ledger.mjs",
+    "test:migrations": "node --test integration/migration-integrity.mjs",
+    "check:schema-drift": "node scripts/check-schema-drift.mjs",
     "test:console-container": "node scripts/check-console-container.mjs",
     "console": "npm --prefix console run dev",
     "console:build": "npm --prefix console run build",
