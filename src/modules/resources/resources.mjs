@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { applicationToken } from "./applications.mjs";
-import { HttpError, json, readFlatJsonObject, requireWriter, uuidPattern } from "./http.mjs";
+import { applicationToken } from "../applications/applications.mjs";
+import { HttpError, json, readFlatJsonObject, requireWriter, uuidPattern } from "../../platform/http/http.mjs";
 
 export function requireLegacyClient(identity, config) {
   if (!identity.clientId || !(config.legacyResourceClients ?? []).includes(identity.clientId)) {

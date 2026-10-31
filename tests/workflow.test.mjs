@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { canonicalInput } from "../src/workflow.mjs";
+import { canonicalInput } from "../src/modules/workflow/workflow.mjs";
 
 test("workflow retries compare JSON input independently of object-key order", () => {
   assert.equal(JSON.stringify(canonicalInput({ b: [1, { z: 2, a: null }], a: true })),

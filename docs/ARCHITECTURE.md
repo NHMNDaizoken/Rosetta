@@ -49,7 +49,7 @@ The current product direction (Capability-Driven DX-OS) is **proposed**, not an 
 
 ## Implemented foundation
 
-`src/health.mjs` exposes a minimal process-health HTTP server;
+`src/platform/health/health.mjs` exposes a minimal process-health HTTP server;
 `src/server.mjs` supplies environment configuration and shutdown handling.
 `scripts/check-health.mjs` validates its JSON response for local/container probes.
 `compose.yaml` runs this single process as a nonroot container with a read-only

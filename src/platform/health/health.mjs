@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { createServer } from "node:http";
-import { HttpError, json } from "./http.mjs";
+import { HttpError, json } from "../http/http.mjs";
 
 export function createHealthServer(route) {
   return createServer(

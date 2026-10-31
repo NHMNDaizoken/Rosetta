@@ -48,13 +48,13 @@ executing; success requires HTTP 200 and exactly `{output: …}` matching the ma
 
 ## Increment A controls
 
-`src/capability-payload.mjs` validates execution input and provider output
+`src/modules/capability/registry/payload.mjs` validates execution input and provider output
 against the restricted manifest schema profile. It walks depth, node count,
 prototype, Unicode and finite-number bounds before stringifying, then enforces
 the serialized-value byte budget and reuses `validateValue`. Schema keywords outside the
 manifest profile are rejected rather than ignored.
 
-`src/provider-network.mjs` is the only outbound provider transport:
+`src/modules/capability/execution/provider-network.mjs` is the only outbound provider transport:
 
 - Exact approved HTTPS origins only; no caller URLs.
 - Exact manifest path grammar, 256-character maximum, no percent-encoding,

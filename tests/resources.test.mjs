@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { applicationToken } from "../src/applications.mjs";
-import { requireLegacyClient, validateShare } from "../src/resources.mjs";
+import { applicationToken } from "../src/modules/applications/applications.mjs";
+import { requireLegacyClient, validateShare } from "../src/modules/resources/resources.mjs";
 
 const id = "11111111-1111-4111-8111-111111111111";
 const share = { resourceType: "record", resourceId: id, granteeAppId: id, action: "read", expiresAt: "2026-12-01T00:00:00Z" };

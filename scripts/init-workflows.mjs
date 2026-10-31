@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { readFile } from "node:fs/promises";
-import { workflowRequest } from "../src/workflow-client.mjs";
+import { workflowRequest } from "../src/modules/workflow/client.mjs";
 
 const config = { workflowUrl: process.env.WORKFLOW_URL, workflowPassword: process.env.WORKFLOW_ADMIN_PASSWORD };
 try {

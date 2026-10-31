@@ -9,7 +9,7 @@ import { resolve } from "node:path";
 import { before, after, test } from "node:test";
 import { promisify } from "node:util";
 import { randomUUID } from "node:crypto";
-import { jsonDigest, ticketDigest } from "../src/capability-execution.mjs";
+import { jsonDigest, ticketDigest } from "../src/modules/capability/execution/execution.mjs";
 import { verifyContracts } from "./contract.mjs";
 
 const image = readFileSync(new URL("../compose.yaml", import.meta.url), "utf8").match(/image: (postgres:[^\s]+)/)[1];

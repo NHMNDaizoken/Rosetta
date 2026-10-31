@@ -5,8 +5,8 @@ import { readFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
 import { createApi } from "/app/src/api.mjs";
-import { createHealthServer } from "/app/src/health.mjs";
-import { createCapabilityRuntime } from "/app/src/capability-runtime.mjs";
+import { createHealthServer } from "/app/src/platform/health/health.mjs";
+import { createCapabilityRuntime } from "/app/src/modules/capability/execution/runtime.mjs";
 
 const bytes = []; for await (const chunk of process.stdin) bytes.push(chunk);
 const options = JSON.parse(Buffer.concat(bytes).toString("utf8"));

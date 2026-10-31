@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { HttpError } from "./http.mjs";
+import { HttpError } from "../http/http.mjs";
 
 export function validateIdentity(claims, issuer, now = Date.now() / 1000) {
   const audiences = Array.isArray(claims.aud) ? claims.aud : [claims.aud];

@@ -49,7 +49,7 @@
           "process"
         ],
         "x-rosetta-query-policy": "ignored",
-        "x-rosetta-source": "src/health.mjs",
+        "x-rosetta-source": "src/platform/health/health.mjs",
         "security": [],
         "responses": {
           "200": {
@@ -90,7 +90,7 @@
           "process"
         ],
         "x-rosetta-query-policy": "ignored",
-        "x-rosetta-source": "src/health.mjs",
+        "x-rosetta-source": "src/platform/health/health.mjs",
         "security": [],
         "responses": {
           "200": {
@@ -235,7 +235,7 @@
           "legacy-tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/data.mjs",
+        "x-rosetta-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -308,7 +308,7 @@
           "legacy-tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/data.mjs",
+        "x-rosetta-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -401,7 +401,7 @@
           "legacy-tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/data.mjs",
+        "x-rosetta-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -480,7 +480,7 @@
           "legacy-tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/data.mjs",
+        "x-rosetta-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -577,7 +577,7 @@
           "legacy-tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/data.mjs",
+        "x-rosetta-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -641,7 +641,7 @@
           "legacy-tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/objects.mjs",
+        "x-rosetta-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -728,7 +728,7 @@
           "legacy-tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/objects.mjs",
+        "x-rosetta-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -839,7 +839,7 @@
           "legacy-tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/objects.mjs",
+        "x-rosetta-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -919,7 +919,7 @@
           "legacy-tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/objects.mjs",
+        "x-rosetta-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -980,7 +980,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/data.mjs",
+        "x-rosetta-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1052,7 +1052,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/data.mjs",
+        "x-rosetta-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1144,7 +1144,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/data.mjs",
+        "x-rosetta-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1222,7 +1222,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/data.mjs",
+        "x-rosetta-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1318,7 +1318,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/data.mjs",
+        "x-rosetta-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1381,7 +1381,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/objects.mjs",
+        "x-rosetta-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1467,7 +1467,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/objects.mjs",
+        "x-rosetta-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1577,7 +1577,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/objects.mjs",
+        "x-rosetta-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1656,7 +1656,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/objects.mjs",
+        "x-rosetta-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1716,7 +1716,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/resources.mjs",
+        "x-rosetta-source": "src/modules/resources/resources.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1800,7 +1800,7 @@
           "app-resource"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/resources.mjs",
+        "x-rosetta-source": "src/modules/resources/resources.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1857,7 +1857,7 @@
           "application-admin"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/applications.mjs",
+        "x-rosetta-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1955,7 +1955,7 @@
           "application-admin"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/applications.mjs",
+        "x-rosetta-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2033,7 +2033,7 @@
           "application-admin"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/applications.mjs",
+        "x-rosetta-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2143,7 +2143,7 @@
           "application-admin"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/applications.mjs",
+        "x-rosetta-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2252,7 +2252,7 @@
           "application-admin"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/applications.mjs",
+        "x-rosetta-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2351,7 +2351,7 @@
           "application-admin"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/applications.mjs",
+        "x-rosetta-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2429,7 +2429,7 @@
           "application-admin"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/applications.mjs",
+        "x-rosetta-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2539,7 +2539,7 @@
           "tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/workflow.mjs",
+        "x-rosetta-source": "src/modules/workflow/workflow.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2602,7 +2602,7 @@
           "tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/workflow.mjs",
+        "x-rosetta-source": "src/modules/workflow/workflow.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2712,7 +2712,7 @@
           "tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/workflow.mjs",
+        "x-rosetta-source": "src/modules/workflow/workflow.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2784,7 +2784,7 @@
           "tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/workflow.mjs",
+        "x-rosetta-source": "src/modules/workflow/workflow.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2847,7 +2847,7 @@
           "tenant"
         ],
         "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/workflow.mjs",
+        "x-rosetta-source": "src/modules/workflow/workflow.mjs",
         "security": [
           {
             "coreBearer": []

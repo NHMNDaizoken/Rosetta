@@ -166,7 +166,7 @@ async function eligible(value, operation = "invoke", actor = consumer, patch = {
     const child = spawn("docker", ["compose", "exec", "-T", "core", "node", "--input-type=module", "-"], { stdio: ["pipe", "pipe", "pipe"] });
     let output = ""; child.stdout.on("data", chunk => output += chunk); child.stderr.on("data", chunk => output += chunk);
     child.on("error", reject); child.on("close", code => code === 0 ? resolve(JSON.parse(output)) : reject(new Error("Internal eligibility probe failed")));
-    child.stdin.end(`import { evaluateCapabilityEligibility } from './src/trust.mjs';
+    child.stdin.end(`import { evaluateCapabilityEligibility } from '/app/src/modules/capability/trust/trust.mjs';
       const config={issuer:process.env.OIDC_ISSUER,identityUrl:process.env.IDENTITY_URL,clientSecret:process.env.CORE_CLIENT_SECRET,dataUrl:process.env.DATA_URL,dataSecret:process.env.DATA_JWT_SECRET};
       console.log(JSON.stringify(await evaluateCapabilityEligibility({headers:{authorization:${JSON.stringify(`Bearer ${actor.token}`)}}},config,${JSON.stringify(reference)})));`);
   });

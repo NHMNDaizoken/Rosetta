@@ -328,7 +328,7 @@ test('same-tenant and foreign apps cannot bypass ownership through headers, v1, 
   const acl=await sql("SELECT has_table_privilege('rosetta_api','core.app_records','SELECT'),has_table_privilege('rosetta_app_api','core.app_records','SELECT'),has_function_privilege('rosetta_api','core.resource_command(text,jsonb)','EXECUTE'),has_schema_privilege('rosetta_resource_api','app_private','USAGE');");
   assert.equal(acl.stdout.trim(),'f|f|f|f');
   const identity={tenantId:'tenant-a',issuer,subject:resourceB.subject,clientId:resourceB.clientId,roles:['core-reader','core-writer'],appId:resourceA.app.appId};
-  await coreProbe(`import assert from 'node:assert/strict';import {applicationToken} from './src/applications.mjs';
+  await coreProbe(`import assert from 'node:assert/strict';import {applicationToken} from '/app/src/modules/applications/applications.mjs';
     const identity=${JSON.stringify(identity)};
     const jwt=applicationToken(identity,process.env.DATA_JWT_SECRET,'rosetta_resource_api');
     let r=await fetch(process.env.DATA_URL+'/app_records?id=eq.${privateRecord.id}',{headers:{Authorization:'Bearer '+jwt}});

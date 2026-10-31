@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { dataRequest } from "./data.mjs";
-import { checkObjectReadiness } from "./objects.mjs";
-import { workflowRequest } from "./workflow-client.mjs";
+import { dataRequest } from "../modules/data/data.mjs";
+import { checkObjectReadiness } from "../modules/objects/objects.mjs";
+import { workflowRequest } from "../modules/workflow/client.mjs";
 
 // Readiness checks providers only; it never trusts caller headers and never
 // exposes dependency details to the client.

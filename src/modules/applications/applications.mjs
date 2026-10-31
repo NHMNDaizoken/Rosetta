@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { isIP } from "node:net";
 import { createHash, randomUUID } from "node:crypto";
-import { HttpError, json, readFlatJsonObject, uuidPattern } from "./http.mjs";
-import { signInternalToken } from "./internal-token.mjs";
+import { HttpError, json, readFlatJsonObject, uuidPattern } from "../../platform/http/http.mjs";
+import { signInternalToken } from "../../platform/security/internal-token.mjs";
 
 // Application proposals contain only objects and well-formed strings. This is
 // the JCS subset needed here, not a general manifest/number canonicalizer.

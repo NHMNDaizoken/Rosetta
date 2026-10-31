@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { createHash } from "node:crypto";
-import { dataRequest } from "./data.mjs";
-import { HttpError, json, readJson, requireWriter, uuidPattern } from "./http.mjs";
-import { workflowRequest } from "./workflow-client.mjs";
+import { dataRequest } from "../data/data.mjs";
+import { HttpError, json, readJson, requireWriter, uuidPattern } from "../../platform/http/http.mjs";
+import { workflowRequest } from "./client.mjs";
 
 const engineId = /^[A-Za-z0-9:_-]{1,128}$/;
 

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { LIMITS, validateValue } from "./capability-compatibility.mjs";
-import { validatePayloadSchema } from "./capability-manifest.mjs";
+import { LIMITS, validateValue } from "../compatibility/compatibility.mjs";
+import { validatePayloadSchema } from "./manifest.mjs";
 
 export const MAX_PAYLOAD_BYTES = 65536;
 export const MAX_PAYLOAD_NODES = LIMITS.maxSchemaNodes;

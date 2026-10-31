@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { grantDigest, validateGrant } from "../src/trust.mjs";
+import { grantDigest, validateGrant } from "../src/modules/capability/trust/trust.mjs";
 
 const providerAppId = "11111111-1111-4111-8111-111111111111";
 const consumerAppId = "22222222-2222-4222-8222-222222222222";

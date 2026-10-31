@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { createHash } from "node:crypto";
-import { LIMITS, parseStrictJson } from "./capability-compatibility.mjs";
-import { HttpError } from "./http.mjs";
+import { LIMITS, parseStrictJson } from "../compatibility/compatibility.mjs";
+import { HttpError } from "../../../platform/http/http.mjs";
 
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const UUID_RE = new RegExp(`^${UUID}$`);

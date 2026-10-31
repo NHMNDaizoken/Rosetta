@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { HttpError } from "./http.mjs";
+import { HttpError } from "../../platform/http/http.mjs";
 
 export async function workflowRequest(config, path, options = {}) {
   let response;

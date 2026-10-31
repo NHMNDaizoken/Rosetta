@@ -5,7 +5,7 @@ import { execFile, spawnSync } from "node:child_process";
 import { once } from "node:events";
 import { after, before, test } from "node:test";
 import { promisify } from "node:util";
-import { createHealthServer } from "../src/health.mjs";
+import { createHealthServer } from "../src/platform/health/health.mjs";
 
 let server;
 let baseUrl;

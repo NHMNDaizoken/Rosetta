@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { checkReadiness } from "../src/readiness.mjs";
+import { checkReadiness } from "../src/bootstrap/readiness.mjs";
 
 const issuer = "http://identity.test/realms/rosetta";
 const config = { issuer, identityUrl: "http://identity.test" };

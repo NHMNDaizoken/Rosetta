@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createAuthorizer, validateIdentity } from "../src/auth.mjs";
+import { createAuthorizer, validateIdentity } from "../src/platform/auth/auth.mjs";
 
 const issuer = "http://identity.test/realms/rosetta";
 const claims = { active: true, iss: issuer, aud: "rosetta-core", exp: 2000, sub: "subject", tenant_id: "tenant-a", tenant_memberships: ["tenant-a"], realm_access: { roles: ["core-reader", "core-writer"] } };

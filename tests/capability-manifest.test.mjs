@@ -9,7 +9,7 @@ import {
   manifestDigest,
   parseManifestText,
   validateManifest,
-} from "../src/capability-manifest.mjs";
+} from "../src/modules/capability/registry/manifest.mjs";
 
 const fixture = JSON.parse(readFileSync(new URL("../docs/contracts/examples/capability-manifest.json", import.meta.url)));
 const negatives = JSON.parse(readFileSync(new URL("../docs/contracts/examples/negative-cases.json", import.meta.url)));

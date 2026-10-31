@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { randomUUID } from "node:crypto";
-import { HttpError, json, readBody, requireWriter, uuidPattern } from "./http.mjs";
-import { resourceCommand } from "./resources.mjs";
+import { HttpError, json, readBody, requireWriter, uuidPattern } from "../../platform/http/http.mjs";
+import { resourceCommand } from "../resources/resources.mjs";
 
 const maxBytes = 5 * 1024 * 1024;
 

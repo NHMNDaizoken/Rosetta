@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { randomUUID } from "node:crypto";
-import { HttpError, json, readJson, requireWriter, uuidPattern } from "./http.mjs";
-import { signInternalToken } from "./internal-token.mjs";
-import { resourceRequest } from "./resources.mjs";
+import { HttpError, json, readJson, requireWriter, uuidPattern } from "../../platform/http/http.mjs";
+import { signInternalToken } from "../../platform/security/internal-token.mjs";
+import { resourceRequest } from "../resources/resources.mjs";
 
 export function dataToken(tenantId, secret) {
   return signInternalToken(secret, { role: "rosetta_api", tenant_id: tenantId,

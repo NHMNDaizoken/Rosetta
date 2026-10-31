@@ -10,7 +10,7 @@ import { createServer as createTcpServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { createProviderNetwork, ProviderNetworkError } from "../src/provider-network.mjs";
+import { createProviderNetwork, ProviderNetworkError } from "../src/modules/capability/execution/provider-network.mjs";
 import { generateTls, removeTlsDirectory } from "./fixtures/tls.mjs";
 
 const TICKET = "a".repeat(43);

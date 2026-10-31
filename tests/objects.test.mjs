@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { checkObjectReadiness } from "../src/objects.mjs";
+import { checkObjectReadiness } from "../src/modules/objects/objects.mjs";
 
 test("object readiness requires registered storage as well as responding metadata", async () => {
   const config = { objectsUrl: "http://filer.test", objectsMasterUrl: "http://master.test" };

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { MAX_PAYLOAD_BYTES, MAX_PAYLOAD_NODES, validatePayload } from "../src/capability-payload.mjs";
+import { MAX_PAYLOAD_BYTES, MAX_PAYLOAD_NODES, validatePayload } from "../src/modules/capability/registry/payload.mjs";
 
 const object = (properties, required = Object.keys(properties)) =>
   ({ type: "object", properties, required, additionalProperties: false });

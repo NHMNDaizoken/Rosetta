@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // Internal C4A authority only. HTTP routes and engine dispatch are separate gates.
 import { createHash, randomBytes, randomUUID } from "node:crypto";
-import { createAuthorizer } from "./auth.mjs";
-import { assertManifest, canonicalize, manifestDigest } from "./capability-manifest.mjs";
-import { validatePayload } from "./capability-payload.mjs";
-import { HttpError, requireWriter, uuidPattern } from "./http.mjs";
-import { signInternalToken } from "./internal-token.mjs";
-import { evaluateCapabilityEligibility } from "./trust.mjs";
+import { createAuthorizer } from "../../../platform/auth/auth.mjs";
+import { assertManifest, canonicalize, manifestDigest } from "../registry/manifest.mjs";
+import { validatePayload } from "../registry/payload.mjs";
+import { HttpError, requireWriter, uuidPattern } from "../../../platform/http/http.mjs";
+import { signInternalToken } from "../../../platform/security/internal-token.mjs";
+import { evaluateCapabilityEligibility } from "../trust/trust.mjs";
 
 const digestPattern = /^sha256:[0-9a-f]{64}$/;
 const capabilityPattern = /^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$/;

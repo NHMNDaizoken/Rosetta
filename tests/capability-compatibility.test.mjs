@@ -8,7 +8,7 @@ import {
   parseStrictJson,
   resolveCompatibility,
   validateValue,
-} from "../src/capability-compatibility.mjs";
+} from "../src/modules/capability/compatibility/compatibility.mjs";
 
 const fixture = (name) =>
   parseStrictJson(readFileSync(new URL(`../docs/contracts/examples/${name}`, import.meta.url), "utf8"));

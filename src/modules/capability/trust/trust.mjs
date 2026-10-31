@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { createHash, randomUUID } from "node:crypto";
-import { canonicalize, parseManifestText } from "./capability-manifest.mjs";
-import { applicationToken, validateApplicationBody } from "./applications.mjs";
-import { createAuthorizer } from "./auth.mjs";
-import { HttpError, json, readBody, readFlatJsonObject, requireWriter, uuidPattern } from "./http.mjs";
+import { canonicalize, parseManifestText } from "../registry/manifest.mjs";
+import { applicationToken, validateApplicationBody } from "../../applications/applications.mjs";
+import { createAuthorizer } from "../../../platform/auth/auth.mjs";
+import { HttpError, json, readBody, readFlatJsonObject, requireWriter, uuidPattern } from "../../../platform/http/http.mjs";
 
 const capabilityId = /^urn:rosetta:capability:([0-9a-f-]{36}):[a-z][a-z0-9-]{0,62}$/;
 const exactVersion = /^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$/;

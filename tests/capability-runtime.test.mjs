@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { Readable } from "node:stream";
 import { test } from "node:test";
 import { createApi } from "../src/api.mjs";
-import { readExecutionJson } from "../src/capability-runtime.mjs";
+import { readExecutionJson } from "../src/modules/capability/execution/runtime.mjs";
 
 test("execution routes remain absent when the guarded runtime is not configured", async () => {
   const route = createApi({});

@@ -3,9 +3,9 @@
 import assert from "node:assert/strict";
 import { Readable } from "node:stream";
 import { test } from "node:test";
-import { applicationDigest, validateApplicationBody } from "../src/applications.mjs";
-import { createAuthorizer } from "../src/auth.mjs";
-import { readFlatJsonObject } from "../src/http.mjs";
+import { applicationDigest, validateApplicationBody } from "../src/modules/applications/applications.mjs";
+import { createAuthorizer } from "../src/platform/auth/auth.mjs";
+import { readFlatJsonObject } from "../src/platform/http/http.mjs";
 
 const proposal = { displayName: "Technical provider A", oauthClientId: "provider-a", providerOrigin: "https://provider-a.example.invalid", ownerSubject: "synthetic-owner" };
 test("application digest matches the documented JCS string/object fixture", () => {

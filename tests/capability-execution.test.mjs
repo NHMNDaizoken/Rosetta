@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { test } from "node:test";
-import { createAuthenticationLeases, jsonDigest, leaseProof, reserveExecution, ticketDigest, validateExecutionCreate } from "../src/capability-execution.mjs";
+import { createAuthenticationLeases, jsonDigest, leaseProof, reserveExecution, ticketDigest, validateExecutionCreate } from "../src/modules/capability/execution/execution.mjs";
 
 const identity = { tenantId: "tenant-a", issuer: "https://issuer.example", subject: "consumer-service", clientId: "consumer", roles: ["core-reader", "core-writer"], credentialExpiresAt: 2000 };
 const execution = { executionId: randomUUID(), deadlineAt: new Date(1500).toISOString() };

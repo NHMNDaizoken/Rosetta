@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { randomUUID } from "node:crypto";
-import { handleApplications } from "./applications.mjs";
-import { createAuthorizer } from "./auth.mjs";
-import { handleApprovals, handleCapabilities } from "./capabilities.mjs";
-import { HttpError, json } from "./http.mjs";
-import { handleData } from "./data.mjs";
-import { handleObjects } from "./objects.mjs";
-import { checkReadiness } from "./readiness.mjs";
-import { handleWorkflow } from "./workflow.mjs";
-import { handleShares, requireLegacyClient, resourceIdentity } from "./resources.mjs";
-import { handleTrust } from "./trust.mjs";
+import { handleApplications } from "./modules/applications/applications.mjs";
+import { createAuthorizer } from "./platform/auth/auth.mjs";
+import { handleApprovals, handleCapabilities } from "./modules/capability/registry/capabilities.mjs";
+import { HttpError, json } from "./platform/http/http.mjs";
+import { handleData } from "./modules/data/data.mjs";
+import { handleObjects } from "./modules/objects/objects.mjs";
+import { checkReadiness } from "./bootstrap/readiness.mjs";
+import { handleWorkflow } from "./modules/workflow/workflow.mjs";
+import { handleShares, requireLegacyClient, resourceIdentity } from "./modules/resources/resources.mjs";
+import { handleTrust } from "./modules/capability/trust/trust.mjs";
 
 export function createApi(config) {
   const authorize = createAuthorizer(config);

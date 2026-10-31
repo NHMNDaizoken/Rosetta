@@ -34,4 +34,5 @@ const license = readFileSync("LICENSE", "utf8");
 assert.ok(license.includes("Version 2.0, January 2004") && license.includes("APPENDIX"));
 assert.ok(readFileSync("NOTICE", "utf8").includes("Copyright 2026 Rosetta Contributors"));
 assert.ok(existsSync("THIRD-PARTY.md"));
+await import("./check-boundaries.mjs");
 console.log("Source syntax, SPDX headers and project license files verified");

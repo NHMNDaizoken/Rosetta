@@ -7,7 +7,7 @@ import {
   isForbiddenAddress,
   isMetadataAddress,
   ProviderNetworkError,
-} from "../src/provider-network.mjs";
+} from "../src/modules/capability/execution/provider-network.mjs";
 
 const TICKET = "a".repeat(43);
 const OPERATION = "11111111-1111-4111-8111-111111111111";

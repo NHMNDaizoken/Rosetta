@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import { createHash, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { createAuthorizer } from "./auth.mjs";
-import { parseStrictJson } from "./capability-compatibility.mjs";
-import { validatePayload } from "./capability-payload.mjs";
+import { createAuthorizer } from "../../../platform/auth/auth.mjs";
+import { parseStrictJson } from "../compatibility/compatibility.mjs";
+import { validatePayload } from "../registry/payload.mjs";
 import { createProviderNetwork, ProviderNetworkError } from "./provider-network.mjs";
-import { HttpError, json, readBody, requireWriter, uuidPattern } from "./http.mjs";
+import { HttpError, json, readBody, requireWriter, uuidPattern } from "../../../platform/http/http.mjs";
 import { createAuthenticationLeases, executionCommand, jsonDigest, prepareProviderTicket, recheckLease,
-  redeemProviderTicket, reserveExecution, resolveExecution } from "./capability-execution.mjs";
+  redeemProviderTicket, reserveExecution, resolveExecution } from "./execution.mjs";
 
 export const CAPABILITY_PROCESS_KEY = "rosetta_c4a_single";
 export const CAPABILITY_TOPIC = "rosetta-c4a-invoke";
@@ -33,7 +33,7 @@ export function createCapabilityRuntime(config, networkOptions, { workerEnabled 
   const network = createProviderNetwork(networkOptions);
   const origins = new Set([...(networkOptions.origins ?? []), ...(networkOptions.testOrigins ?? [])]);
   if (!origins.size) throw new Error("Capability execution requires approved provider origins");
-  const template = readFileSync(new URL("../infra/flowable/capability-single.bpmn20.xml", import.meta.url));
+  const template = readFileSync(new URL("../../../../infra/flowable/capability-single.bpmn20.xml", import.meta.url));
   const templateDigest = sha(template);
   if (!config.dataUrl || !config.dataSecret || !config.identityUrl || !config.issuer || !config.clientSecret) throw new Error("Capability authority configuration is incomplete");
   const root = config.workflowUrl?.replace(/\/service\/?$/, "");

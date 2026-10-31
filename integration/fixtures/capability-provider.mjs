@@ -6,7 +6,7 @@ import { createServer as httpsServer } from "node:https";
 import { createServer as httpServer } from "node:http";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { canonicalize } from "/app/src/capability-manifest.mjs";
+import { canonicalize } from "/app/src/modules/capability/registry/manifest.mjs";
 
 const chunks = []; for await (const chunk of process.stdin) chunks.push(chunk);
 const config = JSON.parse(Buffer.concat(chunks).toString("utf8"));

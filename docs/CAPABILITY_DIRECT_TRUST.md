@@ -87,7 +87,7 @@ format remains compatible. Reusing a cursor never preserves a grant's authority.
 
 ## Internal eligibility and consistency
 
-`evaluateCapabilityEligibility(request, config, reference)` in `src/trust.mjs`
+`evaluateCapabilityEligibility(request, config, reference)` in `src/modules/capability/trust/trust.mjs`
 accepts exactly `capabilityId`, `version`, `manifestDigest` and `operation`
 (`discover` or `invoke`). It performs fresh OIDC introspection itself, then calls
 the private `core.trust_eligibility(jsonb)` RPC. Only `rosetta_trust_api` may call
@@ -212,7 +212,7 @@ correction. See [Registry audit](CAPABILITY_REGISTRY.md#audit).
 
 - Persistence: `infra/postgres/007-direct-trust.sql`, `008-trust-lifecycle.sql`,
   `009-authorized-discovery.sql`, `migrate.sh`, and `compose.yaml`.
-- Runtime: `src/trust.mjs`, `src/capabilities.mjs`, `src/applications.mjs` and
+- Runtime: `src/modules/capability/trust/trust.mjs`, `src/modules/capability/registry/capabilities.mjs`, `src/modules/applications/applications.mjs` and
   `src/api.mjs`; the offline resolver and v2 Data/Object handlers are unchanged.
 - Verification: `tests/trust.test.mjs`, `integration/capabilities.mjs`,
   `integration/recovery.mjs`, `integration/contract.mjs` and

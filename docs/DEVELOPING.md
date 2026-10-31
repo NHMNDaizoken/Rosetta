@@ -24,20 +24,20 @@ routes and explicit contracts.
 | Module | Responsibility | Public or internal |
 | --- | --- | --- |
 | `src/server.mjs` | Validate configuration, build the API, bind the process, shut down. | Entrypoint only |
-| `src/health.mjs` | Liveness HTTP server and fallback error rendering. | `GET/HEAD /health` |
+| `src/platform/health/health.mjs` | Liveness HTTP server and fallback error rendering. | `GET/HEAD /health` |
 | `src/api.mjs` | Route dispatch, readiness, request IDs, error mapping. | Public routing |
-| `src/auth.mjs` | Bearer validation, live introspection, tenant/role checks. | Shared security |
-| `src/http.mjs` | JSON/body helpers, strict flat-object reader, writer check, UUID pattern. | Shared transport |
-| `src/readiness.mjs` | Dependency readiness aggregation. | `GET /ready` |
-| `src/internal-token.mjs` | Internal short-lived JWT signing for provider adapters. | Shared security |
-| `src/applications.mjs` | Application registration/approval models and command forwarding. | `/v1/applications*`, `/v1/approvals*` |
-| `src/capabilities.mjs` | Capability registry and publication approval command forwarding. | `/v1/capabilities*`, `/v1/approvals*` |
-| `src/capability-manifest.mjs` | Closed manifest validation and JCS digest. | Shared capability contract |
-| `src/resources.mjs` | Application context, resource commands, share validation. | Shared authority |
-| `src/data.mjs` | Structured-data adapter and record routes. | `/v1/data/*`, `/v2/data/*` |
-| `src/objects.mjs` | Object readiness, storage adapter and object routes. | `/v1/objects*`, `/v2/objects*` |
-| `src/workflow.mjs` | Workflow routes, canonical input and idempotency ledger. | `/v1/workflows/*` |
-| `src/workflow-client.mjs` | Private Flowable HTTP client. | Internal provider adapter |
+| `src/platform/auth/auth.mjs` | Bearer validation, live introspection, tenant/role checks. | Shared security |
+| `src/platform/http/http.mjs` | JSON/body helpers, strict flat-object reader, writer check, UUID pattern. | Shared transport |
+| `src/bootstrap/readiness.mjs` | Dependency readiness aggregation. | `GET /ready` |
+| `src/platform/security/internal-token.mjs` | Internal short-lived JWT signing for provider adapters. | Shared security |
+| `src/modules/applications/applications.mjs` | Application registration/approval models and command forwarding. | `/v1/applications*`, `/v1/approvals*` |
+| `src/modules/capability/registry/capabilities.mjs` | Capability registry and publication approval command forwarding. | `/v1/capabilities*`, `/v1/approvals*` |
+| `src/modules/capability/registry/manifest.mjs` | Closed manifest validation and JCS digest. | Shared capability contract |
+| `src/modules/resources/resources.mjs` | Application context, resource commands, share validation. | Shared authority |
+| `src/modules/data/data.mjs` | Structured-data adapter and record routes. | `/v1/data/*`, `/v2/data/*` |
+| `src/modules/objects/objects.mjs` | Object readiness, storage adapter and object routes. | `/v1/objects*`, `/v2/objects*` |
+| `src/modules/workflow/workflow.mjs` | Workflow routes, canonical input and idempotency ledger. | `/v1/workflows/*` |
+| `src/modules/workflow/client.mjs` | Private Flowable HTTP client. | Internal provider adapter |
 
 Rules:
 
