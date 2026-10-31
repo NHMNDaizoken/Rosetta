@@ -234,5 +234,5 @@ test("revocation, expiry, forged correlation, audit outage and restart stop futu
   assert.equal(await sql("SELECT relrowsecurity AND relforcerowsecurity FROM pg_class WHERE oid='execution_private.executions'::regclass;"), "t");
   assert.equal(await sql("SELECT count(*) FROM information_schema.columns WHERE table_schema='execution_private' AND column_name IN ('token','credential','authorization','ticket');"), "0");
   const repeat = await docker("exec", name, "sh", "/migrations/migrate.sh", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1");
-  assert.match(repeat.stdout, /Migration 011 already applied/);
+  assert.match(repeat.stdout, /Migration 11 verified/);
 });
