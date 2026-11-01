@@ -199,6 +199,13 @@ async function main() {
   expectStatus(health, 200, "healthz");
   assert.equal(health.text, "ok\n");
 
+  const notices = await request(consolePort, "/THIRD-PARTY-NOTICES.txt");
+  expectStatus(notices, 200, "upstream runtime notices");
+  assert.match(notices.headers["content-type"], /text\/plain/);
+  for (const name of ["react", "react-dom", "lucide-react", "clsx", "tailwind-merge"]) {
+    assert.ok(notices.text.includes(name), `upstream notice for ${name}`);
+  }
+
   const index = await request(consolePort, "/", { headers: { Accept: "text/html" } });
   expectStatus(index, 200, "index");
   assert.match(index.headers["content-type"], /text\/html/);
