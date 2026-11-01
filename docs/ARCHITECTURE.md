@@ -77,7 +77,8 @@ Flowable REST is the private BPMN engine. Core checks the tenant's definition
 and execution ownership; an RLS-protected SQL ledger reserves idempotency keys
 before starting work and reconciles ambiguous outcomes against engine history.
 The one-shot initializer provisions only an original technical checkpoint
-fixture. No Layer-2 business GUI/workflow, SDK or AI component is implemented.
+fixture. No Layer-2 business GUI/workflow or AI component is implemented. The
+independent server-side SDK uses public APIs only; see [onboarding](GETTING_STARTED.md).
 The optional Rosetta Console is a management client with the limitations recorded
 in the catalog; it is not a separate authorization server or hosting control API.
 

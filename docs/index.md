@@ -1,5 +1,12 @@
 # Rosetta architecture and codebase context
 
+Current entry points: [local onboarding and SDK](GETTING_STARTED.md),
+[release/upgrade guide](RELEASE.md), [changelog](../CHANGELOG.md),
+[security audit and inventories](SECURITY_REVIEW.md), and
+[implementation/test evidence](architecture/LAYER1_IMPLEMENTATION_STATUS.md).
+The architecture consolidation below retains its reviewed historical baseline;
+bounded C4A/C4B have since been implemented opt-in, with execution disabled by default.
+
 > Reviewed: 2026-10-28 | Branch: main | DX1 baseline: `e4f67f078c0e66efc09abefde0d676b3b2730870`
 
 Rosetta currently integrates five headless backend capabilities through a small

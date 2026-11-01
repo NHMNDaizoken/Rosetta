@@ -29,7 +29,9 @@ jobs:
           node-version-file: .node-version
           package-manager-cache: false
       - name: Check source syntax
-        run: npm run check
+        run: |
+          npm run check
+          npm run check:docs
       - name: Install Console dependencies
         run: npm ci --prefix console
       - name: Verify generated Console endpoint inventory
@@ -48,6 +50,13 @@ jobs:
           npm run test:contract-validator
       - name: Test HTTP contract and startup validation
         run: npm test
+      - name: Verify deterministic source candidate packaging
+        run: |
+          npm run release:package
+          cp dist/releases/*.tar /tmp/rosetta-first.tar
+          npm run release:package
+          cmp /tmp/rosetta-first.tar dist/releases/*.tar
+          npm run release:verify
       - name: Verify guarded provider transport with host OpenSSL
         run: npm run test:provider-network
       - name: Verify fresh private execution authority and audit rollback
