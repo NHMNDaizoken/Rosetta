@@ -6,7 +6,7 @@ BEGIN;
 
 ALTER TABLE app_private.principals DROP CONSTRAINT IF EXISTS principals_permissions_check;
 ALTER TABLE app_private.principals ADD CONSTRAINT principals_permissions_check
-  CHECK (permissions <@ ARRAY['applications.register','applications.approve','trust.approve','audit.read',
+  CHECK (permissions <@ ARRAY['applications.register','applications.approve','trust.write','trust.approve','audit.read',
     'capabilities.write','capabilities.publish','capabilities.approve',
     'compositions.write','compositions.publish','compositions.approve']::text[]);
 

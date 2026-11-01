@@ -71,6 +71,7 @@ services:
       - ./infra/postgres/009-authorized-discovery.sql:/migrations/009-authorized-discovery.sql:ro
       - ./infra/postgres/010-capability-execution.sql:/migrations/010-capability-execution.sql:ro
       - ./infra/postgres/011-execution-finalization.sql:/migrations/011-execution-finalization.sql:ro
+      - ./infra/postgres/012-composition.sql:/migrations/012-composition.sql:ro
     depends_on:
       database:
         condition: service_healthy
@@ -153,6 +154,8 @@ services:
       WORKFLOW_ADMIN_PASSWORD: ${WORKFLOW_ADMIN_PASSWORD:?Run npm run setup first}
       C4A_ENABLED: ${C4A_ENABLED:-false}
       C4A_PROVIDER_ORIGINS: ${C4A_PROVIDER_ORIGINS:-[]}
+      C4B_ENABLED: ${C4B_ENABLED:-false}
+      C4B_PROVIDER_ORIGINS: ${C4B_PROVIDER_ORIGINS:-[]}
     depends_on:
       identity:
         condition: service_healthy

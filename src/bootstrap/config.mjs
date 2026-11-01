@@ -31,10 +31,13 @@ export function loadConfig(env = process.env) {
     workflowPassword: env.WORKFLOW_ADMIN_PASSWORD,
   });
   const providerOrigins = JSON.parse(env.C4A_PROVIDER_ORIGINS ?? "[]");
-  if (!Array.isArray(providerOrigins) || providerOrigins.some(value => typeof value !== "string")) {
-    throw new Error("C4A_PROVIDER_ORIGINS must be a JSON array of origins");
+  const compositionOrigins = JSON.parse(env.C4B_PROVIDER_ORIGINS ?? "[]");
+  for (const [name, origins] of [["C4A_PROVIDER_ORIGINS", providerOrigins], ["C4B_PROVIDER_ORIGINS", compositionOrigins]]) {
+    if (!Array.isArray(origins) || origins.some(value => typeof value !== "string")) {
+      throw new Error(`${name} must be a JSON array of origins`);
+    }
   }
   return { port: Number(rawPort), host: env.HOST ?? "127.0.0.1", config,
     execution: env.C4A_ENABLED === "true" ? { providerOrigins } : undefined,
-    composition: env.C4B_ENABLED === "true" ? { providerOrigins } : undefined };
+    composition: env.C4B_ENABLED === "true" ? { providerOrigins: compositionOrigins } : undefined };
 }
