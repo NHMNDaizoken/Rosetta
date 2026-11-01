@@ -243,19 +243,19 @@ export function createCapabilityRuntime(config, networkOptions, { workerEnabled 
   }
 
   return Object.freeze({
-    async handle(request, response, identity, url) {
+    async handle(request, response, identity, url, { body } = {}) {
       if (closed) throw new HttpError(503, "executions_unavailable");
       if (url.search) throw new HttpError(400, "invalid_query");
       if (url.pathname === "/v1/capability-authorizations/introspect") {
         if (request.method !== "POST") throw new HttpError(405, "method_not_allowed");
-        const body = await readExecutionJson(request);
+        body ??= await readExecutionJson(request);
         if (Object.keys(body).sort().join(",") !== "inputDigest,invocationId,ticket") throw new HttpError(400, "invalid_authorization_request");
         return json(response, 200, await redeemProviderTicket(config, identity, body, leases));
       }
       if (url.pathname === "/v1/capability-executions") {
         if (request.method !== "POST") throw new HttpError(405, "method_not_allowed");
         requireWriter(identity);
-        const body = await readExecutionJson(request);
+        body ??= await readExecutionJson(request);
         const resolved = await resolveExecution(config, identity, body);
         if (!origins.has(resolved.providerOrigin)) throw new HttpError(503, "provider_origin_not_approved");
         const result = await reserveExecution(config, identity, request, body, leases, resolved);
