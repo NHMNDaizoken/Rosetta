@@ -1,5 +1,7 @@
 # Codex Layer 1 engineering handoff
 
+> Historical implementation checkpoint. The subsequent stabilization/release program and current open security gates are in [implementation status](LAYER1_IMPLEMENTATION_STATUS.md). This historical COMPLETE assessment applies only to its earlier bounded implementation scope.
+
 Updated: 2026-11-01. This is an implementer's engineering handoff, not an
 independent security review or production certification.
 

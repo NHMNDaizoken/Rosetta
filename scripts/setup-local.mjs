@@ -20,7 +20,7 @@ try {
   for (const port of [values.port, values["console-port"]]) {
     if (!/^\d+$/.test(port) || Number(port) < 1 || Number(port) > 65535) throw Error();
   }
-  if (values.port === values["console-port"]) throw Error();
+  if (Number(values.port) === Number(values["console-port"])) throw Error();
   if (values.project && !/^[a-z0-9][a-z0-9_-]*$/.test(values.project)) throw Error();
   let template = readFileSync(new URL("../.env.example", import.meta.url), "utf8").replace(/\r\n/g, "\n");
   for (const name of names) template = template.replace(new RegExp(`^${name}=.*$`, "m"), `${name}=${randomBytes(32).toString("hex")}`);

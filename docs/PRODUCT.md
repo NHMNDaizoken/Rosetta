@@ -49,11 +49,12 @@ Working today:
 - Foundation OpenAPI with structural and real-HTTP conformance checks.
 - Optional React Console with LIVE/PREVIEW separation and a packaged Nginx proxy.
 - API Explorer generated from the committed OpenAPI inventory.
-- Executable server-side HTTP example (`examples/foundation-http.mjs`).
+- Executable server-side HTTP example and dependency-free Node SDK (`sdk/node`), with an authenticated sample.
+- Grouped safe setup, local start/stop/status wrappers, readiness probe and secret-safe doctor.
 - Application registration and approval workflow, with mandatory operator enrollment.
 
 Known gaps: there is no self-service operator enrollment, no browser login/session
-management beyond the documented local fixtures, no SDK, and several Console views
+management beyond the documented local fixtures, and several Console views
 are operational/read-only rather than full administration surfaces.
 
 ### Rosetta Cloud — PROPOSED
@@ -89,7 +90,7 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 | Console management UI | PARTIAL | Read/management flows, preview-only mutations in some screens; no admin session. |
 | Server-side HTTP developer example | IMPLEMENTED | `npm run example:foundation`; exercised by the application integration suite. |
 | Getting Started / onboarding | PARTIAL | Console quickstart, commands, expected proofs and cleanup guidance; enrollment is operator-run rather than self-service. |
-| SDKs | DEFERRED | Generate only after client/auth requirements are reviewed. |
+| Node server SDK | IMPLEMENTED, bounded | `sdk/node`: public Gateway APIs, memory-only client credentials, safe errors, no mutation retries; see [onboarding](GETTING_STARTED.md). |
 | Projects and environments | PROPOSED | P1 gate; no tables or routes. |
 | Application bindings | PROPOSED | P2 gate; no credential lifecycle. |
 | Hosting, deployments, runtime workers | PROPOSED | Separate approval; no controller or runtime. |

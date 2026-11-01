@@ -7,6 +7,7 @@ import { before, after, test } from "node:test";
 import { promisify } from "node:util";
 import { contractFetch as fetch, verifyContracts } from './contract.mjs';
 import { foundationExample } from '../examples/foundation-http.mjs';
+import { createRosettaClient } from '../sdk/node/index.mjs';
 
 const base=process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
 const issuer=`${base}/identity/realms/rosetta`;
@@ -285,6 +286,14 @@ test('registered backends own private records and objects; browser and unenrolle
 });
 
 test('documented backend HTTP example authenticates, stores, shares and executes the technical workflow',async()=>{
+  const sdk = createRosettaClient({ baseUrl: base, clientId: resourceA.clientId, clientSecret: resourceA.clientSecret, fetcher: fetch });
+  assert.equal((await sdk.identity()).subject, resourceA.subject);
+  const sdkRecord = await sdk.createRecord('sdk_example', { synthetic: true });
+  assert.deepEqual((await sdk.getRecord('sdk_example', sdkRecord.id)).data, { synthetic: true });
+  await sdk.request(`/v2/data/sdk_example/${sdkRecord.id}`, { method: 'DELETE' });
+  const sdkCli = await promisify(execFile)(process.execPath, ['examples/sdk-foundation.mjs', '--enrolled'], {
+    env: { ...process.env, PUBLIC_URL: base, ROSETTA_APP_CLIENT_ID: resourceA.clientId, ROSETTA_APP_CLIENT_SECRET: resourceA.clientSecret }, timeout: 30000 });
+  assert.match(sdkCli.stdout, /Application-private record created/);
   const result=await foundationExample({base,clientId:resourceA.clientId,clientSecret:resourceA.clientSecret,
     granteeAppId:resourceB.app.appId,granteeClientId:resourceB.clientId,granteeClientSecret:resourceB.clientSecret,fetcher:fetch});
   assert.equal(result.deniedBeforeShare,true);

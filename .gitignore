@@ -109,6 +109,7 @@ coverage.out
 
 # Generated outputs (all languages)
 **/dist/
+console/public/THIRD-PARTY-NOTICES.txt
 **/build/
 **/out/
 **/tmp/

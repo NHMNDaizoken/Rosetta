@@ -92,6 +92,121 @@ record/object/workflow/share example and removes its own identity fixtures. Run 
 only on a disposable development stack. It does not return reusable privileged
 credentials or grant self-service enrollment to normal applications.
 
+## Server-side Node SDK and first API call
+
+```sh
+npm run example:sdk
+```
+
+This prints only the synthetic local tenant-A subject, tenant and roles. It does not
+print a token or grant app-private resource access. The Core runtime and SDK need no
+npm packages. Keep SDK code in your application backend; the source client lives in
+`sdk/node/index.mjs`, with TypeScript declarations beside it. It imports only Node
+standard modules and uses public Gateway APIs, so it can be copied with LICENSE and
+NOTICE into an independent server project. It is private/unpublished on npm.
+
+For an enrolled app, save only its own supplied credentials in ignored
+`.env.app.local` (never in browser code):
+
+```text
+ROSETTA_APP_CLIENT_ID=REPLACE_WITH_ENROLLED_CLIENT
+ROSETTA_APP_CLIENT_SECRET=REPLACE_WITH_PRIVATE_SECRET
+```
+
+```sh
+node --env-file=.env --env-file=.env.app.local examples/sdk-foundation.mjs --enrolled
+```
+
+Expected: verified identity, then `Application-private record created, read and deleted
+through the public Gateway.` The sample deletes only the record it just created.
+The larger [HTTP example](../examples/foundation-http.mjs) covers objects, workflow
+and expiring read sharing; its required grantee settings are documented in
+[DEVELOPING](DEVELOPING.md#developer-journey-and-cleanup).
+
+An independent application's server can use the client directly:
+
+```js
+import { createRosettaClient } from './sdk/node/index.mjs';
+const rosetta = createRosettaClient({
+  baseUrl: process.env.ROSETTA_URL,
+  clientId: process.env.ROSETTA_CLIENT_ID,
+  clientSecret: process.env.ROSETTA_CLIENT_SECRET,
+});
+const identity = await rosetta.identity();
+const record = await rosetta.createRecord('documents', { synthetic: true });
+const read = await rosetta.getRecord('documents', record.id);
+```
+
+Convenience methods cover identity, v2 records/objects, workflow definitions/start,
+authorized capability discovery, invocation/composition submission and bounded status
+polling. `request(path, options)` returns a standard `Response` for other documented
+Foundation/Registry/Trust APIs, including ETags and approval responses. There is no
+automatic enrollment, grant creation or approval. The OpenAPI contracts remain
+authoritative; the small declarations do not claim complete generated model coverage.
+
+OAuth client-credentials tokens stay in process memory and refresh for subsequent
+explicit requests. There are no mutation retries. Persist your original idempotency
+key and request before submission; a timeout can mean the server accepted work.
+`RosettaError` carries sanitized `status`, `code` and optional `requestId`, without
+echoing the raw upstream body. Never log the client configuration or request bodies.
+
+## Publish, grant, discover and execute
+
+1. The operator enrolls the provider and consumer as described above. The provider
+   owner needs explicit Registry and Trust permissions; a separate human approver
+   needs the corresponding independent approval permissions.
+2. The owner POSTs a closed manifest at `/v1/capabilities/{encodedCapabilityId}/versions`.
+   Use an exact version, restricted schemas, an enrolled provider, declared permissions
+   and `sideEffects=none`. POST its `/validate` route using the returned ETag.
+3. A separate approver POSTs `/v1/approvals` with `resourceType=capability-version`,
+   exact resource ID/version, digest, revision and bounded expiry. An authorized
+   publisher POSTs the version's `/publish` route with that approval and ETag.
+4. The provider owner POSTs `/v1/trust/grants` binding the exact provider, different
+   consumer, capability version/digest, declared permissions, expiry and direct subject.
+   Request `discover` and `invoke` separately. The separate administrator records
+   a grant approval then activates it with `/v1/trust/grants/{grantId}/activate`.
+5. The consumer calls `rosetta.discover()`. Only currently granted metadata is visible;
+   an invoke-only grant does not authorize discovery. No consumer-supplied provider URL
+   or tenant header can add authority.
+6. For a reviewed operator configuration with C4A enabled and exact approved HTTPS
+   origins, submit one capability reference:
+
+```js
+// `reference` comes from currently authorized, published discovery metadata.
+const accepted = await rosetta.execute(
+  { kind: 'capability', capability: reference },
+  { value: 'synthetic input' },
+  originalPersistedUuid,
+);
+const result = await rosetta.waitForExecution(accepted.executionId);
+```
+
+The provider must authenticate independently and redeem its single-use input-bound
+ticket through `/v1/capability-authorizations/introspect` before executing. Input and
+output must match the published schemas. The SDK is a consumer client, not a provider
+server implementation. It never supplies Core credentials to a provider.
+
+7. For C4B, the enrolled consumer with explicit `compositions.write` creates a plan at
+   `/v1/compositions`. Use 1–16 ordered steps with exact capability pins, full-value
+   previous-output bindings and supported C3 compatibility. Validate the exact version
+   with ETag. A different human with `compositions.approve` must approve its digest and
+   revision; an authorized publisher then publishes it. Every step needs its own current
+   exact invoke grant. POST/PUT/approval bodies and plan fixtures are linked from
+   [bounded composition](CAPABILITY_COMPOSITION.md).
+
+```js
+const accepted = await rosetta.execute({
+  kind: 'composition', compositionId, version: '1.0.0', compositionDigest,
+}, { value: 'synthetic input' }, originalPersistedUuid);
+const result = await rosetta.waitForExecution(accepted.executionId);
+```
+
+Polling stops on `auth_required` as well as terminal outcomes. It does not reauthorize,
+restart or redispatch work. Treat `outcome_unknown` as uncertain external receipt.
+C4B has no supported resume, arbitrary DAG/loops, retries, HA credentials or exactly-once
+external effect guarantee. Revoking the exact grant prevents later dispatch/redemption;
+an approved replacement grant cannot revive an existing pinned reservation.
+
 ## Optional Capability demonstration
 
 Install development-only validators and ensure host OpenSSL is available:

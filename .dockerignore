@@ -5,6 +5,7 @@
 !scripts/
 !scripts/check-health.mjs
 !scripts/init-workflows.mjs
+!scripts/console-notices.mjs
 !infra/
 infra/*
 !infra/flowable/
@@ -18,5 +19,6 @@ infra/flowable/*
 console/node_modules
 console/dist
 console/coverage
+console/public/THIRD-PARTY-NOTICES.txt
 console/.env
 console/.env.*

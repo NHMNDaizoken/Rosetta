@@ -22,6 +22,8 @@
     "local:status": "docker compose --profile console ps",
     "example:foundation": "node --env-file-if-exists=.env examples/foundation-http.mjs",
     "test:setup": "node --test tests/setup.test.mjs",
+    "test:sdk": "node --test tests/sdk.test.mjs",
+    "example:sdk": "node --env-file-if-exists=.env examples/sdk-foundation.mjs",
     "test:integration": "node --env-file=.env --test integration/core.mjs",
     "test:recovery": "node --env-file=.env --test integration/recovery.mjs",
     "test:applications": "node --env-file=.env --test integration/applications.mjs",

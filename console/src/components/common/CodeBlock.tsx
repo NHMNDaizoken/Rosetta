@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import React, { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { useI18n } from "../../locales/i18n";
 
 interface CodeBlockProps {
   code: string;
@@ -15,6 +16,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   className = "",
 }) => {
   const [copied, setCopied] = useState(false);
+  const { t } = useI18n();
 
   const handleCopy = async () => {
     try {
@@ -35,17 +37,17 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
         <button
           onClick={handleCopy}
           className="flex items-center gap-1.5 hover:text-slate-200 transition-colors py-0.5 px-1.5 rounded hover:bg-slate-800 cursor-pointer"
-          title="Sao chép vào bộ nhớ tạm"
+          title={t.common.copy}
         >
           {copied ? (
             <>
               <Check className="w-3.5 h-3.5 text-teal-400" />
-              <span className="text-teal-400 font-sans">Đã sao chép</span>
+              <span className="text-teal-400 font-sans">{t.common.copied}</span>
             </>
           ) : (
             <>
               <Copy className="w-3.5 h-3.5" />
-              <span className="font-sans">Sao chép</span>
+              <span className="font-sans">{t.common.copy}</span>
             </>
           )}
         </button>

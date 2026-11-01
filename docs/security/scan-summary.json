@@ -1,0 +1,115 @@
+{
+  "scanDate": "2026-11-02",
+  "tool": "Docker Scout 1.24.0",
+  "scope": "Pinned local Linux amd64 images; one record per advisory/package/image, including reported exceptions. Counts differ from CLI summaries that group or suppress exceptions.",
+  "images": [
+    {
+      "image": "Core Node base",
+      "findings": 91,
+      "severity": {
+        "LOW": 39,
+        "MEDIUM": 24,
+        "HIGH": 23,
+        "CRITICAL": 5
+      }
+    },
+    {
+      "image": "Gateway / Console Nginx base",
+      "findings": 323,
+      "severity": {
+        "UNSPECIFIED": 4,
+        "LOW": 118,
+        "MEDIUM": 83,
+        "HIGH": 104,
+        "CRITICAL": 14
+      }
+    },
+    {
+      "image": "PostgreSQL",
+      "findings": 149,
+      "severity": {
+        "LOW": 63,
+        "MEDIUM": 38,
+        "HIGH": 44,
+        "CRITICAL": 4
+      }
+    },
+    {
+      "image": "Keycloak",
+      "findings": 40,
+      "severity": {
+        "LOW": 6,
+        "MEDIUM": 19,
+        "HIGH": 14,
+        "CRITICAL": 1
+      }
+    },
+    {
+      "image": "PostgREST",
+      "findings": 0,
+      "severity": {}
+    },
+    {
+      "image": "SeaweedFS",
+      "findings": 51,
+      "severity": {
+        "UNSPECIFIED": 4,
+        "LOW": 1,
+        "MEDIUM": 8,
+        "HIGH": 28,
+        "CRITICAL": 10
+      }
+    },
+    {
+      "image": "Flowable",
+      "findings": 156,
+      "severity": {
+        "UNSPECIFIED": 1,
+        "LOW": 15,
+        "MEDIUM": 62,
+        "HIGH": 62,
+        "CRITICAL": 16
+      }
+    }
+  ],
+  "python": {
+    "dependencies": [
+      {
+        "name": "jsonschema",
+        "version": "4.23.0",
+        "vulns": []
+      },
+      {
+        "name": "referencing",
+        "version": "0.37.0",
+        "vulns": []
+      },
+      {
+        "name": "attrs",
+        "version": "25.4.0",
+        "vulns": []
+      },
+      {
+        "name": "rpds-py",
+        "version": "0.30.0",
+        "vulns": []
+      },
+      {
+        "name": "jsonschema-specifications",
+        "version": "2025.9.1",
+        "vulns": []
+      }
+    ],
+    "fixes": []
+  },
+  "pythonConditional": {
+    "dependencies": [
+      {
+        "name": "typing-extensions",
+        "version": "4.15.0",
+        "vulns": []
+      }
+    ],
+    "fixes": []
+  }
+}

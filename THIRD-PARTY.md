@@ -98,6 +98,14 @@ The packaged Console runtime image copies `LICENSE`, `NOTICE` and this inventory
 to `/usr/share/licenses/rosetta/`; the Nginx and Debian base-layer notices remain
 in the image. The static build is served by Nginx, not by a Node runtime.
 
+The build also generates `THIRD-PARTY-NOTICES.txt` from installed runtime package
+license/notice files and serves it with the static Console. See the exact
+[246-entry lock inventory](docs/security/console-dependencies.json),
+[container SPDX inventory](docs/security/container-packages.json) and
+[scope/findings](docs/SECURITY_REVIEW.md). Lightning CSS's unmodified MPL-2.0 build
+tools and caniuse-lite's CC-BY-4.0 build data are fetched only during builds;
+redistributing builder layers or node_modules requires their upstream terms.
+
 ## Local audit tools
 
 pip-audit 2.10.0 ([source](https://github.com/pypa/pip-audit), Apache-2.0)

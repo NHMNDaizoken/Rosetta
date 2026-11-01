@@ -4,6 +4,9 @@ How to work on Rosetta without breaking its public contracts or security model.
 Read [AGENTS.md](../AGENTS.md), [PRODUCT.md](PRODUCT.md) and
 [ARCHITECTURE.md](ARCHITECTURE.md) first.
 
+For installation and independent app integration, start with [GETTING_STARTED](GETTING_STARTED.md).
+This file covers extending Core itself. The SDK in `sdk/node` imports no Core module.
+
 ## Runtime shape
 
 Rosetta Backend is one Node.js process (`src/server.mjs`) that exposes health,
@@ -24,6 +27,7 @@ routes and explicit contracts.
 | Module | Responsibility | Public or internal |
 | --- | --- | --- |
 | `src/server.mjs` | Validate configuration, build the API, bind the process, shut down. | Entrypoint only |
+| `src/bootstrap/config.mjs`, `container.mjs` | Validate environment; construct optional workers once; expose one close hook. | Composition root |
 | `src/platform/health/health.mjs` | Liveness HTTP server and fallback error rendering. | `GET/HEAD /health` |
 | `src/api.mjs` | Route dispatch, readiness, request IDs, error mapping. | Public routing |
 | `src/platform/auth/auth.mjs` | Bearer validation, live introspection, tenant/role checks. | Shared security |
@@ -38,6 +42,14 @@ routes and explicit contracts.
 | `src/modules/objects/objects.mjs` | Object readiness, storage adapter and object routes. | `/v1/objects*`, `/v2/objects*` |
 | `src/modules/workflow/workflow.mjs` | Workflow routes, canonical input and idempotency ledger. | `/v1/workflows/*` |
 | `src/modules/workflow/client.mjs` | Private Flowable HTTP client. | Internal provider adapter |
+| `src/modules/capability/compatibility/compatibility.mjs` | Restricted schema proof and strict JSON parsing. | Offline C3 helpers |
+| `src/modules/capability/trust/trust.mjs` | Exact direct grants and private command boundary. | C2 interface |
+| `src/modules/capability/execution/execution.mjs` | SQL reservation, memory authentication leases and ticket authority. | C4A authority |
+| `src/modules/capability/execution/provider-network.mjs` | Approved-origin TLS transport, DNS pinning and dispatch guard. | Shared C4 transport |
+| `src/modules/capability/execution/runtime.mjs` | Guarded single invocation and Flowable worker correlation. | Opt-in C4A runtime |
+| `src/modules/capability/composition/plan.mjs`, `bpmn.mjs` | Linear plan validation and deterministic bounded BPMN. | Pure C4B helpers |
+| `src/modules/capability/composition/registry.mjs` | Composition lifecycle and publication authority. | C4B Registry |
+| `src/modules/capability/composition/execution.mjs`, `runtime.mjs` | Private SQL steps, leases, ordered Flowable dispatch and observation. | Opt-in C4B runtime |
 
 Rules:
 
@@ -47,6 +59,11 @@ Rules:
   from provider calls where the existing module already allows it.
 - Reuse `HttpError` and the existing error shape rather than inventing a new one.
 - Never mint provider credentials in a browser or log tokens, secrets or bodies.
+- SQL files 001–017 are immutable. The migration runner owns checksum, applied-version,
+  lock and fingerprint checks. Authority modules use restricted owner-controlled RPCs;
+  generic records cannot administer private tables. See [MIGRATIONS](MIGRATIONS.md).
+- The boundary checker enforces declared public entrypoints, downward dependencies and
+  no cycles. Bootstrap wires optional workers; Flowable owns durable jobs and timers.
 
 ## Add a public API route
 
@@ -68,7 +85,7 @@ handler change. Follow every step:
    operation must be represented.
 7. If the Console may call it, add an explicit `location` to
    `console/nginx/default.conf`. There is no generic `/api/` passthrough.
-8. Regenerate the Console inventory: `npm run console:generate:endpoints`
+8. Regenerate the Console inventory: `npm --prefix console run generate:endpoints`
    (or run `npm run generate:endpoints` inside `console/`), then commit the
    updated `console/src/constants/foundationEndpoints.json`.
 9. Add positive and negative tests: unauthenticated, wrong tenant, wrong app,
@@ -151,6 +168,11 @@ npm run test:capabilities
 npm run test:flowable-worker
 npm run test:recovery
 npm run test:audit
+npm run test:compositions
+npm run test:migrations
+npm run test:execution-ledger
+npm run test:provider-network
+npm run check:schema-drift
 ```
 
 Do not claim a suite passed if it was not executed. Integration suites restart

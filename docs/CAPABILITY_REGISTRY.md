@@ -6,8 +6,9 @@ The C1 slice implements provider-owned capability drafts, manifest validation,
 publication approval, immutable publication and terminal revocation. It does
 not itself execute providers or create a public catalog. Bounded
 [C2 direct Trust/discovery](CAPABILITY_DIRECT_TRUST.md) now extends its GET/list
-visibility with exact grants. Human delegation and C4 invocation/composition are
-unimplemented.
+visibility with exact grants. [C4A invocation](CAPABILITY_EXECUTION.md) and
+[C4B composition](CAPABILITY_COMPOSITION.md) are implemented opt-in and disabled by
+default. Human delegation remains unimplemented.
 
 ## Storage and roles
 
@@ -76,11 +77,9 @@ changes append an audit event in the same transaction through
 the audit resource ID because the audit table requires UUIDs; approvals use the
 approval ID.
 
-The existing C1 validation-report branch returns before its shared mutation audit
-append (migration 006, source inspection). That preexisting coverage gap is not
-changed by C2; publication and the new Trust lifecycle use protected transactional
-appends. It requires a separately scoped correction before claiming complete
-Registry mutation audit coverage.
+Migration 010 corrects the historical validation-report audit gap in 006: report
+updates and their required append now commit or roll back together. The execution
+ledger suite verifies this fail-closed behavior; see [C4A](CAPABILITY_EXECUTION.md).
 
 ## C2 integration
 

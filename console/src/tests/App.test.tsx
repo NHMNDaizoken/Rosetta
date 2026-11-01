@@ -105,6 +105,8 @@ describe("Rosetta Console Application Tests", () => {
     render(<App />);
     await screen.findByRole("heading", { name: viStrings.nav.gettingStarted });
     expect(screen.getAllByText(/npm run setup/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/npm run doctor/).length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: /Hướng dẫn local/ })).toHaveAttribute("href", expect.stringContaining("GETTING_STARTED.md"));
     expect(screen.getByText(/examples\/foundation-http\.mjs/)).toBeInTheDocument();
   });
 

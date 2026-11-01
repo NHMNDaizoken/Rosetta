@@ -1,6 +1,14 @@
 /* SPDX-FileCopyrightText: 2026 Rosetta Contributors */
 /* SPDX-License-Identifier: Apache-2.0 */
 @import "tailwindcss";
+/* Match the existing ThemeProvider's explicit class instead of OS media state. */
+@custom-variant dark (&:where(.dark, .dark *));
+@theme {
+  --color-stone-ink: #172F3D;
+  --color-rosetta-blue: #176B80;
+  --color-app-bg: #F7F8F6;
+  --color-surface: #FFFFFF;
+}
 
 @layer base {
   :root {

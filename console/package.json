@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prebuild": "node ../scripts/console-notices.mjs",
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "vitest run",

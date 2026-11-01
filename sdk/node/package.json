@@ -1,0 +1,9 @@
+{
+  "name": "@rosetta/server-client",
+  "version": "0.1.0-rc.1",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "engines": { "node": ">=24 <25" },
+  "exports": { ".": { "types": "./index.d.ts", "import": "./index.mjs" } }
+}

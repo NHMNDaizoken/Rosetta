@@ -23,7 +23,7 @@ function checkFile(file) {
   }
 }
 
-for (const root of ["src", "scripts", "tests", "integration", "examples", "infra", ".github", "console/scripts", "console/nginx"]) {
+for (const root of ["src", "scripts", "tests", "integration", "examples", "sdk", "infra", ".github", "console/scripts", "console/nginx"]) {
   if (existsSync(root)) check(root);
 }
 checkFile("Dockerfile");

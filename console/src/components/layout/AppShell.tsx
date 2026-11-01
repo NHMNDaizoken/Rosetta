@@ -78,7 +78,7 @@ export const AppShell: React.FC<AppShellProps> = ({
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
+        className={`min-w-0 w-full flex-1 flex flex-col transition-all duration-300 ${
           isCollapsed ? "md:pl-16" : "md:pl-64"
         }`}
       >
@@ -91,7 +91,7 @@ export const AppShell: React.FC<AppShellProps> = ({
           identityState={identityState}
         />
 
-        <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
+        <main className="min-w-0 flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
           {children}
         </main>
 

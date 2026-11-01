@@ -3,7 +3,7 @@
 Status (2026-10-29): bounded C2 direct grants, authorized discovery and the live
 internal eligibility predicate are implemented. C1 Registry is implemented, C3 is a
 bounded offline resolver, and A1 Audit is implemented with trusted DBAs. Human
-delegation is deferred; C4 execution is unimplemented; hosting is proposed.
+delegation is deferred; bounded [C4A](CAPABILITY_EXECUTION.md)/[C4B](CAPABILITY_COMPOSITION.md) are implemented opt-in and disabled by default; hosting is proposed.
 
 ## Bounded contract
 
@@ -68,9 +68,7 @@ events. A partial unique index permits only one consumed approval per grant.
 Run `docker compose run --rm data-migrate` before rebuilding Core. The migrator
 now applies only pending numbered files: replaying older permission constraints
 would otherwise remove/reject later Trust assignments. Run one migrator at a time.
-For an explicit reapplication of 008, use `docker compose run --rm --entrypoint psql
-data-migrate -h database -U rosetta_admin -d rosetta_data -v ON_ERROR_STOP=1
--f /migrations/008-trust-lifecycle.sql`.
+Do not reapply historical migration 008 directly. The checksum-enforcing runner verifies applied 001–017; use additive migrations for corrections. See [MIGRATIONS](MIGRATIONS.md).
 Keep both private schemas, role ownership/ACLs, Registry and Audit in coordinated
 backups. Roll back code without dropping authority/history tables. No destructive
 down migration or purge is provided. The verification section below records

@@ -1,5 +1,9 @@
 # Architecture decision records
 
+Historical decision snapshot through the reviewed baseline below. Preserve its
+accepted/proposed rationale; consult [current implementation status](LAYER1_IMPLEMENTATION_STATUS.md)
+for subsequently implemented C4A/C4B and developer/release work.
+
 > Reviewed: 2026-10-28 | Branch: main | Audit baseline: `360a7dd741442a2e3dbfc0f10d45a1e387d3b697`
 
 ## Decision status and approval

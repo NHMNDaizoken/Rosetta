@@ -27,6 +27,8 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ currentScreen, onNavig
         return t.nav.workflows;
       case "api-explorer":
         return t.nav.apiExplorer;
+      case "getting-started":
+        return t.nav.gettingStarted;
       case "security":
         return t.nav.security;
       case "settings":

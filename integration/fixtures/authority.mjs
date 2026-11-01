@@ -77,7 +77,7 @@ async function backend(label, principal, administrator, tenant = "tenant-a", wri
   assert.equal(decision.status, 201, await decision.clone().text());
   const active = await api(`/v1/applications/${pending.appId}/approve`, administrator, { approvalId: (await decision.json()).approvalId }, { "If-Match": created.headers.get("etag") });
   assert.equal(active.status, 200);
-  return { app: await active.json(), token, subject, clientId, etag: active.headers.get("etag") };
+  return { app: await active.json(), token, subject, clientId, clientSecret: secret, etag: active.headers.get("etag") };
 }
 
 

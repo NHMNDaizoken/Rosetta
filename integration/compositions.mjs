@@ -9,6 +9,7 @@ import { before, after, test } from "node:test";
 import { createAuthorityFixture } from "./fixtures/authority.mjs";
 import { createRuntimeFixture } from "./capability-runtime-fixture.mjs";
 import { verifyContracts } from "./contract.mjs";
+import { createRosettaClient } from "../sdk/node/index.mjs";
 
 const base = process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
 const prefix = `composition-${randomBytes(5).toString("hex")}`;
@@ -178,10 +179,24 @@ test("C4B: real two-provider execution agrees with durable SQL and completed Flo
   const before = await states();
   await runtime.mode("normalize", 0);
   const key = randomUUID(), body = execution();
-  const accepted = expect(await start(body, key), 202);
+  // SDK uses the real fixture HTTP transport because the public Gateway remains
+  // execution-disabled. Authentication still uses the real public OIDC endpoint.
+  const sdk = createRosettaClient({ baseUrl: base, clientId: consumer.clientId, clientSecret: consumer.clientSecret,
+    fetcher: async (url, init) => {
+      if (url.pathname.includes("/protocol/openid-connect/token")) return fetch(url, init);
+      const headers = Object.fromEntries(init.headers);
+      const bearer = headers.authorization.slice(7);
+      delete headers.authorization; delete headers["content-type"];
+      const result = await api(url.pathname + url.search, bearer,
+        init.body ? JSON.parse(init.body) : undefined, headers, init.method);
+      assert.equal(result.status, init.method === "POST" ? 202 : 200);
+      return new Response(JSON.stringify(result.body), { status: result.status, headers: result.headers });
+    } });
+  const accepted = { body: await sdk.execute(body.target, body.input, key) };
   assert.equal((await stored(accepted.body.executionId)).engine_process_id !== null, true);
   await runtime.control("resume");
   const done = await terminal(accepted.body.executionId, "succeeded");
+  assert.deepEqual((await sdk.waitForExecution(done.body.executionId)).output, { value: "normalized" });
   assert.deepEqual(done.body.output, { value: "normalized" });
   const row = await stored(done.body.executionId);
   const history = expect(await runtime.engine(`/service/history/historic-process-instances/${row.engine_process_id}`), 200).body;

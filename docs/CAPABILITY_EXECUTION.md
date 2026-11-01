@@ -97,11 +97,10 @@ are never included in the production image.
 
 ## Prerequisites and infrastructure risks
 
-- **[Issue #1](https://github.com/NHMNDaizoken/Rosetta/issues/1) — migration
-  runner has no content checksum.** Applied versions are skipped by number only,
-  so editing an applied migration leaves a stale schema. Do not edit applied
-  migrations; a fresh disposable run of 001–009 was verified independently and
-  no 009 reapplication was performed.
+- **[Issue #1](https://github.com/NHMNDaizoken/Rosetta/issues/1) — closed as fixed.**
+  The runner now verifies exact checksums, installed-version inventory, concurrent
+  serialization and authority schema fingerprints through migrations 001–017.
+  See [migration operations](MIGRATIONS.md). Applied migration bytes remain immutable.
 - **[Issue #2](https://github.com/NHMNDaizoken/Rosetta/issues/2) — C1
   validation-report audit gap — closed as fixed.** Migration 010 corrects the underlying C1 function
   while preserving the later approval/discovery wrappers. Report updates and
@@ -209,11 +208,10 @@ rejection of the former worker and zero-retry dead-letter behavior.
   separately designed retention policy that preserves idempotency tombstones.
 - Providers must implement redemption honestly. Core cannot prove arbitrary
   external code obeyed it; only approved `sideEffects=none` capabilities are in scope.
-- Migration checksums remain an open infrastructure defect (#1). Installed
-  function definitions, owners and ACLs were compared against fresh installations
-  before/after additive migrations; applied migrations were not edited.
+- Migration integrity controls and their current evidence are in [MIGRATIONS](MIGRATIONS.md)
+  and [implementation status](architecture/LAYER1_IMPLEMENTATION_STATUS.md).
 
-## Verified development checkpoint — 2026-10-29
+## Historical verified C4A checkpoint — 2026-10-29
 
 Starting source: `f2f78425161d072094190cce0fa01338485f4563`.
 Increment A is `62e221ae453f05ddb3bdbebe4c1ceff4e59e7ba4`

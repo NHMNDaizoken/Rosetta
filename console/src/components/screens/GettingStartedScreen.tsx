@@ -27,7 +27,7 @@ const COPY = {
     badge: "Foundation APIs",
     startTitle: "1. Start the local stack",
     startDesc:
-      "Requires Node.js 24, Docker Engine with Linux containers and Docker Compose v2.20+. npm run setup creates an ignored .env with local fixture credentials.",
+      "Use Node.js 24 and Docker Desktop with Linux containers. Setup generates private local credentials. Doctor checks configuration and ports; local:up starts Foundation and Console. Open http://127.0.0.1:3000.",
     enrollTitle: "2. Enroll an application",
     enrollDesc:
       "Application registration is implemented, but enrollment is operator-run. A trusted operator must create the principal, enrollment and provider binding before an application can call v2 resources.",
@@ -47,6 +47,7 @@ const COPY = {
     ],
     errorsTitle: "Common failures",
     errors: [
+      "Startup failed: run npm run doctor and npm run local:status. Keep existing .env and database volumes.",
       "401/403: token missing, client disabled, or the application is pending/suspended.",
       "403 verified_client_required: the OIDC client is not an enrolled backend.",
       "404 on a shared resource: the share expired, was revoked, or targets another tenant.",
@@ -55,6 +56,9 @@ const COPY = {
     ],
     linksTitle: "Read next",
     links: [
+      ["Local onboarding and server SDK", "/blob/main/docs/GETTING_STARTED.md"],
+      ["Capability invocation", "/blob/main/docs/CAPABILITY_EXECUTION.md"],
+      ["Bounded composition", "/blob/main/docs/CAPABILITY_COMPOSITION.md"],
       ["Product status", "/blob/main/docs/PRODUCT.md"],
       ["Developer and extension guide", "/blob/main/docs/DEVELOPING.md"],
       ["Application registration", "/blob/main/docs/APPLICATION_REGISTRATION.md"],
@@ -69,7 +73,7 @@ const COPY = {
     badge: "Foundation APIs",
     startTitle: "1. Khởi động stack local",
     startDesc:
-      "Cần Node.js 24, Docker Engine với Linux container và Docker Compose v2.20+. npm run setup tạo .env (đã ignore) với credential fixture local.",
+      "Dùng Node.js 24 và Docker Desktop với Linux container. Setup tạo credential local riêng; doctor kiểm tra cấu hình và cổng. local:up khởi động Foundation và Console tại http://127.0.0.1:3000.",
     enrollTitle: "2. Đăng ký ứng dụng",
     enrollDesc:
       "Application registration đã triển khai nhưng enrollment do operator thực hiện. Operator tin cậy phải tạo principal, enrollment và provider binding trước khi ứng dụng gọi được tài nguyên v2.",
@@ -89,6 +93,7 @@ const COPY = {
     ],
     errorsTitle: "Lỗi thường gặp",
     errors: [
+      "Không khởi động được: chạy npm run doctor và npm run local:status. Giữ nguyên .env và volume dữ liệu.",
       "401/403: thiếu token, client bị tắt, hoặc ứng dụng pending/suspended.",
       "403 verified_client_required: OIDC client chưa được enrollment làm backend.",
       "404 trên tài nguyên đã share: share hết hạn, bị thu hồi hoặc khác tenant.",
@@ -97,6 +102,9 @@ const COPY = {
     ],
     linksTitle: "Đọc tiếp",
     links: [
+      ["Hướng dẫn local và SDK server", "/blob/main/docs/GETTING_STARTED.md"],
+      ["Gọi capability", "/blob/main/docs/CAPABILITY_EXECUTION.md"],
+      ["Composition giới hạn", "/blob/main/docs/CAPABILITY_COMPOSITION.md"],
       ["Trạng thái sản phẩm", "/blob/main/docs/PRODUCT.md"],
       ["Hướng dẫn developer & mở rộng", "/blob/main/docs/DEVELOPING.md"],
       ["Đăng ký ứng dụng", "/blob/main/docs/APPLICATION_REGISTRATION.md"],
@@ -109,10 +117,12 @@ const COPY = {
 const START_COMMANDS = `git clone https://github.com/NHMNDaizoken/Rosetta.git
 cd Rosetta
 npm run setup
-docker compose up --build --detach --wait --wait-timeout 240
+npm run doctor
+npm run local:up
 npm run healthcheck`;
 
-const EXAMPLE_COMMANDS = `ROSETTA_APP_CLIENT_ID=<enrolled-backend-client>
+const EXAMPLE_COMMANDS = `# Save these keys in ignored .env.app.local (server only)
+ROSETTA_APP_CLIENT_ID=<enrolled-backend-client>
 ROSETTA_APP_CLIENT_SECRET=<backend-secret>
 ROSETTA_GRANTEE_APP_ID=<second-enrolled-app-uuid>
 
@@ -120,7 +130,8 @@ ROSETTA_GRANTEE_APP_ID=<second-enrolled-app-uuid>
 ROSETTA_GRANTEE_CLIENT_ID=<grantee-client>
 ROSETTA_GRANTEE_CLIENT_SECRET=<grantee-secret>
 
-node --env-file=.env examples/foundation-http.mjs`;
+# Then run in your terminal (Windows PowerShell or shell)
+node --env-file=.env --env-file=.env.app.local examples/foundation-http.mjs`;
 
 export const GettingStartedScreen: React.FC = () => {
   const { language } = useI18n();
@@ -135,7 +146,7 @@ export const GettingStartedScreen: React.FC = () => {
       />
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex-col items-start!">
           <div className="flex items-center gap-2">
             <Terminal className="w-5 h-5 text-rosetta-blue dark:text-sky-400" />
             <CardTitle>{copy.startTitle}</CardTitle>
@@ -148,7 +159,7 @@ export const GettingStartedScreen: React.FC = () => {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex-col items-start!">
           <div className="flex items-center gap-2">
             <KeyRound className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             <CardTitle>{copy.enrollTitle}</CardTitle>
@@ -169,7 +180,7 @@ export const GettingStartedScreen: React.FC = () => {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex-col items-start!">
           <div className="flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-teal-600 dark:text-teal-400" />
             <CardTitle>{copy.runTitle}</CardTitle>
@@ -186,7 +197,7 @@ export const GettingStartedScreen: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex-col items-start!">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-rosetta-blue dark:text-sky-400" />
               <CardTitle>{copy.provesTitle}</CardTitle>
@@ -205,7 +216,7 @@ export const GettingStartedScreen: React.FC = () => {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex-col items-start!">
             <div className="flex items-center gap-2">
               <Database className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               <CardTitle>{copy.errorsTitle}</CardTitle>
@@ -225,7 +236,7 @@ export const GettingStartedScreen: React.FC = () => {
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex-col items-start!">
           <div className="flex items-center gap-2">
             <GitBranch className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             <CardTitle>{copy.linksTitle}</CardTitle>

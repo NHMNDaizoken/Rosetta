@@ -2,9 +2,9 @@
 
 The implemented control plane is described by the
 [Foundation OpenAPI](contracts/foundation-api.openapi.json). Its original design
-also appears in the separate Capability draft. Registry, resolver endpoint,
-composition and provider invocation remain unimplemented; the bounded offline
-compatibility proof module is implemented separately. Existing Core APIs do
+also appears in the separate Capability draft. C1/C2 and opt-in bounded C4A/C4B
+are implemented separately; the resolver remains offline. See [current status](PRODUCT.md).
+Existing Core APIs do
 not change. Use a local/test stack; no production deployment is authorized.
 
 ## Apply and verify
@@ -87,7 +87,7 @@ Review and record operator changes through the operator's audit/change process.
 To revoke API administration immediately, set the corresponding principal's
 `enabled=false`. Disable an enrollment to block new registration/activation.
 Suspending/revoking an application does not disable its OAuth client or change
-its existing generic Core record access. There are no capability grants yet.
+its existing generic Core record access. Capability grants are administered separately through the implemented [Direct Trust](CAPABILITY_DIRECT_TRUST.md) boundary.
 Owner transfer is not exposed; do not directly edit active ownership records as
 a substitute for a reviewed, audited ownership migration.
 

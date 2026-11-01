@@ -9,15 +9,15 @@
 | **Rosetta Cloud** | Projects/environments, application hosting, deployments, runtime workers, domains and bindings. | **PROPOSED** — architecture only; nothing runs. |
 | **Rosetta Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **PARTIAL** — C1 Registry and bounded C2 direct grants/discovery are implemented; C3 is an offline resolver. C4A invocation and C4B bounded composition are opt-in and disabled by default; human delegation remains deferred. |
 
-There is no public demo, SDK, Layer-2 GUI or hosting runtime in this repository. Do not read a design document as a working feature. The authoritative, itemized status list is [docs/PRODUCT.md](docs/PRODUCT.md).
+A minimal server-side Node SDK is available in `sdk/node/`. There is no public demo, Layer-2 GUI or hosting runtime in this repository. Do not read a design document as a working feature. The authoritative, itemized status list is [docs/PRODUCT.md](docs/PRODUCT.md).
 
-**Start here:** [What works today](docs/PRODUCT.md) · [Quickstart](#quickstart) · [First API request](#core-api-usage) · [Developer guide](docs/DEVELOPING.md) · [Architecture](#layer-1-and-layer-2) · [Roadmap](#development-roadmap)
+**Start here:** [What works today](docs/PRODUCT.md) · [Quickstart](#quickstart) · [First API request](#core-api-usage) · [Developer onboarding](docs/GETTING_STARTED.md) · [Extension guide](docs/DEVELOPING.md) · [Architecture](#layer-1-and-layer-2) · [Roadmap](#development-roadmap)
 
 ```sh
 git clone https://github.com/NHMNDaizoken/Rosetta.git
 cd Rosetta
 npm run setup
-docker compose up --build --detach --wait --wait-timeout 240
+npm run local:up
 npm run healthcheck
 ```
 
@@ -61,7 +61,7 @@ The canonical diagrams distinguish current integrations and future consumers:
 [current runtime](docs/architecture/ARCHITECTURE_MAPS.md#map-02-current-implemented-architecture)
 and [target logical architecture](docs/architecture/ARCHITECTURE_MAPS.md#map-03-target-logical-core-taxonomy).
 “Core” describes a platform boundary; current adapters share one Node process and
-reuse upstream providers. Projects, hosting and Capability Runtime remain proposed.
+reuse upstream providers. Projects and hosting remain proposed. Bounded C4A/C4B execution is implemented and disabled by default.
 
 Public contracts reduce coupling to providers. Replacing a provider can still require data migration, identity mapping, workflow conversion and compatibility testing; provider interchangeability is not guaranteed.
 
@@ -99,13 +99,13 @@ In the proposed flow, a capability is an application-published operation with an
 5. An accepted plan is executed through the Workflow Engine. Service boundaries validate actual inputs and authorization at runtime.
 6. Execution results and failures are checked against the declared contracts and recorded for inspection under the applicable access rules.
 
-Composition coordinates capabilities; the Workflow Engine remains responsible for durable workflow execution. Preflight checks cannot prove business correctness or guarantee that external services will succeed. Runtime authorization remains necessary when permissions or conditions change. An AI proposal grants no extra authority and cannot bypass deterministic validation. This flow is a design proposal, not a description of endpoints available today.
+Composition coordinates capabilities; the Workflow Engine remains responsible for durable workflow execution. Preflight checks cannot prove business correctness or guarantee that external services will succeed. Runtime authorization remains necessary when permissions or conditions change. An AI proposal grants no extra authority and cannot bypass deterministic validation. The implemented bounded C4A/C4B subset and its HTTP operations are documented in the Capability guides; general planning and delegation remain proposals.
 
 ## Language-independent integration
 
 Current clients use HTTP, JSON, OIDC and opaque binary uploads. They can use their language's HTTP and authentication libraries without adopting the Core's Node.js runtime or accessing provider databases directly.
 
-[Foundation OpenAPI 3.1](docs/contracts/foundation-api.openapi.json) describes the implemented public APIs, including v1/v2 resources and registration. [Validation and tested HTTP examples](docs/FOUNDATION_OPENAPI.md) explain the 44-operation coverage, provider boundaries and development tools. [CORE_API.md](docs/CORE_API.md) remains the human-readable guide. The separate [Capability contract](docs/contracts/capability-api-v1.openapi.json) distinguishes implemented C1/C2 registry/trust and opt-in [C4A guarded single-capability execution](docs/CAPABILITY_EXECUTION.md) and [C4B bounded composition](docs/CAPABILITY_COMPOSITION.md) from design-only delegation. Both execution paths are disabled by default. Optional SDKs are not implemented.
+[Foundation OpenAPI 3.1](docs/contracts/foundation-api.openapi.json) describes the implemented public APIs, including v1/v2 resources and registration. [Validation and tested HTTP examples](docs/FOUNDATION_OPENAPI.md) explain the 44-operation coverage, provider boundaries and development tools. [CORE_API.md](docs/CORE_API.md) remains the human-readable guide. The separate [Capability contract](docs/contracts/capability-api-v1.openapi.json) distinguishes implemented C1/C2 registry/trust and opt-in [C4A guarded single-capability execution](docs/CAPABILITY_EXECUTION.md) and [C4B bounded composition](docs/CAPABILITY_COMPOSITION.md) from design-only delegation. Both execution paths are disabled by default. The dependency-free [Node server SDK](sdk/node/index.mjs) covers public HTTP integration; see [onboarding](docs/GETTING_STARTED.md).
 
 ## Illustrative cross-application use case
 
@@ -129,7 +129,7 @@ This example is illustrative. Neither business application is included. Foundati
 | Protected authority audit | Transactional audit with derived actor/tenant metadata, redaction, internal tenant query and fail-closed admission. | Negative/role/restart tests pass; DBAs are trusted, and public export, cryptographic sealing and independent retention remain unimplemented. See [AUDIT.md](docs/AUDIT.md). |
 | CI and source licensing | GitHub Actions and approved Apache-2.0 project licensing in place. | CI runs source/unit/container/integration/restore checks; binary redistribution and vulnerability audits remain separate work. |
 | Capability extensions | C1 Registry and bounded C2 direct grants/discovery implemented; C3 offline resolver. | [Direct Trust](docs/CAPABILITY_DIRECT_TRUST.md) records real OIDC denial, pagination, audit and restore checks. C4A/C4B are implemented behind explicit opt-in; human delegation remains unimplemented. |
-| OpenAPI and optional SDKs | Foundation OpenAPI plus a Capability contract with explicit implemented/proposed operation statuses. No SDK. | Keep route/schema/authorization coverage current before optional client generation. |
+| OpenAPI and optional SDKs | Foundation/Capability OpenAPI plus a tested server-side Node ESM SDK. | SDK authentication, denial, idempotency and polling tests; real enrolled-app and composition integration. |
 | Optional Rosetta Console | React management UI implemented; partially connected, with preview/session resource behavior. | [Audit qualifications](docs/architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions): fail-closed live identity, memory-only token, preview-only v2 methods and a tested packaged Nginx image. No operator login/session or automated live-browser visual/accessibility proof. |
 | Developer Cloud / application hosting | Proposed architecture only; no project/deployment/controller runtime. | Approve one [handoff slice](docs/architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md) and its ADRs before implementation. |
 | Layer-2 GUI and optional AI planning | Future work; no implementation here. | Build separately against public contracts; an AI integration needs its own approved scope. |
@@ -152,7 +152,7 @@ git clone https://github.com/NHMNDaizoken/Rosetta.git
 cd Rosetta
 npm run setup
 docker compose config --quiet
-docker compose up --build --detach --wait --wait-timeout 240
+npm run local:up
 npm run healthcheck
 docker compose exec -T core node scripts/check-health.mjs
 docker compose ps
@@ -167,13 +167,13 @@ The gateway is available at `http://127.0.0.1:8080` by default. This is an API e
 ### Configuration and common startup problems
 
 - `PORT` controls the native listening port and Compose's loopback host mapping; the Core container listens on 8080. Keep `PUBLIC_URL` consistent with the gateway URL because Keycloak uses it in its issuer. The PKCE fixture callback is fixed separately in the realm configuration.
-- The host `npm run healthcheck` reads `PORT` from the calling shell, not `.env`. For a custom port, use `node --env-file=.env scripts/check-health.mjs`.
+- `npm run healthcheck` reads `.env` and requires both liveness and dependency readiness. The container liveness probe remains `node scripts/check-health.mjs`. Run `npm run doctor` for startup guidance.
 - If Docker cannot connect to its daemon, start the Linux engine first. If startup times out, inspect `docker compose ps` and service diagnostics locally. Logs and resolved Compose configuration may contain sensitive information; do not publish them without review. Use `docker compose config --quiet` for validation.
 - Editing the Keycloak realm JSON does not migrate an existing realm. Never delete a volume to force configuration changes. Existing database credentials also need coordinated rotation; editing `.env` alone does not rotate stored accounts.
 
 Stop with `docker compose down`. Named volumes remain. Do not use `down -v` or volume pruning on persistent project data. See [local operations](docs/OPERATIONS.md) for startup, migration and recovery boundaries.
 
-For the standalone health process without configured integrations, stop Compose first, run `npm start`, and run `npm run healthcheck` in a second terminal. `HOST` defaults to loopback and `PORT` to 8080; stop with Ctrl+C.
+For the standalone health process without configured integrations, stop Compose first, run `npm start`, and run `node scripts/check-health.mjs` in a second terminal. `HOST` defaults to loopback and `PORT` to 8080; stop with Ctrl+C.
 
 ## Core API usage
 
@@ -294,8 +294,8 @@ Rosetta's adapters use Node.js 24 and its standard HTTP, crypto and test APIs, w
 | --- | --- | --- |
 | Foundational Core | Implemented and verified locally. | Maintain API/tenant regression checks and extend operational recovery evidence. |
 | Public contracts | Foundation OpenAPI covers implemented v1/v2 APIs with structural checks and real-service conformance. | Maintain observed operation coverage and review semantic/contract changes before optional SDKs. |
-| Capability publication and trust | Proposed Registry and Cross-App Trust Cores. | Agree versioning, ownership, visibility and invocation/delegation rules; prove denied cases. |
-| Verifiable composition | Proposed Resolver and Composition & Execution Cores. | Define supported checks and workflow bindings; test incompatible schemas, revoked permissions, retries and runtime failures. |
+| Capability publication and trust | Bounded C1/C2 implemented with independent approval and exact grants. | Maintain denial, revocation, isolation and restore checks; delegation remains deferred. |
+| Verifiable composition | Offline C3 and opt-in C4A/C4B implemented. | Maintain real two-provider execution and conservative recovery checks; no arbitrary DAG/resume/retries. |
 | Independent Layer-2 products | No application is implemented. | Demonstrate an application using foundational APIs, then a separately reviewed cross-application capability scenario. |
 | Optional AI planning | Aspirational integration. | Validate any planner output through the same deterministic Core checks and authorization. |
 | Deployment and release | Local Compose and CI only. | Approve a target; verify TLS/secrets, full backup/restore, rollback, security/license audits and release procedures. |
