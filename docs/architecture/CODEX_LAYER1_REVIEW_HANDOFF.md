@@ -11,7 +11,10 @@ The continuation began on authorized repository
 This was the DeepSeek/OpenCode checkpoint supplied by the owner. GitHub REST
 independently confirmed its [successful run](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41313291206).
 
-Final implementation SHA and exact-SHA Actions evidence: pending first push.
+Final implementation SHA: `64a68fab0f857609cad9c28323d07eddfcb020ac`.
+Exact-SHA [Actions run](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41321880800)
+completed successfully. Downloaded CI logs confirm the real C4B suite passed 29/29.
+The exact remote main SHA was independently verified after push.
 The final documentation revision is the commit containing this handoff; resolve
 it with `git log -1 --format=%H -- docs/architecture/CODEX_LAYER1_REVIEW_HANDOFF.md`.
 The final user handoff also supplies the exact final HEAD and its Actions URL.
@@ -187,18 +190,23 @@ removed instead of claiming an extra contract.
 GitHub CLI/MCP was unavailable. Read-only GitHub REST verified the initial CI
 and Issue #1's actual acceptance scope. Authenticated Git/Git credential-helper
 backed REST are the authorized push/issue/CI methods; credentials are never
-printed or written to repository files. Final pushed-SHA CI links and Issue #1
-resolution are recorded after the first verification run.
+printed or written to repository files. The implementation Actions run above passed all stages for its exact SHA.
+[Issue #1](https://github.com/NHMNDaizoken/Rosetta/issues/1) was closed as completed
+after comparing its actual acceptance criteria with the new checks; the
+[evidence comment](https://github.com/NHMNDaizoken/Rosetta/issues/1#issuecomment-6560160245)
+records migration 017, fresh 9/9 integrity tests, development drift verification
+and preservation of historical bytes. No new issues were needed. The final
+documentation-only commit is verified by the same workflow before the user handoff.
 
-Current assessment: local bounded C4B engineering gates pass; exact-SHA CI is
-pending. C4B remains disabled by default and was enabled only in isolated test
+Current assessment: COMPLETE for the bounded authorized Layer 1 implementation
+program. Local gates and exact implementation-SHA CI passed. C4B remains disabled by default and was enabled only in isolated test
 Core fixtures. No general-use/HA/exactly-once or production-readiness claim is
 made. Human delegation, arbitrary BPMN/URLs, general side effects, retries,
 public cancel/resume, hosting, projects, AI agents and Layer 2 were not added.
 No dependencies or license choices changed. Comprehensive dependency/license
 and vulnerability audits were not run.
 
-After final exact-SHA CI, the bounded authorized Layer 1 program can transition
+After final handoff-SHA CI, the bounded authorized Layer 1 program can transition
 to selecting and implementing the required Layer 2 GUI application through Core
 contracts. That next task still needs an application/use-case decision, synthetic
 end-to-end scenario and explicit domain boundaries. Production hardening,
@@ -207,8 +215,8 @@ submission checks remain separate work. No Layer 2 implementation began here.
 
 ## Overall Layer 1 program history
 
-The following history precedes this continuation. The completion commits follow
-it on main; their exact hashes are given in the verification section above.
+History through the verified implementation follows. The documentation-only
+handoff commit follows this list; resolve its hash using the command above.
 
 ```text
 c7b758c chore(repo): initialize foundation workspace and ignore rules
@@ -254,3 +262,5 @@ e66e57b feat(c4a): guard single-capability dispatch through Flowable
 2e28078 feat(c4b): wire composition runtime, thread migration 012, fix permission set
 ff16a5e fix(c4b): restore composition role, reuse parsed body and extend recovery roles
 ```
+
+Implementation completion: `64a68fab0f857609cad9c28323d07eddfcb020ac` - `feat(c4b): verify guarded compositions and fail-closed recovery`.

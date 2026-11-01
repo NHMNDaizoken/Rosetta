@@ -7,7 +7,9 @@ continuation started with a clean tree at local and remote
 `ff16a5e61d6405a25c1f7fdc3ade289732b21fbb`. Its successful
 [Actions run](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41313291206)
 was independently confirmed through GitHub REST; it contained no real C4B suite.
-Current exact-SHA CI evidence belongs in the
+Implementation SHA `64a68fab0f857609cad9c28323d07eddfcb020ac` passed
+[exact-SHA CI](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41321880800),
+including 29 C4B tests. Final handoff revision identity and evidence are in the
 [engineering handoff](CODEX_LAYER1_REVIEW_HANDOFF.md).
 
 ## Implemented
@@ -38,8 +40,8 @@ Current exact-SHA CI evidence belongs in the
 ## Newly executed local verification
 
 Shared-stack restart suites must run sequentially. Fresh isolated database and
-Console checks can run independently. Final C4B/CI evidence is completed in the
-handoff before declaring the milestone done.
+Console checks can run independently. C4B passed locally and in exact implementation-SHA CI; the final documentation
+revision is also verified before the user handoff.
 
 | Command | Result |
 | --- | --- |
@@ -85,7 +87,8 @@ Development migration 006 has pre-existing mixed line endings matching its
 installed checksum; it was not modified. Preserve the recorded bytes when
 replacing a checkout. See [migration operations](../MIGRATIONS.md).
 
-Layer 2 was not started. Exact-SHA CI must succeed before handing off this
-bounded Layer 1 milestone for selection of the required Layer 2 GUI application.
+The bounded authorized Layer 1 implementation milestone is COMPLETE at its
+verified implementation SHA. Layer 2 was not started. The final handoff commit
+receives the same CI checks before transition to selecting the required Layer 2 GUI application.
 Competition submission, a versioned source release, production readiness and
 full-platform disaster recovery remain separate gates.

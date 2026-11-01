@@ -55,7 +55,7 @@ database; they are logical modules, not additional services.
 Migrations 001–009 implement legacy records, the workflow idempotency ledger,
 application authority, v2 resources/shares and the bounded protected audit
 boundary, plus C1 Registry and bounded direct C2 Trust/discovery. C3 remains an
-offline resolver; human delegation and C4 execution remain unimplemented.
+offline resolver. Migrations 010-017 add opt-in guarded [C4A invocation](../CAPABILITY_EXECUTION.md) and [C4B composition](../CAPABILITY_COMPOSITION.md), including real two-provider and fail-closed recovery verification. Both remain disabled by default; human delegation is unimplemented.
 Named volumes persist PostgreSQL
 and SeaweedFS state. Gateway/Core repeat authentication at their own boundaries.
 Only Gateway normally publishes loopback port 8080; the optional Console profile

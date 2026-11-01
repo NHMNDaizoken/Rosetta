@@ -1,8 +1,8 @@
 # Capability-Driven Layer-1 extensions v1
 
-Implementation update (2026-10-29): C1 Registry is implemented, C3 is a bounded offline resolver, and A1 Audit is implemented under the trusted-DBA threat model. C2 direct grants/authorized discovery and a live internal eligibility predicate are implemented within the backend-subject subset. Human delegation and C4 execution remain unimplemented; hosting is proposed. See [direct Trust](CAPABILITY_DIRECT_TRUST.md) and [Registry](CAPABILITY_REGISTRY.md).
+Implementation update (2026-11-01): C1 Registry, C2 direct Trust, the offline C3 resolver and protected Audit are implemented. Opt-in [C4A guarded invocation](CAPABILITY_EXECUTION.md) and [C4B bounded composition](CAPABILITY_COMPOSITION.md) now have real provider/OIDC/PostgreSQL/Flowable verification and remain disabled by default. Human delegation, general resume/retry, side effects, HA and hosting remain unsupported.
 
-This document retains the full v1 manifest/lifecycle/compatibility design. Current implemented subsets are listed above; remaining execution/delegation endpoints are unavailable. Existing [Core APIs](CORE_API.md), public identity claims and headless platform boundaries remain unchanged.
+This document retains the full v1 manifest/lifecycle/compatibility design. Current implemented subsets are listed above; broader execution/delegation endpoints remain unavailable; the bounded implementation guides define served behavior. Existing [Core APIs](CORE_API.md), public identity claims and headless platform boundaries remain unchanged.
 
 ## Contract artifacts and reading order
 
