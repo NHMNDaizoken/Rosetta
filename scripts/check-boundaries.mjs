@@ -3,11 +3,11 @@
 // Static module-boundary check: dependency direction, public entrypoints, cycles.
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const src = join(root, "src");
+const src = process.argv[2] ? resolve(process.argv[2]) : join(root, "src");
 const FOUNDATION = new Set(["applications", "resources", "data", "objects", "workflow"]);
 const capabilityLayer = (path) => {
   const id = relative(src, path).split("\\").join("/");
@@ -57,7 +57,7 @@ const graph = new Map(files(src).map((path) => [path, []]));
 const problems = [];
 for (const path of graph.keys()) {
   const source = readFileSync(path, "utf8");
-  for (const match of source.matchAll(/(?:from\s+|import\s*\()["'](\.[^"']+)["']/g)) {
+  for (const match of source.matchAll(/(?:from\s+|import\s*\(\s*|import\s*)["'](\.[^"']+)["']/g)) {
     const target = join(path, "..", match[1]);
     if (!graph.has(target)) continue;
     graph.get(path).push(target);

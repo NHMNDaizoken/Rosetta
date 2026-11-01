@@ -61,6 +61,19 @@ test("repeat execution verifies without replaying", async () => {
   assert.doesNotMatch(stdout, /Applying migration/);
 });
 
+test("missing historical migration and duplicate version fail before application", async () => {
+  const file = join(directory, "005-audit-protection.sql");
+  const original = readFileSync(file);
+  rmSync(file);
+  try { assert.match(await refused(), /applied-version integrity/); }
+  finally { writeFileSync(file, original); }
+  const duplicate = join(directory, "005-duplicate.sql");
+  writeFileSync(duplicate, original);
+  try { assert.match(await refused(), /duplicate local migration version/); }
+  finally { rmSync(duplicate); }
+  await migrate();
+});
+
 test("edited applied content fails closed", async () => {
   const file = join(directory, "001-data.sql");
   const original = readFileSync(file, "utf8");

@@ -39,6 +39,7 @@ Expected output is `Migration N verified` for each applied version and
 
 | Message | Meaning | Action |
 | --- | --- | --- |
+| `applied-version integrity` / `duplicate local migration version` | A historical migration file is missing or version numbers collide. | Restore the exact matching migration set. Never remove ledger entries to make startup pass. |
 | `content differs from its recorded checksum` | An applied file was edited or replaced. | Restore the original bytes. Never edit applied history; add a new migration. |
 | `recorded as applied without a checksum` | Version-only history from an older runner. | Follow adoption below. |
 | `installed schema drift detected` | Functions, owners, ACLs, RLS or policies differ from the recorded fingerprint. | Inspect the difference, restore the expected schema, or record a reviewed adoption. |

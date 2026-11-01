@@ -132,6 +132,30 @@ if table_exists core.schema_migrations "$@"; then
 fi
 include_composition=0
 [ "$installed_version" -lt 16 ] || include_composition=1
+if [ "$installed_version" -gt "$latest_local" ]; then
+  fail "database schema is newer than this migration set; use a matching runner instead of replaying older authority SQL"
+fi
+
+# A removed historical file must not silently disappear from checksum review.
+# Check both ledgers: max(version) alone misses missing intermediate versions.
+local_versions=0
+for migration in "$MIGRATION_DIR"/[0-9][0-9][0-9]-*.sql; do
+  [ -f "$migration" ] || continue
+  name=${migration##*/}
+  version=${name%%-*}
+  version=$(printf '%s' "$version" | sed 's/^0*//')
+  version=${version:-0}
+  case ",$local_versions," in
+    *",$version,"*) fail "duplicate local migration version $version" ;;
+  esac
+  local_versions="$local_versions,$version"
+done
+for ledger in core.schema_migrations core.schema_migration_checksums; do
+  if table_exists "$ledger" "$@"; then
+    missing=$(sql "$@" -c "SELECT count(*) FROM $ledger WHERE version NOT IN ($local_versions)")
+    [ "$missing" = 0 ] || fail "applied-version integrity: $ledger contains versions with no local migration file"
+  fi
+done
 
 stored_fingerprint=
 if table_exists core.schema_migration_state "$@"; then

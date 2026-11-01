@@ -8,6 +8,7 @@ const { port, host, config, execution, composition } = loadConfig();
 const application = config ? createApplication(config, execution, composition) : { route: undefined, close() {} };
 const server = createHealthServer(application.route);
 server.on("error", (error) => {
+  application.close();
   console.error(`Platform health API failed: ${error.code ?? "startup_error"}`);
   process.exitCode = 1;
 });

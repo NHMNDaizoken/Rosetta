@@ -81,7 +81,7 @@ The optional `console/` package uses modern open-source frontend libraries for t
 | tailwind-merge | 3.x | MIT | [dcastil/tailwind-merge](https://github.com/dcastil/tailwind-merge) | Conflict-free Tailwind class merging. MIT notice preserved. |
 | Tailwind CSS | 4.x | MIT | [tailwindlabs/tailwindcss](https://github.com/tailwindlabs/tailwindcss) | Build-time CSS utility token processing. Zero runtime overhead. |
 | Vite | 6.x | MIT | [vitejs/vite](https://github.com/vitejs/vite) | Build tool and local development server. The packaged Console does not use Vite preview. |
-| Vitest | 3.x | MIT | [vitest-dev/vitest](https://github.com/vitest-dev/vitest) | Testing framework for UI and component validation. |
+| Vitest | 4.1.12 | MIT | [vitest-dev/vitest](https://github.com/vitest-dev/vitest/tree/v4.1.12) | Development-only test runner; reviewed upgrade removes vulnerable mocker/tinypool graph. Exact transitives remain in console/package-lock.json. |
 | Testing Library React | 16.x | MIT | [testing-library/react-testing-library](https://github.com/testing-library/react-testing-library) | User-centric DOM testing utilities. |
 | jsdom | 26.x | MIT | [jsdom/jsdom](https://github.com/jsdom/jsdom) | Test DOM environment. MIT notice preserved. |
 | @testing-library/jest-dom | 6.9.x | MIT | [testing-library/jest-dom](https://github.com/testing-library/jest-dom) | DOM assertions for tests. MIT notice preserved. |
@@ -97,4 +97,13 @@ font stack; no font asset is claimed as Rosetta-owned.
 The packaged Console runtime image copies `LICENSE`, `NOTICE` and this inventory
 to `/usr/share/licenses/rosetta/`; the Nginx and Debian base-layer notices remain
 in the image. The static build is served by Nginx, not by a Node runtime.
+
+## Local audit tools
+
+pip-audit 2.10.0 ([source](https://github.com/pypa/pip-audit), Apache-2.0)
+is installed only in ignored `.cache/audit-tools` for advisory checks of pinned
+contract dependencies. Docker Desktop's separately installed Docker Scout 1.24.0
+performs image CVE and SBOM analysis. Neither tool nor its dependencies are bundled
+in Rosetta source archives or runtime images. npm's built-in audit/SBOM commands
+inspect the Console lockfile. See [review scope](docs/SECURITY_REVIEW.md).
 
