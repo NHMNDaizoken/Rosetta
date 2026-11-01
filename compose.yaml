@@ -200,7 +200,7 @@ services:
       context: .
       dockerfile: console/Dockerfile
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${CONSOLE_PORT:-3000}:3000"
     depends_on:
       gateway:
         condition: service_healthy

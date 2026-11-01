@@ -9,7 +9,12 @@ try {
   if (response.status !== 200 || body.service !== "rosetta-core" || body.status !== "ok") {
     throw new Error("Unexpected health response");
   }
+  if (process.argv.includes("--ready")) {
+    const ready = await fetch(`http://127.0.0.1:${port}/ready`, { signal: AbortSignal.timeout(15000) });
+    if (!ready.ok || (await ready.json()).status !== "ready") throw Error();
+    console.log("Gateway liveness and configured Foundation readiness passed");
+  }
 } catch {
-  console.error("Platform health check failed");
+  console.error("Platform health check failed. Run npm run doctor; inspect npm run local:status.");
   process.exitCode = 1;
 }
