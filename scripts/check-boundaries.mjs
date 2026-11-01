@@ -34,6 +34,11 @@ const PUBLIC = new Set([
   "modules/capability/execution/execution.mjs",
   "modules/capability/execution/runtime.mjs",
   "modules/capability/execution/provider-network.mjs",
+  "modules/capability/composition/registry.mjs",
+  "modules/capability/composition/plan.mjs",
+  "modules/capability/composition/bpmn.mjs",
+  "modules/capability/composition/execution.mjs",
+  "modules/capability/composition/runtime.mjs",
 ]);
 
 function files(dir) {

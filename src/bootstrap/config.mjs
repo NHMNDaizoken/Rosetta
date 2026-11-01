@@ -11,7 +11,8 @@ export function loadConfig(env = process.env) {
     throw new Error("PORT must be an integer between 1 and 65535");
   }
   if (env.C4A_ENABLED && !TRUE_OR_FALSE.has(env.C4A_ENABLED)) throw new Error("C4A_ENABLED must be true or false");
-  if (env.C4A_ENABLED === "true" && !env.OIDC_ISSUER) throw new Error("Capability identity configuration is incomplete");
+  if (env.C4B_ENABLED && !TRUE_OR_FALSE.has(env.C4B_ENABLED)) throw new Error("C4B_ENABLED must be true or false");
+  if ((env.C4A_ENABLED === "true" || env.C4B_ENABLED === "true") && !env.OIDC_ISSUER) throw new Error("Capability identity configuration is incomplete");
   if (!env.OIDC_ISSUER) return { port: Number(rawPort), host: env.HOST ?? "127.0.0.1" };
   if (!env.CORE_CLIENT_SECRET || !env.IDENTITY_URL) throw new Error("Identity configuration is incomplete");
   if (env.DATA_URL && (!env.DATA_JWT_SECRET || env.DATA_JWT_SECRET.length < 32)) throw new Error("Data signing secret must contain at least 32 characters");
@@ -34,5 +35,6 @@ export function loadConfig(env = process.env) {
     throw new Error("C4A_PROVIDER_ORIGINS must be a JSON array of origins");
   }
   return { port: Number(rawPort), host: env.HOST ?? "127.0.0.1", config,
-    execution: env.C4A_ENABLED === "true" ? { providerOrigins } : undefined };
+    execution: env.C4A_ENABLED === "true" ? { providerOrigins } : undefined,
+    composition: env.C4B_ENABLED === "true" ? { providerOrigins } : undefined };
 }

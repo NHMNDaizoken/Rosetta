@@ -1,9 +1,10 @@
 // SPDX-FileCopyrightText: 2026 Rosetta Contributors
 // SPDX-License-Identifier: Apache-2.0
 export class HttpError extends Error {
-  constructor(status, code) {
+  constructor(status, code, details) {
     super(code);
     this.status = status;
+    if (details) this.details = details;
   }
 }
 

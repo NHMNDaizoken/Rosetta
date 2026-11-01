@@ -4,6 +4,8 @@ import { randomUUID } from "node:crypto";
 import { handleApplications } from "./modules/applications/applications.mjs";
 import { createAuthorizer } from "./platform/auth/auth.mjs";
 import { handleApprovals, handleCapabilities } from "./modules/capability/registry/capabilities.mjs";
+import { handleCompositions } from "./modules/capability/composition/registry.mjs";
+import { readExecutionJson } from "./modules/capability/execution/runtime.mjs";
 import { HttpError, json } from "./platform/http/http.mjs";
 import { handleData } from "./modules/data/data.mjs";
 import { handleObjects } from "./modules/objects/objects.mjs";
@@ -22,18 +24,56 @@ export function createApi(config) {
         return json(response, 200, { status: "ready" });
       } catch { throw new HttpError(503, "not_ready"); }
     }
-    if (config.executionRuntime && (path === "/v1/capability-executions" || path?.startsWith("/v1/capability-executions/") || path === "/v1/capability-authorizations/introspect")) {
+    if ((config.executionRuntime || config.compositionRuntime) &&
+      (path === "/v1/capability-executions" || path?.startsWith("/v1/capability-executions/") || path === "/v1/capability-authorizations/introspect")) {
       const requestId = randomUUID();
       response.setHeader("X-Request-Id", requestId);
       try {
         const identity = await authorize(request, true);
-        return await config.executionRuntime.handle(request, response, identity, new URL(request.url, "http://core"));
+        const url = new URL(request.url, "http://core");
+        if (path === "/v1/capability-executions" && request.method === "POST") {
+          const body = await readExecutionJson(request);
+          if (config.compositionRuntime && body?.target?.kind === "composition") {
+            const result = await config.compositionRuntime.submit(request, response, identity, body);
+            if (result) return json(response, result.status, result.value);
+          }
+          if (!config.executionRuntime) throw new HttpError(422, "capability_runtime_disabled");
+          return await config.executionRuntime.handle(request, response, identity, url, { body });
+        }
+        if (path === "/v1/capability-authorizations/introspect" && config.compositionRuntime) {
+          const body = await readExecutionJson(request);
+          const composition = await config.compositionRuntime.introspect(identity, body);
+          if (composition.active === true) return json(response, 200, composition);
+          if (!config.executionRuntime) return json(response, 200, { active: false });
+          return await config.executionRuntime.handle(request, response, identity, url, { body });
+        }
+        const match = /^\/v1\/capability-executions\/([0-9a-f-]{36})$/.exec(url.pathname);
+        if (match && config.compositionRuntime) {
+          try { return await config.compositionRuntime.get(request, response, identity, match[1]); }
+          catch (error) { if (!(error instanceof HttpError) || error.status !== 404) throw error; }
+        }
+        if (!config.executionRuntime) throw new HttpError(404, "not_found");
+        return await config.executionRuntime.handle(request, response, identity, url);
       } catch (error) {
         if (error.status === 413) response.setHeader("Connection", "close");
         return json(response, error instanceof HttpError ? error.status : 503,
-          { error: error instanceof HttpError ? error.message : "executions_unavailable", requestId });
+          { error: error instanceof HttpError ? error.message : "executions_unavailable", requestId,
+            ...(error instanceof HttpError && error.details ? error.details : {}) });
+      }
+    }    if (config.compositionRuntime && (path === "/v1/compositions" || path?.startsWith("/v1/compositions/"))) {
+      const requestId = randomUUID();
+      response.setHeader("X-Request-Id", requestId);
+      try {
+        const identity = await authorize(request, true);
+        return await handleCompositions(request, response, identity, config, new URL(request.url, "http://core"));
+      } catch (error) {
+        if (error.status === 413) response.setHeader("Connection", "close");
+        return json(response, error instanceof HttpError ? error.status : 503,
+          { error: error instanceof HttpError ? error.message : "compositions_unavailable", requestId,
+            ...(error instanceof HttpError && error.details ? error.details : {}) });
       }
     }
+
     if (path === "/v1/applications" || path?.startsWith("/v1/applications/")) {
       const requestId = randomUUID();
       response.setHeader("X-Request-Id", requestId);
