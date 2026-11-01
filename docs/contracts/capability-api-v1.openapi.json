@@ -3,7 +3,7 @@
   "info": {
     "title": "Rosetta Capability Extensions v1",
     "version": "1.0.0-draft",
-    "description": "Implemented subsets: Application Registration, C1 Registry and bounded C2 direct grants/authorized discovery. C3 is an offline resolver and A1 Audit uses trusted DBAs. Human delegation, resolver HTTP endpoints and C4 invocation/composition remain unimplemented. Hosting is proposed. Per-operation status is authoritative; see CAPABILITY_DIRECT_TRUST.md and CAPABILITY_REGISTRY.md.",
+    "description": "Implemented: Application Authority, C1 Registry, C2 direct Trust/discovery, protected Audit, opt-in C4A single invocation and opt-in C4B bounded composition. C3 is an offline resolver used by composition validation. C4B remains disabled by default; no delegation, cancellation, resume, automatic retry, HA or general side effects. Operation-level status identifies implemented subsets.",
     "license": {
       "name": "Apache License 2.0",
       "identifier": "Apache-2.0"
@@ -2050,7 +2050,7 @@
       "post": {
         "operationId": "registerComposition",
         "summary": "Create a new caller-app-owned composition and draft version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Opt-in C4B registry. Real OIDC and explicit operator-assigned compositions permissions are required; enrolled caller-app ownership is authoritative. Exact versions/digests, same-tenant access, current revision ETags and immutable publication apply. Validation performs C3 structural proof for every edge. Publication requires a current valid report and an independent, live compositions.approve decision bound to the exact draft digest/revision. See CAPABILITY_COMPOSITION.md.",
         "tags": [
           "compositions"
         ],
@@ -2108,6 +2108,16 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Unsupported method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "x-rosetta-required-permissions": [
@@ -2122,14 +2132,22 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
+          }
+        ]
       }
     },
     "/v1/compositions/{compositionId}/versions": {
       "post": {
         "operationId": "registerCompositionVersion",
         "summary": "Add a new draft to an owned composition",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Opt-in C4B registry. Real OIDC and explicit operator-assigned compositions permissions are required; enrolled caller-app ownership is authoritative. Exact versions/digests, same-tenant access, current revision ETags and immutable publication apply. Validation performs C3 structural proof for every edge. Publication requires a current valid report and an independent, live compositions.approve decision bound to the exact draft digest/revision. See CAPABILITY_COMPOSITION.md.",
         "tags": [
           "compositions"
         ],
@@ -2187,6 +2205,16 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Unsupported method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "x-rosetta-required-permissions": [
@@ -2212,14 +2240,22 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
+          }
+        ]
       }
     },
     "/v1/compositions/{compositionId}/versions/{version}": {
       "get": {
         "operationId": "getCompositionVersion",
         "summary": "Read an authorized exact composition version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Opt-in C4B registry. Real OIDC and explicit operator-assigned compositions permissions are required; enrolled caller-app ownership is authoritative. Exact versions/digests, same-tenant access, current revision ETags and immutable publication apply. Validation performs C3 structural proof for every edge. Publication requires a current valid report and an independent, live compositions.approve decision bound to the exact draft digest/revision. See CAPABILITY_COMPOSITION.md.",
         "tags": [
           "compositions"
         ],
@@ -2277,10 +2313,20 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Unsupported method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "x-rosetta-required-permissions": [
-          "live-resource-policy"
+          "compositions.write or compositions.publish"
         ],
         "parameters": [
           {
@@ -2301,12 +2347,20 @@
               "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
             }
           }
+        ],
+        "x-rosetta-status": "implemented-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
+          }
         ]
       },
       "put": {
         "operationId": "replaceCompositionDraft",
         "summary": "Replace only a draft with matching revision",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Opt-in C4B registry. Real OIDC and explicit operator-assigned compositions permissions are required; enrolled caller-app ownership is authoritative. Exact versions/digests, same-tenant access, current revision ETags and immutable publication apply. Validation performs C3 structural proof for every edge. Publication requires a current valid report and an independent, live compositions.approve decision bound to the exact draft digest/revision. See CAPABILITY_COMPOSITION.md.",
         "tags": [
           "compositions"
         ],
@@ -2364,6 +2418,16 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Unsupported method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "x-rosetta-required-permissions": [
@@ -2407,14 +2471,22 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
+          }
+        ]
       }
     },
     "/v1/compositions/{compositionId}/versions/{version}/validate": {
       "post": {
         "operationId": "validateCompositionVersion",
         "summary": "Validate a composition version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Opt-in C4B registry. Real OIDC and explicit operator-assigned compositions permissions are required; enrolled caller-app ownership is authoritative. Exact versions/digests, same-tenant access, current revision ETags and immutable publication apply. Validation performs C3 structural proof for every edge. Publication requires a current valid report and an independent, live compositions.approve decision bound to the exact draft digest/revision. See CAPABILITY_COMPOSITION.md.",
         "tags": [
           "compositions"
         ],
@@ -2424,7 +2496,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationReport"
+                  "$ref": "#/components/schemas/CompositionVersion"
                 }
               }
             },
@@ -2472,6 +2544,16 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Unsupported method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "x-rosetta-required-permissions": [
@@ -2515,14 +2597,22 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
+          }
+        ]
       }
     },
     "/v1/compositions/{compositionId}/versions/{version}/publish": {
       "post": {
         "operationId": "publishCompositionVersion",
         "summary": "Publish a composition version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Opt-in C4B registry. Real OIDC and explicit operator-assigned compositions permissions are required; enrolled caller-app ownership is authoritative. Exact versions/digests, same-tenant access, current revision ETags and immutable publication apply. Validation performs C3 structural proof for every edge. Publication requires a current valid report and an independent, live compositions.approve decision bound to the exact draft digest/revision. See CAPABILITY_COMPOSITION.md.",
         "tags": [
           "compositions"
         ],
@@ -2580,6 +2670,16 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Unsupported method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "x-rosetta-required-permissions": [
@@ -2623,14 +2723,22 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
+          }
+        ]
       }
     },
     "/v1/compositions/{compositionId}/versions/{version}/deprecate": {
       "post": {
         "operationId": "deprecateCompositionVersion",
         "summary": "Deprecate a composition version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Opt-in C4B registry. Real OIDC and explicit operator-assigned compositions permissions are required; enrolled caller-app ownership is authoritative. Exact versions/digests, same-tenant access, current revision ETags and immutable publication apply. Validation performs C3 structural proof for every edge. Publication requires a current valid report and an independent, live compositions.approve decision bound to the exact draft digest/revision. See CAPABILITY_COMPOSITION.md.",
         "tags": [
           "compositions"
         ],
@@ -2688,6 +2796,16 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Unsupported method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "x-rosetta-required-permissions": [
@@ -2731,14 +2849,22 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
+          }
+        ]
       }
     },
     "/v1/compositions/{compositionId}/versions/{version}/revoke": {
       "post": {
         "operationId": "revokeCompositionVersion",
         "summary": "Revoke a composition version",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "Opt-in C4B registry. Real OIDC and explicit operator-assigned compositions permissions are required; enrolled caller-app ownership is authoritative. Exact versions/digests, same-tenant access, current revision ETags and immutable publication apply. Validation performs C3 structural proof for every edge. Publication requires a current valid report and an independent, live compositions.approve decision bound to the exact draft digest/revision. See CAPABILITY_COMPOSITION.md.",
         "tags": [
           "compositions"
         ],
@@ -2796,6 +2922,16 @@
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
+          },
+          "405": {
+            "description": "Unsupported method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         },
         "x-rosetta-required-permissions": [
@@ -2839,14 +2975,22 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
+          }
+        ]
       }
     },
     "/v1/capability-executions": {
       "post": {
         "operationId": "createCapabilityExecution",
         "summary": "Accept one guarded pinned capability execution",
-        "description": "C4A opt-in runtime; disabled by default. Requires an enrolled same-tenant backend initiator, live direct invoke grant, exact published version/digest, sideEffects none, approval none and operator-approved HTTPS origin. Only target and input are accepted. The original initiator may replay the same key to reauthenticate untouched work within its original deadline. No composition, delegation, automatic retry or general resume. See CAPABILITY_EXECUTION.md.",
+        "description": "Opt-in guarded execution. C4B accepts only target and input and pins a published caller-owned composition. Every step rechecks original OIDC authority, active apps and independent same-tenant direct invoke grants; providers authenticate and redeem single-use step-bound tickets. C4B replay returns the durable reservation and never restores a lost lease or retries ambiguous work. Results require original consumer/subject/client and current authority. Success requires validated final output and confirmed Flowable history. No cancellation, resume, delegation or automatic retries. C4A retains its documented untouched-work replay contract. See CAPABILITY_COMPOSITION.md and CAPABILITY_EXECUTION.md.",
         "tags": [
           "capability-executions"
         ],
@@ -2935,18 +3079,33 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SingleCapabilityExecutionCreate"
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/SingleCapabilityExecutionCreate"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CompositionExecutionCreate"
+                  }
+                ]
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c4a-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/runtime.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
+          }
+        ]
       }
     },
     "/v1/capability-executions/{executionId}": {
       "get": {
         "operationId": "getCapabilityExecution",
         "summary": "Read an authorized execution without exposing engine internals",
-        "description": "C4A opt-in runtime; disabled by default. Requires the original enrolled initiator and current bound C2 authority. Authenticated reads reconcile deadline expiry and memory-lease loss. Engine IDs, credentials, ticket hashes and input are not exposed. See CAPABILITY_EXECUTION.md.",
+        "description": "Opt-in guarded execution. C4B accepts only target and input and pins a published caller-owned composition. Every step rechecks original OIDC authority, active apps and independent same-tenant direct invoke grants; providers authenticate and redeem single-use step-bound tickets. C4B replay returns the durable reservation and never restores a lost lease or retries ambiguous work. Results require original consumer/subject/client and current authority. Success requires validated final output and confirmed Flowable history. No cancellation, resume, delegation or automatic retries. C4A retains its documented untouched-work replay contract. See CAPABILITY_COMPOSITION.md and CAPABILITY_EXECUTION.md.",
         "tags": [
           "capability-executions"
         ],
@@ -3018,6 +3177,14 @@
               "type": "string",
               "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
             }
+          }
+        ],
+        "x-rosetta-status": "implemented-c4a-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/runtime.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
           }
         ]
       }
@@ -3118,7 +3285,8 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "design-only"
       }
     },
     "/v1/capability-executions/{executionId}/resume": {
@@ -3217,14 +3385,15 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "design-only"
       }
     },
     "/v1/capability-authorizations/introspect": {
       "post": {
         "operationId": "redeemProviderAuthorization",
         "summary": "Enrolled provider redeems one opaque input-bound ticket",
-        "description": "C4A opt-in runtime; disabled by default. The provider must authenticate independently with its enrolled backend OIDC identity. Atomically consumes one input-bound ticket only while the original initiator memory lease, original grant and exact published capability remain eligible. Invalid, expired, replayed or wrong-provider tickets return active false without context. See CAPABILITY_EXECUTION.md.",
+        "description": "Opt-in guarded execution. C4B accepts only target and input and pins a published caller-owned composition. Every step rechecks original OIDC authority, active apps and independent same-tenant direct invoke grants; providers authenticate and redeem single-use step-bound tickets. C4B replay returns the durable reservation and never restores a lost lease or retries ambiguous work. Results require original consumer/subject/client and current authority. Success requires validated final output and confirmed Flowable history. No cancellation, resume, delegation or automatic retries. C4A retains its documented untouched-work replay contract. See CAPABILITY_COMPOSITION.md and CAPABILITY_EXECUTION.md.",
         "tags": [
           "capability-authorizations"
         ],
@@ -3288,7 +3457,15 @@
               }
             }
           }
-        }
+        },
+        "x-rosetta-status": "implemented-c4a-c4b-opt-in",
+        "x-rosetta-source": "src/modules/capability/composition/runtime.mjs",
+        "x-rosetta-test-suite": "compositions",
+        "security": [
+          {
+            "oidcBearer": []
+          }
+        ]
       }
     },
     "/v1/audit-events": {
@@ -3847,6 +4024,13 @@
           "digest": {
             "type": "string",
             "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "versionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "$ref": "./capability-manifest-v1.schema.json#/$defs/Version"
           }
         },
         "required": [
@@ -4430,17 +4614,29 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-              "kind": { "const": "capability" },
-              "capability": { "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef" }
+              "kind": {
+                "const": "capability"
+              },
+              "capability": {
+                "$ref": "./capability-manifest-v1.schema.json#/$defs/CapabilityRef"
+              }
             },
-            "required": ["kind", "capability"]
+            "required": [
+              "kind",
+              "capability"
+            ]
           },
-          "input": { "$ref": "#/components/schemas/JsonValue" }
+          "input": {
+            "$ref": "#/components/schemas/JsonValue"
+          }
         },
-        "required": ["target", "input"]
+        "required": [
+          "target",
+          "input"
+        ]
       },
       "ExecutionCreate": {
-        "description": "Full design schema. C4A serves only SingleCapabilityExecutionCreate.",
+        "description": "Full design schema; implemented requests use SingleCapabilityExecutionCreate or CompositionExecutionCreate without delegation/approval fields.",
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4995,6 +5191,46 @@
           }
         ],
         "description": "C1 approval for exact capabilityId@version or version UUID; documented bare-ID alias must resolve one exact digest/revision. Malformed resource IDs return 400 before lookup; valid missing/hidden references return 404."
+      },
+      "CompositionExecutionCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "target": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "composition"
+              },
+              "compositionId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+              },
+              "compositionDigest": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            },
+            "required": [
+              "kind",
+              "compositionId",
+              "version",
+              "compositionDigest"
+            ]
+          },
+          "input": {
+            "$ref": "#/components/schemas/JsonValue"
+          }
+        },
+        "required": [
+          "target",
+          "input"
+        ]
       }
     },
     "responses": {

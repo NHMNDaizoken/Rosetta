@@ -1,70 +1,91 @@
 # Layer 1 implementation status
 
-Updated: 2026-10-31 | Branch: main
+Updated: 2026-11-01 | Branch: main
 
-This file records what is actually implemented, what was verified, and what is
-still design-only. It is not a requirements document and it does not approve new
-scope. Requirements live in [OLP_REQUIREMENTS.md](../OLP_REQUIREMENTS.md);
-boundaries live in [ARCHITECTURE.md](../ARCHITECTURE.md).
-
-## Verification baseline
-
-| Check | Command | Result |
-| --- | --- | --- |
-| Source, SPDX, boundaries | `npm run check` | pass |
-| Unit/contract tests | `npm test` | 61 pass |
-| OpenAPI + Foundation inventory | `npm run check:contracts` | pass |
-| Provider transport | `npm run test:provider-network` | 7 pass |
-| Private execution authority | `npm run test:execution-ledger` | 4 pass |
-| Migration integrity | `npm run test:migrations` | 8 pass |
-| Foundation integration | `npm run test:integration` | 9 pass |
-| Application authority | `npm run test:applications` | 13 pass |
-| C4A capability runtime | `npm run test:capabilities` | 26 pass |
-| Flowable worker contract | `npm run test:flowable-worker` | 2 pass |
-| Backup/restore | `npm run test:recovery` | 1 pass |
-| Audit boundary | `npm run test:audit` | 7 pass |
+This records implementation and verification, not new competition rules. The
+continuation started with a clean tree at local and remote
+`ff16a5e61d6405a25c1f7fdc3ade289732b21fbb`. Its successful
+[Actions run](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41313291206)
+was independently confirmed through GitHub REST; it contained no real C4B suite.
+Current exact-SHA CI evidence belongs in the
+[engineering handoff](CODEX_LAYER1_REVIEW_HANDOFF.md).
 
 ## Implemented
 
-- **Module layout** — feature-first `src/platform`, `src/bootstrap`,
-  `src/modules/*`; enforced by `scripts/check-boundaries.mjs` (direction rules,
-  public entrypoints, no cycles) inside `npm run check`.
-- **Configuration/composition root** — `src/bootstrap/config.mjs` validates the
-  environment; `src/bootstrap/container.mjs` builds the router and runtime once.
-  `src/server.mjs` only binds the process.
-- **Migration integrity (Issue #1)** — `infra/postgres/migrate.sh` records
-  content checksums in the applying transaction, refuses edited applied files,
-  version-only history, partial bookkeeping, newer databases and installed
-  schema drift; two runners serialize through `flock` plus a PostgreSQL advisory
-  lock. Adoption flags are operator-reviewed. See [MIGRATIONS.md](../MIGRATIONS.md).
-- **Read-only drift diagnostic** — `npm run check:schema-drift` fingerprints
-  function definitions, owners, ACLs, RLS flags, column grants and policies.
-- **C1 registry, C2 direct trust, C4A single-capability execution** — unchanged
-  behavior; all suites above remain green after the refactor.
+- Five reusable headless Foundation capabilities: Identity/OIDC, gateway,
+  PostgreSQL structured data, SeaweedFS objects and Flowable workflows.
+- Application Authority, v2 ownership/read sharing, protected Audit, C1 Registry,
+  C2 same-tenant direct grants/discovery and bounded offline C3.
+- C4A guarded single invocation, opt-in and disabled by default.
+- C4B registry, plan validation, deterministic BPMN compiler and runtime, opt-in
+  and disabled by default. Real two-provider HTTP/OIDC/PostgreSQL/Flowable
+  execution verifies output transfer, single-use tickets, result isolation and
+  naturally completed engine history.
+- C4B fail-closed recovery covers lost start responses, missing/multiple matches
+  or history, lost credentials, uncertain provider/worker completion, deadlines,
+  late output and observable termination failure. No C4B resume, blind restart
+  or automatic redispatch. See the [state matrix and reproduction guide](../CAPABILITY_COMPOSITION.md).
+- Migrations 001-012 are preserved. Additive 013-017 correct authority, exact
+  approval/revision binding, per-step hashes, durable operation IDs, terminal
+  immutability and exact reserved grants. Replacement grants cannot revive a
+  reservation tied to a revoked grant.
+- Checksums, concurrent-run serialization and drift checks remain enforced.
+  Version 16 extends fingerprints to Composition functions, owners, ACLs and
+  forced RLS after verifying the previous scope, without adoption flags.
+- Feature-first `src/platform`, `src/bootstrap`, `src/modules/*` structure;
+  28 sources, declared public entrypoints, downward dependencies and no cycles.
 
-## Design-only / not implemented
+## Newly executed local verification
 
-- **C4B bounded composition** — `docs/contracts/composition-v1.schema.json` and
-  the composition paths in `docs/contracts/capability-api-v1.openapi.json` remain
-  design artifacts. No `/v1/compositions` route, composition table, plan
-  compiler or multi-step Flowable runtime exists.
-- **Human delegation and resolver HTTP endpoints** — design-only.
-- **Hosting, projects, deployments, AI runtime** — proposed, not implemented.
-- **Layer 2 business application** — the Rosetta Console is a management client,
-  not the required user-facing application.
+Shared-stack restart suites must run sequentially. Fresh isolated database and
+Console checks can run independently. Final C4B/CI evidence is completed in the
+handoff before declaring the milestone done.
 
-## Known limits
+| Command | Result |
+| --- | --- |
+| `npm run check` | pass; syntax, SPDX, license metadata and 28-source boundaries |
+| `npm test` | 65 pass |
+| `npm run test:migrations` | 9 pass; fresh install through 017, checksum/interruption/concurrency/adoption/drift controls |
+| `npm run test:execution-ledger` | 4 pass |
+| `npm run test:provider-network` | 7 pass |
+| `npm run test:integration` | 9 pass; 128 responses, 26 covered operations |
+| `npm run test:applications` | 13 pass; 247 responses, 31 covered operations |
+| `npm run test:capabilities` | 26 pass; 244 observed schema cases |
+| `npm run test:audit` | 7 pass |
+| `npm run test:recovery` | 1 pass; Composition ownership/ACL/RLS included |
+| `npm run test:flowable-worker` | 2 pass; lock ownership/expiry, fail/complete and zero retries |
+| `npm run test:compositions` | 29 pass; 186 observed schema cases; real engine/provider, security, recovery and restore |
+| `npm run check:contracts` | pass; Foundation 44 operations and Composition 11-operation route/source/status inventory |
+| `npm run test:contract-validator` | pass; missing/wrong Composition routes, sources and handlers rejected |
+| `npm run console:test` | 28 pass |
+| `npm run console:build` | pass |
+| `npm run console:check:endpoints` | pass; 44 operations current |
+| `npm run test:console-container` | pass; packaged image build and contract probe |
+| `docker compose config --quiet` | pass |
+| `docker compose up --build --detach --wait --wait-timeout 240` | pass; local services healthy, initializers exited successfully |
+| `npm run healthcheck` | pass |
+| `npm run check:schema-drift` | pass; development database upgraded through 017 without adoption flags |
 
-- C4A and any future composition execution are opt-in; disabling them leaves the
-  five foundation capabilities intact.
-- Readiness is a dependency check, not a capacity or SLA claim.
-- Migration adoption flags (`MIGRATION_ADOPT_EXISTING`,
-  `MIGRATION_ADOPT_SCHEMA_DRIFT`) are production decisions, not test shortcuts.
+The default development gateway retained C4A/C4B disabled. No production deploy,
+volume deletion, new dependency, license change, binary publication,
+vulnerability audit or comprehensive license audit was performed.
 
-## Next step
+## Limits and next work
 
-C4B composition is the only missing authorized capability slice. It needs a new
-additive migration (`012`), a plan validator/compiler, a composition registry
-route set, and a multi-step Flowable runtime with per-step reauthorization. It
-must not modify migrations `001`-`011`, must not add a second scheduler, and must
-stay opt-in.
+C4B supports directly authorized same-tenant exact pure JSON capabilities. Human
+delegation, general side effects, automatic retries, HA, public cancel/resume and
+caller-supplied BPMN/provider URLs remain unsupported. Lost initiating authority
+is never replaced by executor credentials. Restart recovery is observation-driven:
+unobserved SQL labels may remain active until an authorized status read; engine
+deadlines and absence of a worker lease still prevent dispatch. Missing/multiple
+engine correlation requires investigation. Known step outputs may coexist with
+an unknown overall outcome.
+
+Development migration 006 has pre-existing mixed line endings matching its
+installed checksum; it was not modified. Preserve the recorded bytes when
+replacing a checkout. See [migration operations](../MIGRATIONS.md).
+
+Layer 2 was not started. Exact-SHA CI must succeed before handing off this
+bounded Layer 1 milestone for selection of the required Layer 2 GUI application.
+Competition submission, a versioned source release, production readiness and
+full-platform disaster recovery remain separate gates.

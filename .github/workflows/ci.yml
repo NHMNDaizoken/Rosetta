@@ -72,6 +72,7 @@ jobs:
         run: |
           npm run test:applications
           npm run test:capabilities
+          npm run test:compositions
           npm run test:flowable-worker
       - name: Verify isolated backup and restore with tenant RLS
         run: npm run test:recovery

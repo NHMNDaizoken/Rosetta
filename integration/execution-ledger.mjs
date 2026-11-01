@@ -80,7 +80,7 @@ before(async () => {
   assert.ok(ready, "fresh disposable database ready");
   await sql("CREATE ROLE rosetta_data NOLOGIN NOINHERIT; ALTER DATABASE rosetta_data OWNER TO rosetta_data;");
   await docker("exec", name, "sh", "/migrations/migrate.sh", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1");
-  assert.equal(await sql("SELECT max(version) FROM core.schema_migrations;"), "12");
+  assert.equal(await sql("SELECT max(version) FROM core.schema_migrations;"), "17");
   await sql(`INSERT INTO app_private.principals(tenant_id,issuer,subject,management_client,permissions) VALUES
     (${q(tenant)},${q(issuer)},'owner','management',ARRAY['applications.register','capabilities.write','trust.write']),
     (${q(tenant)},${q(issuer)},'approver','management',ARRAY['applications.approve','capabilities.approve','trust.approve']),

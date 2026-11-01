@@ -12,6 +12,7 @@ const chunks = []; for await (const chunk of process.stdin) chunks.push(chunk);
 const config = JSON.parse(Buffer.concat(chunks).toString("utf8"));
 let mode = "normal", count = 0, received = 0, last = null;
 const pendingRedemptions = new Set();
+const pendingResponses = new Set();
 const digest = value => `sha256:${createHash("sha256").update(canonicalize(value)).digest("hex")}`;
 const respond = (response, status, value) => { response.writeHead(status, { "Content-Type": "application/json" }); response.end(JSON.stringify(value)); };
 const provider = httpsServer({ key: readFileSync("/tls/provider.key.pem"), cert: readFileSync("/tls/provider.cert.pem") }, async (request, response) => {
@@ -22,7 +23,7 @@ const provider = httpsServer({ key: readFileSync("/tls/provider.key.pem"), cert:
     const envelope = JSON.parse(Buffer.concat(bytes).toString("utf8"));
     received++;
     const ticket = request.headers.authorization?.replace(/^Bearer /, "");
-    last = { ticket, invocationId: envelope.invocationId, inputDigest: digest(envelope.input), operationId: request.headers["idempotency-key"] };
+    last = { ticket, invocationId: envelope.invocationId, input: envelope.input, inputDigest: digest(envelope.input), operationId: request.headers["idempotency-key"] };
     if (mode === "unavailable") return respond(response, 503, { error: "synthetic_unavailable", effect: "none" });
     if (mode === "no-redemption") return respond(response, 200, { output: envelope.input });
     if (mode === "hold-redemption") await new Promise(resolve => pendingRedemptions.add(resolve));
@@ -37,24 +38,27 @@ const provider = httpsServer({ key: readFileSync("/tls/provider.key.pem"), cert:
       context.inputDigest !== last.inputDigest || canonicalize(context.capability) !== canonicalize(config.capability) ||
       canonicalize(envelope.capability) !== canonicalize(config.capability) || Date.parse(context.deadlineAt) <= Date.now()) return respond(response, 403, { error: "authorization_denied", effect: "none" });
     count++;
+    if (mode === "hold-response") await new Promise(resolve => pendingResponses.add(resolve));
     if (mode === "lost-response") return response.destroy();
     if (mode === "slow-response") return; // test termination cleans the open socket
     if (mode === "invalid-output") return respond(response, 200, { output: { unexpected: true, diagnostic: "synthetic-private-provider-detail" } });
     if (mode === "invalid-json") { response.writeHead(200, { "Content-Type": "application/json" }); return response.end('{"output":'+JSON.stringify(envelope.input)+',"output":'+JSON.stringify(envelope.input)+'}'); }
-    respond(response, 200, { output: envelope.input });
+    if (mode === "oversized") return respond(response, 200, { output: "x".repeat(70000) });
+    if (mode === "redirect") { response.writeHead(302, { Location: "http://127.0.0.1/forbidden" }); return response.end(); }
+    respond(response, 200, { output: mode === "normalize" ? { value: envelope.input.value.trim().toLowerCase() } : envelope.input });
   } catch { if (!response.destroyed) respond(response, 503, { error: "provider_fixture_failed", effect: "none" }); }
 });
 const control = httpServer(async (request, response) => {
   if (request.method === "POST" && request.url === "/mode") {
     const bytes = []; for await (const chunk of request) bytes.push(chunk);
     const value = JSON.parse(Buffer.concat(bytes).toString("utf8"));
-    if (!["normal", "unavailable", "offline", "no-redemption", "lost-response", "slow-response", "invalid-output", "invalid-json", "hold-redemption"].includes(value.mode)) return respond(response, 400, {});
+    if (!["normal", "unavailable", "offline", "no-redemption", "lost-response", "slow-response", "invalid-output", "invalid-json", "hold-redemption", "hold-response", "normalize", "oversized", "redirect"].includes(value.mode)) return respond(response, 400, {});
     mode = value.mode;
     if (mode === "offline" && provider.listening) { provider.closeAllConnections(); await new Promise(resolve => provider.close(resolve)); }
     if (mode !== "offline" && !provider.listening) await new Promise(resolve => provider.listen(8443, "0.0.0.0", resolve));
-    if (mode === "normal") { for (const release of pendingRedemptions) release(); pendingRedemptions.clear(); }
+    if (mode === "normal") { for (const release of pendingRedemptions) release(); pendingRedemptions.clear(); for (const release of pendingResponses) release(); pendingResponses.clear(); }
   }
-  respond(response, 200, { mode, count, received, last, pending: pendingRedemptions.size });
+  respond(response, 200, { mode, count, received, last, pending: pendingRedemptions.size, pendingResponses: pendingResponses.size });
 });
 provider.listen(8443, "0.0.0.0", () => control.listen(8081, "0.0.0.0", () => console.log("provider-ready")));
 for (const signal of ["SIGTERM", "SIGINT"]) process.once(signal, () => { provider.closeAllConnections(); provider.close(); control.closeAllConnections(); control.close(); });

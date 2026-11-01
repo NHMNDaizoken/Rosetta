@@ -1,8 +1,8 @@
 # Capability trust, composition and execution v1
 
-Implementation update (2026-10-29): C1 Registry is implemented, C3 is a bounded offline resolver, and A1 Audit is implemented under the trusted-DBA threat model. C2 direct grants/authorized discovery and a live internal eligibility predicate are implemented within the backend-subject subset. Human delegation and C4 execution remain unimplemented; hosting is proposed. See [direct Trust](CAPABILITY_DIRECT_TRUST.md) and [Registry](CAPABILITY_REGISTRY.md).
+Implementation update (2026-11-01): C1 Registry, C2 direct Trust, the bounded offline C3 resolver, protected Audit, opt-in C4A guarded invocation and opt-in C4B bounded composition are implemented. Both execution paths are disabled by default. [C4B implementation and recovery limits](CAPABILITY_COMPOSITION.md) record real two-provider HTTP/OIDC/PostgreSQL/Flowable verification. Human delegation, general side effects, automatic retries, HA, cancellation and C4B resume remain unsupported.
 
-This document retains the full proposed v1 trust, delegation and execution design. The current implemented subset is listed above; delegation and C4 sections remain design-only. Structural models are in the [extension OpenAPI](contracts/capability-api-v1.openapi.json); examples are synthetic technical fixtures.
+This document retains the full proposed v1 trust, delegation and execution design. The current implemented subset is listed above; delegation, general resume/retry and broader execution sections remain future design; the bounded C4A/C4B implementation documents take precedence for served behavior. Structural models are in the [extension OpenAPI](contracts/capability-api-v1.openapi.json); examples are synthetic technical fixtures.
 
 ## Identity, caller context and authority
 
@@ -12,7 +12,7 @@ Proposed context is server-derived: `tenantId`, `issuer`, effective `subject`, `
 
 The future identity adapter must retain authenticated introspection `client_id` and map `(tenant, issuer, client_id)` to an approved app. The existing `createAuthorizer` returns only subject/tenant/roles and does not implement this binding. Do not infer `appId` from `sub`, email, a body field or an unverified token. No automatic `azp` fallback. Missing/ambiguous binding fails closed. The operator enrolls exact service-account subjects; every other allowed principal is treated as a user only after provider verification. Caller-controlled `principalType` is prohibited.
 
-Platform management permissions (`applications.register`, `applications.approve`, `capabilities.write`, `capabilities.publish`, `trust.write`, `trust.approve`, `compositions.write`, `compositions.publish`, `audit.read`) are tenant-scoped administrative assignments provisioned outside user-writable Core data. Bootstrap is operator-controlled. No default tenant account or current `core-writer` receives these permissions by implication. Registration/ownership and user role grants remain separate.
+Platform management permissions (`applications.register`, `applications.approve`, `capabilities.write`, `capabilities.publish`, `trust.write`, `trust.approve`, `compositions.write`, `compositions.publish`, `compositions.approve`, `audit.read`) are tenant-scoped administrative assignments provisioned outside user-writable Core data. Bootstrap is operator-controlled. No default tenant account or current `core-writer` receives these permissions by implication. Registration/ownership and user role grants remain separate.
 
 ### Explicit grants and authorization intersection
 

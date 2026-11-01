@@ -119,9 +119,7 @@ minimums. New dependency versions/editions must enter THIRD-PARTY before use.
 ## Groups D/E/F status and gaps
 
 C1 Registry and bounded direct C2 Trust/discovery are implemented in the existing
-Core process with private persistence and protected Audit; C3 is offline. Human
-delegation, resolver HTTP endpoints and C4 execution/composition remain
-unimplemented. See the [Registry](../CAPABILITY_REGISTRY.md) and
+Core process with private persistence and protected Audit; C3 is offline. Human delegation and resolver HTTP endpoints remain unimplemented. Opt-in [C4A](../CAPABILITY_EXECUTION.md) and [C4B](../CAPABILITY_COMPOSITION.md) implement guarded execution; both remain disabled by default. See the [Registry](../CAPABILITY_REGISTRY.md) and
 [direct Trust](../CAPABILITY_DIRECT_TRUST.md) for exact evidence. Group E has source CI, health probes,
 named volumes and structured restore evidence, but no complete DR, operational
 telemetry stack, protected deployment audit or production GitOps. Group F has no

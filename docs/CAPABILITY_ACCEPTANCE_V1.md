@@ -1,8 +1,8 @@
 # Capability v1 acceptance and negative cases
 
-Implementation update (2026-10-29): C1 Registry is implemented, C3 is a bounded offline resolver, and A1 Audit is implemented under the trusted-DBA threat model. C2 direct grants/authorized discovery and a live internal eligibility predicate are implemented within the backend-subject subset. Human delegation and C4 execution remain unimplemented; hosting is proposed. See [direct Trust](CAPABILITY_DIRECT_TRUST.md) and [Registry](CAPABILITY_REGISTRY.md).
+Implementation update (2026-11-01): C1 Registry, C2 direct Trust, the bounded offline C3 resolver, protected Audit, opt-in C4A guarded invocation and opt-in C4B bounded composition are implemented. Both execution paths are disabled by default. [C4B implementation and recovery limits](CAPABILITY_COMPOSITION.md) record real two-provider HTTP/OIDC/PostgreSQL/Flowable verification. Human delegation, general side effects, automatic retries, HA, cancellation and C4B resume remain unsupported.
 
-This is the full-v1 acceptance matrix. Implemented-subset evidence is in the current Registry, direct Trust and Audit documents; execution/delegation cases remain future gates. Structural validation alone is not proof of runtime authorization.
+This is the full-v1 acceptance matrix. Implemented-subset evidence is in the current Registry, direct Trust and Audit documents; delegation and broader mutation/resume cases remain future gates; implemented execution evidence is in CAPABILITY_COMPOSITION.md and CAPABILITY_EXECUTION.md. Structural validation alone is not proof of runtime authorization.
 
 ## Test layers and required evidence
 

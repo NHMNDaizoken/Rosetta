@@ -2,8 +2,7 @@
 
 C4A is the bounded, same-tenant, direct backend-subject execution path: one
 consumer app invokes one exact published JSON capability with
-`sideEffects.kind=none`, no delegation, no retries and no composition. C4B
-(composition), hosting and Layer-2 applications remain out of scope.
+`sideEffects.kind=none`, no delegation, no retries and no composition. The separately opt-in [C4B composition path](CAPABILITY_COMPOSITION.md) now reuses these guards; hosting and Layer-2 applications remain out of scope.
 
 ## Status
 
@@ -39,8 +38,7 @@ The [extension contract](contracts/capability-api-v1.openapi.json) describes:
   OIDC credential and `{ "ticket": "…", "invocationId": "…", "inputDigest": "…" }`.
   Invalid or replayed tickets return `active:false` without context.
 
-Cancel, general resume, composition, delegation and invocation administrator
-approvals remain unavailable. Invocation preconditions must specify approval
+Cancel, general resume, delegation and invocation administrator approvals remain unavailable. Composition is served only by the separately configured C4B runtime. Invocation preconditions must specify approval
 `none`; capability publication still requires its existing independent approval.
 Creation and output use strict UTF-8/duplicate-key parsing and a 64 KiB wire bound.
 The provider receives `{invocationId, capability, input}` and must redeem before

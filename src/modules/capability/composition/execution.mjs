@@ -3,7 +3,7 @@
 // C4B composition execution adapter. Authority lives in SQL; this module only
 // validates wire shape, carries the memory lease and correlates steps.
 import { randomBytes, randomUUID } from "node:crypto";
-import { applicationToken } from "../../applications/applications.mjs";
+import { signInternalToken } from "../../../platform/security/internal-token.mjs";
 import { HttpError, requireWriter, uuidPattern } from "../../../platform/http/http.mjs";
 import { validatePayload } from "../registry/payload.mjs";
 import { createAuthorizer } from "../../../platform/auth/auth.mjs";
@@ -31,7 +31,12 @@ export function validateCompositionExecutionCreate(body) {
 
 export async function compositionExecutionCommand(config, identity, operation, payload, proof) {
   if (!identity.clientId || !config.dataUrl || !Number.isFinite(identity.credentialExpiresAt)) throw new HttpError(503, "executions_unavailable");
-  const assertion = applicationToken(identity, config.dataSecret, "rosetta_composition_api");
+  const assertion = signInternalToken(config.dataSecret, { role: "rosetta_composition_api", aud: "rosetta-data",
+    tenant_id: identity.tenantId, iss: identity.issuer, sub: identity.subject, client_id: identity.clientId,
+    trust_writer: identity.roles.includes("core-writer"),
+    exp: ["observe", "internal_get", "step_fail"].includes(operation) ? Math.floor(Date.now() / 1000) + 30
+      : Math.min(Math.floor(Date.now() / 1000) + 30, Math.floor(identity.credentialExpiresAt / 1000)),
+    ...(proof ? { c4a_lease: proof } : {}) });
   let result;
   try {
     const response = await fetch(`${config.dataUrl}/rpc/composition_execution_command`, { method: "POST", redirect: "error",
@@ -82,7 +87,7 @@ export async function reserveCompositionExecution(config, identity, request, bod
   const deadline = Math.min(Date.now() + resolved.composition.deadlineMs, Date.parse(resolved.authorityExpiresAt));
   const result = await compositionExecutionCommand(config, identity, "reserve", { executionId, idempotencyKey: key,
     target: body.target, input: body.input, inputDigest, requestDigest, deadlineAt: new Date(deadline).toISOString() });
-  if (["accepted", "auth_required"].includes(result.value.state) && !leases.has(result.value.executionId)) {
+  if (result.status === 202 && result.value.state === "accepted" && !leases.has(result.value.executionId)) {
     leases.put(result.value, identity, request.headers.authorization);
   }
   return result;
@@ -115,8 +120,8 @@ export async function redeemCompositionTicket(config, provider, body, leases) {
   }
   if (!context.active) return { active: false };
   try {
-    return await recheckCompositionLease(config, leases, body.invocationId, context, async () => {
-      const { value } = await compositionExecutionCommand(config, provider, "redeem", payload);
+    return await recheckCompositionLease(config, leases, body.invocationId, context, async (identity, proof) => {
+      const { value } = await compositionExecutionCommand(config, provider, "redeem", payload, proof);
       return value.active === true ? value : { active: false };
     });
   } catch (error) {

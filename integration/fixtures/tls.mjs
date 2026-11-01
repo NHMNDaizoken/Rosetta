@@ -17,7 +17,7 @@ export function generateTls(directory, name, alternative) {
   writeFileSync(configPath, "[req]\ndistinguished_name=dn\nprompt=no\n[dn]\nCN=localhost\n");
   const environment = { ...process.env }; delete environment.OPENSSL_CONF;
   const result = spawnSync("openssl", ["req", "-x509", "-newkey", "rsa:2048", "-sha256", "-days", "1", "-nodes",
-    "-config", configPath, "-keyout", keyPath, "-out", certPath, "-subj", `/CN=${alternative}`, "-addext", `subjectAltName=${alternative}`],
+    "-config", configPath, "-keyout", keyPath, "-out", certPath, "-subj", "/CN=localhost", "-addext", `subjectAltName=${alternative}`],
   { encoding: "utf8", env: environment });
   if (result.error || result.status !== 0) throw new Error("Host OpenSSL could not generate synthetic TLS credentials");
   return { key: readFileSync(keyPath, "utf8"), cert: readFileSync(certPath, "utf8"), keyPath, certPath };

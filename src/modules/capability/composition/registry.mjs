@@ -7,7 +7,7 @@ import { HttpError, json, readBody, readFlatJsonObject, uuidPattern } from "../.
 import { parseStrictJson } from "../compatibility/compatibility.mjs";
 import { validateComposition, compositionCompatibility } from "./plan.mjs";
 
-const PATH = /^\/v1\/compositions(?:\/([^/]+)(?:\/versions(?:\/([^/]+))?(?:\/(validate|publish|deprecate|revoke))?)?)?$/;
+const PATH = /^\/v1\/compositions(?:\/([^/]+)\/versions(?:\/([^/]+)(?:\/(validate|publish|deprecate|revoke))?)?)?$/;
 const VERSION = /^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$/;
 
 export async function compositionCommand(config, identity, operation, payload) {
@@ -101,6 +101,7 @@ export async function handleCompositions(request, response, identity, config, ur
 
   if (action === "validate") {
     if (Object.keys(body).length) throw new HttpError(400, "invalid_validation_body");
+    if (request.headers["if-match"] === undefined) throw new HttpError(428, "if_match_required");
     const current = (await compositionCommand(config, identity, "get", { compositionId, version })).value;
     const { issues, digest } = validateComposition(current.composition, { expectedVersion: version });
     if (issues.length) throw new HttpError(409, "invalid_stored_composition", { issues });
@@ -116,6 +117,7 @@ export async function handleCompositions(request, response, identity, config, ur
     }
     const report = [...issues, ...schemaProblems];
     const result = await compositionCommand(config, identity, "validate", { compositionId, version,
+      etag: `"composition-version-${current.versionId}-${current.revision}"`,
       validationStatus: report.length ? "invalid" : "valid",
       validationReport: { status: report.length ? "invalid" : "valid", digest: current.digest, revision: current.revision, issues: report } });
     return versioned(response, result.value);

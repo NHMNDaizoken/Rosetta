@@ -111,6 +111,24 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     const executionAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
       "SELECT n.nspowner::regrole,c.relrowsecurity AND c.relforcerowsecurity FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='execution_private' AND c.relname='executions'; SELECT has_function_privilege('rosetta_execution_api','core.execution_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_api','core.execution_command(text,jsonb)','EXECUTE'),has_schema_privilege('rosetta_execution_api','execution_private','USAGE');"]);
     assert.equal(executionAcl.stdout.trim(),'rosetta_app_owner|t\nt|f|f','Restore preserves private execution authority and forced RLS');
+    const compositionAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
+      "SELECT n.nspowner::regrole,count(*),bool_and(c.relrowsecurity AND c.relforcerowsecurity) FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='composition_private' AND c.relkind='r' GROUP BY n.nspowner; SELECT has_function_privilege('rosetta_composition_api','core.composition_execution_command(text,jsonb)','EXECUTE'),has_schema_privilege('rosetta_composition_api','composition_private','USAGE'),has_table_privilege('rosetta_api','composition_private.executions','SELECT');"]);
+    assert.equal(compositionAcl.stdout.trim(),'rosetta_app_owner|5|t\nt|f|f','Restore preserves Composition ownership, all forced RLS policies and restricted RPC role');
+    const compositions = process.env.COMPOSITION_RECOVERY_CASES ? JSON.parse(process.env.COMPOSITION_RECOVERY_CASES) : [];
+    for (const fixture of compositions) {
+      assert.match(fixture.execution.execution_id, /^[0-9a-f-]{36}$/);
+      for (const tenant of ['tenant-a','tenant-b']) {
+        const query = `SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims','${JSON.stringify({tenant_id:tenant})}',false);
+          SELECT coalesce((SELECT jsonb_build_object('execution',to_jsonb(e),'steps',
+            (SELECT jsonb_agg(to_jsonb(s) ORDER BY step_index) FROM composition_private.execution_steps s WHERE s.execution_id=e.execution_id),
+            'auditCount',(SELECT count(*) FROM app_private.audit WHERE resource_id=e.execution_id))
+            FROM composition_private.executions e WHERE execution_id='${fixture.execution.execution_id}'),'null'::jsonb);`;
+        const result = await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',query]);
+        assert.deepEqual(JSON.parse(result.stdout.trim().split(/\r?\n/).at(-1)), tenant===fixture.execution.tenant_id ? fixture : null,
+          'Restored Composition state, exact steps, ticket hashes, operation IDs, output, audit and tenant RLS');
+      }
+    }
+    if (compositions.length) console.log(`Composition restore: ${compositions.length} durable outcomes, steps, audit and tenant RLS passed`);
     // Only synthetic execution metadata is passed here, never credentials or
     // ticket plaintext. The isolated restore has no network and runs no worker.
     const liveExecutions = process.env.EXECUTION_RECOVERY_CASES ? JSON.parse(process.env.EXECUTION_RECOVERY_CASES) : [];

@@ -41,6 +41,8 @@ export function createApi(config) {
           return await config.executionRuntime.handle(request, response, identity, url, { body });
         }
         if (path === "/v1/capability-authorizations/introspect" && config.compositionRuntime) {
+          if (request.method !== "POST") throw new HttpError(405, "method_not_allowed");
+          if (url.search) throw new HttpError(400, "invalid_query");
           const body = await readExecutionJson(request);
           const composition = await config.compositionRuntime.introspect(identity, body);
           if (composition.active === true) return json(response, 200, composition);
@@ -49,6 +51,8 @@ export function createApi(config) {
         }
         const match = /^\/v1\/capability-executions\/([0-9a-f-]{36})$/.exec(url.pathname);
         if (match && config.compositionRuntime) {
+          if (request.method !== "GET") throw new HttpError(405, "method_not_allowed");
+          if (url.search) throw new HttpError(400, "invalid_query");
           try { return await config.compositionRuntime.get(request, response, identity, match[1]); }
           catch (error) { if (!(error instanceof HttpError) || error.status !== 404) throw error; }
         }

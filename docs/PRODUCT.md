@@ -70,9 +70,8 @@ them. The design is bounded by
 C1 Registry and bounded C2 direct grants/authorized discovery are implemented
 inside the headless Core, with private Registry/Trust persistence, independent
 human approval and protected Audit. Direct subjects use operator-verified backend
-enrollment. C3 is an offline pure resolver (`src/capability-compatibility.mjs`).
-Human delegation and C4 invocation/composition remain unimplemented; there is no
-resolver endpoint or provider execution. See [direct Trust](CAPABILITY_DIRECT_TRUST.md).
+enrollment. C3 is an offline pure resolver (`src/modules/capability/compatibility/compatibility.mjs`).
+Opt-in [C4A invocation](CAPABILITY_EXECUTION.md) and [C4B bounded composition](CAPABILITY_COMPOSITION.md) execute technical providers through Flowable, with real OIDC and PostgreSQL evidence. Both are disabled by default. Human delegation and the resolver HTTP endpoint remain unimplemented. See [direct Trust](CAPABILITY_DIRECT_TRUST.md).
 See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 [CAPABILITY_TRUST_EXECUTION_V1.md](CAPABILITY_TRUST_EXECUTION_V1.md).
 
@@ -100,7 +99,7 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 | C1 Registry | IMPLEMENTED, bounded | [Registry](CAPABILITY_REGISTRY.md): exact manifests, independent publication approval and terminal revocation. |
 | C2 Direct Trust / Discovery | IMPLEMENTED, bounded | [Direct Trust](CAPABILITY_DIRECT_TRUST.md): exact grants, separate rights, live eligibility, audit atomicity and real OIDC restore/denial evidence. Human delegation is deferred. |
 | C3 Resolver | IMPLEMENTED, offline | Restricted schema compatibility proof; no public resolver endpoint. |
-| C4 Invocation / Composition | DEFERRED | No provider call, ticket, queue or composition worker is implemented. |
+| C4 Invocation / Composition | IMPLEMENTED, bounded opt-in | [C4A](CAPABILITY_EXECUTION.md) and [C4B](CAPABILITY_COMPOSITION.md): direct grants, single-use provider tickets, SQL authority, Flowable, denial and crash/restore verification. Disabled by default; no resume, HA, retries or general side effects. |
 | Layer-2 GUI application | DEFERRED | Required by OLP and tracked separately; the Console is not a substitute. |
 
 ## What a developer can do today
@@ -119,7 +118,7 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
    composition and compatibility vectors; no resolver endpoint exists.
 9. Publish an exact capability through C1 and independently approve a direct
    consumer grant. Discover metadata only with `discover` authority; `invoke`
-   establishes future eligibility and does not execute the provider.
+   is required independently at every dispatch when the guarded runtime is explicitly enabled.
 
 See the [developer guide](DEVELOPING.md) for commands and the
 [HTTP example](../examples/foundation-http.mjs) for the executable journey.
@@ -132,4 +131,4 @@ See the [developer guide](DEVELOPING.md) for commands and the
 - Preview data in the Console is synthetic and never server truth.
 - Proposed and design-only items must not be presented as available controls.
 - Hosting, bindings, independent audit export/integrity, quarantine, messaging,
-  search, human delegation and C4 execution require separate approved slices.
+  search and human delegation require separate approved slices. Broader C4 resume, HA, retries and side effects remain unsupported.

@@ -87,6 +87,12 @@ export async function handleApprovals(request, response, identity, config, url) 
 
   if (operation === "approval_create") {
     const body = await readFlatJsonObject(request);
+    if (body.resourceType === "composition-version" && config.compositionRuntime) {
+      validateCapabilityApproval({ ...body, resourceType: "capability-version" });
+      if (!uuidPattern.test(body.resourceId)) throw new HttpError(400, "invalid_composition_approval");
+      return approvalCommand(response, 201, await command(config, identity, "rosetta_composition_api", "composition_command", operation,
+        { approvalId: randomUUID(), decision: body }));
+    }
     if (body.resourceType === "grant") {
       validateGrantApproval(body, identity);
       return approvalCommand(response, 201, await trustCommand(config, identity, operation,
@@ -114,6 +120,12 @@ export async function handleApprovals(request, response, identity, config, url) 
     result = await command(config, identity, "rosetta_app_api", "application_command", operation, payload);
   } catch (error) {
     if (!(error instanceof HttpError) || error.status !== 404) throw error;
+  }
+  if (!result) {
+    if (config.compositionRuntime) {
+      try { result = await command(config, identity, "rosetta_composition_api", "composition_command", operation, payload); }
+      catch (error) { if (!(error instanceof HttpError) || error.status !== 404) throw error; }
+    }
   }
   if (!result) {
     try { result = await command(config, identity, "rosetta_capability_api", "capability_command", operation, payload); }
@@ -176,6 +188,9 @@ async function command(config, identity, role, rpc, operation, payload) {
 }
 
 function approvalCommand(response, status, value) {
+  if (value.decision?.resourceType === "composition-version") {
+    value = { ...value, decision: { ...value.decision, expiresAt: new Date(value.decision.expiresAt).toISOString() } };
+  }
   response.setHeader("ETag", `"approval-${value.approvalId}-${value.revision}"`);
   if (status === 201) response.setHeader("Location", `/v1/approvals/${value.approvalId}`);
   return json(response, status, value);

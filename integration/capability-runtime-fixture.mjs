@@ -31,18 +31,22 @@ function start(args, input, readyText) {
 export async function createRuntimeFixture(options) {
   const suffix = randomUUID(), network = `rosetta-c4a-${suffix}`, provider = `rosetta-provider-${suffix}`, core = `rosetta-invoker-${suffix}`;
   const directory = mkdtempSync(join(tmpdir(), "rosetta-c4a-"));
-  const hostname = new URL(options.origin).hostname;
-  const tls = generateTls(directory, "provider", `DNS:${hostname}`);
+  const providers = options.providers ?? [options];
+  const hostname = new URL(options.origin ?? providers[0].origin).hostname;
+  const hostnames = providers.map(item => new URL(item.origin).hostname);
+  const tls = generateTls(directory, "provider", hostnames.map(host => `DNS:${host}`).join(","));
   // Readable only as synthetic test material. The production image receives no
   // keys; the Core fixture mounts only the public certificate, never this key.
   chmodSync(directory, 0o755); chmodSync(tls.keyPath, 0o644); chmodSync(tls.certPath, 0o644);
-  let providerProcess, coreProcess, address, coreEnv, backendNetworks;
+  let coreProcess, address, coreEnv, backendNetworks;
+  const providerProcesses = [], providerNames = [], addresses = [];
   const forgedDeployments = [];
   async function close() {
     for (const deployment of forgedDeployments) await engine(`/service/repository/deployments/${deployment}?cascade=true`, undefined, "DELETE").catch(() => {});
     await docker(["rm", "--force", core]).catch(() => {});
-    await docker(["rm", "--force", provider]).catch(() => {});
-    providerProcess?.child.stdin.destroy(); coreProcess?.child.stdin.destroy();
+    for (const name of providerNames) await docker(["rm", "--force", name]).catch(() => {});
+    for (const child of providerProcesses) child.child.stdin.destroy();
+    coreProcess?.child.stdin.destroy();
     await docker(["network", "rm", network]).catch(() => {});
     removeTlsDirectory(directory);
   }
@@ -81,19 +85,25 @@ export async function createRuntimeFixture(options) {
       "--mount", `type=bind,source=${tls.certPath},target=/tls/provider-ca.pem,readonly`,
       "rosetta-core:local", "node", "/fixtures/capability-core.mjs"], { ...process.env, ...coreEnv });
     for (const backendNetwork of backendNetworks) await docker(["network", "connect", backendNetwork, core]);
-    coreProcess = start(["start", "--attach", "--interactive", core], { origin: options.origin, address }, "runtime-ready");
+    coreProcess = start(["start", "--attach", "--interactive", core], { origin: options.origin, address, origins: providers.map(item => item.origin), addresses, composition: options.composition === true }, "runtime-ready");
     await coreProcess.ready;
   }
   try {
     await docker(["network", "create", "--internal", network]);
-    providerProcess = start(["run", "--rm", "-i", "--name", provider, "--network", network, "--network-alias", hostname,
+    for (const [index, item] of providers.entries()) {
+      const providerName = `${provider}-${index}`, host = hostnames[index];
+      providerNames.push(providerName);
+    const providerProcess = start(["run", "--rm", "-i", "--name", providerName, "--network", network, "--network-alias", host,
       "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
       "--mount", `type=bind,source=${resolve("integration/fixtures")},target=/fixtures,readonly`,
       "--mount", `type=bind,source=${directory},target=/tls,readonly`, "rosetta-core:local", "node", "/fixtures/capability-provider.mjs"],
-    { coreUrl: "http://runtime.c4a.test:8080", oidcToken: options.token, providerAppId: options.providerAppId,
-      capability: options.capability, tenantId: options.tenantId }, "provider-ready");
+    { coreUrl: "http://runtime.c4a.test:8080", oidcToken: item.token, providerAppId: item.providerAppId,
+      capability: item.capability, tenantId: item.tenantId }, "provider-ready");
+    providerProcesses.push(providerProcess);
     await providerProcess.ready;
-    address = JSON.parse((await docker(["inspect", provider])).stdout)[0].NetworkSettings.Networks[network].IPAddress;
+    address = JSON.parse((await docker(["inspect", providerName])).stdout)[0].NetworkSettings.Networks[network].IPAddress;
+      addresses.push(address);
+    }
     const baselineId = (await docker(["compose", "ps", "-q", "core"])).stdout.trim();
     const baseline = JSON.parse((await docker(["inspect", baselineId])).stdout)[0];
     const forwarded = new Set(["HOST", "PORT", "NODE_ENV", "OIDC_ISSUER", "IDENTITY_URL", "CORE_CLIENT_SECRET", "DATA_URL", "DATA_JWT_SECRET",
@@ -108,17 +118,18 @@ export async function createRuntimeFixture(options) {
   return {
     api: (path, who, body, headers, method) => request(`http://127.0.0.1:8080${path}`, who, body, headers, method),
     control: action => request(`http://127.0.0.1:8081/${action}`, null),
-    providerState: () => request(`http://${hostname}:8081/state`, null),
-    mode: mode => request(`http://${hostname}:8081/mode`, null, { mode }),
+    providerState: (index = 0) => request(`http://${hostnames[index]}:8081/state`, null),
+    mode: (mode, index = 0) => request(`http://${hostnames[index]}:8081/mode`, null, { mode }),
     engine,
-    async forgeJob(tenantId = "tenant-b") {
+    async forgeJob(tenantId = "tenant-b", { businessKey = `forged:${randomUUID()}`, elementId = "invoke" } = {}) {
       const key = `forged_${randomUUID().replaceAll("-", "")}`;
-      const xml = `<?xml version="1.0"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn" targetNamespace="urn:rosetta:test"><process id="${key}" isExecutable="true"><startEvent id="s"/><sequenceFlow id="a" sourceRef="s" targetRef="invoke"/><serviceTask id="invoke" flowable:type="external-worker" flowable:topic="rosetta-c4a-invoke"/><sequenceFlow id="b" sourceRef="invoke" targetRef="e"/><endEvent id="e"/></process></definitions>`;
+      if (!/^[a-z][a-z0-9_]{0,31}$/.test(elementId)) throw new Error("Invalid technical element");
+      const xml = `<?xml version="1.0"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn" targetNamespace="urn:rosetta:test"><process id="${key}" isExecutable="true"><startEvent id="s"/><sequenceFlow id="a" sourceRef="s" targetRef="${elementId}"/><serviceTask id="${elementId}" flowable:type="external-worker" flowable:topic="${options.composition ? "rosetta-c4b-step" : "rosetta-c4a-invoke"}"/><sequenceFlow id="b" sourceRef="${elementId}" targetRef="e"/><endEvent id="e"/></process></definitions>`;
       const deployment = await engine(`/service/repository/deployments?tenantId=${tenantId}`, { xml });
       if (deployment.status !== 201) throw new Error("Could not create forged technical job");
       forgedDeployments.push(deployment.body.id);
       const definitions = await engine(`/service/repository/process-definitions?deploymentId=${deployment.body.id}`);
-      const started = await engine("/service/runtime/process-instances", { processDefinitionId: definitions.body.data[0].id, businessKey: `forged:${randomUUID()}` });
+      const started = await engine("/service/runtime/process-instances", { processDefinitionId: definitions.body.data[0].id, businessKey });
       return started.body.id;
     },
     async restart() {

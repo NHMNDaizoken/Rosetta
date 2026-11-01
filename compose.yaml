@@ -72,6 +72,11 @@ services:
       - ./infra/postgres/010-capability-execution.sql:/migrations/010-capability-execution.sql:ro
       - ./infra/postgres/011-execution-finalization.sql:/migrations/011-execution-finalization.sql:ro
       - ./infra/postgres/012-composition.sql:/migrations/012-composition.sql:ro
+      - ./infra/postgres/013-composition-authority.sql:/migrations/013-composition-authority.sql:ro
+      - ./infra/postgres/014-composition-registry-guards.sql:/migrations/014-composition-registry-guards.sql:ro
+      - ./infra/postgres/015-composition-reservation.sql:/migrations/015-composition-reservation.sql:ro
+      - ./infra/postgres/016-composition-finalization.sql:/migrations/016-composition-finalization.sql:ro
+      - ./infra/postgres/017-composition-exact-grants.sql:/migrations/017-composition-exact-grants.sql:ro
     depends_on:
       database:
         condition: service_healthy

@@ -9,8 +9,7 @@ Start with the [architecture index](index.md) and
 This consolidation accounts for Application Authority, v2 ownership/sharing,
 Foundation OpenAPI and the partially connected Console. It proposes external
 and Rosetta-hosted application models while preserving optional Verifiable
-Capability Composition. Hosting, projects, deployments and composition
-are not implemented or approved by this documentation. The separately authorized
+Capability Composition. Hosting, projects and deployments are not implemented or approved by this documentation. Separately authorized [C4B](CAPABILITY_COMPOSITION.md) adds opt-in bounded composition using the same Core boundaries. The separately authorized
 [C4A runtime](CAPABILITY_EXECUTION.md) implements only opt-in guarded single-capability
 execution, with Flowable as its sole engine and technical providers outside Core.
 
@@ -97,7 +96,7 @@ contract decisions, acceptance checks and SynapseDX reference review.
 
 ## Capability extension design boundary
 
-[Capability extensions v1](CAPABILITY_EXTENSIONS_V1.md) retains the full design. Implemented subsets are Application Registration, [C1 Registry](CAPABILITY_REGISTRY.md), [C2 direct Trust/discovery](CAPABILITY_DIRECT_TRUST.md) and the offline C3 resolver. C2 adds private tenant-qualified grants, independent approval and a live internal eligibility check; it adds no service or network. Human delegation, resolver HTTP endpoints and C4 execution/composition remain unimplemented. Flowable remains the sole workflow engine. GET /v1/identity retains its existing public representation.
+[Capability extensions v1](CAPABILITY_EXTENSIONS_V1.md) retains the full design. Implemented subsets are Application Registration, [C1 Registry](CAPABILITY_REGISTRY.md), [C2 direct Trust/discovery](CAPABILITY_DIRECT_TRUST.md) and the offline C3 resolver. C2 adds private tenant-qualified grants, independent approval and a live internal eligibility check; it adds no service or network. Human delegation and resolver HTTP endpoints remain unimplemented. Opt-in [C4A](CAPABILITY_EXECUTION.md) and [C4B](CAPABILITY_COMPOSITION.md) reuse the guarded transport and sole Flowable engine. Flowable remains the sole workflow engine. GET /v1/identity retains its existing public representation.
 
 ## Application resource authorization
 

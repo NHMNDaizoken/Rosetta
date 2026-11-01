@@ -7,7 +7,7 @@
 | **Rosetta Backend** | The five Foundation capabilities, Application Authority and resource authorization. | **IMPLEMENTED** — runs locally with Docker Compose and is exercised by real-service tests. |
 | **Rosetta Developer Experience** | Admin Console, Foundation OpenAPI, API Explorer, HTTP example and application registration workflow. | **PARTIAL** — useful today; operator enrollment and some Console screens are limited. |
 | **Rosetta Cloud** | Projects/environments, application hosting, deployments, runtime workers, domains and bindings. | **PROPOSED** — architecture only; nothing runs. |
-| **Rosetta Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **PARTIAL** — C1 Registry and bounded C2 direct grants/discovery are implemented; C3 is an offline resolver. Human delegation and C4 execution remain deferred. |
+| **Rosetta Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **PARTIAL** — C1 Registry and bounded C2 direct grants/discovery are implemented; C3 is an offline resolver. C4A invocation and C4B bounded composition are opt-in and disabled by default; human delegation remains deferred. |
 
 There is no public demo, SDK, Layer-2 GUI or hosting runtime in this repository. Do not read a design document as a working feature. The authoritative, itemized status list is [docs/PRODUCT.md](docs/PRODUCT.md).
 
@@ -81,12 +81,12 @@ These are the five foundational capabilities in the project requirements. Applic
 
 | Proposed Core | Intended responsibility | Status |
 | --- | --- | --- |
-| Capability Registry Core | Publish and discover versioned capability descriptions, input/output contracts, permission requirements and execution conditions. | Proposal; no registry API or service. |
+| Capability Registry Core | Publish and discover versioned capability descriptions, input/output contracts, permission requirements and execution conditions. | Implemented bounded C1 Registry; no separate service. |
 | Compatibility Resolver Core | Check whether selected contracts and composition constraints are compatible; report incompatible or unproven connections. | Bounded offline module with unit tests; no resolver API or service. |
-| Composition & Execution Core | Validate a composition plan, bind authorized inputs and coordinate execution through the underlying Workflow Engine. | Proposal; no composition runtime. |
-| Cross-App Trust Core | Define and enforce which applications may publish, discover, invoke or delegate capabilities within an explicit trust scope. | Proposal; current tenant/role checks do not implement cross-app delegation. |
+| Composition & Execution Core | Validate a composition plan, bind authorized inputs and coordinate execution through the underlying Workflow Engine. | Opt-in bounded C4B with real two-provider verification; disabled by default. |
+| Cross-App Trust Core | Define and enforce which applications may publish, discover, invoke or delegate capabilities within an explicit trust scope. | Implemented same-tenant C2 direct grants; human delegation remains deferred. |
 
-These extensions are Rosetta's proposed product direction, not additional claims about mandatory competition requirements. The resolver's bounded offline proof is implemented; the remaining API contracts and security model need review before implementation.
+These extensions are Rosetta's proposed product direction, not additional claims about mandatory competition requirements. The bounded C1-C4B subsets are implemented and verified within the limits recorded in the implementation status; broader delegation and hosted-runtime designs remain future work.
 
 ## Verifiable Capability Composition
 
@@ -105,7 +105,7 @@ Composition coordinates capabilities; the Workflow Engine remains responsible fo
 
 Current clients use HTTP, JSON, OIDC and opaque binary uploads. They can use their language's HTTP and authentication libraries without adopting the Core's Node.js runtime or accessing provider databases directly.
 
-[Foundation OpenAPI 3.1](docs/contracts/foundation-api.openapi.json) describes the implemented public APIs, including v1/v2 resources and registration. [Validation and tested HTTP examples](docs/FOUNDATION_OPENAPI.md) explain the 44-operation coverage, provider boundaries and development tools. [CORE_API.md](docs/CORE_API.md) remains the human-readable guide. The separate [Capability contract](docs/contracts/capability-api-v1.openapi.json) distinguishes implemented C1/C2 registry/trust and opt-in [C4A guarded single-capability execution](docs/CAPABILITY_EXECUTION.md) from design-only composition and delegation. C4A is disabled by default. Optional SDKs are not implemented.
+[Foundation OpenAPI 3.1](docs/contracts/foundation-api.openapi.json) describes the implemented public APIs, including v1/v2 resources and registration. [Validation and tested HTTP examples](docs/FOUNDATION_OPENAPI.md) explain the 44-operation coverage, provider boundaries and development tools. [CORE_API.md](docs/CORE_API.md) remains the human-readable guide. The separate [Capability contract](docs/contracts/capability-api-v1.openapi.json) distinguishes implemented C1/C2 registry/trust and opt-in [C4A guarded single-capability execution](docs/CAPABILITY_EXECUTION.md) and [C4B bounded composition](docs/CAPABILITY_COMPOSITION.md) from design-only delegation. Both execution paths are disabled by default. Optional SDKs are not implemented.
 
 ## Illustrative cross-application use case
 
@@ -113,7 +113,7 @@ Consider an independently developed intake application and a review application,
 
 An authorized caller could propose a composition connecting those operations. Rosetta would check the declared schemas, trust scope and execution constraints before coordinating the accepted plan through the Workflow Engine. Each application would still own its submission and review rules. An optional AI planner could suggest the connection, subject to the same checks as a human-authored plan.
 
-This example is illustrative. Neither business application is included. Foundation tests exercise a technical record/object/workflow flow; separate capability tests now prove bounded metadata discovery and eligibility. They do not execute provider capabilities or composition.
+This example is illustrative. Neither business application is included. Foundation tests exercise a technical record/object/workflow flow; separate capability tests now prove bounded metadata discovery and eligibility. The separate `test:compositions` suite executes two independent technical providers through real OIDC, PostgreSQL and Flowable.
 
 ## Implementation status
 
@@ -128,7 +128,7 @@ This example is illustrative. Neither business application is included. Foundati
 | Structured-data restore | Isolated `pg_dump`/`pg_restore` test implemented. | Restored data, tenant RLS and audit role/ACL/query verified; full-platform disaster recovery remains unverified. |
 | Protected authority audit | Transactional audit with derived actor/tenant metadata, redaction, internal tenant query and fail-closed admission. | Negative/role/restart tests pass; DBAs are trusted, and public export, cryptographic sealing and independent retention remain unimplemented. See [AUDIT.md](docs/AUDIT.md). |
 | CI and source licensing | GitHub Actions and approved Apache-2.0 project licensing in place. | CI runs source/unit/container/integration/restore checks; binary redistribution and vulnerability audits remain separate work. |
-| Capability extensions | C1 Registry and bounded C2 direct grants/discovery implemented; C3 offline resolver. | [Direct Trust](docs/CAPABILITY_DIRECT_TRUST.md) records real OIDC denial, pagination, audit and restore checks. Human delegation and C4 invocation/composition remain unimplemented. |
+| Capability extensions | C1 Registry and bounded C2 direct grants/discovery implemented; C3 offline resolver. | [Direct Trust](docs/CAPABILITY_DIRECT_TRUST.md) records real OIDC denial, pagination, audit and restore checks. C4A/C4B are implemented behind explicit opt-in; human delegation remains unimplemented. |
 | OpenAPI and optional SDKs | Foundation OpenAPI plus a Capability contract with explicit implemented/proposed operation statuses. No SDK. | Keep route/schema/authorization coverage current before optional client generation. |
 | Optional Rosetta Console | React management UI implemented; partially connected, with preview/session resource behavior. | [Audit qualifications](docs/architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions): fail-closed live identity, memory-only token, preview-only v2 methods and a tested packaged Nginx image. No operator login/session or automated live-browser visual/accessibility proof. |
 | Developer Cloud / application hosting | Proposed architecture only; no project/deployment/controller runtime. | Approve one [handoff slice](docs/architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md) and its ADRs before implementation. |
@@ -250,7 +250,7 @@ npm run test:recovery
 npm run test:audit
 ```
 
-Install the pinned development tools with `python -m pip install -r requirements-contracts.txt` before contract/integration checks. The suite has 39 unit tests, 9 foundational integration tests, 13 registration/resource/example tests, 3 capability-registry tests, 7 audit-boundary tests, 1 private-worker contract probe and 1 isolated PostgreSQL restore test. Real HTTP conformance requires positive coverage of all 44 implemented operations, plus negative responses from the existing isolation and failure cases. Restore verifies legacy tenant RLS, app-private RLS and the audit role/query boundary. These checks do not prove capability composition, exhaustive vendor behavior or full-platform disaster recovery.
+Install the pinned development tools with `python -m pip install -r requirements-contracts.txt` before contract/integration checks. Current commands, exact test counts and evidence are recorded in [Layer 1 implementation status](docs/architecture/LAYER1_IMPLEMENTATION_STATUS.md). Real HTTP conformance covers the 44 Foundation operations; the separate Composition suite covers two-provider execution, denial, recovery and restore. This is bounded engineering verification, not full-platform disaster recovery.
 
 The integration suite intentionally interrupts local services, restarts PostgreSQL and recreates containers. Use a development/test stack without application traffic. The recovery suite restores into its own network-isolated temporary PostgreSQL; it does not restore over project data. Run the audit suite last because it also restarts PostgreSQL. These checks do not establish coordinated recovery of identity, objects and workflow databases.
 

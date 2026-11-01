@@ -1,1 +1,3 @@
 * text=auto eol=lf
+# Preserve the exact bytes already applied and checksum-recorded in development.
+infra/postgres/013-composition-authority.sql -text whitespace=cr-at-eol

@@ -21,6 +21,53 @@ URI = CONTRACT.as_uri()
 META = 'https://spec.openapis.org/oas/3.1/schema/2022-10-07'
 META_SHA = 'da01ba28852cac0de53893797cb8d1942bc3b05084f526dcc216717dec314ed0'
 METHODS = {'get', 'head', 'post', 'put', 'patch', 'delete', 'options', 'trace'}
+COMPOSITION_ROUTES = {
+    '/v1/compositions': {'post': 'registerComposition'},
+    '/v1/compositions/{compositionId}/versions': {'post': 'registerCompositionVersion'},
+    '/v1/compositions/{compositionId}/versions/{version}': {'get': 'getCompositionVersion', 'put': 'replaceCompositionDraft'},
+    **{f'/v1/compositions/{{compositionId}}/versions/{{version}}/{action}': {'post': f'{action}CompositionVersion'}
+       for action in ('validate', 'publish', 'deprecate', 'revoke')},
+}
+
+
+def composition_inventory(spec, source=None):
+    """Independent route inventory bound to the actual handler regex and source."""
+    expected_source = 'src/modules/capability/composition/registry.mjs'
+    source = source if source is not None else (ROOT / expected_source).read_text(encoding='utf-8')
+    match = re.search(r'const PATH = /(.*)/;', source)
+    require(match is not None, 'Composition handler route declaration missing')
+    route = re.compile(match[1].replace(r'\/', '/'))
+    require(route.fullmatch('/v1/compositions/11111111-1111-4111-8111-111111111111') is None,
+            'Composition handler serves an undocumented alias')
+    actual = {p: set(m) & METHODS for p, m in spec['paths'].items() if p.startswith('/v1/compositions')}
+    require(actual == {p: set(m) for p, m in COMPOSITION_ROUTES.items()}, 'Composition route inventory differs')
+    for path, methods in COMPOSITION_ROUTES.items():
+        concrete = path.replace('{compositionId}', '11111111-1111-4111-8111-111111111111').replace('{version}', '1.0.0')
+        require(route.fullmatch(concrete) is not None, 'Composition contract route missing in source')
+        for method, oid in methods.items():
+            op = spec['paths'][path][method]
+            require(op['operationId'] == oid, 'Composition operation incorrectly mapped')
+            require(op.get('x-rosetta-source') == expected_source, 'Composition operation source incorrectly mapped')
+            require(op.get('x-rosetta-status') == 'implemented-c4b-opt-in', 'Composition status missing')
+            require(op.get('x-rosetta-test-suite') == 'compositions', 'Composition coverage missing')
+            require(op.get('security') == [{'oidcBearer': []}], 'Composition OIDC missing')
+            require(f'request.method === "{method.upper()}"' in source or f'request.method !== "{method.upper()}"' in source,
+                    'Composition method missing in handler')
+    for action in ('cancel', 'resume'):
+        op = spec['paths'][f'/v1/capability-executions/{{executionId}}/{action}']['post']
+        require(op.get('x-rosetta-status') == 'design-only', 'Unsupported execution operation marked implemented')
+    runtime_source = 'src/modules/capability/composition/runtime.mjs'
+    runtime = (ROOT / runtime_source).read_text(encoding='utf-8')
+    router = (ROOT / 'src/api.mjs').read_text(encoding='utf-8')
+    for path, method, entry in (('/v1/capability-executions', 'post', 'submit'),
+                                ('/v1/capability-executions/{executionId}', 'get', 'get'),
+                                ('/v1/capability-authorizations/introspect', 'post', 'introspect')):
+        op = spec['paths'][path][method]
+        require(op.get('x-rosetta-source') == runtime_source, 'Composition execution source incorrectly mapped')
+        require(op.get('x-rosetta-status') == 'implemented-c4a-c4b-opt-in', 'Composition execution status missing')
+        require(f'async {entry}(' in runtime and f'config.compositionRuntime.{entry}(' in router,
+                'Composition execution handler missing')
+    return sum(len(m) for m in COMPOSITION_ROUTES.values()) + 3
 # Independently reviewed handler inventory, not extracted from the specification.
 # When handlers change, review this inventory and add an observed positive case.
 EXPECTED = {
@@ -268,7 +315,26 @@ def self_test(spec):
         raise ContractError('Unauthenticated success was accepted')
     protected['authorized'] = True
     validate_observations(spec, [protected])
-    print('Validator controls passed: wire/schema errors, auth bypass, missing routes/refs, duplicate IDs and legacy regressions rejected')
+    capability = json.loads((ROOT / 'docs/contracts/capability-api-v1.openapi.json').read_text(encoding='utf-8'))
+    composition_inventory(capability)
+    for change in ('missing-route', 'wrong-source', 'wrong-operation', 'missing-handler'):
+        bad = copy.deepcopy(capability)
+        source = None
+        op = bad['paths']['/v1/compositions']['post']
+        if change == 'missing-route':
+            del bad['paths']['/v1/compositions']
+        elif change == 'wrong-source':
+            op['x-rosetta-source'] = 'src/api.mjs'  # Exists, but is the wrong mapping.
+        elif change == 'wrong-operation':
+            op['operationId'] = 'getCompositionVersion'
+        else:
+            source = (ROOT / op['x-rosetta-source']).read_text(encoding='utf-8').replace('compositions', 'absent')
+        try:
+            composition_inventory(bad, source)
+        except ContractError:
+            continue
+        raise ContractError('Composition checker accepted deliberate ' + change)
+    print('Validator controls passed: wire/schema errors, auth bypass, missing routes/refs, duplicate IDs, legacy and Composition route/source regressions rejected')
 
 
 def capability_contract(cases=None):
@@ -277,6 +343,7 @@ def capability_contract(cases=None):
     spec = json.loads(contract.read_text(encoding='utf-8'))
     if cases is None:
         validate_official_structure(spec)
+        composition_inventory(spec)
     registry = Registry().with_resources(
         (p.as_uri(), Resource.from_contents(json.loads(p.read_text(encoding='utf-8')), default_specification=DRAFT202012))
         for p in contract.parent.glob('*.json'))
@@ -306,7 +373,7 @@ def main():
     else:
         count = validate_document(spec)
         capability_contract()
-        print(f'Foundation {count} operations and Capability OpenAPI structure/schemas/examples passed; Foundation authorization/ref inventory verified')
+        print(f'Foundation {count} operations and Capability OpenAPI structure/schemas/examples passed; Foundation authorization/ref and Composition 11-operation route/source/status inventory verified')
 
 
 if __name__ == '__main__':

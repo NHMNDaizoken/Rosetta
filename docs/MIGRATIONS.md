@@ -23,7 +23,7 @@ supported way to apply migrations.
   mismatch is `installed schema drift` and stops the run before any new SQL.
 - Two runners serialize through `flock` and a PostgreSQL advisory lock.
 
-Existing migrations `001`-`011` and the tables they create are not modified by
+Existing migrations `001`-`012` and the tables they create are not modified by
 this mechanism. The two bookkeeping tables are created by the runner itself.
 
 ## Normal operation
@@ -94,3 +94,20 @@ container and proves:
 `scripts/check-schema-drift.mjs` is the read-only diagnostic used by operators
 and CI. It needs `DATABASE_SERVICE` (default `database`) and prints either
 `schema matches the recorded fingerprint` or the expected/actual fingerprints.
+
+## C4B forward corrections
+
+Migrations 013-017 are additive corrections to 012, preserving existing records,
+ownership, forced RLS and audit. The version-16 runner first verifies the old
+fingerprint scope, then includes `composition_private` in the new fingerprint.
+No adoption flag is needed for this transition. The drift test also proves
+Composition RLS tampering is rejected. CRLF transaction delimiters are stripped
+before execution, while checksums still hash the original file bytes; 013's
+applied CRLF bytes are explicitly preserved by `.gitattributes`. Never normalize
+an already-applied migration or replace its recorded checksum silently.
+
+The inspected development checkout also contains pre-existing mixed line endings
+in 006. Its original working-tree bytes match that database's checksum and were
+left unchanged. A future replacement with Git-normalized bytes must fail the
+checksum check; investigate/restore the recorded bytes rather than treating it as
+permission to reapply authority SQL. Fresh installs hash their actual checkout.

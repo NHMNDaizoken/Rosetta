@@ -64,32 +64,32 @@ CREATE TABLE IF NOT EXISTS core.schema_migration_state (
 SQL
 
 schema_fingerprint() {
-  psql -X -q -At -v ON_ERROR_STOP=1 "$@" <<'SQL'
+  psql -X -q -At -v ON_ERROR_STOP=1 -v include_composition="$include_composition" "$@" <<'SQL'
 WITH objects AS (
   SELECT 'schema' AS kind, n.nspname AS name, NULL::text AS hash,
          pg_get_userbyid(n.nspowner) AS owner,
          coalesce(array_to_string(n.nspacl, ','), '') AS acl
   FROM pg_namespace n
-  WHERE n.nspname IN ('core', 'app_private', 'trust_private', 'execution_private')
+  WHERE (n.nspname IN ('core', 'app_private', 'trust_private', 'execution_private') OR (:'include_composition' = '1' AND n.nspname = 'composition_private'))
   UNION ALL
   SELECT 'function', n.nspname || '.' || p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')',
          encode(sha256(convert_to(pg_get_functiondef(p.oid), 'UTF8')), 'hex'),
          pg_get_userbyid(p.proowner),
          coalesce(array_to_string(p.proacl, ','), '')
   FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
-  WHERE n.nspname IN ('core', 'app_private', 'trust_private', 'execution_private') AND p.prokind = 'f'
+  WHERE (n.nspname IN ('core', 'app_private', 'trust_private', 'execution_private') OR (:'include_composition' = '1' AND n.nspname = 'composition_private')) AND p.prokind = 'f'
   UNION ALL
   SELECT 'relation', n.nspname || '.' || c.relname, NULL::text,
          pg_get_userbyid(c.relowner),
          coalesce(array_to_string(c.relacl, ','), '') || '|rls=' || c.relrowsecurity || '|force=' || c.relforcerowsecurity
   FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
-  WHERE n.nspname IN ('core', 'app_private', 'trust_private', 'execution_private')
+  WHERE (n.nspname IN ('core', 'app_private', 'trust_private', 'execution_private') OR (:'include_composition' = '1' AND n.nspname = 'composition_private'))
     AND c.relkind IN ('r', 'p', 'v', 'm', 'S')
   UNION ALL
   SELECT 'column', n.nspname || '.' || c.relname || '.' || a.attname, NULL::text, NULL::text,
          array_to_string(a.attacl, ',')
   FROM pg_attribute a JOIN pg_class c ON c.oid = a.attrelid JOIN pg_namespace n ON n.oid = c.relnamespace
-  WHERE n.nspname IN ('core', 'app_private', 'trust_private', 'execution_private')
+  WHERE (n.nspname IN ('core', 'app_private', 'trust_private', 'execution_private') OR (:'include_composition' = '1' AND n.nspname = 'composition_private'))
     AND a.attacl IS NOT NULL AND a.attnum > 0 AND NOT a.attisdropped
   UNION ALL
   SELECT 'policy', n.nspname || '.' || c.relname || '.' || p.polname,
@@ -101,7 +101,7 @@ WITH objects AS (
          , 'UTF8')), 'hex'),
          NULL::text, ''
   FROM pg_policy p JOIN pg_class c ON c.oid = p.polrelid JOIN pg_namespace n ON n.oid = c.relnamespace
-  WHERE n.nspname IN ('core', 'app_private', 'trust_private', 'execution_private')
+  WHERE (n.nspname IN ('core', 'app_private', 'trust_private', 'execution_private') OR (:'include_composition' = '1' AND n.nspname = 'composition_private'))
 )
 SELECT encode(sha256(convert_to(coalesce(string_agg(
   kind || ':' || name || ':' || coalesce(hash, '') || ':' || coalesce(owner, '') || ':' || coalesce(acl, ''),
@@ -125,6 +125,14 @@ latest_local=${latest_local%%-*}
 latest_local=$(printf '%s' "$latest_local" | sed 's/^0*//')
 [ -n "$latest_local" ] || latest_local=0
 
+installed_version=0
+if table_exists core.schema_migrations "$@"; then
+  installed_version=$(sql "$@" -c "SELECT coalesce(max(version), 0) FROM core.schema_migrations" | tr -d '[:space:]')
+  installed_version=${installed_version:-0}
+fi
+include_composition=0
+[ "$installed_version" -lt 16 ] || include_composition=1
+
 stored_fingerprint=
 if table_exists core.schema_migration_state "$@"; then
   stored_fingerprint=$(sql "$@" -c "SELECT fingerprint FROM core.schema_migration_state WHERE id = 1")
@@ -138,11 +146,6 @@ if [ -n "$stored_fingerprint" ] && [ "$stored_fingerprint" != "$current_fingerpr
   fi
 fi
 
-installed_version=0
-if table_exists core.schema_migrations "$@"; then
-  installed_version=$(sql "$@" -c "SELECT coalesce(max(version), 0) FROM core.schema_migrations" | tr -d '[:space:]')
-  installed_version=${installed_version:-0}
-fi
 if [ "$installed_version" -gt "$latest_local" ]; then
   fail "database schema is newer than this migration set; use a matching runner instead of replaying older authority SQL"
 fi
@@ -180,12 +183,14 @@ for migration in "$MIGRATION_DIR"/[0-9][0-9][0-9]-*.sql; do
     fi
     printf 'Applying migration %s\n' "$version"
     {
-      sed -e '/^BEGIN;$/d' -e '/^COMMIT;$/d' "$migration"
+      sed -e 's/\r$//' -e '/^BEGIN;$/d' -e '/^COMMIT;$/d' "$migration"
       printf "\nINSERT INTO core.schema_migration_checksums(version, filename, sha256) VALUES (%s, '%s', '%s');\n" "$version" "$name" "$checksum"
     } | psql -X -q -v ON_ERROR_STOP=1 --single-transaction "$@" -f -
   fi
 done
 
+include_composition=0
+[ "$latest_local" -lt 16 ] || include_composition=1
 final_fingerprint=$(schema_fingerprint "$@")
 sql "$@" -c "INSERT INTO core.schema_migration_state(id, fingerprint, last_version, recorded_at)
   VALUES (1, '$final_fingerprint', $latest_local, now())
