@@ -34,6 +34,8 @@ jobs:
           npm run check:docs
       - name: Install Console dependencies
         run: npm ci --prefix console
+      - name: Audit Console dependency graph
+        run: npm audit --prefix console --audit-level=high
       - name: Verify generated Console endpoint inventory
         run: npm run console:check:endpoints
       - name: Test and build Console
