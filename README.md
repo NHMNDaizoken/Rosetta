@@ -5,7 +5,7 @@
 | Product area | What it means today | Status |
 | --- | --- | --- |
 | **Rosetta Backend** | The five Foundation capabilities, Application Authority and resource authorization. | **IMPLEMENTED** — runs locally with Docker Compose and is exercised by real-service tests. |
-| **Rosetta Developer Experience** | Admin Console, Foundation OpenAPI, API Explorer, HTTP example and application registration workflow. | **PARTIAL** — useful today; operator enrollment and some Console screens are limited. |
+| **Rosetta Developer Experience** | Console, OpenAPI, server SDK, local doctor, HTTP examples and operator enrollment guide. | **PARTIAL** — useful today; operator enrollment and some Console screens are limited. |
 | **Rosetta Cloud** | Projects/environments, application hosting, deployments, runtime workers, domains and bindings. | **PROPOSED** — architecture only; nothing runs. |
 | **Rosetta Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **PARTIAL** — C1 Registry and bounded C2 direct grants/discovery are implemented; C3 is an offline resolver. C4A invocation and C4B bounded composition are opt-in and disabled by default; human delegation remains deferred. |
 
@@ -127,7 +127,7 @@ This example is illustrative. Neither business application is included. Foundati
 | Dependency failure and persistence | Implemented liveness/readiness and named volumes. | Tests interrupt/recreate services and verify stored records, object bytes and workflow state. |
 | Structured-data restore | Isolated `pg_dump`/`pg_restore` test implemented. | Restored data, tenant RLS and audit role/ACL/query verified; full-platform disaster recovery remains unverified. |
 | Protected authority audit | Transactional audit with derived actor/tenant metadata, redaction, internal tenant query and fail-closed admission. | Negative/role/restart tests pass; DBAs are trusted, and public export, cryptographic sealing and independent retention remain unimplemented. See [AUDIT.md](docs/AUDIT.md). |
-| CI and source licensing | GitHub Actions and approved Apache-2.0 project licensing in place. | CI runs source/unit/container/integration/restore checks; binary redistribution and vulnerability audits remain separate work. |
+| CI and source licensing | GitHub Actions and approved Apache-2.0 project licensing in place. | Source/unit/container/integration/restore checks pass; [dependency scans](docs/SECURITY_REVIEW.md) record unresolved image advisories and binary redistribution gates. |
 | Capability extensions | C1 Registry and bounded C2 direct grants/discovery implemented; C3 offline resolver. | [Direct Trust](docs/CAPABILITY_DIRECT_TRUST.md) records real OIDC denial, pagination, audit and restore checks. C4A/C4B are implemented behind explicit opt-in; human delegation remains unimplemented. |
 | OpenAPI and optional SDKs | Foundation/Capability OpenAPI plus a tested server-side Node ESM SDK. | SDK authentication, denial, idempotency and polling tests; real enrolled-app and composition integration. |
 | Optional Rosetta Console | React management UI implemented; partially connected, with preview/session resource behavior. | [Audit qualifications](docs/architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions): fail-closed live identity, memory-only token, preview-only v2 methods and a tested packaged Nginx image. No operator login/session or automated live-browser visual/accessibility proof. |
@@ -298,7 +298,7 @@ Rosetta's adapters use Node.js 24 and its standard HTTP, crypto and test APIs, w
 | Verifiable composition | Offline C3 and opt-in C4A/C4B implemented. | Maintain real two-provider execution and conservative recovery checks; no arbitrary DAG/resume/retries. |
 | Independent Layer-2 products | No application is implemented. | Demonstrate an application using foundational APIs, then a separately reviewed cross-application capability scenario. |
 | Optional AI planning | Aspirational integration. | Validate any planner output through the same deterministic Core checks and authorization. |
-| Deployment and release | Local Compose and CI only. | Approve a target; verify TLS/secrets, full backup/restore, rollback, security/license audits and release procedures. |
+| Deployment and release | Reproducible local source candidate, checksums and [upgrade guide](docs/RELEASE.md). | Resolve recorded image security/binary-license gates; production target/TLS, coordinated recovery and final publication remain deferred. |
 | Developer Cloud / hosting architecture | Consolidated proposal with logical groups A–F, ownership, planes, ADRs and dependency DAG. | Start with the proposed Console trust slice; project metadata and privileged hosting need separate contract/security approvals. |
 
 There are no promised dates or published release milestones in this roadmap. The [foundation integration roadmap](docs/INTEGRATION_ROADMAP.md) retains detailed acceptance criteria and the SynapseDX reference review. Capability extension work requires reviewed contracts and authorization before implementation.

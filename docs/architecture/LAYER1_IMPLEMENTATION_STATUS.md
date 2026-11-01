@@ -15,7 +15,9 @@ Layer 2, hosting, production deployment, human delegation, arbitrary DAG/loops,
 general side effects, retries, HA credentials and unsupported resume remain outside scope.
 Both execution flags remain disabled on the normal Gateway.
 
-Local functional verification passes. **The overall release security gate is open:**
+Local functional implementation, setup, SDK and source packaging work is complete.
+Overall program result: **PARTIAL / RELEASE SECURITY BLOCKED**, because the requested
+security acceptance cannot be claimed. **The overall release security gate is open:**
 container scans found unresolved critical/high advisories, and container SPDX license
 metadata does not clear binary redistribution. See the [security review](../SECURITY_REVIEW.md)
 and its exact-package inventories. This is not enterprise/production certification.
@@ -40,8 +42,12 @@ and its exact-package inventories. This is not enterprise/production certificati
 - Console onboarding now links exact current guides. Small theme-selector and mobile
   width fixes address defects seen in rendered QA; Preview/LIVE boundaries remain.
   Upstream runtime package license texts are preserved during static builds.
-- Public docs are being reconciled with current source; old ADR/checkpoint evidence
-  stays historical. Source packaging and fresh archive/upgrade verification are next.
+- Public docs reflect source status; historical ADR/checkpoint evidence is labelled.
+  All 45 public Markdown files have resolving local file links. External URLs and
+  heading anchors were not exhaustively checked.
+- Version 0.1.0-rc.1 packages 237 allowlisted source files from Git with exact SHA,
+  SHA-256 sidecar and source manifest. Repeated archives are byte-identical. A CI
+  packaging check and Console npm advisory gate are enabled; no final publication.
 
 ## Completed commits and exact-SHA CI
 
@@ -50,10 +56,18 @@ and its exact-package inventories. This is not enterprise/production certificati
 | `5cde40db73f518188bdb38a6f9db492201d0d468` | Migration/import integrity and development dependency remediation | First CI exposed missing test scratch/mount support; corrected below |
 | `d2ca17bc77700d990e66f324e31d711e9780cded` | Pinned-runtime test scratch/mount correction | [successful Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41328619616) |
 | `ad3109c85f8d09a88786d3ead82df90500165042` | Safe setup, doctor, local workflow and onboarding | [successful Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41329621666) |
+| `69767f696c511b5c444f11785759aa875b9db3bf` | Public server SDK, rendered Console fixes, onboarding and audit inventories | [successful Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41330694905) |
+| `1aedc5f9b96754cde7b665b15addbb0068cde8b4` | Source packager, reproducibility checks, release docs and version | Tested extracted install and baseline upgrade below |
+| `75c1bfd` | Exact static runtime-notice URL and container regression | Packaged Console test passes |
+| `05886dfb27c08356e8712668f61bcfe2fb205407` | npm advisory CI gate; source candidate with notice fix | [source increment Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41331705506); exact final handoff result is reported separately |
 
-Every listed push was checked against remote main. The next SDK/Console source
-increment is verified locally before commit; final source identity and CI will be
-recorded at handoff. No final release/tag or public deployment has been created.
+Pushed increment tips were checked against remote main; intermediate packaging/fix
+commits travel together. This document's final evidence revision follows those
+source commits. Resolve the final SHA with `git log -1 --format=%H --
+docs/architecture/LAYER1_IMPLEMENTATION_STATUS.md`; the final user handoff records
+the observed exact-SHA Actions result and archive hash. No final release/tag or
+public deployment has been created. A successful CI run is functional evidence,
+not clearance of the explicitly unresolved container security gate.
 
 ## Newly executed local verification
 
@@ -65,7 +79,7 @@ project-qualified volumes. No existing .env or real persistent volume was overwr
 | --- | --- |
 | `npm run check` | pass; syntax/SPDX, license metadata, 28-source boundaries |
 | `npm test` | 77 pass in current workspace, including SDK/setup/doctor/archive guards |
-| Pinned Node container unit suite | 75 pass before the two final doctor/archive unit additions; final CI repeats it |
+| Pinned Node container unit suite | 77 pass, using a test-only tmpfs and source mounts; production remains read-only |
 | `npm run check:contracts` / `test:contract-validator` | pass; Foundation 44 operations and Composition route/source/state controls |
 | `npm run test:migrations` | 10 pass, including missing historical file and duplicate-version refusal |
 | `npm run check:schema-drift` | pass against isolated installed 001–017 |
@@ -88,6 +102,12 @@ project-qualified volumes. No existing .env or real persistent volume was overwr
 | Visual QA | English/Vietnamese onboarding, 430/1440 width, light and dark inspected; measured no horizontal page overflow at 430/1440 |
 | npm / pip advisory scans | zero Console npm findings after remediation; Python pins and conditional typing-extensions separately return no known findings |
 | Docker Scout CVE/SPDX | executed for seven runtime image families; unresolved findings recorded, not a clean audit |
+| `npm run check:docs` | pass; 45 Markdown files, local file links |
+| `npm run test:release` / `release:package` / `release:verify` | pass; guard test, repeated identical TAR bytes, checksum and 237-file source inventory |
+| Extracted source installation | pass on new rosetta-release-smoke and updated rosetta-final-smoke volumes; build/start/readiness/SDK/schema/Console/notices verified |
+| Baseline-to-candidate upgrade | pass; original identity subject, synthetic record, object bytes, running workflow, all 17 checksum rows and exact environment bytes preserved |
+| Retained-volume shutdown | pass; documented local:down preserves named volumes |
+| Known-local-secret check | 237 tracked files checked against 48 local credential values; none found (not a general secret-scanner claim) |
 
 An SDK fixture adapter initially combined duplicate case-insensitive Authorization
 headers, producing 401 before dispatch. Correcting the adapter restored all 29 C4B
@@ -96,14 +116,51 @@ No Core authentication rule was relaxed. The first migration test rerun also cau
 an error-message precedence regression; newer-schema diagnostics were restored
 before the successful 10/10 run and commit.
 
-## Remaining executable steps
+The local regression matrix totals 213 tests across unit, migration, provider,
+execution-ledger, Foundation, application, Capability, Composition, worker, audit,
+recovery and Console suites. Targeted SDK/setup/release reruns overlap that total.
 
-1. Commit/push the reviewed SDK/Console/doc and audit inventory increment; verify CI.
-2. Commit the versioned source packager, checksum/allowlist verification and release
-   docs; repeat package generation and verify byte-identical results.
-3. Install the extracted source candidate on a separate fresh Compose project;
-   verify readiness, Console, authenticated call and retained-volume shutdown.
-4. Verify baseline-to-candidate upgrade on disposable data, retaining configuration,
-   migration checksums and sentinel data; then record exact final-SHA CI.
-5. Keep the release security gate unresolved until image advisories and binary
-   license/source obligations have been resolved. Do not publish or deploy.
+## Extracted-install and upgrade evidence
+
+Source `1aedc5f9b96754cde7b665b15addbb0068cde8b4` produced an identical repeated TAR
+with SHA-256 `be6b46cb4c7cc99cfa4a01726ac0a2e1872ec8ec43781284b02d15b0a3d045fa`.
+It was installed from extraction on new `rosetta-release-smoke` volumes, ports
+28080/23000. Setup, preflight doctor, local:up build/wait, healthcheck, SDK identity,
+Console HTML navigation and schema verification passed. local:down retained volumes.
+An updated archive from `05886df` with hash
+`b71eb028bc8ef6beee7e027bf99baadd016c035fd335b94cef4ae24d2922079f` repeated the
+fresh workflow on new `rosetta-final-smoke` volumes, ports 28082/23002, and verified
+the explicit upstream notice URL too. Generated credentials remain ignored/local.
+
+Upgrade used a separately extracted **starting SHA** and new `rosetta-upgrade-test`
+volumes at 28081. Its synthetic identity, record, object and live workflow were
+seeded before switching to candidate source with the same project and .env. After
+container recreation, all values, all 17 complete checksum rows and .env SHA-256
+matched the baseline. Readiness, doctor and schema checks passed; Console was added
+at 23001. No checksum adoption, role bypass or historical SQL edit was needed.
+
+The existing Windows checkout's migration 006 has preexisting mixed-line-ending
+bytes that differ from its committed Git blob. Neither was rewritten. Fresh archive
+and baseline archive upgrades use canonical Git bytes; existing installations must
+retain their own applied files/checksums. [RELEASE](../RELEASE.md) records both hashes
+and the stop condition rather than silently normalizing an installed migration.
+
+## Remaining blockers and next executable work
+
+1. Resolve the 810 deduplicated advisory/package/image findings (50 critical and
+   275 high), starting with exposed Nginx/identity paths and Flowable/Go libraries.
+   Assess upstream patch builds and compatibility before changing image pins;
+   rerun the full security/integration/recovery matrix. No blanket non-exploitability
+   conclusion or critical-advisory acceptance is asserted.
+2. Complete binary notice/corresponding-source review for any later image or builder
+   redistribution. Current source-only packaging retains references and notices;
+   missing/NOASSERTION SPDX metadata is not a binary-license pass.
+3. Owner approval is still required for any final tag/release/publication. Server,
+   domain/TLS, real operator provisioning, monitoring/rotation and coordinated backup
+   recovery remain a separately authorized production phase. Nothing was deployed.
+
+Layer 1 can support **local Layer-2 prototyping against its public contracts**, with
+the existing operator enrollment and security limits. This is not approval to expose
+it publicly or use real sensitive data. A business app/use case is still an owner
+decision; no Layer-2 code was added. If continuing this program, remediate the recorded
+image/security gate before claiming the original definition of done.
