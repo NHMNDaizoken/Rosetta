@@ -27,7 +27,7 @@ export function packageRelease(directory = "dist/releases") {
   execFileSync("git", ["diff", "--quiet", "HEAD", "--"], { stdio: "pipe" });
   const sha = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
   const version = JSON.parse(execFileSync("git", ["show", "HEAD:package.json"], { encoding: "utf8" })).version;
-  assert.match(version, /^\d+\.\d+\.\d+-rc\.\d+$/, "Set an explicit release-candidate version before packaging");
+  assert.match(version, /^\d+\.\d+\.\d+(-rc\.\d+)?$/, "Set an explicit MAJOR.MINOR.PATCH or release-candidate version before packaging");
   const tree = execFileSync("git", ["ls-tree", "-rz", "HEAD"], { encoding: "utf8", maxBuffer: 8 * 1024 * 1024 }).split("\0").filter(Boolean);
   assert.ok(tree.every(entry => !entry.startsWith("120000 ") && !entry.startsWith("160000 ")), "Review symlinks/submodules before release");
   const files = releaseFiles(tree.map(entry => entry.slice(entry.indexOf("\t") + 1)));
@@ -45,5 +45,5 @@ export function packageRelease(directory = "dist/releases") {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try { packageRelease(); }
-  catch { console.error("Packaging refused. Commit reviewed changes, use an RC version, and exclude generated/private files. See docs/RELEASE.md."); process.exitCode = 1; }
+  catch { console.error("Packaging refused. Commit reviewed changes, use a semantic version, and exclude generated/private files. See docs/RELEASE.md."); process.exitCode = 1; }
 }

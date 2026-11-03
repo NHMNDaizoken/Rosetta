@@ -5,7 +5,7 @@ Updated: 2026-11-02 | Branch: main | Program: local stabilization and release pr
 Starting local/remote SHA: `2cdcb6a6f9d80547e9b6effb585489f703158146`, clean tree.
 Its [exact-SHA Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41322854152)
 was independently verified successful. Earlier implementation evidence is preserved
-in the [historical engineering handoff](CODEX_LAYER1_REVIEW_HANDOFF.md).
+in the [historical engineering handoff](ENGINEERING_HISTORY.md).
 
 ## Current assessment
 

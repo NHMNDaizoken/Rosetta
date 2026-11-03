@@ -7,8 +7,9 @@ final GitHub Release is authorized by this workflow.
 
 ## Versioning and build
 
-Use semantic `MAJOR.MINOR.PATCH-rc.N` versions in root `package.json`. Increment RC
-numbers for candidate changes; a final version/tag needs owner approval. Versioning
+Use semantic `MAJOR.MINOR.PATCH-rc.N` versions in root `package.json` for candidates
+and `MAJOR.MINOR.PATCH` for an owner-approved final version. `v0.1.0` is the Layer 1
+competition release; see [Publishing a GitHub Release](#publishing-a-github-release). Versioning
 does not change the existing `/v1` and `/v2` API contracts. Additive database versions
 are independent; applied migrations are immutable. No downgrade migration is supplied.
 
@@ -126,3 +127,20 @@ The owner must later provide a server target, private secret distribution, domai
 decisions, backup destination and recovery objectives, monitoring ownership and a
 maintenance/patch policy. Layer 2 remains a separate application project using public
 Core contracts; the Console does not meet the business application requirement.
+
+## Publishing a GitHub Release
+
+The owner publishes a final version from a committed `main` checkout after CI passes:
+
+```sh
+npm run release:package
+npm run release:verify
+gzip -9 -k -n dist/releases/rosetta-0.1.0.tar
+git tag -a v0.1.0 -m "Rosetta v0.1.0 - Layer 1 Foundation and Capability Services"
+git push origin v0.1.0
+```
+
+On GitHub, create a release from tag `v0.1.0` and attach `rosetta-0.1.0.tar.gz`,
+`rosetta-0.1.0.tar.sha256` and `rosetta-0.1.0.manifest.json`. List unresolved
+upstream image advisories from [SECURITY_REVIEW.md](SECURITY_REVIEW.md) under
+**Known issues**; they are tracked, not hidden.

@@ -2,7 +2,7 @@
 
 The current Foundation acceptance history below remains useful. New platform work
 is ordered by the [architecture dependency register](architecture/IMPLEMENTATION_DEPENDENCIES.md)
-and [OpenCode slices](architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md). Hosting and
+and [backlog slices](architecture/IMPLEMENTATION_BACKLOG.md). Hosting and
 general capability plugins/HA remain proposed. Bounded opt-in C4A/C4B are implemented;
 see [current status](architecture/LAYER1_IMPLEMENTATION_STATUS.md). The mandatory
 Layer-2 product can proceed independently.

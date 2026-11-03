@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2026 Rosetta Contributors
+# SPDX-License-Identifier: Apache-2.0
+name: Công việc / Task
+description: Một đầu việc cần làm (tính năng, tài liệu, kiểm thử).
+labels: ["task"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Mục tiêu
+      description: Cần làm gì và vì sao?
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Hoàn thành khi
+      description: Tiêu chí để coi là xong.
+      placeholder: "- [ ] ...\n- [ ] Có kiểm thử / tài liệu"
+    validations:
+      required: true
+  - type: dropdown
+    id: layer
+    attributes:
+      label: Thuộc phần
+      options: ["Tầng 1 – Core", "Tầng 1 – Console", "Tầng 2 – Ứng dụng", "Tài liệu", "CI / Phát hành"]

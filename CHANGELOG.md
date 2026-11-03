@@ -1,5 +1,30 @@
 # Changelog
 
+All notable changes to Rosetta are recorded here. Versions follow
+[Semantic Versioning](https://semver.org/).
+
+## 0.1.0 — Layer 1 release (2026-11)
+
+First public release of the Rosetta Layer 1 platform for OLP'26.
+
+- Five headless Foundation services behind one Nginx gateway: Keycloak SSO,
+  PostgreSQL/PostgREST with row-level security, SeaweedFS with ClamAV ingress
+  scanning, Flowable workflows and OpenBao secrets.
+- Capability Services: application registration, expiring resource shares,
+  C1 Registry, C2 cross-app trust, C3 compatibility resolver, opt-in C4A
+  invocation and C4B composition, and protected audit.
+- Vietnamese README with requirement mapping, architecture diagram and team details;
+  the full English reference moved to `docs/README_EN.md`.
+- Internal engineering notes renamed to `ENGINEERING_HISTORY.md` and
+  `IMPLEMENTATION_BACKLOG.md`.
+- Packaging accepts final semantic versions; GitHub Release steps documented.
+- Issue templates for bugs and tasks.
+- `npm run app:enroll -- <name>`: one-command local enrollment of a Layer-2 backend
+  application with separated demo owner/approver and an ignored per-app env file.
+
+**Known issues:** upstream container images carry unresolved advisories recorded in
+[docs/SECURITY_REVIEW.md](docs/SECURITY_REVIEW.md). Production deployment is out of scope.
+
 ## 0.1.0-rc.1 — local candidate preparation (2026-11-02)
 
 - Preserve the implemented five Foundation services and opt-in bounded C1–C4B.
@@ -16,4 +41,4 @@
   remain deferred. See docs/SECURITY_REVIEW.md and implementation status for open gates.
 
 Earlier implementation history and exact verification checkpoints remain in
-[the engineering handoff](docs/architecture/CODEX_LAYER1_REVIEW_HANDOFF.md) and Git.
+[the engineering history](docs/architecture/ENGINEERING_HISTORY.md) and Git.
