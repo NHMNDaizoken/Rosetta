@@ -1,4 +1,4 @@
--- SPDX-FileCopyrightText: 2026 Junctura Contributors
+-- SPDX-FileCopyrightText: 2026 Rosetta Contributors
 -- SPDX-License-Identifier: Apache-2.0
 BEGIN;
 GRANT CREATE ON SCHEMA core TO rosetta_app_owner;

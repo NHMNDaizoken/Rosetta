@@ -1,4 +1,4 @@
--- SPDX-FileCopyrightText: 2026 Junctura Contributors
+-- SPDX-FileCopyrightText: 2026 Rosetta Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- Correct C4B authority and preserve immutable migration 012 and existing evidence.
 BEGIN;

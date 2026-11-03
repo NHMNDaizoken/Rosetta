@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "SPDX-FileCopyrightText: 2026 Junctura Contributors; SPDX-License-Identifier: Apache-2.0. Design-only contract; no runtime routes.",
+  "$comment": "SPDX-FileCopyrightText: 2026 Rosetta Contributors; SPDX-License-Identifier: Apache-2.0. Design-only contract; no runtime routes.",
   "title": "Capability Manifest v1 (design draft)",
   "type": "object",
   "additionalProperties": false,
