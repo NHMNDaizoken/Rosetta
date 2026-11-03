@@ -120,11 +120,11 @@ services:
     # Internal only: no published ports. Signature updates use FreshClam inside the image.
   secrets:
     image: openbao/openbao:2.7.2@sha256:5046911075e137e154ce49ab051502f4ec7cf367d484ae4a4dce665d9b90561f
-    command: ["server", "-config=/openbao/config/local.hcl"]
+    command: [server]
     environment:
       BAO_ADDR: http://127.0.0.1:8200
     volumes:
-      - openbao-data:/openbao/data
+      - openbao-data:/openbao/file
       - ./infra/openbao/local.hcl:/openbao/config/local.hcl:ro
     networks: [secrets]
     healthcheck:
@@ -136,6 +136,7 @@ services:
     # Internal only: no published ports. Init/unseal tokens stay outside Git.
   secrets-init:
     image: openbao/openbao:2.7.2@sha256:5046911075e137e154ce49ab051502f4ec7cf367d484ae4a4dce665d9b90561f
+    user: "0:0"
     entrypoint: ["/bin/sh", "/scripts/init-openbao.sh"]
     environment:
       BAO_ADDR: http://secrets:8200
@@ -151,6 +152,8 @@ services:
         condition: service_healthy
     networks: [secrets]
     restart: "no"
+    # Root only for this one-shot initializer so volume bootstrap works on
+    # Docker Desktop; Core remains non-root and mounts only core-token.
   workflow:
     image: flowable/flowable-rest:8.0.0@sha256:708dfa32f27b93180bb6e7a30684d881d995fe257f5b8413e14b20a55c25672d
     environment:
