@@ -1,4 +1,4 @@
-# Official requirements and Rosetta traceability
+# Official requirements and Junctura traceability
 
 > Reviewed: 2026-10-26 | Branch: main | Audit baseline: `7fdd7fc381bdd29d81d56fb08a764efff8c41582`
 
@@ -17,7 +17,7 @@ These classifications follow the [problem's own sections](https://vfossa.vn/tin-
 
 ## Product minimum: implementation trace
 
-| ID / official locator | Requirement | Rosetta evidence/status | Remaining acceptance |
+| ID / official locator | Requirement | Junctura evidence/status | Remaining acceptance |
 | --- | --- | --- | --- |
 | M1 / problem §3 | Headless PaaS | VERIFIED Foundation API/providers; optional Console is a client. | Keep APIs operational without UI; no business rules in adapters. |
 | M2 / problem §3 | Identity/SSO | VERIFIED bounded tests: Keycloak/Core. | Maintain PKCE/logout/denial regression; production identity controls separate. |
@@ -30,7 +30,7 @@ These classifications follow the [problem's own sections](https://vfossa.vn/tin-
 ## Seven broader Layer-1 groups: coverage, not seven installed products
 
 English labels paraphrase the [problem §2 grouping](https://vfossa.vn/tin-tuc/de-thi-phan-mem-nguon-mo-olp-2026-798.html).
-The right columns are Rosetta analysis and proposed tests, not additional official
+The right columns are Junctura analysis and proposed tests, not additional official
 minimum services.
 
 | Reference group | Current coverage | Gaps / architecture placement |
@@ -49,7 +49,7 @@ The [problem §4](https://vfossa.vn/tin-tuc/de-thi-phan-mem-nguon-mo-olp-2026-79
 requires attention to these design directions; they must not be dismissed as
 optional merely because the minimum five capabilities work.
 
-| ID / principle | Status | Rosetta response and evidence still needed |
+| ID / principle | Status | Junctura response and evidence still needed |
 | --- | --- | --- |
 | T1 — Lifecycle/speed separation | PARTIALLY VERIFIED | Separate provider duties/history ledger exist. No OLTP→historical analytical flow/lakehouse demonstrated. Define bounded extraction/retention and noninterference evidence before claiming full alignment. |
 | T2 — IT/OT convergence | UNVERIFIED | No context/sensor integration. Select a separate Layer-2 scenario/adapter contract and prove authorized event/context flow; no invented digital-twin claim. |
@@ -57,7 +57,7 @@ optional merely because the minimum five capabilities work.
 | T4 — Zero-trust/GitOps/quarantine | PARTIALLY VERIFIED | Live checks/RLS and CI exist. Quarantine, GitOps reconciliation and operational recovery not implemented. ADR 011 and safety slices address gaps; CI alone is not GitOps. |
 
 These are compliance risks needing team/organizer review of expected demonstration
-depth, not authority to add every reference technology. No rule mandates Rosetta
+depth, not authority to add every reference technology. No rule mandates Junctura
 use APISIX, Vault, MinIO, Kubernetes, OpenStack or any chosen frontend framework.
 Current provider selections remain unchanged.
 
@@ -93,10 +93,10 @@ December 11. Their generic November problem-publication schedule differs from
 the problem's September publication date; verify later announcements before
 submission. [Official schedule](https://vfossa.vn/tin-tuc/the-le-olp-phan-mem-nguon-mo-nam-2026-760.html).
 
-## Rosetta extensions and release risk
+## Junctura extensions and release risk
 
 Groups A+ and B–F, application hosting, projects, Console and capability
-composition are Rosetta product choices. They neither replace M7 nor convert
+composition are Junctura product choices. They neither replace M7 nor convert
 illustrative technology brands into required dependencies. No public VPS,
 paid infrastructure, hosting feature parity or AI service is claimed.
 

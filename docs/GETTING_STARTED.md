@@ -1,4 +1,4 @@
-# Start Rosetta locally
+# Start Junctura locally
 
 This is the application developer's entry point. You need Git, Node 24 and Docker
 Desktop using Linux containers. No server, domain or public TLS is needed.
@@ -37,7 +37,7 @@ liveness and configured Foundation readiness. Expected final probe output:
 Gateway liveness and configured Foundation readiness passed
 ```
 
-Open [Rosetta Console](http://127.0.0.1:3000/#/getting-started). The API origin is
+Open [Junctura Console](http://127.0.0.1:3000/#/getting-started). The API origin is
 `http://127.0.0.1:8080`. The Console starts in synthetic PREVIEW mode; LIVE requires
 a valid token and shows missing/rejected credentials explicitly. Its browser token
 is memory-only. Never paste a confidential OAuth client secret into the Console.

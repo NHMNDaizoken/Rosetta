@@ -1,13 +1,13 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 
 export const BRAND = {
-  name: "Rosetta Console",
+  name: "Junctura Console",
   version: "1.0.0",
-  subtitle: "The Control Center for Rosetta DX-OS",
+  subtitle: "The Control Center for Junctura DX-OS",
   concept: "One platform. Many applications. Connected capabilities.",
   layer: "Layer-1 Operational Control Plane",
-  copyright: "© 2026 Rosetta Contributors. Apache-2.0 License.",
+  copyright: "© 2026 Junctura Contributors. Apache-2.0 License.",
   githubUrl: "https://github.com/NHMNDaizoken/Rosetta",
   docsUrl: "https://github.com/NHMNDaizoken/Rosetta/tree/main/docs",
   cores: [

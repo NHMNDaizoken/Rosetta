@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 export type CapabilityReference = { capabilityId: string; version: string; manifestDigest: string };
@@ -21,3 +21,5 @@ export function createRosettaClient(options: { baseUrl: string; clientId: string
   execution(id: string): Promise<Execution>;
   waitForExecution(id: string, options?: { timeoutMs?: number; intervalMs?: number; signal?: AbortSignal }): Promise<Execution>;
 }>;
+
+export { createRosettaClient as createJuncturaClient, RosettaError as JuncturaError };

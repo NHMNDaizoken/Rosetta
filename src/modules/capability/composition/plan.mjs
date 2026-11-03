@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Bounded Composition v1. Structural validation only; authority is resolved by
 // the database at validation and execution time and is never cached here.

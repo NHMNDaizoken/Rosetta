@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
@@ -52,11 +52,11 @@ function mockGateway(options: GatewayMockOptions = {}) {
 
 async function renderOverview() {
   render(<App />);
-  await screen.findByText("Tổng quan trạng thái Rosetta DX-OS");
+  await screen.findByText("Tổng quan trạng thái Junctura DX-OS");
   await screen.findByText("200 OK");
 }
 
-describe("Rosetta Console Application Tests", () => {
+describe("Junctura Console Application Tests", () => {
   beforeEach(() => {
     localStorage.clear();
     window.history.replaceState(null, "", "/");
@@ -72,7 +72,7 @@ describe("Rosetta Console Application Tests", () => {
 
   it("renders the brand header and default overview screen", async () => {
     await renderOverview();
-    expect(screen.getAllByText("Rosetta").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Junctura").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Console").length).toBeGreaterThan(0);
   });
 
@@ -163,7 +163,7 @@ describe("Rosetta Console Application Tests", () => {
     window.history.replaceState(null, "", "/#/applications");
     mockGateway();
     render(<App />);
-    await screen.findByText("Rosetta Document Scanner Pro");
+    await screen.findByText("Junctura Document Scanner Pro");
 
     fireEvent.click(
       screen.getByRole("button", { name: /CHẾ ĐỘ MÔ PHỎNG/i })
@@ -173,7 +173,7 @@ describe("Rosetta Console Application Tests", () => {
       /Chế độ LIVE: Foundation API không cung cấp endpoint liệt kê toàn bộ ứng dụng/
     );
     expect(
-      screen.queryByText("Rosetta Document Scanner Pro")
+      screen.queryByText("Junctura Document Scanner Pro")
     ).not.toBeInTheDocument();
     await screen.findAllByText(viStrings.identity.missing);
   });

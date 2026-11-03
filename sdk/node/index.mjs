@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { randomUUID } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
@@ -114,3 +114,6 @@ export function createRosettaClient({ baseUrl, clientId, clientSecret, timeoutMs
   };
   return Object.freeze(client);
 }
+
+// Junctura brand aliases; the original export names remain supported.
+export { createRosettaClient as createJuncturaClient, RosettaError as JuncturaError };

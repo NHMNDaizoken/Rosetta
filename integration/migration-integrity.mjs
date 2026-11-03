@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Disposable PostgreSQL proof for the migration runner: checksums, drift,
 // version-only adoption, interrupted transactions and concurrent runners.

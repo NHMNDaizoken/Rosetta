@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2026 Rosetta Contributors
+SPDX-FileCopyrightText: 2026 Junctura Contributors
 SPDX-License-Identifier: Apache-2.0
 -->
 # License and third-party policy
@@ -7,11 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 ## Approved project license
 
 The maintainer approved Apache License 2.0 (SPDX: Apache-2.0) for original
-Rosetta DX-OS source on 2026-10-21. Root LICENSE contains the official full text;
-NOTICE contains project attribution. Initial attribution is 2026 Rosetta
+Junctura DX-OS source on 2026-10-21. Root LICENSE contains the official full text;
+NOTICE contains project attribution. Initial attribution is 2026 Junctura
 Contributors, subject to contributors' actual rights and agreement.
 
-Keep original Rosetta code under Apache-2.0 unless explicitly approved otherwise.
+Keep original Junctura code under Apache-2.0 unless explicitly approved otherwise.
 Do not overwrite upstream copyright or license notices. This approval permits
 the authorized public GitHub repository and verified source pushes. It does
 not authorize production deployment or package/container registry publication.
@@ -22,7 +22,7 @@ Use these lines with the language's comment syntax in original JavaScript,
 SQL, shell/PowerShell, Dockerfile and YAML source/configuration:
 
 ```text
-SPDX-FileCopyrightText: 2026 Rosetta Contributors
+SPDX-FileCopyrightText: 2026 Junctura Contributors
 SPDX-License-Identifier: Apache-2.0
 ```
 
@@ -33,7 +33,7 @@ REUSE-compliant `.license` sidecars, and keep package `license` metadata as
 `Apache-2.0` where a package manifest exists (`package.json`,
 `console/package.json`, `sdk/node/package.json`). Machine-readable license text
 for REUSE lives in `LICENSES/Apache-2.0.txt`. Do not copy third-party source or
-put Rosetta attribution on upstream files.
+put Junctura attribution on upstream files.
 
 CI runs `reuse lint` (read-only) in addition to `npm run check`. The check must
 detect missing or invalid metadata without rewriting source during CI.

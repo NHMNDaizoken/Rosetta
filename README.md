@@ -1,161 +1,193 @@
-# Rosetta DX-OS
+<div align="center">
 
-**Nền tảng lõi nguồn mở cho chuyển đổi số — không chỉ chia sẻ hạ tầng, mà chia sẻ _năng lực_ giữa các ứng dụng, có cấp quyền, thu hồi và kiểm chứng được.**
+<img src="console/public/favicon.svg" alt="Junctura" width="88" height="88">
+
+# Junctura DX-OS
+
+**Nền tảng lõi nguồn mở để các ứng dụng chia sẻ dữ liệu và năng lực với nhau — có cấp quyền, thu hồi và kiểm chứng.**
 
 [![Foundation checks](https://github.com/NHMNDaizoken/Rosetta/actions/workflows/ci.yml/badge.svg)](https://github.com/NHMNDaizoken/Rosetta/actions/workflows/ci.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![REUSE](https://img.shields.io/badge/REUSE-compliant-green.svg)](REUSE.toml)
+[![Release](https://img.shields.io/badge/release-v0.1.0-176B80.svg)](CHANGELOG.md)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![REUSE compliant](https://img.shields.io/badge/REUSE-compliant-18877A.svg)](REUSE.toml)
 
-> Sản phẩm dự thi khối **Phần mềm nguồn mở – Olympic Tin học Sinh viên Việt Nam 2026 (OLP'26)**,
-> đề bài *“Xây dựng Hệ điều hành Chuyển đổi số bằng Công nghệ Lõi nguồn mở (DX-OS Open-Core)”*.
-> English reference: [docs/README_EN.md](docs/README_EN.md).
+[Bắt đầu nhanh](#bắt-đầu-nhanh) · [Kiến trúc](#kiến-trúc) · [Tài liệu](#tài-liệu) · [English](docs/README_EN.md)
 
-## Đội thi
+</div>
 
-| | |
-| --- | --- |
-| **Tên đội** | `<Tên đội>` |
-| **Trường** | `<Tên trường>` |
-| **Thành viên** | `<Họ tên 1>` · `<Họ tên 2>` · `<Họ tên 3>` |
-| **Giảng viên hướng dẫn** | `<Học hàm, họ tên>` – `<Khoa/Trường>` |
+---
 
-## Rosetta giải quyết vấn đề gì?
+## Giới thiệu
 
-Trong một tổ chức, mỗi phòng ban thường có phần mềm riêng. Phần mềm nào cũng tự làm lại đăng nhập, lưu trữ, phân quyền, quy trình duyệt… và dữ liệu thành các **“ốc đảo”** không thông với nhau. Khi một ứng dụng cần dữ liệu hay chức năng của ứng dụng khác, người ta lại viết thêm một kết nối riêng, khó kiểm soát ai được dùng gì.
+Trong một tổ chức, mỗi phòng ban thường vận hành phần mềm riêng. Mỗi phần mềm tự xây lại đăng nhập, lưu trữ, phân quyền và quy trình duyệt; dữ liệu trở thành những ốc đảo. Khi một ứng dụng cần dữ liệu hay chức năng của ứng dụng khác, người ta lại viết thêm một kết nối riêng — khó kiểm soát ai được dùng gì, đến khi nào.
 
-Rosetta là **Tầng 1 (nền tảng dịch vụ lõi, headless)** của kiến trúc DX-OS:
+**Junctura** là tầng nền tảng dịch vụ lõi (headless PaaS) của kiến trúc DX-OS, giải quyết bài toán đó theo hai lớp:
 
-1. **Foundation** — cung cấp một lần, dùng chung: định danh/SSO, cổng API, dữ liệu có cấu trúc, lưu trữ tệp và động cơ quy trình.
-2. **Capability (điểm khác biệt)** — mỗi ứng dụng Tầng 2 giữ dữ liệu và nghiệp vụ của riêng mình, nhưng có thể **công bố chức năng** lên Rosetta; ứng dụng khác **xin quyền** để gọi, Rosetta **kiểm tra, thực thi, ghi vết** và chủ sở hữu có thể **thu hồi** bất cứ lúc nào.
+- **Foundation** — những dịch vụ mọi ứng dụng đều cần, xây một lần và dùng chung: định danh/SSO, cổng API, dữ liệu có cấu trúc, lưu trữ tệp và động cơ quy trình.
+- **Capability** — mỗi ứng dụng giữ dữ liệu và nghiệp vụ của riêng mình nhưng có thể **công bố chức năng**; ứng dụng khác **được cấp quyền** để gọi; Junctura **kiểm tra, thực thi và ghi vết** từng lần gọi; chủ sở hữu **thu hồi** bất cứ lúc nào.
 
-Giống như *phiến đá Rosetta* giúp các ngôn ngữ hiểu nhau, Rosetta giúp các ứng dụng độc lập “nói chuyện” với nhau một cách an toàn.
+> *Junctura* — tiếng Latin nghĩa là “mối nối”: nơi các ứng dụng độc lập gặp nhau.
+
+## Tính năng nổi bật
+
+**Nền tảng dùng chung**
+- Đăng nhập một lần qua OIDC (Keycloak), vai trò đọc/ghi, cô lập theo tenant.
+- Một cổng API duy nhất: xác thực mọi request ngay tại cổng, giới hạn tần suất, gắn request-id.
+- Dữ liệu có cấu trúc với phân quyền theo từng dòng (Row-Level Security) cho từng tenant và từng ứng dụng.
+- Lưu trữ tệp, mọi tệp được quét mã độc trước khi nhận.
+- Quy trình nghiệp vụ BPMN, chống chạy trùng bằng idempotency key.
+
+**Chia sẻ năng lực có kiểm soát**
+- Chia sẻ từng bản ghi/tệp cho ứng dụng khác: chỉ đọc, có hạn dùng, thu hồi được.
+- Danh mục năng lực (Capability Registry) với hợp đồng đầu vào/đầu ra có phiên bản.
+- Cấp và thu hồi quyền giữa các ứng dụng, phê duyệt bởi người độc lập với người yêu cầu.
+- Gọi chức năng của ứng dụng khác (C4A) hoặc ghép nhiều chức năng thành một quy trình (C4B).
+- Nhật ký kiểm toán được bảo vệ: ứng dụng không thể sửa hay xóa dấu vết.
+
+**Vận hành và phát triển**
+- Khởi động toàn bộ hệ thống bằng một lệnh; đăng ký một ứng dụng mới bằng một lệnh.
+- OpenAPI 3.1 cho mọi API, Node SDK không phụ thuộc thư viện ngoài.
+- Console quản trị song ngữ Việt/Anh.
+- Bí mật quản lý bằng OpenBao; migration cơ sở dữ liệu có checksum chống sửa lén.
 
 ## Kiến trúc
 
 ```mermaid
 flowchart TB
-  subgraph L2["Tầng 2 – Ứng dụng có giao diện (H-P-D-I)"]
+  subgraph APPS["Ứng dụng nghiệp vụ (Tầng 2)"]
     A1["Ứng dụng A"]
     A2["Ứng dụng B"]
     A3["Ứng dụng tổng hợp"]
   end
 
-  GW["Cổng API – Nginx<br/>xác thực mọi request · rate limit · request-id"]
+  GW["Cổng API · Nginx<br/>xác thực · giới hạn tần suất · request-id"]
 
-  subgraph L1["Tầng 1 – Rosetta Core (headless PaaS)"]
+  subgraph CORE["Junctura Core (Tầng 1 · headless)"]
     direction TB
-    subgraph CAP["Capability Services"]
-      REG["Registry<br/>công bố chức năng"]
-      TRUST["Cross-App Trust<br/>cấp / thu hồi quyền"]
-      EXEC["C4A · C4B<br/>gọi & ghép chức năng"]
-      AUD["Protected Audit<br/>ghi vết không sửa được"]
+    subgraph CAP["Capability"]
+      REG["Registry"]
+      TRUST["Cross-App Trust"]
+      EXEC["Invocation · Composition"]
+      AUD["Protected Audit"]
     end
     subgraph FND["Foundation"]
-      ID["Keycloak<br/>SSO · OIDC · vai trò"]
-      DB["PostgreSQL + PostgREST<br/>RLS theo tenant & ứng dụng"]
-      OBJ["SeaweedFS + ClamAV<br/>lưu tệp · quét mã độc"]
-      WF["Flowable<br/>quy trình BPMN"]
-      SEC["OpenBao<br/>quản lý bí mật"]
+      ID["Keycloak<br/>SSO · OIDC"]
+      DB["PostgreSQL + PostgREST<br/>Row-Level Security"]
+      OBJ["SeaweedFS + ClamAV<br/>tệp · quét mã độc"]
+      WF["Flowable<br/>BPMN"]
+      SEC["OpenBao<br/>bí mật"]
     end
   end
 
-  A1 & A2 & A3 --> GW --> CAP
-  CAP --> FND
+  A1 & A2 & A3 --> GW --> CAP --> FND
 ```
 
-Chỉ cổng API mở ra ngoài; mọi dịch vụ còn lại nằm trong mạng nội bộ của Docker. Core chạy không quyền root, hệ thống tệp chỉ đọc.
+Chỉ cổng API mở ra ngoài; mọi dịch vụ khác nằm trong mạng nội bộ. Core chạy không quyền root trên hệ thống tệp chỉ đọc.
 
-## Đối chiếu yêu cầu đề thi
+### Một lần chia sẻ năng lực diễn ra thế nào
 
-| Yêu cầu của đề | Rosetta đáp ứng bằng | Trạng thái |
-| --- | --- | --- |
-| Định danh, đăng nhập một lần (SSO) | Keycloak (OIDC, PKCE), vai trò `core-reader` / `core-writer` | ✅ |
-| Cổng API (API Gateway) | Nginx: một cửa duy nhất, kiểm tra token qua `auth_request`, giới hạn tần suất | ✅ |
-| Quản trị dữ liệu có cấu trúc | PostgreSQL + PostgREST, phân quyền theo dòng (RLS), migration có checksum | ✅ |
-| Quản trị dữ liệu phi cấu trúc | SeaweedFS, ClamAV quét mã độc trước khi nhận tệp | ✅ |
-| Động cơ luồng công việc | Flowable REST (BPMN), chống chạy trùng bằng idempotency key | ✅ |
-| Headless – không có giao diện người dùng | Core chỉ cung cấp API; Console là công cụ quản trị tách riêng | ✅ |
-| Zero-Trust, an toàn thông tin | Xác thực tại cổng, cô lập tenant/ứng dụng, OpenBao giữ bí mật, audit chống chối bỏ | ✅ |
-| Sao lưu & khôi phục | Kiểm thử `pg_dump`/`pg_restore` cô lập, kiểm tra lại RLS và audit sau khôi phục | ✅ |
+```mermaid
+sequenceDiagram
+  participant A as Ứng dụng A (cung cấp)
+  participant J as Junctura
+  participant B as Ứng dụng B (sử dụng)
+  A->>J: Công bố chức năng + hợp đồng có phiên bản
+  A->>J: Cấp quyền cho B (người duyệt độc lập phê duyệt)
+  B->>J: Gọi chức năng
+  J->>J: Kiểm tra quyền, hợp đồng, hạn dùng
+  J->>A: Chuyển lời gọi kèm vé ủy quyền dùng một lần
+  A-->>J: Kết quả
+  J-->>B: Kết quả (ghi vào nhật ký kiểm toán)
+  A->>J: Thu hồi quyền
+  B->>J: Gọi lại → bị từ chối
+```
 
-## Điểm khác biệt: Capability Services
+## Bắt đầu nhanh
 
-| Thành phần | Làm gì |
-| --- | --- |
-| **Application Management** | Đăng ký ứng dụng, mỗi ứng dụng sở hữu dữ liệu riêng. |
-| **Resource Sharing** | Chủ sở hữu chia sẻ từng bản ghi/tệp cho ứng dụng khác, chỉ đọc, có hạn dùng, thu hồi được. |
-| **Capability Registry (C1)** | Ứng dụng công bố chức năng kèm hợp đồng đầu vào/đầu ra có phiên bản. |
-| **Cross-App Trust (C2)** | Cấp và thu hồi quyền dùng chức năng giữa các ứng dụng. |
-| **Compatibility Resolver (C3)** | Kiểm tra tương thích phiên bản/hợp đồng giữa các chức năng. |
-| **Capability Invocation (C4A)** | Ứng dụng B gọi chức năng của ứng dụng A *thông qua* Rosetta. |
-| **Capability Composition (C4B)** | Ghép chức năng của nhiều ứng dụng thành một quy trình, chạy trên Flowable. |
-| **Protected Audit** | Ghi vết mọi thao tác quan trọng; ứng dụng không thể sửa hay xóa. |
-
-Chi tiết: [Capability Registry](docs/CAPABILITY_REGISTRY.md) · [Trust](docs/CAPABILITY_DIRECT_TRUST.md) · [Execution](docs/CAPABILITY_EXECUTION.md) · [Composition](docs/CAPABILITY_COMPOSITION.md) · [Audit](docs/AUDIT.md).
-
-## Chạy nhanh
-
-**Cần có:** Git, Node.js 24, Docker Desktop (Linux engine) với Docker Compose ≥ 2.20.
-**Khuyến nghị máy:** RAM 16 GB (dành ≥ 8 GB cho Docker), ~10 GB ổ đĩa trống. Lần chạy đầu cần mạng để tải image; ClamAV có thể mất đến ~5 phút để tải bộ nhận diện mã độc.
+**Yêu cầu:** Git, Node.js 24, Docker Desktop (Linux engine) với Docker Compose ≥ 2.20. Khuyến nghị RAM 16 GB (dành ≥ 8 GB cho Docker).
 
 ```sh
-git clone https://github.com/NHMNDaizoken/Rosetta.git
-cd Rosetta
+git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
+cd junctura
 npm run setup        # tạo .env với mật khẩu ngẫu nhiên (không commit)
 npm run local:up     # build và khởi động toàn bộ hệ thống
-npm run healthcheck  # kiểm tra mọi dịch vụ đã sẵn sàng
+npm run healthcheck  # kiểm tra các dịch vụ đã sẵn sàng
 ```
 
-- Cổng API: `http://127.0.0.1:8080` · Console quản trị: `http://127.0.0.1:3000`
-- Gặp lỗi khởi động: `npm run doctor`
-- Dừng (giữ nguyên dữ liệu): `npm run local:down`
+| Địa chỉ | Dịch vụ |
+| --- | --- |
+| `http://127.0.0.1:8080` | Cổng API |
+| `http://127.0.0.1:3000` | Junctura Console |
 
-**Đăng ký một ứng dụng Tầng 2 chỉ bằng một lệnh** (môi trường dev/demo):
+Lần chạy đầu cần tải image và bộ nhận diện mã độc của ClamAV (vài phút). Gặp lỗi: `npm run doctor`. Dừng mà vẫn giữ dữ liệu: `npm run local:down`.
+
+### Đăng ký ứng dụng đầu tiên
 
 ```sh
 npm run app:enroll -- daotao --display-name "Phòng Đào tạo"
 ```
 
-Lệnh tạo client Keycloak `app-daotao`, đăng ký và duyệt ứng dụng (người duyệt độc lập với người đăng ký), rồi ghi thông tin đăng nhập riêng của ứng dụng vào `.env.app.daotao.local` (không commit). Chi tiết: [Hướng dẫn bắt đầu](docs/GETTING_STARTED.md).
+Lệnh tạo tài khoản dịch vụ cho ứng dụng, đăng ký và phê duyệt nó (người duyệt độc lập với người đăng ký), rồi ghi thông tin đăng nhập riêng của ứng dụng vào `.env.app.daotao.local`.
 
-## Tích hợp cho ứng dụng Tầng 2
+### Gọi API từ ứng dụng
 
-Ứng dụng viết bằng ngôn ngữ nào cũng dùng được: chỉ cần HTTP + JSON + OIDC.
+```js
+import { createJuncturaClient } from "./sdk/node/index.mjs";
 
-- [OpenAPI của Foundation](docs/contracts/foundation-api.openapi.json) (44 thao tác) và [OpenAPI của Capability](docs/contracts/capability-api-v1.openapi.json)
-- [Node SDK](sdk/node/index.mjs) không phụ thuộc thư viện ngoài, kèm [ví dụ](examples/sdk-foundation.mjs)
-- [Hướng dẫn mở rộng](docs/DEVELOPING.md)
+const junctura = createJuncturaClient({
+  baseUrl: process.env.ROSETTA_URL,
+  clientId: process.env.ROSETTA_APP_CLIENT_ID,
+  clientSecret: process.env.ROSETTA_APP_CLIENT_SECRET,
+});
 
-## Chất lượng
+const record = await junctura.createRecord("students", { name: "Nguyễn Văn A" });
+const same = await junctura.getRecord("students", record.id);
+```
 
-- **CI** (GitHub Actions) chạy ở mỗi lần push: kiểm tra SPDX/REUSE, kiểm thử đơn vị, build & khởi động toàn bộ stack, kiểm thử tích hợp với dịch vụ thật (định danh, dữ liệu, tệp, quy trình, capability, composition, audit, khôi phục).
-- **Hơn 200 bài kiểm thử** trên các bộ unit, migration, integration, capability, composition, audit, recovery và Console.
-- **Migration có checksum**: phát hiện việc sửa lén lịch sử cơ sở dữ liệu.
-- **Giấy phép Apache-2.0**, mỗi tệp mã có SPDX header, đạt chuẩn [REUSE](https://reuse.software/).
-- Image và GitHub Actions được ghim theo digest; danh sách thành phần bên thứ ba ở [THIRD-PARTY.md](THIRD-PARTY.md).
+Ứng dụng viết bằng ngôn ngữ nào cũng tích hợp được qua HTTP + JSON + OIDC; SDK chỉ là lựa chọn tiện lợi cho Node.js.
 
-## Tài liệu chính
+## Công nghệ
 
-| Tài liệu | Nội dung |
+| Thành phần | Công nghệ |
 | --- | --- |
-| [Hướng dẫn bắt đầu](docs/GETTING_STARTED.md) | Cài đặt, đăng ký ứng dụng, gọi API đầu tiên |
-| [Kiến trúc](docs/ARCHITECTURE.md) | Ranh giới Tầng 1 / Tầng 2, các dịch vụ và cách cô lập |
-| [Core API](docs/CORE_API.md) | Các route, quyền, payload và quy tắc retry |
-| [Vận hành](docs/OPERATIONS.md) | Khởi động, migration, sao lưu và khôi phục |
-| [Bảo mật](docs/SECURITY_REVIEW.md) | Kết quả quét phụ thuộc/container và các vấn đề còn mở |
-| [Phát hành](docs/RELEASE.md) | Đóng gói và kiểm tra bản phát hành |
-| [Mục lục toàn bộ tài liệu](docs/index.md) | Toàn bộ thiết kế, quyết định kiến trúc và bằng chứng kiểm thử |
+| Định danh, SSO | Keycloak 26 |
+| Cổng API | Nginx |
+| Dữ liệu có cấu trúc | PostgreSQL 17, PostgREST |
+| Lưu trữ tệp | SeaweedFS, ClamAV |
+| Quy trình | Flowable 8 (BPMN 2.0) |
+| Quản lý bí mật | OpenBao |
+| Core, SDK | Node.js 24 (không phụ thuộc npm khi chạy) |
+| Console | React, Vite, TypeScript |
+| Đóng gói, CI | Docker Compose, GitHub Actions |
 
-## Lộ trình
+Phiên bản chính xác và giấy phép của từng thành phần: [THIRD-PARTY.md](THIRD-PARTY.md).
 
-- [x] **v0.1.0 – Tầng 1:** Foundation + Capability Services (C1–C4B), CI, release.
-- [ ] **v0.2.0 – Tầng 2:** các ứng dụng minh họa dùng Rosetta để chia sẻ dữ liệu và chức năng.
-- [ ] Triển khai thử nghiệm trên Internet, giám sát hệ thống và khôi phục thảm họa toàn phần.
+## Tài liệu
 
-## Đóng góp & báo lỗi
+| | |
+| --- | --- |
+| [Hướng dẫn bắt đầu](docs/GETTING_STARTED.md) | Cài đặt, đăng ký ứng dụng, gọi API, SDK |
+| [Kiến trúc](docs/ARCHITECTURE.md) | Ranh giới các tầng, dịch vụ và cách cô lập |
+| [Core API](docs/CORE_API.md) · [OpenAPI](docs/contracts/foundation-api.openapi.json) | Route, quyền, payload, quy tắc retry |
+| [Capability](docs/CAPABILITY_REGISTRY.md) | Registry, [Trust](docs/CAPABILITY_DIRECT_TRUST.md), [Invocation](docs/CAPABILITY_EXECUTION.md), [Composition](docs/CAPABILITY_COMPOSITION.md) |
+| [Kiểm toán](docs/AUDIT.md) · [Bảo mật](docs/SECURITY_REVIEW.md) | Mô hình đe dọa, kết quả quét, vấn đề còn mở |
+| [Vận hành](docs/OPERATIONS.md) · [Phát hành](docs/RELEASE.md) | Khởi động, migration, sao lưu, đóng gói |
+| [Đối chiếu đề thi OLP'26](docs/OLP_REQUIREMENTS.md) | Yêu cầu của đề và cách Junctura đáp ứng |
+| [Mục lục đầy đủ](docs/index.md) | Toàn bộ thiết kế và quyết định kiến trúc |
 
-Báo lỗi, đề xuất và theo dõi công việc tại [GitHub Issues](https://github.com/NHMNDaizoken/Rosetta/issues). Trước khi sửa mã, đọc [hướng dẫn phát triển](docs/DEVELOPING.md); commit theo chuẩn Conventional Commits. Không commit `.env` hay bất kỳ mật khẩu/khóa nào. Lịch sử thay đổi: [CHANGELOG.md](CHANGELOG.md).
+## Kiểm thử
+
+GitHub Actions chạy ở mỗi lần push: kiểm tra giấy phép SPDX/REUSE, kiểm thử đơn vị, build và khởi động toàn bộ hệ thống, rồi kiểm thử tích hợp với dịch vụ thật — định danh, dữ liệu, tệp, quy trình, chia sẻ năng lực, kiểm toán và khôi phục dữ liệu.
+
+```sh
+npm run check && npm test          # kiểm tra mã nguồn và kiểm thử đơn vị
+npm run test:integration           # kiểm thử tích hợp (cần hệ thống đang chạy)
+```
+
+## Đóng góp
+
+Mọi đóng góp đều được hoan nghênh. Báo lỗi và đề xuất tại [Issues](https://github.com/NHMNDaizoken/Rosetta/issues); trước khi gửi Pull Request, đọc [hướng dẫn phát triển](docs/DEVELOPING.md). Commit theo chuẩn Conventional Commits và không bao giờ commit tệp `.env` hay khóa bí mật. Lịch sử thay đổi: [CHANGELOG.md](CHANGELOG.md).
 
 ## Giấy phép
 
-Mã nguồn và tài liệu của Rosetta phát hành theo [Apache License 2.0](LICENSE) — Copyright 2026 Rosetta Contributors. Các thành phần bên thứ ba giữ giấy phép riêng, xem [NOTICE](NOTICE) và [THIRD-PARTY.md](THIRD-PARTY.md).
+Phát hành theo [Apache License 2.0](LICENSE) — Copyright 2026 Junctura Contributors. Các thành phần bên thứ ba giữ giấy phép riêng; xem [NOTICE](NOTICE) và [THIRD-PARTY.md](THIRD-PARTY.md).

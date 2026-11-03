@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { Application, Approval, StructuredRecord, StoredObject, ResourceShare, WorkflowDefinition, WorkflowExecution, AuditSessionEvent, UserIdentity } from "../types";
 
@@ -15,7 +15,7 @@ export const MOCK_APPLICATIONS: Application[] = [
     appId: "c3d4e5f6-7a8b-4c9d-0e1f-2a3b4c5d6e7f",
     tenantId: "tenant-a",
     ownerSubject: "9f8c6e2b-45a1-42e7-9104-58bfa791e23a",
-    displayName: "Rosetta Document Scanner Pro",
+    displayName: "Junctura Document Scanner Pro",
     oauthClientId: "tenant-a-scanner-client",
     providerOrigin: "https://scanner.provider.local",
     state: "active",
@@ -77,7 +77,7 @@ export const MOCK_WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
     id: "rosetta_checkpoint:1:7f4a2b10",
     key: "rosetta_checkpoint",
     version: 1,
-    name: "Rosetta Technical Checkpoint Fixture",
+    name: "Junctura Technical Checkpoint Fixture",
     description: "Original technical checkpoint: start event -> user checkpoint task -> end event. Safe idempotency test.",
   },
   {

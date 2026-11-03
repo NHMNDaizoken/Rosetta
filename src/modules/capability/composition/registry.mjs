@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Bounded composition registry HTTP adapter. Structural validation and schema
 // compatibility are local; authority, approvals and state remain in SQL.

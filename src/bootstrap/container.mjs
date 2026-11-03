@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Composition root: builds adapters and modules once, then exposes the router
 // and a single close hook. No global mutable container and no constructor magic.

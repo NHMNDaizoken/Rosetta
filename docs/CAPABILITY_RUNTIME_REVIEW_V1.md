@@ -153,7 +153,7 @@ that a production external-worker contract is ready.
 Upstream pinned sources:
 [acquire/complete/fail controller](https://github.com/flowable/flowable-engine/blob/flowable-8.0.0/modules/flowable-external-job-rest/src/main/java/org/flowable/external/job/rest/service/api/acquire/ExternalWorkerAcquireJobResource.java),
 [acquire request](https://github.com/flowable/flowable-engine/blob/flowable-8.0.0/modules/flowable-external-job-rest/src/main/java/org/flowable/external/job/rest/service/api/acquire/AcquireExternalWorkerJobRequest.java).
-These were inspected as references; no upstream source was copied into Rosetta.
+These were inspected as references; no upstream source was copied into Junctura.
 
 Registration is independent of external-worker scheduling and provider execution.
 The remaining worker/SSRF/lease/idempotency gates block those future modules, not

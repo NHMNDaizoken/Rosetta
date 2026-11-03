@@ -1,9 +1,9 @@
 <!--
-SPDX-FileCopyrightText: 2026 Rosetta Contributors
+SPDX-FileCopyrightText: 2026 Junctura Contributors
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# Rosetta Console — Layer-1 Operational Control Plane
+# Junctura Console — Layer-1 Operational Control Plane
 
 > Audit qualification, 2026-10-26 at `3bd6a20` on main: IMPLEMENTED management UI,
 > PARTIALLY VERIFIED. Read the [source-based findings](architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions)
@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
 > behind a pinned, non-root Nginx container with a narrow Gateway allowlist; it
 > does not add hosting or login APIs.
 
-**Rosetta Console** is the official operational control center for the **Rosetta DX-OS** Layer-1 headless PaaS platform.
+**Junctura Console** is the official operational control center for the **Junctura DX-OS** Layer-1 headless PaaS platform.
 
 *Tagline:* **One platform. Many applications. Connected capabilities.**
 
@@ -26,12 +26,12 @@ SPDX-License-Identifier: Apache-2.0
 
 ## 1. Visual Identity & Design System
 
-The Rosetta Console adheres to a restrained, premium SaaS infrastructure design system inspired by Linear, Stripe Dashboard, and Vercel:
+The Junctura Console adheres to a restrained, premium SaaS infrastructure design system inspired by Linear, Stripe Dashboard, and Vercel:
 
 - **Original Brandmark**: A custom geometric stone emblem with three layered, translating facets meeting at a central nexus, symbolizing Layer-1 Core, Layer-2 Applications, and Connected Capabilities.
 - **Brand Palette**:
   - **Deep Stone Ink** (`#172F3D`): Primary text and dark structures.
-  - **Rosetta Blue** (`#176B80`): Primary interactive brand color.
+  - **Junctura Blue** (`#176B80`): Primary interactive brand color.
   - **Mediterranean Teal** (`#18877A`): Integration health, success, and active status.
   - **Warm Sandstone** (`#C58B62`): Heritage-inspired accent for governance and proposals.
   - **Soft Limestone** (`#F0F2EE`): Subtle surface fills and card dividers.
@@ -79,7 +79,7 @@ Rosetta Console
 | **E. Workflows & Tasks** | Start execution with `Idempotency-Key` (`POST /v1/workflows/executions`), complete task (`/complete`), cancel (`DELETE`) | Installed BPMN definitions (`/v1/workflows/definitions`), execution state & history | Public BPMN XML upload / script deployment (operator-installed only) | Multi-step user task assignment |
 | **F. API Explorer** | Search endpoints, tag filtering, copy cURL, copy TypeScript fetch | Request/response schemas, HTTP status codes, auth requirements for all 44 operations | Interactive API playground with privileged tokens (kept client-side safe) | Capability OpenAPI runtime testing |
 | **G. Security** | Browser-generated session activity, labeled as diagnostics; uses the verified LIVE identity only | Architecture/audit guidance | No public protected audit API/viewer; internal tenant query is `core.audit_query(jsonb)` over `app_private.audit` | Separate public audit contract |
-| **H. Hosting & Capabilities** | Specification file references and architecture comparison; visibly labelled planned | Architectural review of Registry, Resolver, Cross-App Trust, Composition and Rosetta Cloud hosting | Active runtime APIs (clearly badged as "Planned / Design-Only") | Full Layer-2 Capability Runtime |
+| **H. Hosting & Capabilities** | Specification file references and architecture comparison; visibly labelled planned | Architectural review of Registry, Resolver, Cross-App Trust, Composition and Junctura Cloud hosting | Active runtime APIs (clearly badged as "Planned / Design-Only") | Full Layer-2 Capability Runtime |
 | **I. Getting Started** | Static prerequisites, enrollment link, executable example commands and cleanup guidance; never accepts or displays secrets | Links to product, developer, registration, authorization and API docs | No self-service enrollment or credential provisioning | Hosted onboarding and SDK quickstarts |
 
 ---

@@ -1,11 +1,17 @@
 # Changelog
 
-All notable changes to Rosetta are recorded here. Versions follow
+All notable changes to Junctura are recorded here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
 ## 0.1.0 — Layer 1 release (2026-11)
 
-First public release of the Rosetta Layer 1 platform for OLP'26.
+First public release of the Junctura Layer 1 platform for OLP'26.
+
+- Product renamed from Rosetta to **Junctura DX-OS** (Latin for "joint"): README,
+  documentation, Console branding, J monogram logo and copyright holder. Technical
+  identifiers (`ROSETTA_*` settings, container, database and realm names) are unchanged
+  so existing installations keep working; the SDK adds `createJuncturaClient` and
+  `JuncturaError` aliases.
 
 - Five headless Foundation services behind one Nginx gateway: Keycloak SSO,
   PostgreSQL/PostgREST with row-level security, SeaweedFS with ClamAV ingress

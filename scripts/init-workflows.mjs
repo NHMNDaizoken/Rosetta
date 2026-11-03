@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { readFile } from "node:fs/promises";
 import { workflowRequest } from "../src/modules/workflow/client.mjs";

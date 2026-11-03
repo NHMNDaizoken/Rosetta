@@ -1,15 +1,15 @@
-# Rosetta DX-OS — English reference
+# Junctura DX-OS — English reference
 
 > Vietnamese overview: [README](../README.md). This page keeps the full English reference.
 
-**A self-hostable backend platform for independent applications.** Rosetta gives every authorized application shared Foundation services — identity, API gateway, structured data, object storage and workflow — with authoritative application ownership and explicitly controlled resource sharing.
+**A self-hostable backend platform for independent applications.** Junctura gives every authorized application shared Foundation services — identity, API gateway, structured data, object storage and workflow — with authoritative application ownership and explicitly controlled resource sharing.
 
 | Product area | What it means today | Status |
 | --- | --- | --- |
-| **Rosetta Backend** | The five Foundation capabilities, Application Authority and resource authorization. | **IMPLEMENTED** — runs locally with Docker Compose and is exercised by real-service tests. |
-| **Rosetta Developer Experience** | Console, OpenAPI, server SDK, local doctor, HTTP examples and operator enrollment guide. | **PARTIAL** — useful today; operator enrollment and some Console screens are limited. |
-| **Rosetta Cloud** | Projects/environments, application hosting, deployments, runtime workers, domains and bindings. | **PROPOSED** — architecture only; nothing runs. |
-| **Rosetta Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **PARTIAL** — C1 Registry and bounded C2 direct grants/discovery are implemented; C3 is an offline resolver. C4A invocation and C4B bounded composition are opt-in and disabled by default; human delegation remains deferred. |
+| **Junctura Backend** | The five Foundation capabilities, Application Authority and resource authorization. | **IMPLEMENTED** — runs locally with Docker Compose and is exercised by real-service tests. |
+| **Junctura Developer Experience** | Console, OpenAPI, server SDK, local doctor, HTTP examples and operator enrollment guide. | **PARTIAL** — useful today; operator enrollment and some Console screens are limited. |
+| **Junctura Cloud** | Projects/environments, application hosting, deployments, runtime workers, domains and bindings. | **PROPOSED** — architecture only; nothing runs. |
+| **Junctura Connect** | Capability registry, compatibility resolver, cross-app trust, composition and execution. | **PARTIAL** — C1 Registry and bounded C2 direct grants/discovery are implemented; C3 is an offline resolver. C4A invocation and C4B bounded composition are opt-in and disabled by default; human delegation remains deferred. |
 
 A minimal server-side Node SDK is available in `sdk/node/`. There is no public demo, Layer-2 GUI or hosting runtime in this repository. Do not read a design document as a working feature. The authoritative, itemized status list is [docs/PRODUCT.md](PRODUCT.md).
 
@@ -29,12 +29,12 @@ npm run healthcheck
 
 Independent products often repeat the same identity, authorization, storage and workflow integration work. Sharing infrastructure alone also leaves teams with application-specific connections: one product needs another's function, but its inputs, permissions and execution conditions are not described consistently.
 
-Rosetta addresses the infrastructure work through a reusable Core. Its longer-term direction is to make application capabilities discoverable and composable through explicit contracts, while each product retains its own domain logic and lifecycle.
+Junctura addresses the infrastructure work through a reusable Core. Its longer-term direction is to make application capabilities discoverable and composable through explicit contracts, while each product retains its own domain logic and lifecycle.
 
 ## Vision and objectives
 
 The consolidated target is a **Self-Hosted Open-Source Developer Cloud Platform**:
-external applications use Rosetta BaaS; proposed Rosetta-hosted applications run
+external applications use Junctura BaaS; proposed Rosetta-hosted applications run
 on approved operator infrastructure and use the same contracts. Project/environment
 management, deployment controllers, app ingress/TLS and credential bindings remain
 **PROPOSED**, not working hosting features. Optional **Verifiable Capability
@@ -56,7 +56,7 @@ These objectives describe the direction of the project. The [implementation stat
 
 ## Layer 1 and Layer 2
 
-Layer 1 owns generic infrastructure and, in the proposed architecture, platform-level capability discovery, validation, composition and trust enforcement. Layer 2 owns product interfaces, domain rules and application-specific capabilities. A GUI belongs to an application; a provider's administration console does not make the Rosetta Core a GUI product.
+Layer 1 owns generic infrastructure and, in the proposed architecture, platform-level capability discovery, validation, composition and trust enforcement. Layer 2 owns product interfaces, domain rules and application-specific capabilities. A GUI belongs to an application; a provider's administration console does not make the Junctura Core a GUI product.
 
 The canonical diagrams distinguish current integrations and future consumers:
 [competition/product context](architecture/ARCHITECTURE_MAPS.md#map-01-competition-and-product-context),
@@ -88,7 +88,7 @@ These are the five foundational capabilities in the project requirements. Applic
 | Composition & Execution Core | Validate a composition plan, bind authorized inputs and coordinate execution through the underlying Workflow Engine. | Opt-in bounded C4B with real two-provider verification; disabled by default. |
 | Cross-App Trust Core | Define and enforce which applications may publish, discover, invoke or delegate capabilities within an explicit trust scope. | Implemented same-tenant C2 direct grants; human delegation remains deferred. |
 
-These extensions are Rosetta's proposed product direction, not additional claims about mandatory competition requirements. The bounded C1-C4B subsets are implemented and verified within the limits recorded in the implementation status; broader delegation and hosted-runtime designs remain future work.
+These extensions are Junctura's proposed product direction, not additional claims about mandatory competition requirements. The bounded C1-C4B subsets are implemented and verified within the limits recorded in the implementation status; broader delegation and hosted-runtime designs remain future work.
 
 ## Verifiable Capability Composition
 
@@ -111,9 +111,9 @@ Current clients use HTTP, JSON, OIDC and opaque binary uploads. They can use the
 
 ## Illustrative cross-application use case
 
-Consider an independently developed intake application and a review application, possibly written in different languages. The intake application stores a binary attachment and its metadata through Rosetta. In a future capability-enabled system, it could publish a `submit-for-review` capability with a versioned request schema and explicit permission requirements. The review application could expose `record-review-result` with its own contract.
+Consider an independently developed intake application and a review application, possibly written in different languages. The intake application stores a binary attachment and its metadata through Junctura. In a future capability-enabled system, it could publish a `submit-for-review` capability with a versioned request schema and explicit permission requirements. The review application could expose `record-review-result` with its own contract.
 
-An authorized caller could propose a composition connecting those operations. Rosetta would check the declared schemas, trust scope and execution constraints before coordinating the accepted plan through the Workflow Engine. Each application would still own its submission and review rules. An optional AI planner could suggest the connection, subject to the same checks as a human-authored plan.
+An authorized caller could propose a composition connecting those operations. Junctura would check the declared schemas, trust scope and execution constraints before coordinating the accepted plan through the Workflow Engine. Each application would still own its submission and review rules. An optional AI planner could suggest the connection, subject to the same checks as a human-authored plan.
 
 This example is illustrative. Neither business application is included. Foundation tests exercise a technical record/object/workflow flow; separate capability tests now prove bounded metadata discovery and eligibility. The separate `test:compositions` suite executes two independent technical providers through real OIDC, PostgreSQL and Flowable.
 
@@ -132,7 +132,7 @@ This example is illustrative. Neither business application is included. Foundati
 | CI and source licensing | GitHub Actions and approved Apache-2.0 project licensing in place. | Source/unit/container/integration/restore checks pass; [dependency scans](SECURITY_REVIEW.md) record unresolved image advisories and binary redistribution gates. |
 | Capability extensions | C1 Registry and bounded C2 direct grants/discovery implemented; C3 offline resolver. | [Direct Trust](CAPABILITY_DIRECT_TRUST.md) records real OIDC denial, pagination, audit and restore checks. C4A/C4B are implemented behind explicit opt-in; human delegation remains unimplemented. |
 | OpenAPI and optional SDKs | Foundation/Capability OpenAPI plus a tested server-side Node ESM SDK. | SDK authentication, denial, idempotency and polling tests; real enrolled-app and composition integration. |
-| Optional Rosetta Console | React management UI implemented; partially connected, with preview/session resource behavior. | [Audit qualifications](architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions): fail-closed live identity, memory-only token, preview-only v2 methods and a tested packaged Nginx image. No operator login/session or automated live-browser visual/accessibility proof. |
+| Optional Junctura Console | React management UI implemented; partially connected, with preview/session resource behavior. | [Audit qualifications](architecture/LAYER1_CORE_CATALOG.md#console-evidence-and-contradictions): fail-closed live identity, memory-only token, preview-only v2 methods and a tested packaged Nginx image. No operator login/session or automated live-browser visual/accessibility proof. |
 | Developer Cloud / application hosting | Proposed architecture only; no project/deployment/controller runtime. | Approve one [handoff slice](architecture/IMPLEMENTATION_BACKLOG.md) and its ADRs before implementation. |
 | Layer-2 GUI and optional AI planning | Future work; no implementation here. | Build separately against public contracts; an AI integration needs its own approved scope. |
 | VPS/public-domain deployment | Future operational work. | Approve a target and verify TLS, secrets, backups and rollback. No public demo is configured. |
@@ -284,11 +284,11 @@ Application packages, SDK directories and capability services are not scaffolded
 
 ## Technical stack and attribution
 
-Rosetta's adapters use Node.js 24 and its standard HTTP, crypto and test APIs, with no npm runtime dependencies. Nginx OSS, Keycloak, PostgreSQL/PostgREST, SeaweedFS OSS and Flowable REST supply the foundational infrastructure. Docker Compose provides local self-hosting; GitHub Actions provides verification. Images and Actions are pinned in the configuration.
+Junctura's adapters use Node.js 24 and its standard HTTP, crypto and test APIs, with no npm runtime dependencies. Nginx OSS, Keycloak, PostgreSQL/PostgREST, SeaweedFS OSS and Flowable REST supply the foundational infrastructure. Docker Compose provides local self-hosting; GitHub Actions provides verification. Images and Actions are pinned in the configuration.
 
 [THIRD-PARTY.md](../THIRD-PARTY.md) records upstream versions/digests, source links, licenses and notice obligations. Upstream projects retain their own copyrights and terms, including bundled operating-system/runtime packages. Container separation does not remove license obligations. Binary redistribution needs its own complete inventory and notice review.
 
-[SynapseDX](https://github.com/vku-open-source-2026/SynapseDX) is a reference for README organization, quickstart presentation and repository practices. Rosetta's capability model and implementation have their own scope; no SynapseDX source or configuration is copied into this project.
+[SynapseDX](https://github.com/vku-open-source-2026/SynapseDX) is a reference for README organization, quickstart presentation and repository practices. Junctura's capability model and implementation have their own scope; no SynapseDX source or configuration is copied into this project.
 
 ## Development roadmap
 
@@ -311,7 +311,7 @@ Read [docs/DEVELOPING.md](DEVELOPING.md), [architecture boundaries](ARCHITECTURE
 
 Use [GitHub Issues](https://github.com/NHMNDaizoken/Rosetta/issues) for public bugs and design discussions. Do not post credentials, private data or vulnerability exploit details there; arrange a private channel with the repository maintainer before disclosure. No dedicated security contact or response SLA is published. Do not commit `.env`, private AI-agent prompts/instructions, execution logs or local tool state. Inspect exclusions, indexed files and secret exposure before pushing; never force-push or deploy to production without approval.
 
-Original Rosetta source and documentation are licensed under [Apache License 2.0](../LICENSE), with attribution **Copyright 2026 Rosetta Contributors**, subject to contributors' actual rights and agreement. Preserve upstream notices. See [NOTICE](../NOTICE), [THIRD-PARTY.md](../THIRD-PARTY.md) and the [licensing policy](LICENSING.md). `private: true` in package metadata prevents accidental npm publication; it does not change the project's open-source license.
+Original Junctura source and documentation are licensed under [Apache License 2.0](../LICENSE), with attribution **Copyright 2026 Junctura Contributors**, subject to contributors' actual rights and agreement. Preserve upstream notices. See [NOTICE](../NOTICE), [THIRD-PARTY.md](../THIRD-PARTY.md) and the [licensing policy](LICENSING.md). `private: true` in package metadata prevents accidental npm publication; it does not change the project's open-source license.
 
 ## Documentation and self-hosting
 
@@ -321,7 +321,7 @@ Original Rosetta source and documentation are licensed under [Apache License 2.0
   add-an-API checklist, tests, Console rules and future module conventions.
 - [Architecture index and implementation evidence](index.md): current versus target, eight maps, official traceability, decisions and the implementation backlog.
 
-- [Rosetta Console](CONSOLE.md): Layer-1 operational control plane design, setup, architecture and feature matrix.
+- [Junctura Console](CONSOLE.md): Layer-1 operational control plane design, setup, architecture and feature matrix.
 - [Project vision](PROJECT_VISION.md): capability model, proposed Cores and open design decisions.
 - [Capability extensions v1](CAPABILITY_EXTENSIONS_V1.md): draft manifests, lifecycle, ownership and compatibility, with linked trust/execution and OpenAPI contracts.
 - [Capability acceptance criteria](CAPABILITY_ACCEPTANCE_V1.md): negative cases, validation recipe and implementation approval gates.

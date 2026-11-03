@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { randomUUID } from "node:crypto";
 import { HttpError, json, readBody, requireWriter, uuidPattern } from "../../platform/http/http.mjs";

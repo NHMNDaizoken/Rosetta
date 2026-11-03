@@ -1,7 +1,7 @@
-# SPDX-FileCopyrightText: 2026 Rosetta Contributors
+# SPDX-FileCopyrightText: 2026 Junctura Contributors
 # SPDX-License-Identifier: Apache-2.0
 name: Báo lỗi / Bug report
-description: Một chức năng của Rosetta không chạy như mong đợi.
+description: Một chức năng của Junctura không chạy như mong đợi.
 labels: ["bug"]
 body:
   - type: textarea

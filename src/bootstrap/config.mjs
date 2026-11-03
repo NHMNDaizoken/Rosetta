@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Environment validation and the immutable configuration passed to modules.
 // Side-effect free so tests and embedded runtimes can construct the same view.

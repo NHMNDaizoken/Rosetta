@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Host-only transport proof for the guarded provider client. Keys are generated
 // per run with the host OpenSSL CLI and never committed; the Core image does not
