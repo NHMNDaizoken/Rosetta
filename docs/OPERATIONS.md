@@ -65,6 +65,38 @@ its database schema initialization. Review each upstream migration before an
 image upgrade, retain the old pins and take a consistent backup first. Reverting
 an image is not proof its previous version can read a migrated database.
 
+## Backup and restore
+
+```sh
+npm run backup                                   # -> backups/<YYYYMMDD-HHMMSS>/
+npm run restore -- backups/20261103-220000 --yes
+```
+
+`npm run backup` writes pg_dump custom archives of `rosetta_identity`,
+`rosetta_data` and `rosetta_workflow`, a tar.gz of the SeaweedFS object volume
+(the `objects` service is paused for a consistent copy) and `manifest.json` with
+SHA-256 checksums and the source commit. The `backups/` folder is Git-ignored;
+it holds identities and private data, so store it like `.env`.
+
+`npm run restore` verifies every checksum before touching anything, refuses to run
+without `--yes`, and first takes a safety backup under `backups/pre-restore-*`
+(skip with `--no-safety-backup`). It stops the application services, drops and
+recreates each database from its archive with original owners, ACLs and RLS
+policies, replaces the object volume, then starts the stack with `--wait`. Keep the
+same `.env`: database role passwords and OpenBao state are not part of the archive.
+
+## Gateway access log
+
+The gateway writes one JSON line per API request (`time`, `request_id`, `client`,
+`method`, `path`, `status`, `bytes`, `duration_s`, `upstream_s`). Only the path is
+recorded, never query strings, headers or bodies, so tokens are not logged.
+Health probes are excluded. The `request_id` matches the `X-Request-ID` response
+header, so a failing client call can be traced:
+
+```sh
+docker compose logs gateway --since 10m
+```
+
 ## Verified restore boundary
 
 Migration 004 adds app records, resource ownership/shares and enrolled backend
