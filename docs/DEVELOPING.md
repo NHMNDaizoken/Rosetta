@@ -1,11 +1,28 @@
+<!--
+SPDX-FileCopyrightText: 2026 Rosetta Contributors
+SPDX-License-Identifier: Apache-2.0
+-->
 # Developer and extension guide
 
 How to work on Rosetta without breaking its public contracts or security model.
-Read [AGENTS.md](../AGENTS.md), [PRODUCT.md](PRODUCT.md) and
-[ARCHITECTURE.md](ARCHITECTURE.md) first.
+Read [PRODUCT.md](PRODUCT.md), [ARCHITECTURE.md](ARCHITECTURE.md),
+[LICENSING.md](LICENSING.md) and [WORKFLOW.md](WORKFLOW.md) first.
 
 For installation and independent app integration, start with [GETTING_STARTED](GETTING_STARTED.md).
 This file covers extending Core itself. The SDK in `sdk/node` imports no Core module.
+
+## Non-negotiable development rules
+
+1. **Competition scope:** Keep the Layer 1 PaaS headless and reusable. Deliver the five required capabilities (Identity/SSO, API Gateway, structured data, unstructured data, workflow) and at least one Layer 2 GUI application using the Core. See [OLP_REQUIREMENTS.md](OLP_REQUIREMENTS.md).
+2. **Open-source compliance:** Do not select or change the project's license. Check the root `LICENSE` before adding code. Use the approved SPDX/copyright convention, preserve third-party notices, and record dependencies. Stop and report a blocker if licensing is unresolved. See [LICENSING.md](LICENSING.md).
+3. **Architecture:** Keep domain/business logic out of the reusable Core. Apps integrate through documented APIs/contracts. Do not add a service, framework, or breaking API without justification and approval. See [ARCHITECTURE.md](ARCHITECTURE.md).
+4. **Security:** Never commit credentials or real private data. Enforce authorization server-side, validate untrusted input, and isolate tenants. Never bypass security checks to make a demo pass.
+5. **Repository hygiene:** Inspect existing code before editing; reuse established patterns. Avoid duplicate files, speculative features, unrelated refactors, generated clutter, and unused dependencies. Keep AI-agent prompt and instruction files on the developer machine; do not publish them.
+6. **Quality:** Add or update relevant tests and documentation; run available checks. Never claim a test, build, license audit, or deployment succeeded unless verified. See [WORKFLOW.md](WORKFLOW.md).
+7. **Safe operations:** Do not force-push, rewrite Git history, delete data, run destructive migrations, or deploy to production without explicit approval.
+8. **Honest handoff:** Report changed files, checks run, checks not run, remaining risks, and decisions requiring approval.
+
+Official OLP rules take precedence over internal project conventions. Never invent competition requirements.
 
 ## Runtime shape
 
@@ -39,7 +56,8 @@ routes and explicit contracts.
 | `src/modules/capability/registry/manifest.mjs` | Closed manifest validation and JCS digest. | Shared capability contract |
 | `src/modules/resources/resources.mjs` | Application context, resource commands, share validation. | Shared authority |
 | `src/modules/data/data.mjs` | Structured-data adapter and record routes. | `/v1/data/*`, `/v2/data/*` |
-| `src/modules/objects/objects.mjs` | Object readiness, storage adapter and object routes. | `/v1/objects*`, `/v2/objects*` |
+| `src/modules/objects/objects.mjs`, `malware-scan.mjs` | Object readiness, ClamAV fail-closed scan, storage adapter and object routes. | `/v1/objects*`, `/v2/objects*` |
+| `src/modules/secrets/secrets.mjs` | OpenBao-backed application secrets metadata API (no plaintext GET). | `/v2/secrets*` |
 | `src/modules/workflow/workflow.mjs` | Workflow routes, canonical input and idempotency ledger. | `/v1/workflows/*` |
 | `src/modules/workflow/client.mjs` | Private Flowable HTTP client. | Internal provider adapter |
 | `src/modules/capability/compatibility/compatibility.mjs` | Restricted schema proof and strict JSON parsing. | Offline C3 helpers |
@@ -235,7 +253,7 @@ These are documented integration conventions, not implementations:
 
 | Future module | Owning area | Required before implementation |
 | --- | --- | --- |
-| File quarantine | Objects | Separate scan-worker network, admission state machine, failure policy |
+| Object lifecycle cleanup | Objects | Quarantine scanning is implemented; version reclamation/quota remain separate |
 | Audit export/integrity | Platform security | Independent sink, public/admin contract if approved, retention and key recovery; the bounded PostgreSQL boundary is implemented in [AUDIT.md](AUDIT.md) |
 | Messaging / notification | Platform services | Broker ownership, delivery semantics, tenant quotas |
 | Search / data interoperability | Structured data | Index ownership, reindex/rebuild, tenant isolation |

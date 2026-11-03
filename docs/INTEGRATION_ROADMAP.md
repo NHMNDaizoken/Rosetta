@@ -100,11 +100,12 @@ Before creating/pushing a GitHub repository, approve licensing/header decisions,
 confirm the authorized owner/name and authenticated account, inspect any remote
 history and push verified commits to `main` without force. Do not publish an
 image or deploy to production as a side effect of committing or pushing.
-Keep `AGENTS.md` tracked; exclude private agent prompts, memory, logs and local
-tool state. Before pushing, inspect `git status --short`, `git check-ignore -v`
-and `git ls-files`. Untrack any indexed private files with `git rm --cached`
-while preserving local copies. Removing a file from the index does not erase
-prior Git history; never rewrite history without authorization.
+Keep AI-agent instruction and prompt files local (for example `AGENTS.md`,
+`.codex/`, `.cursor/`, `.claude/`); do not publish them. Before pushing, inspect
+`git status --short`, `git check-ignore -v` and `git ls-files`. Untrack any
+indexed private files with `git rm --cached` while preserving local copies.
+Removing a file from the index does not erase prior Git history; never rewrite
+history without authorization.
 
 Production deployment additionally needs an approved target, network/TLS/secrets
 configuration, resource limits, backup/recovery and a verified rollback. Those

@@ -15,6 +15,12 @@ test("readiness accepts only a responding identity provider with the configured 
 });
 
 test("readiness rejects a configured object store with no registered volume", async () => {
-  const withObjects = { ...config, objectsUrl: "http://filer.test", objectsMasterUrl: "http://master.test" };
+  const withObjects = {
+    ...config,
+    objectsUrl: "http://filer.test",
+    objectsMasterUrl: "http://master.test",
+    clamavHost: "clamav.test",
+    clamavPort: 3310,
+  };
   await assert.rejects(checkReadiness(withObjects, async () => Response.json({ issuer })), /No object volume/);
 });

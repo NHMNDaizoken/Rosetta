@@ -100,6 +100,57 @@ services:
       - object-data:/data
       - ./infra/seaweedfs/filer.toml:/etc/seaweedfs/filer.toml:ro
     networks: [objects]
+  clamav:
+    image: clamav/clamav-debian:1.5.4@sha256:c21aa18cc0a358678255a3dfb343a4555b58f71b97d7b869df8fdf7ea0a5b4b1
+    environment:
+      CLAMD_STARTUP_TIMEOUT: "1800"
+    volumes:
+      - clamav-signatures:/var/lib/clamav
+    networks: [scanner]
+    healthcheck:
+      test: ["CMD-SHELL", "clamdscan --ping 5 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 40
+      start_period: 300s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    # Internal only: no published ports. Signature updates use FreshClam inside the image.
+  secrets:
+    image: openbao/openbao:2.7.2@sha256:5046911075e137e154ce49ab051502f4ec7cf367d484ae4a4dce665d9b90561f
+    command: ["server", "-config=/openbao/config/local.hcl"]
+    environment:
+      BAO_ADDR: http://127.0.0.1:8200
+    volumes:
+      - openbao-data:/openbao/data
+      - ./infra/openbao/local.hcl:/openbao/config/local.hcl:ro
+    networks: [secrets]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -S -O /dev/null http://127.0.0.1:8200/v1/sys/health?standbyok=true 2>&1 | grep -q HTTP/"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+    # Internal only: no published ports. Init/unseal tokens stay outside Git.
+  secrets-init:
+    image: openbao/openbao:2.7.2@sha256:5046911075e137e154ce49ab051502f4ec7cf367d484ae4a4dce665d9b90561f
+    entrypoint: ["/bin/sh", "/scripts/init-openbao.sh"]
+    environment:
+      BAO_ADDR: http://secrets:8200
+      OPERATOR_DIR: /operator
+      TOKEN_DIR: /token
+    volumes:
+      - openbao-operator:/operator
+      - openbao-init:/token
+      - ./scripts/init-openbao.sh:/scripts/init-openbao.sh:ro
+      - ./infra/openbao/rosetta-core.hcl:/policy/rosetta-core.hcl:ro
+    depends_on:
+      secrets:
+        condition: service_healthy
+    networks: [secrets]
+    restart: "no"
   workflow:
     image: flowable/flowable-rest:8.0.0@sha256:708dfa32f27b93180bb6e7a30684d881d995fe257f5b8413e14b20a55c25672d
     environment:
@@ -155,6 +206,12 @@ services:
       LEGACY_RESOURCE_CLIENTS: ${LEGACY_RESOURCE_CLIENTS-tenant-a,tenant-b,reader}
       OBJECTS_URL: http://objects:8888
       OBJECTS_MASTER_URL: http://objects:9333
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: "3310"
+      CLAMAV_TIMEOUT_MS: ${CLAMAV_TIMEOUT_MS:-30000}
+      SECRETS_URL: http://secrets:8200
+      SECRETS_TOKEN_FILE: /run/rosetta/core-token
+      SECRETS_MOUNT: ${SECRETS_MOUNT:-secret}
       WORKFLOW_URL: http://workflow:8080/flowable-rest/service
       WORKFLOW_ADMIN_PASSWORD: ${WORKFLOW_ADMIN_PASSWORD:?Run npm run setup first}
       C4A_ENABLED: ${C4A_ENABLED:-false}
@@ -168,16 +225,24 @@ services:
         condition: service_started
       objects:
         condition: service_started
+      clamav:
+        condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
       workflow-init:
         condition: service_completed_successfully
     read_only: true
+    volumes:
+      - openbao-init:/run/rosetta:ro
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
     cap_drop:
       - ALL
     security_opt:
       - no-new-privileges:true
     init: true
     stop_grace_period: 10s
-    networks: [identity, data, objects, workflow, edge]
+    networks: [identity, data, objects, scanner, secrets, workflow, edge]
   gateway:
     image: nginx:stable-bookworm@sha256:552e7481ca93ffccd046aa658dbbed22caefbc09c66fa7cd247cbb90b8a5c609
     volumes:
@@ -229,9 +294,17 @@ networks:
     internal: true
   objects:
     internal: true
+  scanner:
+    internal: true
+  secrets:
+    internal: true
   workflow:
     internal: true
 
 volumes:
   postgres-data:
   object-data:
+  clamav-signatures:
+  openbao-data:
+  openbao-operator:
+  openbao-init:

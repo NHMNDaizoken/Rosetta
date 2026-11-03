@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { HttpError, json, readBody, requireWriter, uuidPattern } from "../../platform/http/http.mjs";
 import { resourceCommand } from "../resources/resources.mjs";
+import { requireCleanObject } from "./malware-scan.mjs";
 
 const maxBytes = 5 * 1024 * 1024;
 
@@ -19,10 +20,51 @@ export async function checkObjectReadiness(config, request = fetch) {
   }
 }
 
-async function storage(config, tenantId, id, options = {}, scope) {
+export async function checkMalwareScannerReadiness(config, scanPing = defaultScannerPing) {
+  if (!config.clamavHost || !config.clamavPort) throw new Error("Malware scanner not configured");
+  await scanPing(config);
+}
+
+async function defaultScannerPing(config) {
+  const net = await import("node:net");
+  await new Promise((resolve, reject) => {
+    const socket = net.connect({ host: config.clamavHost, port: config.clamavPort });
+    const timer = setTimeout(() => {
+      socket.destroy();
+      reject(new Error("Malware scanner timeout"));
+    }, 3000);
+    socket.on("connect", () => {
+      socket.write("zPING\0");
+    });
+    let data = "";
+    socket.on("data", (chunk) => {
+      data += chunk.toString("utf8");
+      if (/PONG/i.test(data)) {
+        clearTimeout(timer);
+        socket.end();
+        resolve();
+      }
+    });
+    socket.on("error", (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
+    socket.on("end", () => {
+      clearTimeout(timer);
+      if (/PONG/i.test(data)) resolve();
+      else reject(new Error("Malware scanner not ready"));
+    });
+  });
+}
+
+async function storage(config, tenantId, id, options = {}, scope, { quarantine = false } = {}) {
   let response;
   try {
-    const path = scope ? `rosetta-app/${tenantId}/${scope.ownerAppId}/${id}/${scope.version}` : `rosetta/${tenantId}/${id}`;
+    const path = quarantine
+      ? `rosetta-quarantine/${tenantId}/${id}/${scope?.version ?? "legacy"}`
+      : scope
+        ? `rosetta-app/${tenantId}/${scope.ownerAppId}/${id}/${scope.version}`
+        : `rosetta/${tenantId}/${id}`;
     response = await fetch(`${config.objectsUrl}/${path}`, {
       ...options, signal: AbortSignal.timeout(10000), redirect: "error",
     });
@@ -30,6 +72,14 @@ async function storage(config, tenantId, id, options = {}, scope) {
   if (response.status === 404) throw new HttpError(404, "not_found");
   if (!response.ok) throw new HttpError(503, "objects_unavailable");
   return response;
+}
+
+async function removeQuarantine(config, tenantId, id, scope) {
+  try {
+    await (await storage(config, tenantId, id, { method: "DELETE" }, scope, { quarantine: true })).arrayBuffer();
+  } catch {
+    // Best-effort cleanup; never publish unscanned bytes.
+  }
 }
 
 export async function handleObjects(request, response, identity, config, url) {
@@ -54,15 +104,30 @@ export async function handleObjects(request, response, identity, config, url) {
       try { await (await storage(config, identity.tenantId, id, { method: "HEAD" })).arrayBuffer(); status = 200; }
       catch (error) { if (error.status !== 404) throw error; }
     }
-    const form = new FormData();
-    form.append("file", new Blob([bytes], { type: "application/octet-stream" }), objectId);
-    const result = await storage(config, identity.tenantId, objectId, { method: "POST", body: form }, scope);
-    await result.arrayBuffer();
-    if (scoped) await command("object_commit", { id: objectId, version: scope.version });
-    return json(response, status, { id: objectId, size: bytes.length });
+
+    // Quarantine → ClamAV → publish. Unscanned bytes never become downloadable.
+    const uploadForm = () => {
+      const form = new FormData();
+      form.append("file", new Blob([bytes], { type: "application/octet-stream" }), objectId);
+      return form;
+    };
+    try {
+      const quarantined = await storage(config, identity.tenantId, objectId, { method: "POST", body: uploadForm() }, scope, { quarantine: true });
+      await quarantined.arrayBuffer();
+      await requireCleanObject(bytes, config);
+      const published = await storage(config, identity.tenantId, objectId, { method: "POST", body: uploadForm() }, scope);
+      await published.arrayBuffer();
+      if (scoped) await command("object_commit", { id: objectId, version: scope.version });
+      return json(response, status, { id: objectId, size: bytes.length });
+    } catch (error) {
+      throw error;
+    } finally {
+      await removeQuarantine(config, identity.tenantId, objectId, scope);
+    }
   }
   if (request.method === "GET" && id) {
     const scope = scoped ? await command("object_get", { id }) : undefined;
+    // v2 object_get already denies version=NULL (never committed / never scanned clean).
     const result = await storage(config, identity.tenantId, id, {}, scope);
     const bytes = Buffer.from(await result.arrayBuffer());
     if (scoped) await command("object_get", { id });

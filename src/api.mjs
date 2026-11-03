@@ -12,6 +12,7 @@ import { handleObjects } from "./modules/objects/objects.mjs";
 import { checkReadiness } from "./bootstrap/readiness.mjs";
 import { handleWorkflow } from "./modules/workflow/workflow.mjs";
 import { handleShares, requireLegacyClient, resourceIdentity } from "./modules/resources/resources.mjs";
+import { handleSecrets } from "./modules/secrets/secrets.mjs";
 import { handleTrust } from "./modules/capability/trust/trust.mjs";
 
 export function createApi(config) {
@@ -140,6 +141,10 @@ export function createApi(config) {
     if (path === "/v2/resource-shares" || path?.startsWith("/v2/resource-shares/")) {
       const identity = await resourceIdentity(config, await authorize(request, true));
       return handleShares(request, response, identity, config, new URL(request.url, "http://core"));
+    }
+    if (path === "/v2/secrets" || path?.startsWith("/v2/secrets/")) {
+      const identity = await resourceIdentity(config, await authorize(request, true));
+      return handleSecrets(request, response, identity, config, new URL(request.url, "http://core"));
     }
     if (path?.startsWith("/v1/workflows/")) {
       const identity = await authorize(request);
