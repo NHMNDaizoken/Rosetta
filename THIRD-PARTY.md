@@ -1,6 +1,6 @@
 # Third-party inventory
 
-Original Rosetta code is Apache-2.0; upstream components retain their own terms.
+Original Junctura code is Apache-2.0; upstream components retain their own terms.
 No third-party application source is copied. Entries describe separately fetched
 runtime/development components and their obligations. See
 [docs/LICENSING.md](docs/LICENSING.md) for the approved project policy.
@@ -11,7 +11,7 @@ runtime/development components and their obligations. See
 | Official Node Docker image | `node:24.21.0-bookworm-slim`, index digest `sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20` | [Image source at revision 93a7baf](https://github.com/nodejs/docker-node/tree/93a7bafc324a85ac1ee461604cff87cffacb6d7a/24/bookworm-slim), [image source license](https://github.com/nodejs/docker-node/blob/93a7bafc324a85ac1ee461604cff87cffacb6d7a/LICENSE) MIT; Debian/runtime packages have individual licenses | Core and Console build base. Upstream notices are retained in the base layers; do not strip them. Review `/usr/share/doc/*/copyright`, the Node license and all bundled components before redistributing an image. No registry publishing is configured. |
 | actions/checkout | v6.1.0, commit `d23441a48e516b6c34aea4fa41551a30e30af803` | [Source and MIT license](https://github.com/actions/checkout/tree/d23441a48e516b6c34aea4fa41551a30e30af803) | GitHub-hosted CI tool; referenced, not vendored. Preserve notices if later copied. Checkout does not persist repository credentials. |
 | actions/setup-node | v6.5.0, commit `249970729cb0ef3589644e2896645e5dc5ba9c38` | [Source and MIT license](https://github.com/actions/setup-node/tree/249970729cb0ef3589644e2896645e5dc5ba9c38) | GitHub-hosted CI runtime installer; referenced, not vendored. Preserve notices if later copied. |
-| GitHub CLI | 2.103.0 | [Source and MIT license](https://github.com/cli/cli/tree/v2.103.0) | Local publication tooling only, downloaded to temporary storage and verified against the official release asset SHA-256. Not included in Rosetta source or images. |
+| GitHub CLI | 2.103.0 | [Source and MIT license](https://github.com/cli/cli/tree/v2.103.0) | Local publication tooling only, downloaded to temporary storage and verified against the official release asset SHA-256. Not included in Junctura source or images. |
 
 There is no npm dependency graph in the repository root. The optional Console has
 its own `console/package-lock.json`; the Console image installs exactly that lock
@@ -35,13 +35,13 @@ required corresponding-source offers; process separation alone is not an exempti
 | PostgreSQL official image | `17-bookworm`, `sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27` | [PostgreSQL](https://www.postgresql.org/about/licence/), [official image source](https://github.com/docker-library/postgres) | Hosted persistence with separate database roles; preserve PostgreSQL copyright/permission and base-package notices. No source changes. |
 | PostgREST OSS | `v16.5`, `sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc` | [MIT](https://github.com/PostgREST/postgrest/blob/v16.5/LICENSE), [image build source](https://github.com/PostgREST/postgrest/tree/v16.5) | Hosted data API. Preserve copyright/permission notice for any redistribution; SQL authorization uses upstream RLS support. |
 | SeaweedFS OSS | `4.48`, `sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d` | [Apache-2.0](https://github.com/seaweedfs/seaweedfs/blob/4.48/LICENSE), [image source](https://github.com/seaweedfs/seaweedfs/tree/4.48/docker) | Hosted filer/object storage; not the Enterprise image. Preserve Apache notices and base-package obligations if redistributed. |
-| Flowable REST OSS | `8.0.0`, `sha256:708dfa32f27b93180bb6e7a30684d881d995fe257f5b8413e14b20a55c25672d` | [Apache-2.0](https://github.com/flowable/flowable-engine/blob/flowable-8.0.0/LICENSE), [image/base source](https://github.com/flowable/flowable-engine/tree/flowable-8.0.0/docker) | Hosted BPMN engine via REST, without a Rosetta GUI. Java runtime, fonts and Alpine packages have separate terms; retain their notices and review corresponding-source requirements before binary distribution. |
-| ClamAV (Debian image) | `1.5.4`, `sha256:c21aa18cc0a358678255a3dfb343a4555b58f71b97d7b869df8fdf7ea0a5b4b1` | [GPL-2.0-only](https://github.com/Cisco-Talos/clamav/blob/clamav-1.5.4/COPYING.txt), [official Docker docs](https://docs.clamav.net/manual/Installing/Docker.html), [clamav-debian image](https://hub.docker.com/r/clamav/clamav-debian) | Isolated malware scanner on the internal `scanner` network. GPLv2 applies to the ClamAV programs; Rosetta does not modify or vendor ClamAV source. Binary redistribution of the image requires preserving GPL notices and corresponding-source offers for GPLv2 components. Signature databases have separate upstream terms from Cisco Talos. |
-| OpenBao | `2.7.2`, `sha256:5046911075e137e154ce49ab051502f4ec7cf367d484ae4a4dce665d9b90561f` | [MPL-2.0](https://github.com/openbao/openbao/blob/v2.7.2/LICENSE), [official image](https://hub.docker.com/r/openbao/openbao) | Self-hosted secrets manager for application runtime secrets. MPL-2.0 covered-file obligations apply if OpenBao source files are modified; Rosetta ships configuration/adapters only. Alpine base packages retain their own notices. |
+| Flowable REST OSS | `8.0.0`, `sha256:708dfa32f27b93180bb6e7a30684d881d995fe257f5b8413e14b20a55c25672d` | [Apache-2.0](https://github.com/flowable/flowable-engine/blob/flowable-8.0.0/LICENSE), [image/base source](https://github.com/flowable/flowable-engine/tree/flowable-8.0.0/docker) | Hosted BPMN engine via REST, without a Junctura GUI. Java runtime, fonts and Alpine packages have separate terms; retain their notices and review corresponding-source requirements before binary distribution. |
+| ClamAV (Debian image) | `1.5.4`, `sha256:c21aa18cc0a358678255a3dfb343a4555b58f71b97d7b869df8fdf7ea0a5b4b1` | [GPL-2.0-only](https://github.com/Cisco-Talos/clamav/blob/clamav-1.5.4/COPYING.txt), [official Docker docs](https://docs.clamav.net/manual/Installing/Docker.html), [clamav-debian image](https://hub.docker.com/r/clamav/clamav-debian) | Isolated malware scanner on the internal `scanner` network. GPLv2 applies to the ClamAV programs; Junctura does not modify or vendor ClamAV source. Binary redistribution of the image requires preserving GPL notices and corresponding-source offers for GPLv2 components. Signature databases have separate upstream terms from Cisco Talos. |
+| OpenBao | `2.7.2`, `sha256:5046911075e137e154ce49ab051502f4ec7cf367d484ae4a4dce665d9b90561f` | [MPL-2.0](https://github.com/openbao/openbao/blob/v2.7.2/LICENSE), [official image](https://hub.docker.com/r/openbao/openbao) | Self-hosted secrets manager for application runtime secrets. MPL-2.0 covered-file obligations apply if OpenBao source files are modified; Junctura ships configuration/adapters only. Alpine base packages retain their own notices. |
 
 The review above establishes source provenance, selected edition and the current
 configuration-only hosting model. It is not a claim that every transitive binary
-package has passed a redistribution or vulnerability audit. Rosetta does not
+package has passed a redistribution or vulnerability audit. Junctura does not
 strip upstream license material, republish images or change their licensing.
 
 ## Contract-validation tooling
@@ -74,9 +74,9 @@ its own OpenSSL 3.x. OpenSSL 3.x is Apache-2.0
 [license](https://www.openssl.org/source/license.html)); preserve its notices
 only if the tool is later redistributed.
 
-The Capability v1 documentation was checked using the already installed Python 3.14.3 environment ([PSF terms and bundled notices](https://docs.python.org/3/license.html)), jsonschema 4.23.0 ([MIT](https://github.com/python-jsonschema/jsonschema/blob/v4.23.0/COPYING)), [referencing 0.37.0](https://pypi.org/project/referencing/0.37.0/), [attrs 25.4.0](https://pypi.org/project/attrs/25.4.0/), [rpds-py 0.30.0](https://pypi.org/project/rpds-py/0.30.0/) and [jsonschema-specifications 2025.9.1](https://pypi.org/project/jsonschema-specifications/2025.9.1/) (each reports MIT in its installed distribution metadata). These are host validation tools, not new Rosetta runtime/package dependencies, vendored sources or shipped binaries. No packages were installed for that earlier documentation task. Preserve each upstream distribution license if these tools are later bundled. The official OpenAPI validation schema was fetched into memory from its standards publisher, not copied into Rosetta.
+The Capability v1 documentation was checked using the already installed Python 3.14.3 environment ([PSF terms and bundled notices](https://docs.python.org/3/license.html)), jsonschema 4.23.0 ([MIT](https://github.com/python-jsonschema/jsonschema/blob/v4.23.0/COPYING)), [referencing 0.37.0](https://pypi.org/project/referencing/0.37.0/), [attrs 25.4.0](https://pypi.org/project/attrs/25.4.0/), [rpds-py 0.30.0](https://pypi.org/project/rpds-py/0.30.0/) and [jsonschema-specifications 2025.9.1](https://pypi.org/project/jsonschema-specifications/2025.9.1/) (each reports MIT in its installed distribution metadata). These are host validation tools, not new Junctura runtime/package dependencies, vendored sources or shipped binaries. No packages were installed for that earlier documentation task. Preserve each upstream distribution license if these tools are later bundled. The official OpenAPI validation schema was fetched into memory from its standards publisher, not copied into Junctura.
 
-## Rosetta Console frontend package dependencies
+## Junctura Console frontend package dependencies
 
 The optional `console/` package uses modern open-source frontend libraries for the operator control plane. None are copied into the headless Core or distributed as part of the core PaaS runtime.
 
@@ -119,6 +119,6 @@ pip-audit 2.10.0 ([source](https://github.com/pypa/pip-audit), Apache-2.0)
 is installed only in ignored `.cache/audit-tools` for advisory checks of pinned
 contract dependencies. Docker Desktop's separately installed Docker Scout 1.24.0
 performs image CVE and SBOM analysis. Neither tool nor its dependencies are bundled
-in Rosetta source archives or runtime images. npm's built-in audit/SBOM commands
+in Junctura source archives or runtime images. npm's built-in audit/SBOM commands
 inspect the Console lockfile. See [review scope](docs/SECURITY_REVIEW.md).
 

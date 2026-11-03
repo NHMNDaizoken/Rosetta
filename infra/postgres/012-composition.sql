@@ -1,4 +1,4 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- C4B bounded composition registry and execution authority. Additive only:
 -- migrations 001..011 and their installed objects are not modified.

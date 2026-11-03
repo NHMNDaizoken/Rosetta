@@ -1,4 +1,4 @@
-# Rosetta platform architecture
+# Junctura platform architecture
 
 > Reviewed: 2026-10-26 | Branch: main | Audit baseline: `7fdd7fc381bdd29d81d56fb08a764efff8c41582`
 > Status: accepted implementation baseline plus PROPOSED target; publication is not implementation approval.
@@ -8,7 +8,7 @@
 The proposed position is a Self-Hosted Open-Source Developer Cloud Platform:
 reusable BaaS, application/project management, operator-controlled hosting and
 optional secure capability reuse. Two application models use the same Foundation
-contracts. External applications run on infrastructure outside Rosetta. Hosted
+contracts. External applications run on infrastructure outside Junctura. Hosted
 applications would run on approved operator infrastructure, with identical
 application registration and resource authorization. Hosting location supplies
 no extra data privileges.
@@ -121,7 +121,7 @@ not dates or a promise to implement every candidate.
 
 ## Notes
 
-The draft titled “Rosetta DX-OS — Đặc tả kiến trúc chung Tầng 1” was not located;
+The draft titled “Junctura DX-OS — Đặc tả kiến trúc chung Tầng 1” was not located;
 no claims are attributed to it. New architecture follows the explicit task input
 and inspected code. No production code, contract, migration, dependency or runtime
 configuration is changed by this consolidation.

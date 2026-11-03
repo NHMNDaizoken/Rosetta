@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Technical test application, outside Core. Counters observe attempts only;
 // they do not certify general side-effecting or exactly-once capabilities.

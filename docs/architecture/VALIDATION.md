@@ -100,7 +100,7 @@ No public production availability, live Console session/PKCE, complete WCAG,
 full-platform DR/RPO/RTO, runtime hosting, hostile-tenant isolation, quota capacity,
 image provenance audit, complete transitive binary/asset license inventory or
 Capability Runtime is verified. Published vendor resource prerequisites in the
-deployment comparison are not Rosetta benchmarks. The illustrative VPS envelope
+deployment comparison are not Junctura benchmarks. The illustrative VPS envelope
 is a planning assumption. All target ADRs/permissions/APIs remain proposals.
 
 Official pages were read in full and cited by section in the traceability file.

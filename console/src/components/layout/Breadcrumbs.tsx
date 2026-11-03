@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 import React from "react";
 import { ChevronRight, Home } from "lucide-react";
@@ -47,7 +47,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ currentScreen, onNavig
         className="flex items-center gap-1.5 hover:text-stone-ink dark:hover:text-slate-100 transition-colors"
       >
         <Home className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">Rosetta</span>
+        <span className="hidden sm:inline">Junctura</span>
       </button>
 
       {currentScreen !== "overview" && (

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 import { dataRequest } from "../modules/data/data.mjs";
 import { checkMalwareScannerReadiness, checkObjectReadiness } from "../modules/objects/objects.mjs";

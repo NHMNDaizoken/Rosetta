@@ -5,6 +5,20 @@ records the official pages read on 2026-10-26, baseline evidence, broader servic
 groups, four technical principles and unresolved submission risks. This file
 remains the quick submission checklist; the organizer's pages remain authoritative.
 
+## Đối chiếu nhanh (tiếng Việt)
+
+| Yêu cầu của đề | Junctura đáp ứng bằng |
+| --- | --- |
+| Định danh, đăng nhập một lần (SSO) | Keycloak (OIDC, PKCE), vai trò `core-reader` / `core-writer` |
+| Cổng API (API Gateway) | Nginx: một cửa duy nhất, kiểm tra token qua `auth_request`, giới hạn tần suất |
+| Quản trị dữ liệu có cấu trúc | PostgreSQL + PostgREST, Row-Level Security, migration có checksum |
+| Quản trị dữ liệu phi cấu trúc | SeaweedFS, ClamAV quét mã độc trước khi nhận tệp |
+| Động cơ luồng công việc | Flowable REST (BPMN), idempotency key chống chạy trùng |
+| Headless, không giao diện người dùng | Core chỉ cung cấp API; Console là công cụ quản trị tách riêng |
+| Zero-Trust, an toàn thông tin | Xác thực tại cổng, cô lập tenant/ứng dụng, OpenBao, audit được bảo vệ |
+| Sao lưu và khôi phục | Kiểm thử `pg_dump`/`pg_restore` cô lập, kiểm tra lại RLS và audit |
+| Ít nhất một ứng dụng Tầng 2 trong H-P-D-I | Phát triển ở giai đoạn v0.2.0 |
+
 ## Official references
 
 - Problem statement: https://vfossa.vn/tin-tuc/de-thi-phan-mem-nguon-mo-olp-2026-798.html

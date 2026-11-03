@@ -164,7 +164,7 @@ start calls; it is not a promise of exactly-once external business effects.
 
 Flowable performs its upstream schema initialization in its own database on
 first boot. Review migrations and backups before changing the pinned engine
-version. Rosetta ledger changes use additive, versioned SQL migrations.
+version. Junctura ledger changes use additive, versioned SQL migrations.
 
 ## Internal protected audit contract
 

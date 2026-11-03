@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Local operator helper: enroll one Layer-2 backend application in a single command.
 // It performs the reviewed operator flow from docs/GETTING_STARTED.md against the
@@ -43,7 +43,7 @@ export function parseArgs(argv) {
 
 export function renderEnv({ baseUrl, tenant, appId, clientId, clientSecret }) {
   return [
-    "# Rosetta application credentials - private, never commit or embed in a browser.",
+    "# Junctura application credentials - private, never commit or embed in a browser.",
     `ROSETTA_URL=${baseUrl}`,
     `ROSETTA_TENANT=${tenant}`,
     `ROSETTA_APP_ID=${appId}`,
@@ -55,7 +55,7 @@ export function renderEnv({ baseUrl, tenant, appId, clientId, clientSecret }) {
 
 const usage = `Usage: npm run app:enroll -- <name> [--tenant tenant-a] [--origin https://name.example.org] [--display-name "Name"]
 
-Creates Keycloak client "app-<name>", enrolls and approves it in Rosetta, and writes
+Creates Keycloak client "app-<name>", enrolls and approves it in Junctura, and writes
 its credentials to .env.app.<name>.local (ignored by Git). Requires a running local stack
 (npm run local:up) and the .env created by npm run setup.`;
 

@@ -36,7 +36,7 @@ not that software must run in the same process. IDs match the handoff and
 Complexity labels are planning judgments, not time promises. P1 metadata is lower
 risk than runtime orchestration but still needs API/security approval. Integrating
 Dokku/Coolify shifts runtime work into an adapter and external operations; it does
-not remove Rosetta policy, provenance, recovery or identity mapping work.
+not remove Junctura policy, provenance, recovery or identity mapping work.
 
 ## Canonical dependency edges
 

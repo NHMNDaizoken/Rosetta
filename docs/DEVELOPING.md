@@ -1,10 +1,10 @@
 <!--
-SPDX-FileCopyrightText: 2026 Rosetta Contributors
+SPDX-FileCopyrightText: 2026 Junctura Contributors
 SPDX-License-Identifier: Apache-2.0
 -->
 # Developer and extension guide
 
-How to work on Rosetta without breaking its public contracts or security model.
+How to work on Junctura without breaking its public contracts or security model.
 Read [PRODUCT.md](PRODUCT.md), [ARCHITECTURE.md](ARCHITECTURE.md),
 [LICENSING.md](LICENSING.md) and [WORKFLOW.md](WORKFLOW.md) first.
 
@@ -26,7 +26,7 @@ Official OLP rules take precedence over internal project conventions. Never inve
 
 ## Runtime shape
 
-Rosetta Backend is one Node.js process (`src/server.mjs`) that exposes health,
+Junctura Backend is one Node.js process (`src/server.mjs`) that exposes health,
 readiness and the public API through a small adapter layer. Nginx is the only
 published gateway. Providers stay private:
 
@@ -257,9 +257,9 @@ These are documented integration conventions, not implementations:
 | Audit export/integrity | Platform security | Independent sink, public/admin contract if approved, retention and key recovery; the bounded PostgreSQL boundary is implemented in [AUDIT.md](AUDIT.md) |
 | Messaging / notification | Platform services | Broker ownership, delivery semantics, tenant quotas |
 | Search / data interoperability | Structured data | Index ownership, reindex/rebuild, tenant isolation |
-| Project / environment metadata | Rosetta Cloud | P1 contract, ownership rules, Console trust slice |
-| Application hosting / runtime | Rosetta Cloud | Admission, isolation, resource limits, operator controls |
-| General capability plugins, HA and resume | Rosetta Connect | Bounded C4A/C4B exist; broader execution/credential recovery needs a separately approved model |
+| Project / environment metadata | Junctura Cloud | P1 contract, ownership rules, Console trust slice |
+| Application hosting / runtime | Junctura Cloud | Admission, isolation, resource limits, operator controls |
+| General capability plugins, HA and resume | Junctura Connect | Bounded C4A/C4B exist; broader execution/credential recovery needs a separately approved model |
 
 Each requires its own approved slice and its own failure/denial tests. DX1 does
 not authorize any of them.

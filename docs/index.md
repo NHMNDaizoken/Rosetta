@@ -1,4 +1,4 @@
-# Rosetta architecture and codebase context
+# Junctura architecture and codebase context
 
 Current entry points: [local onboarding and SDK](GETTING_STARTED.md),
 [release/upgrade guide](RELEASE.md), [changelog](../CHANGELOG.md),
@@ -9,7 +9,7 @@ bounded C4A/C4B have since been implemented opt-in, with execution disabled by d
 
 > Reviewed: 2026-10-28 | Branch: main | DX1 baseline: `e4f67f078c0e66efc09abefde0d676b3b2730870`
 
-Rosetta currently integrates five headless backend capabilities through a small
+Junctura currently integrates five headless backend capabilities through a small
 Node adapter, private providers and PostgreSQL authorization. An optional React
 Console exists with partially connected management screens. The target product
 adds operator-controlled application hosting and optional Verifiable Capability
@@ -58,7 +58,7 @@ not code coverage or product completeness.
 
 1. A registered application UUID is the v2 resource owner; project/environment IDs
    must never replace it implicitly.
-2. Keycloak authenticates; Rosetta authority decides application permissions.
+2. Keycloak authenticates; Junctura authority decides application permissions.
 3. Core reader/writer roles do not grant platform administration.
 4. A project owner or deployment operator does not automatically read app data.
 5. Current read shares are exact, same-tenant and read-only; capability grants differ.

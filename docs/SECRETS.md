@@ -1,10 +1,10 @@
 <!--
-SPDX-FileCopyrightText: 2026 Rosetta Contributors
+SPDX-FileCopyrightText: 2026 Junctura Contributors
 SPDX-License-Identifier: Apache-2.0
 -->
 # Secrets management
 
-Rosetta uses [OpenBao](https://github.com/openbao/openbao) (MPL-2.0) as the
+Junctura uses [OpenBao](https://github.com/openbao/openbao) (MPL-2.0) as the
 self-hosted secrets manager for **runtime/application** secrets.
 
 ## Bootstrap versus runtime

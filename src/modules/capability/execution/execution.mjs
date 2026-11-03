@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Internal C4A authority only. HTTP routes and engine dispatch are separate gates.
 import { createHash, randomBytes, randomUUID } from "node:crypto";

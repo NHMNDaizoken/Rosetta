@@ -1,4 +1,4 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- Add exact result version and tighten registry lifecycle authority. Version 16
 -- also opts the migration runner into fingerprinting composition_private.

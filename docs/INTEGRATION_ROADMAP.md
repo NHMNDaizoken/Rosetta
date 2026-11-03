@@ -26,7 +26,7 @@ partially connected Console were added afterward. The [Capability v1 design](CAP
 remains design-only beyond registration/approvals. Future hosting and capability
 implementation follow the separately approved architecture slices linked above.
 The maintainer has approved original source under Apache-2.0 with attribution
-2026 Rosetta Contributors and authorized public source publication to the
+2026 Junctura Contributors and authorized public source publication to the
 authenticated account's `Rosetta` repository on `main`. New integration
 dependencies still require upstream license/edition review under
 [the licensing policy](LICENSING.md). Production deployment remains unapproved.
@@ -88,10 +88,10 @@ the README layout, development/production Compose files, CI/CD workflows and
 production guide. Useful patterns are separate infrastructure configuration,
 health-based startup, live integration checks and documented deployment steps.
 Its production configuration removes internal service ports; its CD workflow
-publishes after CI. Rosetta currently has local execution and checks only.
+publishes after CI. Junctura currently has local execution and checks only.
 
 This is an organizational reference. No SynapseDX source/configuration was
-copied, and its license does not license Rosetta. Its application, SDK, AI and
+copied, and its license does not license Junctura. Its application, SDK, AI and
 other infrastructure scope is outside this implementation.
 
 ## Publication and deployment gates

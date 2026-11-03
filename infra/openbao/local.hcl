@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Rosetta Contributors
+# SPDX-FileCopyrightText: 2026 Junctura Contributors
 # SPDX-License-Identifier: Apache-2.0
 # Local Compose listener only. TLS and auto-unseal remain production work.
 # Persist under /openbao/file so the non-root image user can write the volume.

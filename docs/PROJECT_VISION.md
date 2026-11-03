@@ -1,4 +1,4 @@
-# Rosetta DX-OS project vision
+# Junctura DX-OS project vision
 
 > Architecture consolidation: 2026-10-26, baseline `7fdd7fc` on main.
 > [Master architecture](architecture/ROSETTA_PLATFORM_ARCHITECTURE.md) adds the
@@ -9,7 +9,7 @@ applications using the same Foundation APIs and authority. Hosting location
 does not grant data access. Project/environment/deployment/runtime modules remain
 PROPOSED; no hosting service is present. Neither model requires Capability Runtime.
 
-Rosetta is an open-source, reusable, headless Layer-1 PaaS for independent Layer-2 products. Its direction is Capability-Driven DX-OS: products can use shared infrastructure, and may later publish or consume capabilities under explicit contracts and trust rules. Products can be written in different languages and retain their own interfaces, domain logic and development lifecycles.
+Junctura is an open-source, reusable, headless Layer-1 PaaS for independent Layer-2 products. Its direction is Capability-Driven DX-OS: products can use shared infrastructure, and may later publish or consume capabilities under explicit contracts and trust rules. Products can be written in different languages and retain their own interfaces, domain logic and development lifecycles.
 
 The five foundational Cores are implemented in a local Docker Compose stack. The four capability Cores and Verifiable Capability Composition described below are proposals, not implemented services or approved API contracts. This document preserves the product concept; it does not authorize new implementation scope or add requirements to the organizer's official competition rules.
 
@@ -27,7 +27,7 @@ Layer 1 owns generic platform mechanisms: identity, routing, tenant-scoped stora
 
 Layer-2 products must use documented APIs without depending on another product's private database. Publishing a capability does not publish its underlying data or grant authority to invoke it. An application must be able to remain a standalone consumer of foundational services without adopting composition.
 
-Existing open-source providers supply infrastructure. Rosetta's public contracts should limit unnecessary coupling, while documenting provider-specific behavior. Changing an identity provider, storage backend or workflow engine can require migration and compatibility testing. No universal hot-swap guarantee is proposed.
+Existing open-source providers supply infrastructure. Junctura's public contracts should limit unnecessary coupling, while documenting provider-specific behavior. Changing an identity provider, storage backend or workflow engine can require migration and compatibility testing. No universal hot-swap guarantee is proposed.
 
 ## Foundational Cores
 
@@ -84,7 +84,7 @@ AI may eventually propose plans or help discover candidates. Any planner output 
 
 ## Example and validation direction
 
-The [README example](README_EN.md#illustrative-cross-application-use-case) describes an intake application and a review application. Their business operations belong to those applications; Rosetta would own the generic checks and orchestration. The example is illustrative and supplies no domain-specific code or commitments about a future demonstration product.
+The [README example](README_EN.md#illustrative-cross-application-use-case) describes an intake application and a review application. Their business operations belong to those applications; Junctura would own the generic checks and orchestration. The example is illustrative and supplies no domain-specific code or commitments about a future demonstration product.
 
 Before implementing extensions, review capability publication/versioning, supported schema compatibility, trust/delegation, workflow binding and failure semantics. A useful acceptance scenario would demonstrate both a valid connection and rejected incompatible inputs, unauthorized invocation, revoked permission, cross-tenant access and unsafe retry. Evidence must distinguish static validation from runtime enforcement and external side effects.
 
