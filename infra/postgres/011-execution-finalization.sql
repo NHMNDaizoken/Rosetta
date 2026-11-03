@@ -1,4 +1,4 @@
--- SPDX-FileCopyrightText: 2026 Junctura Contributors
+-- SPDX-FileCopyrightText: 2026 Rosetta Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- PostgreSQL LEAST ignores NULL. A failed reservation with no ticket must keep
 -- both ticket columns NULL; do not modify the already applied migration 010.

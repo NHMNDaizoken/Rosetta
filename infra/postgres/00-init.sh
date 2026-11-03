@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 Junctura Contributors
+# SPDX-FileCopyrightText: 2026 Rosetta Contributors
 # SPDX-License-Identifier: Apache-2.0
 set -eu
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname postgres \
