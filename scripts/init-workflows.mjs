@@ -7,7 +7,7 @@ const config = { workflowUrl: process.env.WORKFLOW_URL, workflowPassword: proces
 try {
   const template = await readFile("/definitions/checkpoint.bpmn20.xml");
   for (const tenant of ["tenant-a", "tenant-b"]) {
-    const query = new URLSearchParams({ key: "rosetta_checkpoint", tenantId: tenant, latest: "true" });
+    const query = new URLSearchParams({ key: "junctura_checkpoint", tenantId: tenant, latest: "true" });
     const existing = await workflowRequest(config, `repository/process-definitions?${query}`);
     if (!existing.data.length) {
       const form = new FormData();

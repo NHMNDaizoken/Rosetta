@@ -1,16 +1,16 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 BEGIN;
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='rosetta_capability_api') THEN
-    CREATE ROLE rosetta_capability_api NOLOGIN NOBYPASSRLS;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='junctura_capability_api') THEN
+    CREATE ROLE junctura_capability_api NOLOGIN NOBYPASSRLS;
   END IF;
 END $$;
-GRANT rosetta_capability_api TO rosetta_data;
-GRANT USAGE ON SCHEMA core TO rosetta_capability_api;
-GRANT USAGE ON SCHEMA core TO rosetta_app_owner;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
-SET LOCAL ROLE rosetta_app_owner;
+GRANT junctura_capability_api TO junctura_data;
+GRANT USAGE ON SCHEMA core TO junctura_capability_api;
+GRANT USAGE ON SCHEMA core TO junctura_app_owner;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 
 ALTER TABLE app_private.principals DROP CONSTRAINT IF EXISTS principals_permissions_check;
 ALTER TABLE app_private.principals ADD CONSTRAINT principals_permissions_check
@@ -20,7 +20,7 @@ ALTER TABLE app_private.principals ADD CONSTRAINT principals_permissions_check
 CREATE TABLE IF NOT EXISTS app_private.capability_versions (
   tenant_id text NOT NULL CHECK (tenant_id ~ '^[a-z][a-z0-9-]{0,62}$'),
   version_id uuid NOT NULL DEFAULT gen_random_uuid(),
-  capability_id text NOT NULL CHECK (capability_id ~ '^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'),
+  capability_id text NOT NULL CHECK (capability_id ~ '^urn:junctura:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'),
   provider_app_id uuid NOT NULL,
   version text NOT NULL CHECK (version ~ '^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$'),
   manifest jsonb NOT NULL CHECK (jsonb_typeof(manifest)='object'),
@@ -79,7 +79,7 @@ DO $$ DECLARE t text; BEGIN
     EXECUTE format('ALTER TABLE app_private.%I ENABLE ROW LEVEL SECURITY',t);
     EXECUTE format('ALTER TABLE app_private.%I FORCE ROW LEVEL SECURITY',t);
     IF NOT EXISTS (SELECT FROM pg_policies WHERE schemaname='app_private' AND tablename=t AND policyname='tenant_isolation') THEN
-      EXECUTE format('CREATE POLICY tenant_isolation ON app_private.%I TO rosetta_app_owner USING (tenant_id=(current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id'')) WITH CHECK (tenant_id=(current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id''))',t);
+      EXECUTE format('CREATE POLICY tenant_isolation ON app_private.%I TO junctura_app_owner USING (tenant_id=(current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id'')) WITH CHECK (tenant_id=(current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id''))',t);
     END IF;
   END LOOP;
 END $$;
@@ -171,7 +171,7 @@ BEGIN
 
   IF operation IN ('get','register','update','validate','publish','deprecate','revoke') THEN
     cap_id:=payload->>'capabilityId'; ver:=payload->>'version';
-    IF cap_id IS NULL OR cap_id !~ '^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'
+    IF cap_id IS NULL OR cap_id !~ '^urn:junctura:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'
       OR ver IS NULL OR ver !~ '^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$' THEN
       RETURN jsonb_build_object('status',400,'error','invalid_capability_reference');
     END IF;
@@ -194,7 +194,7 @@ BEGIN
       IF NOT FOUND OR app.state<>'active' THEN
         RETURN jsonb_build_object('status',403,'error','provider_not_available');
       END IF;
-      IF cap_id NOT LIKE 'urn:rosetta:capability:'||app.app_id::text||':%'
+      IF cap_id NOT LIKE 'urn:junctura:capability:'||app.app_id::text||':%'
         OR payload->'manifest'->>'providerAppId'<>app.app_id::text THEN
         RETURN jsonb_build_object('status',403,'error','provider_mismatch');
       END IF;
@@ -346,7 +346,7 @@ BEGIN
     END IF;
     IF resource_id ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN
       v_id:=resource_id::uuid;
-    ELSIF resource_id ~ '^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}@(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$' THEN
+    ELSIF resource_id ~ '^urn:junctura:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}@(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$' THEN
       SELECT version_id INTO v_id FROM app_private.capability_versions WHERE tenant_id=tenant
         AND capability_id=split_part(resource_id,'@',1) AND version=split_part(resource_id,'@',2);
     ELSE
@@ -419,12 +419,12 @@ BEGIN
 EXCEPTION WHEN unique_violation THEN RETURN jsonb_build_object('status',409,'error','capability_conflict');
 END $$;
 
-ALTER FUNCTION core.capability_command(text,jsonb) OWNER TO rosetta_app_owner;
-REVOKE ALL ON FUNCTION core.capability_command(text,jsonb) FROM PUBLIC,rosetta_api,rosetta_app_api,rosetta_resource_api,rosetta_audit_api;
-GRANT EXECUTE ON FUNCTION core.capability_command(text,jsonb) TO rosetta_capability_api;
+ALTER FUNCTION core.capability_command(text,jsonb) OWNER TO junctura_app_owner;
+REVOKE ALL ON FUNCTION core.capability_command(text,jsonb) FROM PUBLIC,junctura_api,junctura_app_api,junctura_resource_api,junctura_audit_api;
+GRANT EXECUTE ON FUNCTION core.capability_command(text,jsonb) TO junctura_capability_api;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA app_private FROM PUBLIC;
 RESET ROLE;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 INSERT INTO core.schema_migrations(version) VALUES(6) ON CONFLICT DO NOTHING;
 NOTIFY pgrst,'reload schema';
 COMMIT;

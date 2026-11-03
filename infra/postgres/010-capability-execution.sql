@@ -1,4 +1,4 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- C4A private authority. Apply only after the fresh-database/security checks.
 BEGIN;
@@ -62,16 +62,16 @@ ALTER TABLE app_private.capability_versions ADD CONSTRAINT capability_published_
     AND validation_report->>'policyRevision' IS NOT DISTINCT FROM '1'));
 
 DO $roles$ BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='rosetta_execution_api') THEN
-    CREATE ROLE rosetta_execution_api NOLOGIN NOBYPASSRLS;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='junctura_execution_api') THEN
+    CREATE ROLE junctura_execution_api NOLOGIN NOBYPASSRLS;
   END IF;
 END $roles$;
-GRANT rosetta_execution_api TO rosetta_data;
-GRANT USAGE ON SCHEMA core TO rosetta_execution_api;
-CREATE SCHEMA execution_private AUTHORIZATION rosetta_app_owner;
+GRANT junctura_execution_api TO junctura_data;
+GRANT USAGE ON SCHEMA core TO junctura_execution_api;
+CREATE SCHEMA execution_private AUTHORIZATION junctura_app_owner;
 REVOKE ALL ON SCHEMA execution_private FROM PUBLIC;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
-SET LOCAL ROLE rosetta_app_owner;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 
 CREATE TABLE execution_private.executions (
   tenant_id text NOT NULL CHECK (tenant_id ~ '^[a-z][a-z0-9-]{0,62}$'),
@@ -135,7 +135,7 @@ CREATE TABLE execution_private.executions (
 );
 ALTER TABLE execution_private.executions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE execution_private.executions FORCE ROW LEVEL SECURITY;
-CREATE POLICY tenant_isolation ON execution_private.executions TO rosetta_app_owner
+CREATE POLICY tenant_isolation ON execution_private.executions TO junctura_app_owner
   USING (tenant_id=current_setting('request.jwt.claims',true)::jsonb->>'tenant_id')
   WITH CHECK (tenant_id=current_setting('request.jwt.claims',true)::jsonb->>'tenant_id');
 CREATE INDEX execution_tenant_pending ON execution_private.executions(tenant_id,deadline_at)
@@ -317,7 +317,7 @@ BEGIN
       'expiresAt',to_char(e.ticket_expires_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
       'context',jsonb_build_object('tenantId',e.tenant_id,'issuer',e.issuer,'subject',e.initiating_subject,
         'principalType','service','initiatingSubject',e.initiating_subject,'initiatingAppId',e.consumer_app_id,
-        'executorSubject','rosetta-core:c4a','stepId','invoke','grantIds',jsonb_build_array(e.grant_id),'approvalIds','[]'::jsonb,
+        'executorSubject','junctura-core:c4a','stepId','invoke','grantIds',jsonb_build_array(e.grant_id),'approvalIds','[]'::jsonb,
         'permissions',(SELECT manifest->'requiredPermissions' FROM app_private.capability_versions WHERE tenant_id=e.tenant_id AND version_id=e.version_id),
         'actorAppId',e.consumer_app_id,'providerAppId',e.provider_app_id,'executionId',e.execution_id,
         'invocationId',e.execution_id,'capability',jsonb_build_object('capabilityId',e.capability_id,
@@ -409,11 +409,11 @@ EXCEPTION WHEN invalid_text_representation OR invalid_datetime_format OR datetim
 END $$;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA execution_private FROM PUBLIC;
 REVOKE ALL ON FUNCTION core.execution_command(text,jsonb) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION core.execution_command(text,jsonb) TO rosetta_execution_api;
+GRANT EXECUTE ON FUNCTION core.execution_command(text,jsonb) TO junctura_execution_api;
 
 -- No table grants, credentials, automatic retention deletion or public routes.
 RESET ROLE;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 INSERT INTO core.schema_migrations(version) VALUES(10);
 NOTIFY pgrst,'reload schema';
 COMMIT;

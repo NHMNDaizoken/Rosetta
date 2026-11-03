@@ -27,7 +27,7 @@ remains design-only beyond registration/approvals. Future hosting and capability
 implementation follow the separately approved architecture slices linked above.
 The maintainer has approved original source under Apache-2.0 with attribution
 2026 Junctura Contributors and authorized public source publication to the
-authenticated account's `Rosetta` repository on `main`. New integration
+authenticated account's `Junctura` repository on `main`. New integration
 dependencies still require upstream license/edition review under
 [the licensing policy](LICENSING.md). Production deployment remains unapproved.
 

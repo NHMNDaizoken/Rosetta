@@ -10,8 +10,8 @@ Ubuntu 24.04 is exercised by CI. Other host platforms are not verified here.
 Run these commands from the repository root in PowerShell or a shell:
 
 ```sh
-git clone https://github.com/NHMNDaizoken/Rosetta.git
-cd Rosetta
+git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
+cd junctura
 npm run setup
 npm run doctor
 npm run local:up
@@ -67,7 +67,7 @@ node --env-file=.env --env-file=.env.app.daotao.local examples/sdk-foundation.mj
 
 It creates the confidential Keycloak client `app-daotao` and its tenant service
 account, demo owner and independent approver identities
-(`rosetta-demo-owner-<tenant>`, `rosetta-demo-approver-<tenant>`) with separated
+(`junctura-demo-owner-<tenant>`, `junctura-demo-approver-<tenant>`) with separated
 permissions, the SQL enrollment bound to the verified service-account subject, then
 registers, approves and activates the application. Only the app's own settings are
 written to the Git-ignored `.env.app.daotao.local`; operator credentials are never
@@ -130,8 +130,8 @@ For an enrolled app, save only its own supplied credentials in ignored
 `.env.app.local` (never in browser code):
 
 ```text
-ROSETTA_APP_CLIENT_ID=REPLACE_WITH_ENROLLED_CLIENT
-ROSETTA_APP_CLIENT_SECRET=REPLACE_WITH_PRIVATE_SECRET
+JUNCTURA_APP_CLIENT_ID=REPLACE_WITH_ENROLLED_CLIENT
+JUNCTURA_APP_CLIENT_SECRET=REPLACE_WITH_PRIVATE_SECRET
 ```
 
 ```sh
@@ -147,15 +147,15 @@ and expiring read sharing; its required grantee settings are documented in
 An independent application's server can use the client directly:
 
 ```js
-import { createRosettaClient } from './sdk/node/index.mjs';
-const rosetta = createRosettaClient({
-  baseUrl: process.env.ROSETTA_URL,
-  clientId: process.env.ROSETTA_CLIENT_ID,
-  clientSecret: process.env.ROSETTA_CLIENT_SECRET,
+import { createJuncturaClient } from './sdk/node/index.mjs';
+const junctura = createJuncturaClient({
+  baseUrl: process.env.JUNCTURA_URL,
+  clientId: process.env.JUNCTURA_CLIENT_ID,
+  clientSecret: process.env.JUNCTURA_CLIENT_SECRET,
 });
-const identity = await rosetta.identity();
-const record = await rosetta.createRecord('documents', { synthetic: true });
-const read = await rosetta.getRecord('documents', record.id);
+const identity = await junctura.identity();
+const record = await junctura.createRecord('documents', { synthetic: true });
+const read = await junctura.getRecord('documents', record.id);
 ```
 
 Convenience methods cover identity, v2 records/objects, workflow definitions/start,
@@ -168,7 +168,7 @@ authoritative; the small declarations do not claim complete generated model cove
 OAuth client-credentials tokens stay in process memory and refresh for subsequent
 explicit requests. There are no mutation retries. Persist your original idempotency
 key and request before submission; a timeout can mean the server accepted work.
-`RosettaError` carries sanitized `status`, `code` and optional `requestId`, without
+`JuncturaError` carries sanitized `status`, `code` and optional `requestId`, without
 echoing the raw upstream body. Never log the client configuration or request bodies.
 
 ## Publish, grant, discover and execute
@@ -186,7 +186,7 @@ echoing the raw upstream body. Never log the client configuration or request bod
    consumer, capability version/digest, declared permissions, expiry and direct subject.
    Request `discover` and `invoke` separately. The separate administrator records
    a grant approval then activates it with `/v1/trust/grants/{grantId}/activate`.
-5. The consumer calls `rosetta.discover()`. Only currently granted metadata is visible;
+5. The consumer calls `junctura.discover()`. Only currently granted metadata is visible;
    an invoke-only grant does not authorize discovery. No consumer-supplied provider URL
    or tenant header can add authority.
 6. For a reviewed operator configuration with C4A enabled and exact approved HTTPS
@@ -194,12 +194,12 @@ echoing the raw upstream body. Never log the client configuration or request bod
 
 ```js
 // `reference` comes from currently authorized, published discovery metadata.
-const accepted = await rosetta.execute(
+const accepted = await junctura.execute(
   { kind: 'capability', capability: reference },
   { value: 'synthetic input' },
   originalPersistedUuid,
 );
-const result = await rosetta.waitForExecution(accepted.executionId);
+const result = await junctura.waitForExecution(accepted.executionId);
 ```
 
 The provider must authenticate independently and redeem its single-use input-bound
@@ -216,10 +216,10 @@ server implementation. It never supplies Core credentials to a provider.
    [bounded composition](CAPABILITY_COMPOSITION.md).
 
 ```js
-const accepted = await rosetta.execute({
+const accepted = await junctura.execute({
   kind: 'composition', compositionId, version: '1.0.0', compositionDigest,
 }, { value: 'synthetic input' }, originalPersistedUuid);
-const result = await rosetta.waitForExecution(accepted.executionId);
+const result = await junctura.waitForExecution(accepted.executionId);
 ```
 
 Polling stops on `auth_required` as well as terminal outcomes. It does not reauthorize,

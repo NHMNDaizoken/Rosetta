@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { createRosettaClient } from "../sdk/node/index.mjs";
+import { createJuncturaClient } from "../sdk/node/index.mjs";
 
-const client = createRosettaClient({
+const client = createJuncturaClient({
   baseUrl: process.env.PUBLIC_URL ?? "http://127.0.0.1:8080",
-  clientId: process.env.ROSETTA_APP_CLIENT_ID ?? "tenant-a",
-  clientSecret: process.env.ROSETTA_APP_CLIENT_SECRET ?? process.env.TENANT_A_SECRET,
+  clientId: process.env.JUNCTURA_APP_CLIENT_ID ?? "tenant-a",
+  clientSecret: process.env.JUNCTURA_APP_CLIENT_SECRET ?? process.env.TENANT_A_SECRET,
 });
 try {
   const identity = await client.identity();

@@ -7,23 +7,23 @@ import { before, after, test } from "node:test";
 import { promisify } from "node:util";
 import { contractFetch as fetch, verifyContracts } from './contract.mjs';
 import { foundationExample } from '../examples/foundation-http.mjs';
-import { createRosettaClient } from '../sdk/node/index.mjs';
+import { createJuncturaClient } from '../sdk/node/index.mjs';
 
 const base=process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
-const issuer=`${base}/identity/realms/rosetta`;
+const issuer=`${base}/identity/realms/junctura`;
 const prefix=`app-test-${randomBytes(6).toString("hex")}`;
 const clientIds=[], users=[];
 let adminToken, owner, approver, foreign, stranger, serviceToken, app, etag;
 let resourceA, resourceB, resourceForeign, privateRecord, privateObject, recordShare, objectShare;
 let objectBytes=Buffer.from('private resource fixture');
 const run=(...args)=>promisify(execFile)("docker",args,{timeout:180000});
-const sql=text=>run("compose","exec","-T","database","psql","-U","rosetta_admin","-d","rosetta_data","-v","ON_ERROR_STOP=1","-Atc",text);
+const sql=text=>run("compose","exec","-T","database","psql","-U","junctura_admin","-d","junctura_data","-v","ON_ERROR_STOP=1","-Atc",text);
 const q=value=>`'${String(value).replaceAll("'","''")}'`;
 async function operatorToken() {
   const deadline=Date.now()+30000;
   while(Date.now()<deadline){
     try {
-      const response=await fetch(`${base}/identity/realms/master/protocol/openid-connect/token`,{method:"POST",body:new URLSearchParams({grant_type:"password",client_id:"admin-cli",username:"rosetta-admin",password:process.env.KEYCLOAK_ADMIN_PASSWORD}),signal:AbortSignal.timeout(5000)});
+      const response=await fetch(`${base}/identity/realms/master/protocol/openid-connect/token`,{method:"POST",body:new URLSearchParams({grant_type:"password",client_id:"admin-cli",username:"junctura-admin",password:process.env.KEYCLOAK_ADMIN_PASSWORD}),signal:AbortSignal.timeout(5000)});
       if(response.status===200) return (await response.json()).access_token;
     } catch { /* The real database/Core recreation can leave stale IdP connections. */ }
     await new Promise(resolve=>setTimeout(resolve,500));
@@ -31,7 +31,7 @@ async function operatorToken() {
   assert.fail("Operator authentication did not recover within thirty seconds");
 }
 async function admin(path,body,method="GET") {
-  return fetch(`${base}/identity/admin/realms/rosetta/${path}`,{method,headers:{Authorization:`Bearer ${adminToken}`,"Content-Type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)});
+  return fetch(`${base}/identity/admin/realms/junctura/${path}`,{method,headers:{Authorization:`Bearer ${adminToken}`,"Content-Type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)});
 }
 async function login(username,password,clientId,full=false) {
   const verifier=randomBytes(32).toString("base64url");
@@ -158,7 +158,7 @@ after(async()=>{
     if(paths.length) await coreProbe(`import assert from 'node:assert/strict';
       for(const p of ${JSON.stringify(paths)}) {
         assert.match(p.tenant,/^tenant-[ab]$/);for(const id of [p.owner,p.id]) assert.match(id,/^[0-9a-f-]{36}$/);
-        const r=await fetch(process.env.OBJECTS_URL+'/rosetta-app/'+p.tenant+'/'+p.owner+'/'+p.id+'?recursive=true',{method:'DELETE'});
+        const r=await fetch(process.env.OBJECTS_URL+'/junctura-app/'+p.tenant+'/'+p.owner+'/'+p.id+'?recursive=true',{method:'DELETE'});
         assert.ok([200,202,204,404].includes(r.status));await r.arrayBuffer();
       }`);
     await sql(`DELETE FROM app_private.audit WHERE subject IN (${ids}) OR subject IN (SELECT resource_subject FROM app_private.enrollments WHERE owner_subject IN (${ids}));
@@ -242,10 +242,10 @@ test("lifecycle rejects invalid transitions and stale/expired/revoked approvals"
 });
 
 test("private SQL roles and forced RLS prevent generic data APIs from administering apps",async()=>{
-  const check=await sql("SELECT has_function_privilege('rosetta_api','core.application_command(text,jsonb)','EXECUTE'),has_schema_privilege('rosetta_api','app_private','USAGE');");
+  const check=await sql("SELECT has_function_privilege('junctura_api','core.application_command(text,jsonb)','EXECUTE'),has_schema_privilege('junctura_api','app_private','USAGE');");
   assert.equal(check.stdout.trim(),"f|f");
-  await assert.rejects(sql("SET ROLE rosetta_api; SELECT * FROM app_private.principals;"));
-  const count=await sql(`SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-b"}',false); SELECT count(*) FROM app_private.applications WHERE app_id=${q(app.appId)};`);
+  await assert.rejects(sql("SET ROLE junctura_api; SELECT * FROM app_private.principals;"));
+  const count=await sql(`SET ROLE junctura_app_owner; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-b"}',false); SELECT count(*) FROM app_private.applications WHERE app_id=${q(app.appId)};`);
   assert.equal(count.stdout.trim().split(/\r?\n/).at(-1),"0");
   assert.equal((await api(`/v1/data/applications`,serviceToken,{data:{ownerSubject:owner.id,permissions:["applications.approve"]}})).status,201);
   const fake=await (await api("/v1/data/applications",serviceToken)).json();
@@ -261,13 +261,13 @@ test('registered backends own private records and objects; browser and unenrolle
   for(const who of [owner,serviceToken]) assert.equal((await api('/v2/data/private_fixture',who)).status,403);
   assert.equal((await api('/v1/data/private_fixture',owner)).status,403,'human management clients have no legacy writer fallback');
   assert.equal((await api('/v1/objects',resourceA)).status,403,'registered backends cannot fall back to legacy namespaces');
-  const browser=await login('local-user',process.env.SSO_USER_PASSWORD,'rosetta-local',true);
+  const browser=await login('local-user',process.env.SSO_USER_PASSWORD,'junctura-local',true);
   try {
     for(const p of ['/v2/data/private_fixture','/v2/objects','/v1/data/private_fixture','/v1/objects']) {
       assert.equal((await api(p,browser.access_token)).status,403,'even the legacy browser writer fixture cannot access resource APIs');
     }
   } finally {
-    const logout=await fetch(`${issuer}/protocol/openid-connect/logout`,{method:'POST',body:new URLSearchParams({client_id:'rosetta-local',refresh_token:browser.refresh_token})});assert.equal(logout.status,204);
+    const logout=await fetch(`${issuer}/protocol/openid-connect/logout`,{method:'POST',body:new URLSearchParams({client_id:'junctura-local',refresh_token:browser.refresh_token})});assert.equal(logout.status,204);
   }
   for(const backend of [resourceA,resourceB,resourceForeign]) {
     const created=await api('/v2/data/private_fixture',backend,{data:{fixture:backend.clientId}});assert.equal(created.status,201);
@@ -286,13 +286,13 @@ test('registered backends own private records and objects; browser and unenrolle
 });
 
 test('documented backend HTTP example authenticates, stores, shares and executes the technical workflow',async()=>{
-  const sdk = createRosettaClient({ baseUrl: base, clientId: resourceA.clientId, clientSecret: resourceA.clientSecret, fetcher: fetch });
+  const sdk = createJuncturaClient({ baseUrl: base, clientId: resourceA.clientId, clientSecret: resourceA.clientSecret, fetcher: fetch });
   assert.equal((await sdk.identity()).subject, resourceA.subject);
   const sdkRecord = await sdk.createRecord('sdk_example', { synthetic: true });
   assert.deepEqual((await sdk.getRecord('sdk_example', sdkRecord.id)).data, { synthetic: true });
   await sdk.request(`/v2/data/sdk_example/${sdkRecord.id}`, { method: 'DELETE' });
   const sdkCli = await promisify(execFile)(process.execPath, ['examples/sdk-foundation.mjs', '--enrolled'], {
-    env: { ...process.env, PUBLIC_URL: base, ROSETTA_APP_CLIENT_ID: resourceA.clientId, ROSETTA_APP_CLIENT_SECRET: resourceA.clientSecret }, timeout: 30000 });
+    env: { ...process.env, PUBLIC_URL: base, JUNCTURA_APP_CLIENT_ID: resourceA.clientId, JUNCTURA_APP_CLIENT_SECRET: resourceA.clientSecret }, timeout: 30000 });
   assert.match(sdkCli.stdout, /Application-private record created/);
   const result=await foundationExample({base,clientId:resourceA.clientId,clientSecret:resourceA.clientSecret,
     granteeAppId:resourceB.app.appId,granteeClientId:resourceB.clientId,granteeClientSecret:resourceB.clientSecret,fetcher:fetch});
@@ -300,9 +300,9 @@ test('documented backend HTTP example authenticates, stores, shares and executes
   assert.equal(result.sharedReadAllowed,true);
   try {
     const cli=await promisify(execFile)(process.execPath,['examples/foundation-http.mjs'],{
-      env:{...process.env,PUBLIC_URL:base,ROSETTA_APP_CLIENT_ID:resourceA.clientId,
-        ROSETTA_APP_CLIENT_SECRET:resourceA.clientSecret,ROSETTA_GRANTEE_APP_ID:resourceB.app.appId,
-        ROSETTA_GRANTEE_CLIENT_ID:resourceB.clientId,ROSETTA_GRANTEE_CLIENT_SECRET:resourceB.clientSecret},timeout:30000});
+      env:{...process.env,PUBLIC_URL:base,JUNCTURA_APP_CLIENT_ID:resourceA.clientId,
+        JUNCTURA_APP_CLIENT_SECRET:resourceA.clientSecret,JUNCTURA_GRANTEE_APP_ID:resourceB.app.appId,
+        JUNCTURA_GRANTEE_CLIENT_ID:resourceB.clientId,JUNCTURA_GRANTEE_CLIENT_SECRET:resourceB.clientSecret},timeout:30000});
     assert.match(cli.stdout,/HTTP example succeeded/);
     assert.equal((await api(`/v2/data/http_example/${result.recordId}`,resourceB)).status,200);
     assert.equal((await api(`/v2/data/http_example/${result.recordId}`,resourceB,{data:{}},{},'PATCH')).status,404);
@@ -329,26 +329,26 @@ test('same-tenant and foreign apps cannot bypass ownership through headers, v1, 
   assert.equal((await api(recordPath().replace('/v2/','/v1/'),serviceToken)).status,404);
   assert.equal((await api(objectPath().replace('/v2/','/v1/'),serviceToken)).status,404);
   const claim={tenant_id:'tenant-a',iss:issuer,sub:resourceB.subject,client_id:resourceB.clientId,resource_writer:true,app_id:resourceA.app.appId};
-  const set=`SET ROLE rosetta_resource_api; SELECT set_config('request.jwt.claims',${q(JSON.stringify(claim))},false);`;
+  const set=`SET ROLE junctura_resource_api; SELECT set_config('request.jwt.claims',${q(JSON.stringify(claim))},false);`;
   const hidden=await sql(`${set} SELECT count(*) FROM core.app_records WHERE id=${q(privateRecord.id)};`);
   assert.equal(hidden.stdout.trim().split(/\r?\n/).at(-1),'0');
   await assert.rejects(sql(`${set} UPDATE core.app_records SET owner_app_id=${q(resourceB.app.appId)} WHERE id=${q(privateRecord.id)};`));
   await assert.rejects(sql(`${set} INSERT INTO core.app_records(id,collection,data,owner_app_id) VALUES('${randomUUID()}','private_fixture','{}',${q(resourceA.app.appId)});`));
-  const acl=await sql("SELECT has_table_privilege('rosetta_api','core.app_records','SELECT'),has_table_privilege('rosetta_app_api','core.app_records','SELECT'),has_function_privilege('rosetta_api','core.resource_command(text,jsonb)','EXECUTE'),has_schema_privilege('rosetta_resource_api','app_private','USAGE');");
+  const acl=await sql("SELECT has_table_privilege('junctura_api','core.app_records','SELECT'),has_table_privilege('junctura_app_api','core.app_records','SELECT'),has_function_privilege('junctura_api','core.resource_command(text,jsonb)','EXECUTE'),has_schema_privilege('junctura_resource_api','app_private','USAGE');");
   assert.equal(acl.stdout.trim(),'f|f|f|f');
   const identity={tenantId:'tenant-a',issuer,subject:resourceB.subject,clientId:resourceB.clientId,roles:['core-reader','core-writer'],appId:resourceA.app.appId};
   await coreProbe(`import assert from 'node:assert/strict';import {applicationToken} from '/app/src/modules/applications/applications.mjs';
     const identity=${JSON.stringify(identity)};
-    const jwt=applicationToken(identity,process.env.DATA_JWT_SECRET,'rosetta_resource_api');
+    const jwt=applicationToken(identity,process.env.DATA_JWT_SECRET,'junctura_resource_api');
     let r=await fetch(process.env.DATA_URL+'/app_records?id=eq.${privateRecord.id}',{headers:{Authorization:'Bearer '+jwt}});
     assert.equal(r.status,200);assert.deepEqual(await r.json(),[]);
     r=await fetch(process.env.DATA_URL+'/rpc/resource_command',{method:'POST',headers:{Authorization:'Bearer '+jwt,'Content-Type':'application/json'},body:JSON.stringify({operation:'object_get',payload:{id:'${privateObject.id}'}})});
     assert.equal((await r.json()).status,404);
     identity.subject=${JSON.stringify(owner.id)};
-    const human=applicationToken({...identity,clientId:${JSON.stringify(resourceA.clientId)}},process.env.DATA_JWT_SECRET,'rosetta_resource_api');
+    const human=applicationToken({...identity,clientId:${JSON.stringify(resourceA.clientId)}},process.env.DATA_JWT_SECRET,'junctura_resource_api');
     r=await fetch(process.env.DATA_URL+'/rpc/resource_command',{method:'POST',headers:{Authorization:'Bearer '+human,'Content-Type':'application/json'},body:JSON.stringify({operation:'context',payload:{}})});
     assert.equal((await r.json()).status,403);
-    const readonly=applicationToken({tenantId:'tenant-a',issuer:${JSON.stringify(issuer)},subject:${JSON.stringify(resourceA.subject)},clientId:${JSON.stringify(resourceA.clientId)},roles:['core-reader']},process.env.DATA_JWT_SECRET,'rosetta_resource_api');
+    const readonly=applicationToken({tenantId:'tenant-a',issuer:${JSON.stringify(issuer)},subject:${JSON.stringify(resourceA.subject)},clientId:${JSON.stringify(resourceA.clientId)},roles:['core-reader']},process.env.DATA_JWT_SECRET,'junctura_resource_api');
     r=await fetch(process.env.DATA_URL+'/rpc/resource_command',{method:'POST',headers:{Authorization:'Bearer '+readonly,'Content-Type':'application/json'},body:JSON.stringify({operation:'object_prepare',payload:{id:'${randomUUID()}'}})});
     assert.equal((await r.json()).status,403);
     r=await fetch(process.env.DATA_URL+'/app_records',{method:'POST',headers:{Authorization:'Bearer '+readonly,'Content-Type':'application/json'},body:JSON.stringify({id:'${randomUUID()}',collection:'private_fixture',data:{}})});

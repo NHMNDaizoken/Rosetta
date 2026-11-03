@@ -6,8 +6,8 @@ import { signInternalToken } from "../../platform/security/internal-token.mjs";
 import { resourceRequest } from "../resources/resources.mjs";
 
 export function dataToken(tenantId, secret) {
-  return signInternalToken(secret, { role: "rosetta_api", tenant_id: tenantId,
-    aud: "rosetta-data", exp: Math.floor(Date.now() / 1000) + 30 });
+  return signInternalToken(secret, { role: "junctura_api", tenant_id: tenantId,
+    aud: "junctura-data", exp: Math.floor(Date.now() / 1000) + 30 });
 }
 
 export async function dataRequest(config, tenantId, query, options = {}, resource = "records") {

@@ -17,7 +17,7 @@ const manifestNegatives = negatives.filter(item => item.schema === "manifest");
 
 test("manifest fixture validates and matches its documented JCS digest", () => {
   assert.deepEqual(validateManifest(fixture), []);
-  assert.equal(manifestDigest(fixture), "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd");
+  assert.equal(manifestDigest(fixture), "sha256:fd2b4612971c8d4c2e4ab4eb2c49dcd3017260f16f0bd9e2a74b5746ba983bc3");
 });
 
 test("every manifest negative fixture is rejected", () => {
@@ -40,7 +40,7 @@ test("strict parsing rejects duplicate keys and invalid Unicode", () => {
 
 test("path expectations bind the manifest to its route", () => {
   const issues = validateManifest(fixture, {
-    capabilityId: "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:other",
+    capabilityId: "urn:junctura:capability:11111111-1111-4111-8111-111111111111:other",
     providerAppId: "11111111-1111-4111-8111-111111111111",
   });
   assert.ok(issues.some(issue => issue.code === "path_mismatch"));

@@ -42,7 +42,7 @@ export const OPENAPI_TAGS = [
 
 const DEFAULT_BASE_URL = "http://127.0.0.1:8080";
 const UUID = "c3d4e5f6-7a8b-4c9d-0e1f-2a3b4c5d6e7f";
-const EXECUTION_ID = "rosetta_checkpoint:1:example";
+const EXECUTION_ID = "junctura_checkpoint:1:example";
 const BEARER_TOKEN = "<paste-bearer-token>";
 const ETAG = "<etag-from-last-response>";
 const DIGEST = `sha256:${"0".repeat(64)}`;
@@ -92,7 +92,7 @@ function requestExample(endpoint: ApiEndpointDef): RequestExample {
         contentType,
         form: {
           grant_type: "authorization_code",
-          client_id: "rosetta-local",
+          client_id: "junctura-local",
           code: "<authorization-code>",
           redirect_uri: "http://127.0.0.1:9876/callback",
           code_verifier: "<pkce-code-verifier>",
@@ -103,7 +103,7 @@ function requestExample(endpoint: ApiEndpointDef): RequestExample {
       return {
         contentType,
         form: {
-          client_id: "rosetta-local",
+          client_id: "junctura-local",
           refresh_token: "<refresh-token>",
         },
       };
@@ -176,7 +176,7 @@ function requestExample(endpoint: ApiEndpointDef): RequestExample {
   if (endpoint.operationId === "authorizeOidc") {
     return {
       query: {
-        client_id: "rosetta-local",
+        client_id: "junctura-local",
         response_type: "code",
         redirect_uri: "http://127.0.0.1:9876/callback",
         scope: "openid",
@@ -188,7 +188,7 @@ function requestExample(endpoint: ApiEndpointDef): RequestExample {
   }
 
   if (endpoint.operationId === "browserLogoutOidc") {
-    return { query: { client_id: "rosetta-local", state: "example-state" } };
+    return { query: { client_id: "junctura-local", state: "example-state" } };
   }
 
   return {};

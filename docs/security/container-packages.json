@@ -3,12 +3,12 @@
   "packages": [
     {
       "image": "Core Node base",
-      "name": "rosetta-core",
+      "name": "junctura-core",
       "version": "local",
       "licenseDeclared": "NOASSERTION",
       "licenseConcluded": "NOASSERTION",
       "source": "NOASSERTION",
-      "purl": "pkg:oci/rosetta-core@sha256:24c1e74be36fb30eeb92982e6eeaf9e2ad1de3295b24f9eb33d03a1228b0b797?repository_url=docker.io&tag=local"
+      "purl": "pkg:oci/junctura-core@sha256:24c1e74be36fb30eeb92982e6eeaf9e2ad1de3295b24f9eb33d03a1228b0b797?repository_url=docker.io&tag=local"
     },
     {
       "image": "Core Node base",
@@ -2496,12 +2496,12 @@
     },
     {
       "image": "Gateway / Console Nginx base",
-      "name": "rosetta-console",
+      "name": "junctura-console",
       "version": "local",
       "licenseDeclared": "NOASSERTION",
       "licenseConcluded": "NOASSERTION",
       "source": "NOASSERTION",
-      "purl": "pkg:oci/rosetta-console@sha256:b4a887c93f0c839a5b854cbe8fcbe51009bcbf9cca75ce59a723d932bcc5e0df?repository_url=docker.io&tag=local"
+      "purl": "pkg:oci/junctura-console@sha256:b4a887c93f0c839a5b854cbe8fcbe51009bcbf9cca75ce59a723d932bcc5e0df?repository_url=docker.io&tag=local"
     },
     {
       "image": "Gateway / Console Nginx base",

@@ -6,8 +6,8 @@ export type ExecutionTarget = { kind: 'capability'; capability: CapabilityRefere
   | { kind: 'composition'; compositionId: string; version: string; compositionDigest: string };
 export type Execution = { executionId: string; state: 'accepted' | 'running' | 'auth_required' | 'succeeded' | 'failed' | 'timed_out' | 'outcome_unknown' | 'cancelled'; output?: Json; [key: string]: unknown };
 export type RequestOptions = { method?: string; json?: Json; body?: BodyInit; contentType?: string; ifMatch?: string; idempotencyKey?: string; signal?: AbortSignal };
-export class RosettaError extends Error { status: number; code: string; requestId?: string; }
-export function createRosettaClient(options: { baseUrl: string; clientId: string; clientSecret: string; timeoutMs?: number; fetcher?: typeof fetch }): Readonly<{
+export class JuncturaError extends Error { status: number; code: string; requestId?: string; }
+export function createJuncturaClient(options: { baseUrl: string; clientId: string; clientSecret: string; timeoutMs?: number; fetcher?: typeof fetch }): Readonly<{
   request(path: string, options?: RequestOptions): Promise<Response>;
   identity(): Promise<{ subject: string; tenantId: string; roles: string[]; [key: string]: unknown }>;
   createRecord(collection: string, data: Json): Promise<{ id: string; data: Json; [key: string]: unknown }>;
@@ -21,5 +21,3 @@ export function createRosettaClient(options: { baseUrl: string; clientId: string
   execution(id: string): Promise<Execution>;
   waitForExecution(id: string, options?: { timeoutMs?: number; intervalMs?: number; signal?: AbortSignal }): Promise<Execution>;
 }>;
-
-export { createRosettaClient as createJuncturaClient, RosettaError as JuncturaError };

@@ -9,7 +9,7 @@ import { canonicalize, validatePayloadSchema } from "../registry/manifest.mjs";
 const VERSION = /^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$/;
 const DIGEST = /^sha256:[0-9a-f]{64}$/;
 const STEP_ID = /^[a-z][a-z0-9-]{0,31}$/;
-const CAPABILITY = /^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$/;
+const CAPABILITY = /^urn:junctura:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$/;
 
 export const COMPOSITION_LIMITS = Object.freeze({ maxSteps: 16, minDeadlineMs: 100, maxDeadlineMs: 60000, maxNameLength: 120 });
 

@@ -1,15 +1,15 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 BEGIN;
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='rosetta_trust_api') THEN
-    CREATE ROLE rosetta_trust_api NOLOGIN NOBYPASSRLS;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='junctura_trust_api') THEN
+    CREATE ROLE junctura_trust_api NOLOGIN NOBYPASSRLS;
   END IF;
 END $$;
-GRANT rosetta_trust_api TO rosetta_data;
-GRANT USAGE ON SCHEMA core TO rosetta_trust_api;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
-SET LOCAL ROLE rosetta_app_owner;
+GRANT junctura_trust_api TO junctura_data;
+GRANT USAGE ON SCHEMA core TO junctura_trust_api;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 ALTER TABLE trust_private.grants ADD COLUMN IF NOT EXISTS activation_approval_id uuid;
 DO $$ BEGIN
   IF NOT EXISTS (SELECT FROM pg_constraint WHERE conrelid='trust_private.grants'::regclass AND conname='grant_activation_approval_fk') THEN
@@ -191,10 +191,10 @@ BEGIN
 EXCEPTION WHEN invalid_datetime_format OR datetime_field_overflow THEN RETURN jsonb_build_object('status',400,'error','invalid_expiry');
 END $$;
 REVOKE ALL ON FUNCTION core.trust_command(text,jsonb) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION core.trust_command(text,jsonb) TO rosetta_trust_api;
+GRANT EXECUTE ON FUNCTION core.trust_command(text,jsonb) TO junctura_trust_api;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA trust_private FROM PUBLIC;
 RESET ROLE;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 INSERT INTO core.schema_migrations(version) VALUES(8) ON CONFLICT DO NOTHING;
 NOTIFY pgrst,'reload schema';
 COMMIT;

@@ -14,7 +14,7 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
-    const saved = localStorage.getItem("rosetta_theme");
+    const saved = localStorage.getItem("junctura_theme");
     return (saved === "light" || saved === "dark" || saved === "system") ? saved : "light";
   });
 
@@ -36,7 +36,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       root.classList.remove("dark");
     }
-    localStorage.setItem("rosetta_theme", theme);
+    localStorage.setItem("junctura_theme", theme);
   }, [theme]);
 
   const setTheme = (newTheme: Theme) => {

@@ -33,7 +33,7 @@ export function parseArgs(argv) {
   if (!/^[a-z][a-z0-9-]{1,39}$/.test(options.name ?? "")) throw new Error("App name must be 2-40 lowercase letters, digits or '-', starting with a letter");
   if (!/^[a-z][a-z0-9-]{0,62}$/.test(options.tenant ?? "")) throw new Error("Invalid --tenant");
   options.clientId = `app-${options.name}`;
-  options.origin ??= `https://${options.clientId}.rosetta.local`;
+  options.origin ??= `https://${options.clientId}.junctura.local`;
   const origin = new URL(options.origin);
   if (origin.protocol !== "https:" || origin.origin !== options.origin || !origin.hostname.includes(".") ||
     isIP(origin.hostname.replace(/^\[|\]$/g, ""))) throw new Error("--origin must be an exact https origin such as https://daotao.example.org");
@@ -44,11 +44,11 @@ export function parseArgs(argv) {
 export function renderEnv({ baseUrl, tenant, appId, clientId, clientSecret }) {
   return [
     "# Junctura application credentials - private, never commit or embed in a browser.",
-    `ROSETTA_URL=${baseUrl}`,
-    `ROSETTA_TENANT=${tenant}`,
-    `ROSETTA_APP_ID=${appId}`,
-    `ROSETTA_APP_CLIENT_ID=${clientId}`,
-    `ROSETTA_APP_CLIENT_SECRET=${clientSecret}`,
+    `JUNCTURA_URL=${baseUrl}`,
+    `JUNCTURA_TENANT=${tenant}`,
+    `JUNCTURA_APP_ID=${appId}`,
+    `JUNCTURA_APP_CLIENT_ID=${clientId}`,
+    `JUNCTURA_APP_CLIENT_SECRET=${clientSecret}`,
     "",
   ].join("\n");
 }
@@ -65,21 +65,21 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.help) { console.log(usage); return; }
   const base = process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
-  const issuer = `${base}/identity/realms/rosetta`;
+  const issuer = `${base}/identity/realms/junctura`;
   const output = resolve(`.env.app.${options.name}.local`);
   if (!process.env.KEYCLOAK_ADMIN_PASSWORD) throw new Error("KEYCLOAK_ADMIN_PASSWORD missing: run from the repository root after npm run setup");
   if (existsSync(output)) throw new Error(`${output} already exists; this app is probably enrolled already`);
 
   const run = promisify(execFile);
-  const sql = text => run("docker", ["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1", "-Atc", text], { timeout: 60000 });
+  const sql = text => run("docker", ["compose", "exec", "-T", "database", "psql", "-U", "junctura_admin", "-d", "junctura_data", "-v", "ON_ERROR_STOP=1", "-Atc", text], { timeout: 60000 });
   const step = message => console.log(`• ${message}`);
 
   step("Operator sign-in to Keycloak");
   const issued = await fetch(`${base}/identity/realms/master/protocol/openid-connect/token`, { method: "POST",
-    body: new URLSearchParams({ grant_type: "password", client_id: "admin-cli", username: "rosetta-admin", password: process.env.KEYCLOAK_ADMIN_PASSWORD }) });
+    body: new URLSearchParams({ grant_type: "password", client_id: "admin-cli", username: "junctura-admin", password: process.env.KEYCLOAK_ADMIN_PASSWORD }) });
   if (issued.status !== 200) throw new Error(`Keycloak operator login failed (${issued.status}); is the stack running?`);
   const adminToken = (await issued.json()).access_token;
-  const admin = async (path, body, method = body === undefined ? "GET" : "POST") => fetch(`${base}/identity/admin/realms/rosetta/${path}`,
+  const admin = async (path, body, method = body === undefined ? "GET" : "POST") => fetch(`${base}/identity/admin/realms/junctura/${path}`,
     { method, headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
   const must = async (response, expected, what) => {
     if (!expected.includes(response.status)) throw new Error(`${what} failed (${response.status}): ${(await response.text()).slice(0, 300)}`);
@@ -102,7 +102,7 @@ async function main() {
   if ((await (await admin(`clients?clientId=${options.clientId}`)).json()).length) throw new Error(`Keycloak client ${options.clientId} already exists`);
 
   step(`Demo management client for ${options.tenant}`);
-  const managementClient = `rosetta-demo-management-${options.tenant}`;
+  const managementClient = `junctura-demo-management-${options.tenant}`;
   if (!(await (await admin(`clients?clientId=${managementClient}`)).json()).length) {
     await must(await admin("clients", { clientId: managementClient, enabled: true, protocol: "openid-connect", publicClient: true,
       standardFlowEnabled: true, directAccessGrantsEnabled: false, redirectUris: [CALLBACK],
@@ -129,7 +129,7 @@ async function main() {
 
   // Separate owner and approver humans keep the reviewed separation of duties.
   const human = async (label, permissions) => {
-    const username = `rosetta-demo-${label}-${options.tenant}`;
+    const username = `junctura-demo-${label}-${options.tenant}`;
     const password = randomBytes(24).toString("hex");
     let id = (await (await admin(`users?username=${username}&exact=true`)).json())[0]?.id;
     if (!id) {

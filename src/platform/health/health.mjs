@@ -18,7 +18,7 @@ export function createHealthServer(route) {
         return;
       }
       let status = 200;
-      let payload = { service: "rosetta-core", status: "ok" };
+      let payload = { service: "junctura-core", status: "ok" };
 
       if (request.url?.split("?", 1)[0] !== "/health") {
         status = 404;

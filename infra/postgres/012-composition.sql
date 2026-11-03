@@ -1,4 +1,4 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- C4B bounded composition registry and execution authority. Additive only:
 -- migrations 001..011 and their installed objects are not modified.
@@ -11,17 +11,17 @@ ALTER TABLE app_private.principals ADD CONSTRAINT principals_permissions_check
     'compositions.write','compositions.publish','compositions.approve']::text[]);
 
 DO $roles$ BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='rosetta_composition_api') THEN
-    CREATE ROLE rosetta_composition_api NOLOGIN NOBYPASSRLS;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='junctura_composition_api') THEN
+    CREATE ROLE junctura_composition_api NOLOGIN NOBYPASSRLS;
   END IF;
 END $roles$;
-GRANT rosetta_composition_api TO rosetta_data;
-GRANT USAGE ON SCHEMA core TO rosetta_composition_api;
+GRANT junctura_composition_api TO junctura_data;
+GRANT USAGE ON SCHEMA core TO junctura_composition_api;
 
-CREATE SCHEMA composition_private AUTHORIZATION rosetta_app_owner;
+CREATE SCHEMA composition_private AUTHORIZATION junctura_app_owner;
 REVOKE ALL ON SCHEMA composition_private FROM PUBLIC;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
-SET LOCAL ROLE rosetta_app_owner;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 
 CREATE TABLE composition_private.compositions (
   tenant_id text NOT NULL CHECK (tenant_id ~ '^[a-z][a-z0-9-]{0,62}$'),
@@ -90,7 +90,7 @@ DO $rls$ DECLARE t text; BEGIN
   FOREACH t IN ARRAY ARRAY['compositions','composition_versions','composition_publication_approvals'] LOOP
     EXECUTE format('ALTER TABLE composition_private.%I ENABLE ROW LEVEL SECURITY',t);
     EXECUTE format('ALTER TABLE composition_private.%I FORCE ROW LEVEL SECURITY',t);
-    EXECUTE format('CREATE POLICY tenant_isolation ON composition_private.%I TO rosetta_app_owner
+    EXECUTE format('CREATE POLICY tenant_isolation ON composition_private.%I TO junctura_app_owner
       USING (tenant_id=current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id'')
       WITH CHECK (tenant_id=current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id'')',t);
   END LOOP;
@@ -406,7 +406,7 @@ DO $rls2$ DECLARE t text; BEGIN
   FOREACH t IN ARRAY ARRAY['executions','execution_steps'] LOOP
     EXECUTE format('ALTER TABLE composition_private.%I ENABLE ROW LEVEL SECURITY',t);
     EXECUTE format('ALTER TABLE composition_private.%I FORCE ROW LEVEL SECURITY',t);
-    EXECUTE format('CREATE POLICY tenant_isolation ON composition_private.%I TO rosetta_app_owner
+    EXECUTE format('CREATE POLICY tenant_isolation ON composition_private.%I TO junctura_app_owner
       USING (tenant_id=current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id'')
       WITH CHECK (tenant_id=current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id'')',t);
   END LOOP;
@@ -490,7 +490,7 @@ BEGIN
     RETURN jsonb_build_object('status',422,'error','invalid_composition');
   END IF;
   FOR step IN SELECT value FROM jsonb_array_elements(composition->'steps') LOOP
-    IF coalesce(step->'capability'->>'capabilityId','') !~ '^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'
+    IF coalesce(step->'capability'->>'capabilityId','') !~ '^urn:junctura:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'
       OR coalesce(step->'capability'->>'version','') !~ '^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$'
       OR coalesce(step->'capability'->>'manifestDigest','') !~ '^sha256:[0-9a-f]{64}$' THEN
       RETURN jsonb_build_object('status',422,'error','invalid_capability_reference');
@@ -657,7 +657,7 @@ BEGIN
       'expiresAt',to_char(st.ticket_expires_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
       'context',jsonb_build_object('tenantId',e.tenant_id,'issuer',e.issuer,'subject',e.initiating_subject,
         'principalType','service','initiatingSubject',e.initiating_subject,'initiatingAppId',e.consumer_app_id,
-        'executorSubject','rosetta-core:c4b','stepId',st.step_id,'grantIds',jsonb_build_array(st.grant_id),
+        'executorSubject','junctura-core:c4b','stepId',st.step_id,'grantIds',jsonb_build_array(st.grant_id),
         'approvalIds','[]'::jsonb,'permissions',(SELECT manifest->'requiredPermissions' FROM app_private.capability_versions
           WHERE tenant_id=e.tenant_id AND capability_id=st.capability_id AND version=st.version AND digest=st.manifest_digest),
         'actorAppId',e.consumer_app_id,'providerAppId',st.provider_app_id,'executionId',e.execution_id,
@@ -797,11 +797,11 @@ END $$;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA composition_private FROM PUBLIC;
 REVOKE ALL ON FUNCTION core.composition_command(text,jsonb) FROM PUBLIC;
 REVOKE ALL ON FUNCTION core.composition_execution_command(text,jsonb) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION core.composition_command(text,jsonb) TO rosetta_composition_api;
-GRANT EXECUTE ON FUNCTION core.composition_execution_command(text,jsonb) TO rosetta_composition_api;
+GRANT EXECUTE ON FUNCTION core.composition_command(text,jsonb) TO junctura_composition_api;
+GRANT EXECUTE ON FUNCTION core.composition_execution_command(text,jsonb) TO junctura_composition_api;
 
 RESET ROLE;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 INSERT INTO core.schema_migrations(version) VALUES(12);
 NOTIFY pgrst,'reload schema';
 COMMIT;

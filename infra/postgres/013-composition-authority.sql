@@ -1,9 +1,9 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- Correct C4B authority and preserve immutable migration 012 and existing evidence.
 BEGIN;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
-SET LOCAL ROLE rosetta_app_owner;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 ALTER TABLE composition_private.execution_steps
   ADD COLUMN input_digest text CHECK (input_digest ~ '^sha256:[0-9a-f]{64}$'),
   ADD COLUMN output_digest text CHECK (output_digest ~ '^sha256:[0-9a-f]{64}$'),
@@ -331,7 +331,7 @@ BEGIN
       'expiresAt',to_char(st.ticket_expires_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
       'context',jsonb_build_object('tenantId',e.tenant_id,'issuer',e.issuer,'subject',e.initiating_subject,
         'principalType','service','initiatingSubject',e.initiating_subject,'initiatingAppId',e.consumer_app_id,
-        'executorSubject','rosetta-core:c4b','stepId',st.step_id,'grantIds',jsonb_build_array(st.grant_id),
+        'executorSubject','junctura-core:c4b','stepId',st.step_id,'grantIds',jsonb_build_array(st.grant_id),
         'approvalIds','[]'::jsonb,'permissions',(SELECT manifest->'requiredPermissions' FROM app_private.capability_versions
           WHERE tenant_id=e.tenant_id AND capability_id=st.capability_id AND version=st.version AND digest=st.manifest_digest),
         'actorAppId',e.consumer_app_id,'providerAppId',st.provider_app_id,'executionId',e.execution_id,
@@ -494,7 +494,7 @@ EXCEPTION WHEN invalid_text_representation OR invalid_datetime_format OR datetim
   RETURN jsonb_build_object('status',400,'error','invalid_execution_request');
 END $$;
 RESET ROLE;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 INSERT INTO core.schema_migrations(version) VALUES(13);
 NOTIFY pgrst,'reload schema';
 COMMIT;

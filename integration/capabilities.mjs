@@ -11,14 +11,14 @@ import { createAuthorityFixture } from "./fixtures/authority.mjs";
 import { createRuntimeFixture } from "./capability-runtime-fixture.mjs";
 
 const base = process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
-const issuer = `${base}/identity/realms/rosetta`;
+const issuer = `${base}/identity/realms/junctura`;
 const prefix = `cap-test-${randomBytes(6).toString("hex")}`;
 const fixture = JSON.parse(readFileSync(new URL("../docs/contracts/examples/capability-manifest.json", import.meta.url)));
 const clientIds = [];
 const users = [];
 const trustCases = [];
 const run = (...args) => promisify(execFile)("docker", args, { timeout: 180000 });
-const sql = text => run("compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1", "-Atc", text);
+const sql = text => run("compose", "exec", "-T", "database", "psql", "-U", "junctura_admin", "-d", "junctura_data", "-v", "ON_ERROR_STOP=1", "-Atc", text);
 const q = value => `'${String(value).replaceAll("'", "''")}'`;
 let adminToken, owner, approver, publisher, stranger, foreign, foreignApprover, consumer, foreignConsumer, app, appEtag, capabilityId;
 const visibility = {};
@@ -46,7 +46,7 @@ function manifest(version = "1.0.0", title = "Technical echo") {
     providerAppId: app.appId,
     version,
     title,
-    requiredPermissions: [`urn:rosetta:permission:${app.appId}:invoke`],
+    requiredPermissions: [`urn:junctura:permission:${app.appId}:invoke`],
   };
 }
 async function register(version = "1.0.0", title = "Technical echo") {
@@ -160,7 +160,7 @@ before(async () => {
   assert.equal(decision.status, 201); const approvalId = (await decision.json()).approvalId;
   const activated = await api(`/v1/applications/${pending.appId}/approve`, approver, { approvalId }, { "If-Match": appEtag });
   assert.equal(activated.status, 200); app = await activated.json(); appEtag = activated.headers.get("etag");
-  capabilityId = `urn:rosetta:capability:${app.appId}:echo`;
+  capabilityId = `urn:junctura:capability:${app.appId}:echo`;
   consumer = await backend("consumer");
   foreignConsumer = await backend("foreign-consumer", foreign, foreignApprover, "tenant-b");
 });
@@ -274,7 +274,7 @@ test("stale approval after draft change, foreign tenant and non-owner isolation"
 });
 
 test("private registry roles cannot read tables or invoke other command functions", async () => {
-  const acl = await sql("SELECT has_schema_privilege('rosetta_capability_api','app_private','USAGE'),has_table_privilege('rosetta_capability_api','app_private.capability_versions','SELECT'),has_function_privilege('rosetta_capability_api','core.capability_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_capability_api','core.application_command(text,jsonb)','EXECUTE');");
+  const acl = await sql("SELECT has_schema_privilege('junctura_capability_api','app_private','USAGE'),has_table_privilege('junctura_capability_api','app_private.capability_versions','SELECT'),has_function_privilege('junctura_capability_api','core.capability_command(text,jsonb)','EXECUTE'),has_function_privilege('junctura_capability_api','core.application_command(text,jsonb)','EXECUTE');");
   assert.equal(acl.stdout.trim(), "f|f|t|f");
 });
 
@@ -294,7 +294,7 @@ test("approval resource syntax is rejected before lookup and foreign versions st
   });
   assert.equal(hidden.status, 404, "authorized foreign approver cannot detect version existence");
   const claims = JSON.stringify({ tenant_id: "tenant-a", iss: issuer, sub: approver.id, client_id: `${prefix}-management-tenant-a` });
-  const invalid = await sql(`SET ROLE rosetta_capability_api; SELECT set_config('request.jwt.claims',${q(claims)},false);
+  const invalid = await sql(`SET ROLE junctura_capability_api; SELECT set_config('request.jwt.claims',${q(claims)},false);
     SELECT core.capability_command('approval_create','{"decision":{"resourceId":"malformed@latest"}}'::jsonb)->>'status';`);
   assert.equal(invalid.stdout.trim().split(/\r?\n/).at(-1), "400", "private RPC rejects malformed IDs too");
 });
@@ -302,11 +302,11 @@ test("approval resource syntax is rejected before lookup and foreign versions st
 test("private Trust persistence is owner-controlled and tenant RLS is forced", async () => {
   const acl = await sql(`SELECT n.nspowner::regrole, bool_and(c.relrowsecurity AND c.relforcerowsecurity)
     FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='trust_private' AND c.relkind='r' GROUP BY n.nspowner;
-    SELECT has_schema_privilege('rosetta_api','trust_private','USAGE'),
-      has_table_privilege('rosetta_app_api','trust_private.grants','INSERT'),
-      has_table_privilege('rosetta_capability_api','trust_private.approvals','UPDATE'),
-      has_function_privilege('rosetta_capability_api','app_private.capability_command_c1(text,jsonb)','EXECUTE');`);
-  assert.equal(acl.stdout.trim(), "rosetta_app_owner|t\nf|f|f|f");
+    SELECT has_schema_privilege('junctura_api','trust_private','USAGE'),
+      has_table_privilege('junctura_app_api','trust_private.grants','INSERT'),
+      has_table_privilege('junctura_capability_api','trust_private.approvals','UPDATE'),
+      has_function_privilege('junctura_capability_api','app_private.capability_command_c1(text,jsonb)','EXECUTE');`);
+  assert.equal(acl.stdout.trim(), "junctura_app_owner|t\nf|f|f|f");
 });
 
 test("direct proposals require provider ownership, explicit permission and verified exact subjects", async () => {
@@ -324,7 +324,7 @@ test("direct proposals require provider ownership, explicit permission and verif
   }
   assert.equal((await api("/v1/trust/grants", owner, { ...body, consumerAppId: foreignConsumer.app.appId, subjectIds: [foreignConsumer.subject] })).status, 404);
   assert.equal((await api("/v1/trust/grants", owner, { ...body, capabilities: [{ ...body.capabilities[0], manifestDigest: `sha256:${"0".repeat(64)}` }] })).status, 409);
-  assert.equal((await api("/v1/trust/grants", owner, { ...body, permissions: [`urn:rosetta:permission:${app.appId}:undeclared`] })).status, 400);
+  assert.equal((await api("/v1/trust/grants", owner, { ...body, permissions: [`urn:junctura:permission:${app.appId}:undeclared`] })).status, 400);
   const parts = owner.token.split("."); const claims = JSON.parse(Buffer.from(parts[1], "base64url")); claims.tenant_id = "tenant-b";
   const forged = `${parts[0]}.${Buffer.from(JSON.stringify(claims)).toString("base64url")}.${parts[2]}`;
   assert.equal((await api("/v1/trust/grants", forged, body)).status, 401, "forged signed-token claims denied by the real issuer");
@@ -421,7 +421,7 @@ test("pending migrations and real restart preserve Trust authority, ACLs and ter
   const revoked = await api(`/v1/trust/grants/${g.grantId}/revoke`, owner, { reason: "technical persistent revocation" }, { "If-Match": active.headers.get("etag") });
   assert.equal(revoked.status, 200); g.etag = revoked.headers.get("etag");
   await run("compose", "run", "--rm", "data-migrate");
-  const acl = await sql("SELECT has_function_privilege('rosetta_trust_api','core.trust_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_api','core.trust_command(text,jsonb)','EXECUTE'),has_schema_privilege('rosetta_trust_api','trust_private','USAGE'),has_table_privilege('rosetta_trust_api','trust_private.grants','INSERT');");
+  const acl = await sql("SELECT has_function_privilege('junctura_trust_api','core.trust_command(text,jsonb)','EXECUTE'),has_function_privilege('junctura_api','core.trust_command(text,jsonb)','EXECUTE'),has_schema_privilege('junctura_trust_api','trust_private','USAGE'),has_table_privilege('junctura_trust_api','trust_private.grants','INSERT');");
   assert.equal(acl.stdout.trim(), "t|f|f|f");
   await run("compose", "restart", "database");
   await run("compose", "up", "--detach", "--no-deps", "--force-recreate", "--wait", "data", "core");
@@ -459,7 +459,7 @@ test("discover and invoke rights stay separate with exact versions, permissions 
       assert.deepEqual(Object.keys(result).sort(), ["allowed", "reason"], "decision is not a transferable authorization artifact");
     }
   }
-  const missingPermission = await published("3.0.3", [`urn:rosetta:permission:${app.appId}:invoke`, `urn:rosetta:permission:${app.appId}:extra`]);
+  const missingPermission = await published("3.0.3", [`urn:junctura:permission:${app.appId}:invoke`, `urn:junctura:permission:${app.appId}:extra`]);
   for (const permission of missingPermission.manifest.requiredPermissions) await activeGrant(missingPermission, ["discover", "invoke"], { permissions: [permission] });
   assert.equal((await eligible(missingPermission)).allowed, false, "partial grants cannot be unioned");
   assert.equal((await api(versionPath(missingPermission), consumer)).status, 404);
@@ -553,7 +553,7 @@ test("internal eligibility fails closed during authority outage and rechecks aft
   do { decision = await eligible(v); if (decision.allowed) break; await new Promise(resolve => setTimeout(resolve, 500)); } while (Date.now() < deadline);
   assert.equal(decision.allowed, true); assert.equal((await eligible(visibility.invoke.v)).allowed, true);
   assert.equal((await eligible(visibility.expired.v)).allowed, false); assert.equal((await eligible(visibility.discover.v, "discover")).allowed, false);
-  const acl = await sql("SELECT has_function_privilege('rosetta_trust_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('rosetta_capability_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('rosetta_api','core.trust_eligibility(jsonb)','EXECUTE');");
+  const acl = await sql("SELECT has_function_privilege('junctura_trust_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('junctura_capability_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('junctura_api','core.trust_eligibility(jsonb)','EXECUTE');");
   assert.equal(acl.stdout.trim(), "t|f|f");
 });
 
@@ -605,7 +605,7 @@ async function c4aProviderWait(predicate) {
   assert.fail("Technical provider did not reach the expected state");
 }
 async function c4aCreateGrant(reference = c4aReference, provider = c4aProvider, receiver = c4aConsumer) {
-  const response = await api("/v1/trust/grants", owner, { ...grantBody({ manifest: { requiredPermissions: [`urn:rosetta:permission:${provider.app.appId}:invoke`] } }, ["invoke"]),
+  const response = await api("/v1/trust/grants", owner, { ...grantBody({ manifest: { requiredPermissions: [`urn:junctura:permission:${provider.app.appId}:invoke`] } }, ["invoke"]),
     providerAppId: provider.app.appId, consumerAppId: receiver.app.appId, capabilities: [reference], subjectIds: [receiver.subject] });
   assert.equal(response.status, 201); const proposed = { ...await response.json(), etag: response.headers.get("etag") };
   const decision = await grantDecision(proposed, approver, { requesterAppId: provider.app.appId }); assert.equal(decision.status, 201);
@@ -613,9 +613,9 @@ async function c4aCreateGrant(reference = c4aReference, provider = c4aProvider, 
   return { ...await active.json(), etag: active.headers.get("etag") };
 }
 async function c4aPublish(provider, version = "1.0.0") {
-  const id = `urn:rosetta:capability:${provider.app.appId}:guarded-echo`;
+  const id = `urn:junctura:capability:${provider.app.appId}:guarded-echo`;
   const body = { ...structuredClone(fixture), capabilityId: id, providerAppId: provider.app.appId, version, timeoutMs: 10000,
-    requiredPermissions: [`urn:rosetta:permission:${provider.app.appId}:invoke`] };
+    requiredPermissions: [`urn:junctura:permission:${provider.app.appId}:invoke`] };
   const created = await api(`/v1/capabilities/${encodeURIComponent(id)}/versions`, owner, body); assert.equal(created.status, 201);
   const value = await created.json(), path = `/v1/capabilities/${encodeURIComponent(id)}/versions/${version}`, etag = created.headers.get("etag");
   assert.equal((await api(`${path}/validate`, owner, {}, { "If-Match": etag })).status, 200);

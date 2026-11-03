@@ -47,7 +47,7 @@ The Junctura Console adheres to a restrained, premium SaaS infrastructure design
 The unified application shell contains a persistent, collapsible sidebar, top navigation with breadcrumbs, tenant context badge, mode toggle, language switcher, and theme toggle:
 
 ```
-Rosetta Console
+Junctura Console
 ├── Overview
 │   └── Platform Overview (Screen A)
 ├── Backend Services
@@ -146,7 +146,7 @@ unchanged. The image is a multi-stage build from the repository root so that
 
 ```bash
 # Build the image directly (root build context is required)
-docker build --file console/Dockerfile --tag rosetta-console:local .
+docker build --file console/Dockerfile --tag junctura-console:local .
 
 # Start standard headless Core (Console does NOT run by default)
 docker compose up -d

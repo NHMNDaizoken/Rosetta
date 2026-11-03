@@ -86,7 +86,7 @@ function validate(value: any, inputSchema: any, at = "$"): void {
 
 function pathValue(name: string): string {
   if (name === "collection") return "widgets";
-  if (name === "executionId") return "rosetta_checkpoint:1:example";
+  if (name === "executionId") return "junctura_checkpoint:1:example";
   if (name === "id" || name.endsWith("Id")) return "c3d4e5f6-7a8b-4c9d-0e1f-2a3b4c5d6e7f";
   return "example";
 }
@@ -313,7 +313,7 @@ describe("Executable OpenAPI examples", () => {
       }
       if (endpoint.operationId === "authorizeOidc") {
         for (const key of [
-          "client_id=rosetta-local",
+          "client_id=junctura-local",
           "response_type=code",
           "redirect_uri=http%3A%2F%2F127.0.0.1%3A9876%2Fcallback",
           "code_challenge_method=S256",
@@ -323,8 +323,8 @@ describe("Executable OpenAPI examples", () => {
         }
       }
       if (endpoint.operationId === "browserLogoutOidc") {
-        expect(curl).toContain("client_id=rosetta-local");
-        expect(fetch).toContain("client_id=rosetta-local");
+        expect(curl).toContain("client_id=junctura-local");
+        expect(fetch).toContain("client_id=junctura-local");
       }
     }
   });

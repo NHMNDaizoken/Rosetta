@@ -6,7 +6,7 @@ import { compositionBpmn, COMPOSITION_PROCESS_KEY, COMPOSITION_TOPIC } from "../
 import { validateComposition } from "../src/modules/capability/composition/plan.mjs";
 
 const echo = (suffix) => ({
-  capabilityId: `urn:rosetta:capability:11111111-1111-4111-8111-11111111111${suffix}:echo`,
+  capabilityId: `urn:junctura:capability:11111111-1111-4111-8111-11111111111${suffix}:echo`,
   version: "1.0.0", manifestDigest: `sha256:${"a".repeat(64)}`,
 });
 const schema = { type: "object", properties: { value: { type: "string", maxLength: 512 } }, required: ["value"], additionalProperties: false };

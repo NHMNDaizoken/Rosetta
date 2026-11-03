@@ -6,7 +6,7 @@ try {
     signal: AbortSignal.timeout(2000),
   });
   const body = await response.json();
-  if (response.status !== 200 || body.service !== "rosetta-core" || body.status !== "ok") {
+  if (response.status !== 200 || body.service !== "junctura-core" || body.status !== "ok") {
     throw new Error("Unexpected health response");
   }
   if (process.argv.includes("--ready")) {

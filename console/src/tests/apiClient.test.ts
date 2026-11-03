@@ -22,27 +22,27 @@ describe("ApiClient session boundaries", () => {
   });
 
   it("does not restore or persist bearer tokens", () => {
-    localStorage.setItem("rosetta_token", "legacy-secret");
+    localStorage.setItem("junctura_token", "legacy-secret");
     const client = new ApiClient();
 
     expect(client.getToken()).toBeNull();
-    expect(localStorage.getItem("rosetta_token")).toBeNull();
+    expect(localStorage.getItem("junctura_token")).toBeNull();
 
     client.setToken("memory-secret");
     expect(client.getToken()).toBe("memory-secret");
-    expect(localStorage.getItem("rosetta_token")).toBeNull();
+    expect(localStorage.getItem("junctura_token")).toBeNull();
 
     client.setToken(null);
     expect(client.getToken()).toBeNull();
-    expect(localStorage.getItem("rosetta_token")).toBeNull();
+    expect(localStorage.getItem("junctura_token")).toBeNull();
   });
 
   it("rejects stored gateway origins that are neither same-origin nor loopback", () => {
-    localStorage.setItem("rosetta_gateway_url", "https://evil.example");
+    localStorage.setItem("junctura_gateway_url", "https://evil.example");
     const client = new ApiClient();
 
     expect(client.getBaseUrl()).toBe("/api");
-    expect(localStorage.getItem("rosetta_gateway_url")).toBeNull();
+    expect(localStorage.getItem("junctura_gateway_url")).toBeNull();
     expect(() => client.setBaseUrl("https://evil.example")).toThrow(
       "gateway_origin_not_approved"
     );

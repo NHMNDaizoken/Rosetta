@@ -46,7 +46,7 @@ unexpired grants. No positive authorization cache or provider dispatch is added.
 ## Storage and recovery
 
 Migration 007 creates `trust_private.grants` and `trust_private.approvals`, owned
-by nonlogin `rosetta_app_owner`, with forced tenant RLS, tenant-qualified foreign
+by nonlogin `junctura_app_owner`, with forced tenant RLS, tenant-qualified foreign
 keys and globally unique grant/approval IDs. Ordinary API roles have no schema
 access or direct table writes. Resource shares and generic records are unrelated.
 The migration extends authoritative principal permissions with `trust.write`;
@@ -57,7 +57,7 @@ references return 400; valid missing references remain concealed. The existing
 C1 command is private behind the unchanged RPC, including the bare-ID alias.
 
 Migration 008 adds the owner-controlled `core.trust_command` RPC and a dedicated
-nonlogin `rosetta_trust_api` with no private schema/table access. It uses the
+nonlogin `junctura_trust_api` with no private schema/table access. It uses the
 existing approval HTTP dispatcher and fixed approval semantics, with private
 grant approval records; it does not add an approval workflow/service. The deciding
 administrator activates and consumes its exact decision. Consumed approval
@@ -88,7 +88,7 @@ format remains compatible. Reusing a cursor never preserves a grant's authority.
 `evaluateCapabilityEligibility(request, config, reference)` in `src/modules/capability/trust/trust.mjs`
 accepts exactly `capabilityId`, `version`, `manifestDigest` and `operation`
 (`discover` or `invoke`). It performs fresh OIDC introspection itself, then calls
-the private `core.trust_eligibility(jsonb)` RPC. Only `rosetta_trust_api` may call
+the private `core.trust_eligibility(jsonb)` RPC. Only `junctura_trust_api` may call
 that RPC. The result contains only `{allowed, reason}`; reason codes are bounded
 internal diagnostics, not a public enumeration API or transferable authority.
 

@@ -1,5 +1,5 @@
 {
-  "realm": "rosetta",
+  "realm": "junctura",
   "enabled": true,
   "sslRequired": "none",
   "registrationAllowed": false,
@@ -16,7 +16,7 @@
   },
   "clients": [
     {
-      "clientId": "rosetta-core",
+      "clientId": "junctura-core",
       "secret": "${CORE_CLIENT_SECRET}",
       "protocol": "openid-connect",
       "publicClient": false,
@@ -46,7 +46,7 @@
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",
           "config": {
-            "included.custom.audience": "rosetta-core",
+            "included.custom.audience": "junctura-core",
             "access.token.claim": "true",
             "introspection.token.claim": "true"
           }
@@ -88,7 +88,7 @@
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",
           "config": {
-            "included.custom.audience": "rosetta-core",
+            "included.custom.audience": "junctura-core",
             "access.token.claim": "true",
             "introspection.token.claim": "true"
           }
@@ -130,7 +130,7 @@
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",
           "config": {
-            "included.custom.audience": "rosetta-core",
+            "included.custom.audience": "junctura-core",
             "access.token.claim": "true",
             "introspection.token.claim": "true"
           }
@@ -149,7 +149,7 @@
       ]
     },
     {
-      "clientId": "rosetta-local",
+      "clientId": "junctura-local",
       "protocol": "openid-connect",
       "publicClient": true,
       "standardFlowEnabled": true,
@@ -178,7 +178,7 @@
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",
           "config": {
-            "included.custom.audience": "rosetta-core",
+            "included.custom.audience": "junctura-core",
             "access.token.claim": "true",
             "introspection.token.claim": "true"
           }

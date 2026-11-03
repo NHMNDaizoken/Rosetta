@@ -4,8 +4,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createAuthorizer, validateIdentity } from "../src/platform/auth/auth.mjs";
 
-const issuer = "http://identity.test/realms/rosetta";
-const claims = { active: true, iss: issuer, aud: "rosetta-core", exp: 2000, sub: "subject", tenant_id: "tenant-a", tenant_memberships: ["tenant-a"], realm_access: { roles: ["core-reader", "core-writer"] } };
+const issuer = "http://identity.test/realms/junctura";
+const claims = { active: true, iss: issuer, aud: "junctura-core", exp: 2000, sub: "subject", tenant_id: "tenant-a", tenant_memberships: ["tenant-a"], realm_access: { roles: ["core-reader", "core-writer"] } };
 test("verified identity uses tenant and roles from issuer claims", () => {
   assert.deepEqual(validateIdentity(claims, issuer, 1000), { subject: "subject", tenantId: "tenant-a", roles: ["core-reader", "core-writer"] });
 });

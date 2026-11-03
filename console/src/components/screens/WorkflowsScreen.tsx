@@ -129,7 +129,7 @@ export const WorkflowsScreen: React.FC = () => {
       <PageHeader
         title={t.workflows.title}
         subtitle={t.workflows.subtitle}
-        badges={<Badge variant="rosetta">Flowable REST 8.0.0</Badge>}
+        badges={<Badge variant="junctura">Flowable REST 8.0.0</Badge>}
         actions={
           <Button
             variant="teal"
@@ -145,7 +145,7 @@ export const WorkflowsScreen: React.FC = () => {
 
       {/* Idempotency Ledger Notice */}
       <div className="p-4 rounded-lg bg-slate-50 dark:bg-[#12232F] border border-slate-200/80 dark:border-[#223E50] flex items-start gap-3 text-xs text-slate-600 dark:text-slate-300">
-        <Info className="w-4 h-4 text-rosetta-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
+        <Info className="w-4 h-4 text-junctura-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
         <p className="leading-relaxed">
           {t.workflows.idempotencyKeyNotice}
         </p>
@@ -446,7 +446,7 @@ export const WorkflowsScreen: React.FC = () => {
             <select
               value={selectedDefId}
               onChange={(e) => setSelectedDefId(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             >
               {definitions.map((def) => (
                 <option key={def.id} value={def.id}>
@@ -463,7 +463,7 @@ export const WorkflowsScreen: React.FC = () => {
               rows={4}
               value={inputVariables}
               onChange={(e) => setInputVariables(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
           </div>
         </div>

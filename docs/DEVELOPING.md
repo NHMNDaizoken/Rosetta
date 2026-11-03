@@ -205,11 +205,11 @@ see [APPLICATION_REGISTRATION.md](APPLICATION_REGISTRATION.md) and
 must use its own service-account credentials; never put them in a browser.
 
 ```sh
-ROSETTA_APP_CLIENT_ID=<enrolled-backend-client> \
-ROSETTA_APP_CLIENT_SECRET=<backend-secret> \
-ROSETTA_GRANTEE_APP_ID=<second-enrolled-app-uuid> \
-ROSETTA_GRANTEE_CLIENT_ID=<grantee-client> \
-ROSETTA_GRANTEE_CLIENT_SECRET=<grantee-secret> \
+JUNCTURA_APP_CLIENT_ID=<enrolled-backend-client> \
+JUNCTURA_APP_CLIENT_SECRET=<backend-secret> \
+JUNCTURA_GRANTEE_APP_ID=<second-enrolled-app-uuid> \
+JUNCTURA_GRANTEE_CLIENT_ID=<grantee-client> \
+JUNCTURA_GRANTEE_CLIENT_SECRET=<grantee-secret> \
 node --env-file=.env examples/foundation-http.mjs
 ```
 
@@ -219,7 +219,7 @@ Expected behavior, in order:
 2. `GET /v1/identity` returns the verified subject, tenant and roles.
 3. A `/v2` record is created and read back by its owner.
 4. A `/v2` object is uploaded and downloaded with identical bytes.
-5. The `rosetta_checkpoint` workflow starts, is inspected and completes.
+5. The `junctura_checkpoint` workflow starts, is inspected and completes.
 6. An expiring read share is created for the grantee.
 7. If grantee credentials are supplied, the grantee is denied before the share
    and allowed after it. Without them, those two steps are skipped.

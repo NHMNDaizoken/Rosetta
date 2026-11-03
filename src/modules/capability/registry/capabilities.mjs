@@ -12,7 +12,7 @@ import { HttpError, json, readBody, readFlatJsonObject, uuidPattern } from "../.
 import { trustCommand, validateGrantApproval } from "../trust/trust.mjs";
 
 const CAPABILITY_PATH = /^\/v1\/capabilities\/([^/]+)\/versions(?:\/([^/]+))?(?:\/(validate|publish|deprecate|revoke))?$/;
-const CAPABILITY_ID = /^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$/;
+const CAPABILITY_ID = /^urn:junctura:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$/;
 const VERSION = /^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$/;
 
 export async function handleCapabilities(request, response, identity, config, url) {
@@ -65,7 +65,7 @@ export async function handleCapabilities(request, response, identity, config, ur
     if (["deprecate", "revoke"].includes(operation)) validateReason(body);
   }
   if (request.headers["if-match"] !== undefined) payload.etag = request.headers["if-match"];
-  const value = await command(config, identity, "rosetta_capability_api", "capability_command", operation, payload);
+  const value = await command(config, identity, "junctura_capability_api", "capability_command", operation, payload);
   if (value.versionId) response.setHeader("ETag", `"capability-version-${value.versionId}-${value.revision}"`);
   if (operation === "register") {
     response.setHeader("Location", `/v1/capabilities/${encodeURIComponent(value.capabilityId)}/versions/${value.version}`);
@@ -90,7 +90,7 @@ export async function handleApprovals(request, response, identity, config, url) 
     if (body.resourceType === "composition-version" && config.compositionRuntime) {
       validateCapabilityApproval({ ...body, resourceType: "capability-version" });
       if (!uuidPattern.test(body.resourceId)) throw new HttpError(400, "invalid_composition_approval");
-      return approvalCommand(response, 201, await command(config, identity, "rosetta_composition_api", "composition_command", operation,
+      return approvalCommand(response, 201, await command(config, identity, "junctura_composition_api", "composition_command", operation,
         { approvalId: randomUUID(), decision: body }));
     }
     if (body.resourceType === "grant") {
@@ -100,12 +100,12 @@ export async function handleApprovals(request, response, identity, config, url) 
     }
     if (body.resourceType === "application") {
       validateApplicationBody(body, "approval_create");
-      return approvalCommand(response, 201, await command(config, identity, "rosetta_app_api", "application_command", operation,
+      return approvalCommand(response, 201, await command(config, identity, "junctura_app_api", "application_command", operation,
         { appId: body.resourceId, approvalId: randomUUID(), decision: body }));
     }
     if (body.resourceType === "capability-version") {
       validateCapabilityApproval(body);
-      return approvalCommand(response, 201, await command(config, identity, "rosetta_capability_api", "capability_command", operation,
+      return approvalCommand(response, 201, await command(config, identity, "junctura_capability_api", "capability_command", operation,
         { approvalId: randomUUID(), decision: body }));
     }
     throw new HttpError(400, "invalid_approval_resource");
@@ -117,18 +117,18 @@ export async function handleApprovals(request, response, identity, config, url) 
   if (request.headers["if-match"] !== undefined) payload.etag = request.headers["if-match"];
   let result;
   try {
-    result = await command(config, identity, "rosetta_app_api", "application_command", operation, payload);
+    result = await command(config, identity, "junctura_app_api", "application_command", operation, payload);
   } catch (error) {
     if (!(error instanceof HttpError) || error.status !== 404) throw error;
   }
   if (!result) {
     if (config.compositionRuntime) {
-      try { result = await command(config, identity, "rosetta_composition_api", "composition_command", operation, payload); }
+      try { result = await command(config, identity, "junctura_composition_api", "composition_command", operation, payload); }
       catch (error) { if (!(error instanceof HttpError) || error.status !== 404) throw error; }
     }
   }
   if (!result) {
-    try { result = await command(config, identity, "rosetta_capability_api", "capability_command", operation, payload); }
+    try { result = await command(config, identity, "junctura_capability_api", "capability_command", operation, payload); }
     catch (error) { if (!(error instanceof HttpError) || error.status !== 404) throw error; }
   }
   if (!result) {
@@ -159,7 +159,7 @@ async function listCapabilities(request, response, identity, config, url) {
     if (!/^[0-9a-f]{1,512}$/i.test(cursors[0])) throw new HttpError(400, "invalid_capability_cursor");
     payload.cursor = cursors[0].toLowerCase();
   }
-  const value = await command(config, identity, "rosetta_capability_api", "capability_command", "list", payload);
+  const value = await command(config, identity, "junctura_capability_api", "capability_command", "list", payload);
   return json(response, 200, value);
 }
 
@@ -182,7 +182,7 @@ async function command(config, identity, role, rpc, operation, payload) {
     });
     if (!db.ok) throw Error();
     result = await db.json();
-  } catch { throw new HttpError(503, role === "rosetta_capability_api" ? "capabilities_unavailable" : "approvals_unavailable"); }
+  } catch { throw new HttpError(503, role === "junctura_capability_api" ? "capabilities_unavailable" : "approvals_unavailable"); }
   if (result.error) throw new HttpError(result.status, result.error);
   return result.value;
 }

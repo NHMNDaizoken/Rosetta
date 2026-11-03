@@ -39,13 +39,13 @@ A manifest is an immutable, provider-owned description of one capability version
 | Field | Required definition |
 | --- | --- |
 | `manifestVersion` | Literal `1.0`, identifying this document format. |
-| `capabilityId` | `urn:rosetta:capability:{providerAppId}:{slug}`. Slug matches `[a-z][a-z0-9-]{0,62}`. Stable across versions and never recycled. |
+| `capabilityId` | `urn:junctura:capability:{providerAppId}:{slug}`. Slug matches `[a-z][a-z0-9-]{0,62}`. Stable across versions and never recycled. |
 | `providerAppId` | Server-issued lowercase UUID of an active application in the authenticated tenant. UUID segment in `capabilityId` MUST match it. Ownership is checked in the registry, not inferred from the string alone. |
 | `version` | Exact SemVer triple of bounded nonnegative integers without leading zeroes. Uniqueness key is tenant + capability ID + version. |
 | `title`, `description` | Bounded display metadata, never an authorization source. Descriptions do not authorize a planner or caller. |
 | `inputSchema`, `outputSchema` | JSON Schema 2020-12 assertions restricted to the profile below. No external resolution or executable schema keywords. |
 | `invocation` | `protocol: http-json`, `method: POST`, a relative `path` on the registered origin, and `mediaType: application/json`. Provider origin, credentials, URLs and headers are absent. |
-| `requiredPermissions` | Explicit nonempty set of provider-owned permission URNs: `urn:rosetta:permission:{providerAppId}:{slug}`. All are required, not alternatives. |
+| `requiredPermissions` | Explicit nonempty set of provider-owned permission URNs: `urn:junctura:permission:{providerAppId}:{slug}`. All are required, not alternatives. |
 | `sideEffects` | `kind: none`, `idempotent` or `non-idempotent`, plus a bounded factual description. `idempotency: provider-key` is required for idempotent effects; `none` otherwise. Registration does not prove provider compliance. |
 | `timeoutMs` | Integer 100..10000, including provider connection/read time and authorization-ticket redemption. No timeout is extended by a retry. |
 | `preconditions` | `approval: none` or `tenant-admin`, and platform predicates from `caller-active`, `provider-active`, `grant-active`, `same-tenant`. v1 requires all four. Providers enforce domain/resource predicates inside Layer 2. |

@@ -7,7 +7,7 @@ import { promisify } from "node:util";
 import { contractFetch as fetch } from "./contract.mjs";
 
 const base = process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
-const issuer = `${base}/identity/realms/rosetta`;
+const issuer = `${base}/identity/realms/junctura`;
 let tokenA;
 
 async function token(client, secret) {

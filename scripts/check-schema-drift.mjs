@@ -4,8 +4,8 @@
 import { execFileSync } from "node:child_process";
 
 const service = process.env.DATABASE_SERVICE ?? "database";
-const user = process.env.DATABASE_USER ?? "rosetta_admin";
-const database = process.env.DATABASE_NAME ?? "rosetta_data";
+const user = process.env.DATABASE_USER ?? "junctura_admin";
+const database = process.env.DATABASE_NAME ?? "junctura_data";
 const psql = (text) => execFileSync("docker", ["compose", "exec", "-T", service, "psql", "-X", "-q", "-At",
   "-v", "ON_ERROR_STOP=1", "-U", user, "-d", database, "-c", text], { encoding: "utf8" }).trim();
 

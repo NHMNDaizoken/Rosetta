@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 
 test("boundary checker rejects side-effect imports and re-exports across Foundation/runtime", () => {
-  const dir = mkdtempSync(join(tmpdir(), "rosetta-boundaries-"));
+  const dir = mkdtempSync(join(tmpdir(), "junctura-boundaries-"));
   try {
     mkdirSync(join(dir, "modules/data"), { recursive: true });
     mkdirSync(join(dir, "modules/capability/execution"), { recursive: true });

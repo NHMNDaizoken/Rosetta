@@ -45,7 +45,7 @@ export const CoreServicesScreen: React.FC = () => {
   const getCoreIcon = (id: string) => {
     switch (id) {
       case "identity":
-        return <ShieldCheck className="w-5 h-5 text-rosetta-blue dark:text-sky-400" />;
+        return <ShieldCheck className="w-5 h-5 text-junctura-blue dark:text-sky-400" />;
       case "gateway":
         return <Network className="w-5 h-5 text-teal-600 dark:text-teal-400" />;
       case "data":
@@ -69,7 +69,7 @@ export const CoreServicesScreen: React.FC = () => {
 
       {/* Network Isolation Security Notice */}
       <div className="p-4 rounded-lg bg-slate-50 dark:bg-[#12232F] border border-slate-200/80 dark:border-[#223E50] flex items-start gap-3 text-xs text-slate-600 dark:text-slate-300">
-        <Lock className="w-4 h-4 text-rosetta-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
+        <Lock className="w-4 h-4 text-junctura-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
         <p className="leading-relaxed">
           {t.cores.securityBoundaryInfo}
         </p>
@@ -127,7 +127,7 @@ export const CoreServicesScreen: React.FC = () => {
                     <span className="text-slate-500 dark:text-slate-400">
                       {t.cores.verifiedRoute}:
                     </span>
-                    <code className="text-[11px] text-rosetta-blue dark:text-sky-400">
+                    <code className="text-[11px] text-junctura-blue dark:text-sky-400">
                       {core.statusRoute}
                     </code>
                   </div>
@@ -182,7 +182,7 @@ export const CoreServicesScreen: React.FC = () => {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-500">Hợp đồng kiểm tra:</span>
-                <span className="font-mono text-rosetta-blue dark:text-sky-400">{selectedCore.statusRoute}</span>
+                <span className="font-mono text-junctura-blue dark:text-sky-400">{selectedCore.statusRoute}</span>
               </div>
             </div>
 

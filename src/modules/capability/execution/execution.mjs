@@ -10,7 +10,7 @@ import { signInternalToken } from "../../../platform/security/internal-token.mjs
 import { evaluateCapabilityEligibility } from "../trust/trust.mjs";
 
 const digestPattern = /^sha256:[0-9a-f]{64}$/;
-const capabilityPattern = /^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$/;
+const capabilityPattern = /^urn:junctura:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$/;
 const versionPattern = /^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$/;
 const sameIdentity = (a, b) => ["tenantId", "issuer", "subject", "clientId"].every(key => a[key] === b[key]);
 export const jsonDigest = value => `sha256:${createHash("sha256").update(canonicalize(value)).digest("hex")}`;
@@ -76,7 +76,7 @@ export function leaseProof(executionId, identity, expiresAt) {
 
 export async function executionCommand(config, identity, operation, payload, proof) {
   if (!identity.clientId || !config.dataUrl || !Number.isFinite(identity.credentialExpiresAt)) throw new HttpError(503, "executions_unavailable");
-  const assertion = signInternalToken(config.dataSecret, { role: "rosetta_execution_api", aud: "rosetta-data",
+  const assertion = signInternalToken(config.dataSecret, { role: "junctura_execution_api", aud: "junctura-data",
     tenant_id: identity.tenantId, iss: identity.issuer, sub: identity.subject, client_id: identity.clientId,
     trust_writer: identity.roles.includes("core-writer"),
     exp: Math.min(Math.floor(Date.now() / 1000) + 30, Math.floor(identity.credentialExpiresAt / 1000)),

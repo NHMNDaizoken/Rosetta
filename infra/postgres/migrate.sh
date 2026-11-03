@@ -1,5 +1,5 @@
 #!/bin/sh
-# SPDX-FileCopyrightText: 2026 Rosetta Contributors
+# SPDX-FileCopyrightText: 2026 Junctura Contributors
 # SPDX-License-Identifier: Apache-2.0
 set -eu
 # Applied migrations are immutable. This runner records the SHA-256 of every
@@ -7,7 +7,7 @@ set -eu
 # changes and version-only history, and detects drift in installed definitions,
 # owners, ACLs, row-level security and policies before applying anything new.
 MIGRATION_DIR=${MIGRATION_DIR:-/migrations}
-LOCK_FILE=${MIGRATION_LOCK_FILE:-/tmp/rosetta-migrations.lock}
+LOCK_FILE=${MIGRATION_LOCK_FILE:-/tmp/junctura-migrations.lock}
 
 fail() { printf 'Migration refused: %s\n' "$1" >&2; exit 1; }
 

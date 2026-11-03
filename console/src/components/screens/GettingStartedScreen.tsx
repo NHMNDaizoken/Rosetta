@@ -114,21 +114,21 @@ const COPY = {
   },
 };
 
-const START_COMMANDS = `git clone https://github.com/NHMNDaizoken/Rosetta.git
-cd Rosetta
+const START_COMMANDS = `git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
+cd junctura
 npm run setup
 npm run doctor
 npm run local:up
 npm run healthcheck`;
 
 const EXAMPLE_COMMANDS = `# Save these keys in ignored .env.app.local (server only)
-ROSETTA_APP_CLIENT_ID=<enrolled-backend-client>
-ROSETTA_APP_CLIENT_SECRET=<backend-secret>
-ROSETTA_GRANTEE_APP_ID=<second-enrolled-app-uuid>
+JUNCTURA_APP_CLIENT_ID=<enrolled-backend-client>
+JUNCTURA_APP_CLIENT_SECRET=<backend-secret>
+JUNCTURA_GRANTEE_APP_ID=<second-enrolled-app-uuid>
 
 # Optional: prove denied before share and allowed after share
-ROSETTA_GRANTEE_CLIENT_ID=<grantee-client>
-ROSETTA_GRANTEE_CLIENT_SECRET=<grantee-secret>
+JUNCTURA_GRANTEE_CLIENT_ID=<grantee-client>
+JUNCTURA_GRANTEE_CLIENT_SECRET=<grantee-secret>
 
 # Then run in your terminal (Windows PowerShell or shell)
 node --env-file=.env --env-file=.env.app.local examples/foundation-http.mjs`;
@@ -148,7 +148,7 @@ export const GettingStartedScreen: React.FC = () => {
       <Card>
         <CardHeader className="flex-col items-start!">
           <div className="flex items-center gap-2">
-            <Terminal className="w-5 h-5 text-rosetta-blue dark:text-sky-400" />
+            <Terminal className="w-5 h-5 text-junctura-blue dark:text-sky-400" />
             <CardTitle>{copy.startTitle}</CardTitle>
           </div>
           <CardDescription>{copy.startDesc}</CardDescription>
@@ -171,7 +171,7 @@ export const GettingStartedScreen: React.FC = () => {
             href={`${BRAND.githubUrl}/blob/main/docs/APPLICATION_REGISTRATION.md`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-rosetta-blue dark:text-sky-400 hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-junctura-blue dark:text-sky-400 hover:underline"
           >
             {copy.enrollLink}
             <ExternalLink className="w-3.5 h-3.5" />
@@ -199,7 +199,7 @@ export const GettingStartedScreen: React.FC = () => {
         <Card>
           <CardHeader className="flex-col items-start!">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-rosetta-blue dark:text-sky-400" />
+              <ShieldCheck className="w-5 h-5 text-junctura-blue dark:text-sky-400" />
               <CardTitle>{copy.provesTitle}</CardTitle>
             </div>
           </CardHeader>
@@ -250,7 +250,7 @@ export const GettingStartedScreen: React.FC = () => {
                 href={`${BRAND.githubUrl}${path}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded border border-slate-200 dark:border-[#223E50] px-2.5 py-1.5 text-xs text-slate-600 dark:text-slate-300 hover:border-rosetta-blue dark:hover:border-sky-500 hover:text-rosetta-blue dark:hover:text-sky-400"
+                className="inline-flex items-center gap-1.5 rounded border border-slate-200 dark:border-[#223E50] px-2.5 py-1.5 text-xs text-slate-600 dark:text-slate-300 hover:border-junctura-blue dark:hover:border-sky-500 hover:text-junctura-blue dark:hover:text-sky-400"
               >
                 {label}
                 <ExternalLink className="w-3 h-3" />

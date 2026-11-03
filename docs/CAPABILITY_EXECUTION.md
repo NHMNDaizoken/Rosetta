@@ -240,7 +240,7 @@ GitHub verification uses Git/GitHub REST; no GitHub MCP connector is installed.
 The final local positive invocation was execution
 `2ea74052-494e-4401-a7a9-9fa80af3b9ce`, Flowable process
 `614f5cc6-d363-11f1-89ba-6280abd22172`, exact definition
-`rosetta_c4a_single:1:0b735857-d357-11f1-be48-ae509bde13a8`.
+`junctura_c4a_single:1:0b735857-d357-11f1-be48-ae509bde13a8`.
 The independently authenticated technical provider redeemed once, returned the
 Unicode echo, counted one execution and the actual engine history recorded its end.
 Fixtures and their records were then cleaned; this is test evidence, not a live demo URL.

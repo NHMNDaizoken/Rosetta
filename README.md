@@ -136,9 +136,9 @@ Lệnh tạo tài khoản dịch vụ cho ứng dụng, đăng ký và phê duy�
 import { createJuncturaClient } from "./sdk/node/index.mjs";
 
 const junctura = createJuncturaClient({
-  baseUrl: process.env.ROSETTA_URL,
-  clientId: process.env.ROSETTA_APP_CLIENT_ID,
-  clientSecret: process.env.ROSETTA_APP_CLIENT_SECRET,
+  baseUrl: process.env.JUNCTURA_URL,
+  clientId: process.env.JUNCTURA_APP_CLIENT_ID,
+  clientSecret: process.env.JUNCTURA_APP_CLIENT_SECRET,
 });
 
 const record = await junctura.createRecord("students", { name: "Nguyễn Văn A" });

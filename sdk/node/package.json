@@ -1,5 +1,5 @@
 {
-  "name": "@rosetta/server-client",
+  "name": "@junctura/server-client",
   "version": "0.1.0-rc.1",
   "private": true,
   "type": "module",

@@ -31,7 +31,7 @@ export function validateCompositionExecutionCreate(body) {
 
 export async function compositionExecutionCommand(config, identity, operation, payload, proof) {
   if (!identity.clientId || !config.dataUrl || !Number.isFinite(identity.credentialExpiresAt)) throw new HttpError(503, "executions_unavailable");
-  const assertion = signInternalToken(config.dataSecret, { role: "rosetta_composition_api", aud: "rosetta-data",
+  const assertion = signInternalToken(config.dataSecret, { role: "junctura_composition_api", aud: "junctura-data",
     tenant_id: identity.tenantId, iss: identity.issuer, sub: identity.subject, client_id: identity.clientId,
     trust_writer: identity.roles.includes("core-writer"),
     exp: ["observe", "internal_get", "step_fail"].includes(operation) ? Math.floor(Date.now() / 1000) + 30

@@ -10,8 +10,8 @@ import { HttpError, json, readBody, requireWriter, uuidPattern } from "../../../
 import { createAuthenticationLeases, executionCommand, jsonDigest, prepareProviderTicket, recheckLease,
   redeemProviderTicket, reserveExecution, resolveExecution } from "./execution.mjs";
 
-export const CAPABILITY_PROCESS_KEY = "rosetta_c4a_single";
-export const CAPABILITY_TOPIC = "rosetta-c4a-invoke";
+export const CAPABILITY_PROCESS_KEY = "junctura_c4a_single";
+export const CAPABILITY_TOPIC = "junctura-c4a-invoke";
 const engineId = /^[A-Za-z0-9:_-]{1,128}$/;
 const activeStates = new Set(["accepted", "running", "auth_required"]);
 const reference = e => ({ capabilityId: e.capability_id, version: e.version, manifestDigest: e.manifest_digest });
@@ -50,7 +50,7 @@ export function createCapabilityRuntime(config, networkOptions, { workerEnabled 
     if (timeout <= 0) throw new HttpError(409, "execution_deadline_expired");
     try {
       const response = await fetch(root + path, { method: options.method ?? "GET", redirect: "error",
-        headers: { Authorization: `Basic ${Buffer.from(`rosetta-engine:${config.workflowPassword}`).toString("base64")}`,
+        headers: { Authorization: `Basic ${Buffer.from(`junctura-engine:${config.workflowPassword}`).toString("base64")}`,
           ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }) },
         body: options.body === undefined ? undefined : options.body instanceof FormData ? options.body : JSON.stringify(options.body),
         signal: AbortSignal.timeout(Math.max(1, timeout)) });

@@ -85,7 +85,7 @@ async function startTlsServer(tlsOptions) {
 }
 
 async function withTls(run) {
-  const directory = mkdtempSync(join(tmpdir(), "rosetta-provider-"));
+  const directory = mkdtempSync(join(tmpdir(), "junctura-provider-"));
   try {
     await run({
       tls: generateTls(directory, "localhost", "DNS:localhost,IP:127.0.0.1"),

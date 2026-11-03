@@ -1694,7 +1694,7 @@
     "successHasBody": true
   },
   {
-    "path": "/identity/realms/rosetta/.well-known/openid-configuration",
+    "path": "/identity/realms/junctura/.well-known/openid-configuration",
     "method": "GET",
     "operationId": "getOidcDiscovery",
     "summary": "Get oidc discovery",
@@ -1721,11 +1721,11 @@
     "successHasBody": true
   },
   {
-    "path": "/identity/realms/rosetta/protocol/openid-connect/auth",
+    "path": "/identity/realms/junctura/protocol/openid-connect/auth",
     "method": "GET",
     "operationId": "authorizeOidc",
     "summary": "Authorize oidc",
-    "description": "Browser authorization-code flow with S256 PKCE for rosetta-local. Local callback is exactly http://127.0.0.1:9876/callback. Do not embed backend secrets in browsers. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+    "description": "Browser authorization-code flow with S256 PKCE for junctura-local. Local callback is exactly http://127.0.0.1:9876/callback. Do not embed backend secrets in browsers. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
     "tags": [
       "oidc-upstream"
     ],
@@ -1814,7 +1814,7 @@
     "successHasBody": true
   },
   {
-    "path": "/identity/realms/rosetta/protocol/openid-connect/token",
+    "path": "/identity/realms/junctura/protocol/openid-connect/token",
     "method": "POST",
     "operationId": "issueOidcToken",
     "summary": "Issue oidc token",
@@ -1848,7 +1848,7 @@
     "successHasBody": true
   },
   {
-    "path": "/identity/realms/rosetta/protocol/openid-connect/certs",
+    "path": "/identity/realms/junctura/protocol/openid-connect/certs",
     "method": "GET",
     "operationId": "getOidcKeys",
     "summary": "Get oidc keys",
@@ -1875,7 +1875,7 @@
     "successHasBody": true
   },
   {
-    "path": "/identity/realms/rosetta/protocol/openid-connect/userinfo",
+    "path": "/identity/realms/junctura/protocol/openid-connect/userinfo",
     "method": "GET",
     "operationId": "getOidcUserInfo",
     "summary": "Get oidc user info",
@@ -1906,7 +1906,7 @@
     "successHasBody": true
   },
   {
-    "path": "/identity/realms/rosetta/protocol/openid-connect/userinfo",
+    "path": "/identity/realms/junctura/protocol/openid-connect/userinfo",
     "method": "POST",
     "operationId": "postOidcUserInfo",
     "summary": "Post oidc user info",
@@ -1937,7 +1937,7 @@
     "successHasBody": true
   },
   {
-    "path": "/identity/realms/rosetta/protocol/openid-connect/logout",
+    "path": "/identity/realms/junctura/protocol/openid-connect/logout",
     "method": "POST",
     "operationId": "logoutOidc",
     "summary": "Logout oidc",
@@ -1966,7 +1966,7 @@
     "successHasBody": false
   },
   {
-    "path": "/identity/realms/rosetta/protocol/openid-connect/logout",
+    "path": "/identity/realms/junctura/protocol/openid-connect/logout",
     "method": "GET",
     "operationId": "browserLogoutOidc",
     "summary": "Browser logout oidc",

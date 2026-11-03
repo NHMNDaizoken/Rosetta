@@ -91,8 +91,8 @@ Migrations 001-012 were not edited. Forward corrections are:
 | 016 | Include exact result version, tighten lifecycle permissions, recheck pinned capabilities at publication, opt into expanded Composition fingerprints |
 | 017 | Recheck each exact reserved grant via C4A's existing pinned-grant resolver |
 
-All five Composition tables retain forced tenant RLS and `rosetta_app_owner`
-ownership. `rosetta_composition_api` is a restricted nonlogin RPC role with no
+All five Composition tables retain forced tenant RLS and `junctura_app_owner`
+ownership. `junctura_composition_api` is a restricted nonlogin RPC role with no
 private schema/table access; generic CRUD roles cannot read or mutate authority.
 No owner, ACL, existing record, audit history or persistent volume was removed.
 Migrations were applied to the authorized development database through the
@@ -109,7 +109,7 @@ unchanged. Never normalize applied bytes or silently replace checksums. See
 
 ## Flowable correlation and credentials
 
-The fixed process key/topic are `rosetta_c4b_composition` / `rosetta-c4b-step`.
+The fixed process key/topic are `junctura_c4b_composition` / `junctura-c4b-step`.
 Core checks deterministic definition bytes, exact process/definition/tenant,
 `c4b:<tenant>:<execution UUID>` business key and execution/input/deadline variables.
 Acquire is not tenant-filtered by the pinned engine; unrecognized/wrongly bound
@@ -233,18 +233,18 @@ c61089f feat(storage): add tenant-scoped persistent binary object API
 dfb45f7 chore(repo): exclude private agent context from publication
 f5680ee fix(core): verify readiness and recovery across container recreation
 5fa36d8 docs(core): document verified Layer 1 operations and recovery limits
-3f2c0f1 docs(readme): explain Rosetta platform architecture and roadmap
+3f2c0f1 docs(readme): explain Junctura platform architecture and roadmap
 155a5b1 docs(api): clarify authorization scope for versioned Core routes
 5a732b7 docs(capabilities): specify v1 manifests, trust and Flowable composition
 6eaf42e docs(capabilities): resolve runtime boundaries and verify Flowable worker API
 df6827e feat(applications): add tenant-scoped registration and independent approvals
 7db68cf feat(auth): isolate application records and objects
 431bca4 docs(api): define foundation contracts and enforce conformance
-7fdd7fc feat(console): implement Rosetta Console Layer-1 operational control plane
-949dc3b docs(architecture): define Rosetta developer cloud and hosting model
+7fdd7fc feat(console): implement Junctura Console Layer-1 operational control plane
+949dc3b docs(architecture): define Junctura developer cloud and hosting model
 3bd6a20 fix(console): make LIVE sessions truthful
 41deda1 feat(console): package static console behind hardened nginx proxy
-187e0fe docs(product): clarify Rosetta backend and roadmap
+187e0fe docs(product): clarify Junctura backend and roadmap
 e4f67f0 refactor(core): separate readiness and internal token boundaries
 ae45103 feat(console): add developer journey and truthful service status
 360a7dd feat(capability): implement bounded compatibility resolver

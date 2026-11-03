@@ -14,7 +14,7 @@ export async function resourceRequest(config, identity, resource, query = new UR
   try {
     result = await fetch(`${config.dataUrl}/${resource}?${query}`, {
       ...options,
-      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "rosetta_resource_api")}`,
+      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "junctura_resource_api")}`,
         "Content-Type": "application/json", Prefer: "return=representation" },
       signal: AbortSignal.timeout(5000), redirect: "error",
     });
