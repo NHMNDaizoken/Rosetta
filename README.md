@@ -45,7 +45,8 @@ Trong một tổ chức, mỗi phòng ban thường vận hành phần mềm ri�
 - Nhật ký kiểm toán được bảo vệ: ứng dụng không thể sửa hay xóa dấu vết.
 
 **Vận hành và phát triển**
-- Khởi động toàn bộ hệ thống bằng một lệnh; đăng ký một ứng dụng mới bằng một lệnh.
+- Khởi động toàn bộ hệ thống, đăng ký ứng dụng mới, sao lưu và khôi phục — mỗi việc một lệnh.
+- Nhật ký truy cập dạng JSON tại cổng API, truy vết từng request bằng request-id.
 - OpenAPI 3.1 cho mọi API, Node SDK không phụ thuộc thư viện ngoài.
 - Console quản trị song ngữ Việt/Anh.
 - Bí mật quản lý bằng OpenBao; migration cơ sở dữ liệu có checksum chống sửa lén.
@@ -119,7 +120,7 @@ npm run healthcheck  # kiểm tra các dịch vụ đã sẵn sàng
 | `http://127.0.0.1:8080` | Cổng API |
 | `http://127.0.0.1:3000` | Junctura Console |
 
-Lần chạy đầu cần tải image và bộ nhận diện mã độc của ClamAV (vài phút). Gặp lỗi: `npm run doctor`. Dừng mà vẫn giữ dữ liệu: `npm run local:down`.
+Lần chạy đầu cần tải image và bộ nhận diện mã độc của ClamAV (vài phút). Gặp lỗi: `npm run doctor`. Dừng mà vẫn giữ dữ liệu: `npm run local:down`. Sao lưu: `npm run backup`; khôi phục: `npm run restore -- backups/<thời-điểm> --yes` (xem [Vận hành](docs/OPERATIONS.md#backup-and-restore)).
 
 ### Đăng ký ứng dụng đầu tiên
 
