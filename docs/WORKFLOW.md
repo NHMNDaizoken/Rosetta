@@ -2,7 +2,7 @@
 
 ## Before editing
 
-1. Read `AGENTS.md`, relevant module docs and existing code; inspect current repo conventions.
+1. Read `docs/DEVELOPING.md`, relevant module docs and existing code; inspect current repo conventions.
 2. Define the smallest change, impacted APIs/schemas, risks and expected tests.
 3. Confirm new dependencies and license decisions before installation.
 

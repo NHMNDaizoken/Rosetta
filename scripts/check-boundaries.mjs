@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const src = process.argv[2] ? resolve(process.argv[2]) : join(root, "src");
-const FOUNDATION = new Set(["applications", "resources", "data", "objects", "workflow"]);
+const FOUNDATION = new Set(["applications", "resources", "data", "objects", "workflow", "secrets"]);
 const capabilityLayer = (path) => {
   const id = relative(src, path).split("\\").join("/");
   if (id === "modules/capability/compatibility/compatibility.mjs") return 0;
@@ -24,6 +24,8 @@ const PUBLIC = new Set([
   "modules/resources/resources.mjs",
   "modules/data/data.mjs",
   "modules/objects/objects.mjs",
+  "modules/objects/malware-scan.mjs",
+  "modules/secrets/secrets.mjs",
   "modules/workflow/workflow.mjs",
   "modules/workflow/client.mjs",
   "modules/capability/compatibility/compatibility.mjs",

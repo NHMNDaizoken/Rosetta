@@ -17,7 +17,19 @@ export function loadConfig(env = process.env) {
   if (!env.CORE_CLIENT_SECRET || !env.IDENTITY_URL) throw new Error("Identity configuration is incomplete");
   if (env.DATA_URL && (!env.DATA_JWT_SECRET || env.DATA_JWT_SECRET.length < 32)) throw new Error("Data signing secret must contain at least 32 characters");
   if (env.OBJECTS_URL && !env.OBJECTS_MASTER_URL) throw new Error("Object readiness configuration is incomplete");
+  if (env.OBJECTS_URL && (!env.CLAMAV_HOST || !env.CLAMAV_PORT)) {
+    throw new Error("Object malware scanner configuration is incomplete");
+  }
+  if (env.CLAMAV_PORT && (!/^\d+$/.test(env.CLAMAV_PORT) || Number(env.CLAMAV_PORT) < 1 || Number(env.CLAMAV_PORT) > 65535)) {
+    throw new Error("CLAMAV_PORT must be an integer between 1 and 65535");
+  }
+  if (env.CLAMAV_TIMEOUT_MS && (!/^\d+$/.test(env.CLAMAV_TIMEOUT_MS) || Number(env.CLAMAV_TIMEOUT_MS) < 1000)) {
+    throw new Error("CLAMAV_TIMEOUT_MS must be an integer >= 1000");
+  }
   if (env.WORKFLOW_URL && !env.WORKFLOW_ADMIN_PASSWORD) throw new Error("Workflow configuration is incomplete");
+  if (env.SECRETS_URL && !env.SECRETS_TOKEN && !env.SECRETS_TOKEN_FILE) {
+    throw new Error("Secrets manager configuration is incomplete");
+  }
   const config = Object.freeze({
     issuer: env.OIDC_ISSUER,
     identityUrl: env.IDENTITY_URL,
@@ -27,6 +39,13 @@ export function loadConfig(env = process.env) {
     dataSecret: env.DATA_JWT_SECRET,
     objectsUrl: env.OBJECTS_URL,
     objectsMasterUrl: env.OBJECTS_MASTER_URL,
+    clamavHost: env.CLAMAV_HOST,
+    clamavPort: env.CLAMAV_PORT ? Number(env.CLAMAV_PORT) : undefined,
+    clamavTimeoutMs: env.CLAMAV_TIMEOUT_MS ? Number(env.CLAMAV_TIMEOUT_MS) : 30_000,
+    secretsUrl: env.SECRETS_URL,
+    secretsToken: env.SECRETS_TOKEN,
+    secretsTokenFile: env.SECRETS_TOKEN_FILE,
+    secretsMount: env.SECRETS_MOUNT || "secret",
     workflowUrl: env.WORKFLOW_URL,
     workflowPassword: env.WORKFLOW_ADMIN_PASSWORD,
   });

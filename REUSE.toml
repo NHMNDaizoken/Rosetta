@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2026 Rosetta Contributors
+# SPDX-License-Identifier: Apache-2.0
+version = 1
+
+# Comment-hostile and documentation/static files covered by project annotations.
+# Source/config files that can embed comments keep inline SPDX headers instead.
+
+[[annotations]]
+path = [
+  "README.md",
+  "CHANGELOG.md",
+  "NOTICE",
+  "THIRD-PARTY.md",
+  ".gitignore",
+  ".gitattributes",
+  ".dockerignore",
+  ".node-version",
+  "docs/**",
+  "console/index.html",
+  "console/public/favicon.svg",
+  "console/package.json",
+  "console/package-lock.json",
+  "console/tsconfig.json",
+  "console/tsconfig.node.json",
+  "console/src/constants/foundationEndpoints.json",
+  "package.json",
+  "sdk/node/package.json",
+  "infra/keycloak/realm.json",
+  "docs/contracts/**/*.json",
+  "docs/security/**",
+  "requirements-contracts.txt",
+  "requirements-reuse.txt",
+]
+SPDX-FileCopyrightText = "2026 Rosetta Contributors"
+SPDX-License-Identifier = "Apache-2.0"

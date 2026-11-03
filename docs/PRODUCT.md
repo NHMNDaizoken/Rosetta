@@ -94,7 +94,8 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 | Projects and environments | PROPOSED | P1 gate; no tables or routes. |
 | Application bindings | PROPOSED | P2 gate; no credential lifecycle. |
 | Hosting, deployments, runtime workers | PROPOSED | Separate approval; no controller or runtime. |
-| File quarantine | DEFERRED | Requires an owning subsystem and scan-worker contract. |
+| File quarantine / malware scan | IMPLEMENTED | ClamAV fail-closed ingress scan; see [OBJECT_SCANNING.md](OBJECT_SCANNING.md). |
+| Application secrets store | IMPLEMENTED | OpenBao-backed `/v2/secrets`; see [SECRETS.md](SECRETS.md). Production KMS/auto-unseal remain deferred. |
 | Protected audit boundary | PARTIAL | Internal tenant query, derived actor metadata, redaction, role separation and fail-closed append are implemented; no public audit endpoint, export/sink, cryptographic sealing or DBA tamper resistance. See [AUDIT.md](AUDIT.md). |
 | Messaging, notification, search | DEFERRED | No broker, queue or index is deployed. |
 | C1 Registry | IMPLEMENTED, bounded | [Registry](CAPABILITY_REGISTRY.md): exact manifests, independent publication approval and terminal revocation. |

@@ -7,9 +7,9 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const roots = new Set(["src", "console", "sdk", "infra", "scripts", "docs", "examples", "tests", "integration", ".github"]);
+const roots = new Set(["src", "console", "sdk", "infra", "scripts", "docs", "examples", "tests", "integration", ".github", "LICENSES"]);
 const rootFiles = new Set([".env.example", ".node-version", ".dockerignore", ".gitattributes", ".gitignore",
-  "AGENTS.md", "README.md", "LICENSE", "NOTICE", "THIRD-PARTY.md", "CHANGELOG.md", "compose.yaml", "Dockerfile", "package.json", "requirements-contracts.txt"]);
+  "README.md", "LICENSE", "NOTICE", "THIRD-PARTY.md", "CHANGELOG.md", "REUSE.toml", "compose.yaml", "Dockerfile", "package.json", "requirements-contracts.txt", "requirements-reuse.txt"]);
 
 export function releaseFiles(paths) {
   return paths.filter(path => {
@@ -31,7 +31,7 @@ export function packageRelease(directory = "dist/releases") {
   const tree = execFileSync("git", ["ls-tree", "-rz", "HEAD"], { encoding: "utf8", maxBuffer: 8 * 1024 * 1024 }).split("\0").filter(Boolean);
   assert.ok(tree.every(entry => !entry.startsWith("120000 ") && !entry.startsWith("160000 ")), "Review symlinks/submodules before release");
   const files = releaseFiles(tree.map(entry => entry.slice(entry.indexOf("\t") + 1)));
-  for (const required of ["LICENSE", "NOTICE", "THIRD-PARTY.md", "CHANGELOG.md", "compose.yaml", ".env.example", "docs/GETTING_STARTED.md", "docs/RELEASE.md", "infra/postgres/017-composition-exact-grants.sql"]) assert.ok(files.includes(required), `Missing release file ${required}`);
+  for (const required of ["LICENSE", "NOTICE", "THIRD-PARTY.md", "CHANGELOG.md", "REUSE.toml", "LICENSES/Apache-2.0.txt", "compose.yaml", ".env.example", "docs/GETTING_STARTED.md", "docs/RELEASE.md", "docs/DEVELOPING.md", "infra/postgres/017-composition-exact-grants.sql"]) assert.ok(files.includes(required), `Missing release file ${required}`);
   const name = `rosetta-${version}`;
   const archive = execFileSync("git", ["archive", "--format=tar", `--prefix=${name}/`, sha, "--", ...files], { maxBuffer: 64 * 1024 * 1024 });
   const hash = createHash("sha256").update(archive).digest("hex");
