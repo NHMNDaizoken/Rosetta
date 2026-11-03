@@ -14,9 +14,10 @@ self-hosted secrets manager for **runtime/application** secrets.
 | Bootstrap | Postgres/Keycloak/Flowable init passwords, OpenBao unseal key and root token | Generated locally by `npm run setup` / `secrets-init`; stored outside Git (`.env`, `openbao-operator` volume) |
 | Runtime | Application integration credentials managed through Core | OpenBao KV v2 under server-composed tenant/app paths |
 
-OpenBao is started with file storage and TLS disabled for the **internal Compose
-network only**. That is a local/self-hosted development posture, not a production
-hardening claim. Production TLS, auto-unseal/KMS and HA remain future work.
+OpenBao is started with Raft storage under `/openbao/file` and TLS disabled for
+the **internal Compose network only**. That is a local/self-hosted development
+posture, not a production hardening claim. Production TLS, auto-unseal/KMS and
+HA remain future work.
 
 ## Local lifecycle
 
