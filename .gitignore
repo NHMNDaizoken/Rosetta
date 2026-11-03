@@ -123,6 +123,8 @@ console/public/THIRD-PARTY-NOTICES.txt
 **/.cache/
 
 # Logs, runtime state and local databases
+# Local backups contain private data and identities (npm run backup).
+backups/
 *.log
 logs/
 *.pid

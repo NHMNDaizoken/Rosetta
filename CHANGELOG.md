@@ -25,6 +25,12 @@ First public release of the Junctura Layer 1 platform for OLP'26.
   `IMPLEMENTATION_BACKLOG.md`.
 - Packaging accepts final semantic versions; GitHub Release steps documented.
 - Issue templates for bugs and tasks.
+- `npm run backup` / `npm run restore`: checksummed backups of the identity, data and
+  workflow databases and the object volume; restore verifies, takes a safety backup,
+  recreates databases with original ACLs/RLS and restarts the stack.
+- Gateway JSON access log with request IDs (paths only, no query strings or headers).
+- Byte-frozen files (migrations, BPMN, OpenBao policies, published contracts) keep
+  their original attribution so stored checksums remain valid.
 - `npm run app:enroll -- <name>`: one-command local enrollment of a Layer-2 backend
   application with separated demo owner/approver and an ignored per-app env file.
 
