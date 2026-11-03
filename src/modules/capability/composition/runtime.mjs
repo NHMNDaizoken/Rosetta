@@ -38,7 +38,7 @@ export function createCompositionRuntime(config, networkOptions, { workerEnabled
     if (timeout <= 0) throw new HttpError(409, "execution_deadline_expired");
     try {
       const response = await fetch(root + path, { method: options.method ?? "GET", redirect: "error",
-        headers: { Authorization: `Basic ${Buffer.from(`rosetta-engine:${config.workflowPassword}`).toString("base64")}`,
+        headers: { Authorization: `Basic ${Buffer.from(`junctura-engine:${config.workflowPassword}`).toString("base64")}`,
           ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }) },
         body: options.body === undefined ? undefined : options.body instanceof FormData ? options.body : JSON.stringify(options.body),
         signal: AbortSignal.timeout(Math.max(1, timeout)) });

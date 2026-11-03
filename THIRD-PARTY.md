@@ -99,10 +99,10 @@ The optional `console/` package uses modern open-source frontend libraries for t
 The Console loads Inter and JetBrains Mono stylesheets from Google Fonts at runtime;
 the font files are not bundled in the image. Inter and JetBrains Mono are distributed
 under the SIL Open Font License 1.1. An offline environment falls back to the system
-font stack; no font asset is claimed as Rosetta-owned.
+font stack; no font asset is claimed as Junctura-owned.
 
 The packaged Console runtime image copies `LICENSE`, `NOTICE` and this inventory
-to `/usr/share/licenses/rosetta/`; the Nginx and Debian base-layer notices remain
+to `/usr/share/licenses/junctura/`; the Nginx and Debian base-layer notices remain
 in the image. The static build is served by Nginx, not by a Node runtime.
 
 The build also generates `THIRD-PARTY-NOTICES.txt` from installed runtime package

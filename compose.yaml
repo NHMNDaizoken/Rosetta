@@ -1,10 +1,11 @@
 # SPDX-FileCopyrightText: 2026 Junctura Contributors
 # SPDX-License-Identifier: Apache-2.0
+name: junctura
 services:
   database:
     image: postgres:17-bookworm@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27
     environment:
-      POSTGRES_USER: rosetta_admin
+      POSTGRES_USER: junctura_admin
       POSTGRES_DB: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run npm run setup first}
       IDENTITY_DB_PASSWORD: ${IDENTITY_DB_PASSWORD:?Run npm run setup first}
@@ -14,7 +15,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./infra/postgres/00-init.sh:/docker-entrypoint-initdb.d/00-init.sh:ro
     healthcheck:
-      test: [CMD-SHELL, "pg_isready -U rosetta_admin -d postgres"]
+      test: [CMD-SHELL, "pg_isready -U junctura_admin -d postgres"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -24,10 +25,10 @@ services:
     command: [start, --import-realm]
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://database:5432/rosetta_identity
-      KC_DB_USERNAME: rosetta_identity
+      KC_DB_URL: jdbc:postgresql://database:5432/junctura_identity
+      KC_DB_USERNAME: junctura_identity
       KC_DB_PASSWORD: ${IDENTITY_DB_PASSWORD:?Run npm run setup first}
-      KC_BOOTSTRAP_ADMIN_USERNAME: rosetta-admin
+      KC_BOOTSTRAP_ADMIN_USERNAME: junctura-admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Run npm run setup first}
       KC_HTTP_ENABLED: "true"
       KC_HTTP_RELATIVE_PATH: /identity
@@ -55,7 +56,7 @@ services:
   data-migrate:
     image: postgres:17-bookworm@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27
     entrypoint: [sh, /migrations/migrate.sh]
-    command: [-h, database, -U, rosetta_admin, -d, rosetta_data, -v, ON_ERROR_STOP=1]
+    command: [-h, database, -U, junctura_admin, -d, junctura_data, -v, ON_ERROR_STOP=1]
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD:?Run npm run setup first}
     volumes:
@@ -84,10 +85,10 @@ services:
   data:
     image: postgrest/postgrest:v16.5@sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc
     environment:
-      PGRST_DB_URI: postgres://rosetta_data:${DATA_DB_PASSWORD:?Run npm run setup first}@database:5432/rosetta_data
+      PGRST_DB_URI: postgres://junctura_data:${DATA_DB_PASSWORD:?Run npm run setup first}@database:5432/junctura_data
       PGRST_DB_SCHEMAS: core
       PGRST_JWT_SECRET: ${DATA_JWT_SECRET:?Run npm run setup first}
-      PGRST_JWT_AUD: rosetta-data
+      PGRST_JWT_AUD: junctura-data
       PGRST_DB_MAX_ROWS: "100"
     depends_on:
       data-migrate:
@@ -146,7 +147,7 @@ services:
       - openbao-operator:/operator
       - openbao-init:/token
       - ./scripts/init-openbao.sh:/scripts/init-openbao.sh:ro
-      - ./infra/openbao/rosetta-core.hcl:/policy/rosetta-core.hcl:ro
+      - ./infra/openbao/junctura-core.hcl:/policy/junctura-core.hcl:ro
     depends_on:
       secrets:
         condition: service_healthy
@@ -157,11 +158,11 @@ services:
   workflow:
     image: flowable/flowable-rest:8.0.0@sha256:708dfa32f27b93180bb6e7a30684d881d995fe257f5b8413e14b20a55c25672d
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/rosetta_workflow
-      SPRING_DATASOURCE_USERNAME: rosetta_workflow
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/junctura_workflow
+      SPRING_DATASOURCE_USERNAME: junctura_workflow
       SPRING_DATASOURCE_PASSWORD: ${WORKFLOW_DB_PASSWORD:?Run npm run setup first}
       SPRING_DATASOURCE_DRIVERCLASSNAME: org.postgresql.Driver
-      FLOWABLE_REST_APP_ADMIN_USERID: rosetta-engine
+      FLOWABLE_REST_APP_ADMIN_USERID: junctura-engine
       FLOWABLE_REST_APP_ADMIN_PASSWORD: ${WORKFLOW_ADMIN_PASSWORD:?Run npm run setup first}
       FLOWABLE_REST_APP_CREATEDEMODEFINITIONS: "false"
       FLOWABLE_REST_APP_SWAGGERDOCSENABLED: "false"
@@ -174,7 +175,7 @@ services:
       test:
         - CMD-SHELL
         - >-
-          auth=$$(printf 'rosetta-engine:%s' "$$FLOWABLE_REST_APP_ADMIN_PASSWORD" | base64 | tr -d '\n');
+          auth=$$(printf 'junctura-engine:%s' "$$FLOWABLE_REST_APP_ADMIN_PASSWORD" | base64 | tr -d '\n');
           wget -q -O /dev/null --header="Authorization: Basic $$auth"
           http://127.0.0.1:8080/flowable-rest/service/management/engine
       interval: 5s
@@ -183,7 +184,7 @@ services:
       start_period: 90s
     networks: [workflow]
   workflow-init:
-    image: rosetta-core:local
+    image: junctura-core:local
     pull_policy: never
     command: [node, scripts/init-workflows.mjs]
     environment:
@@ -197,12 +198,12 @@ services:
     networks: [workflow]
   core:
     build: .
-    image: rosetta-core:local
+    image: junctura-core:local
     environment:
       HOST: 0.0.0.0
       PORT: "8080"
-      OIDC_ISSUER: ${PUBLIC_URL:-http://127.0.0.1:8080}/identity/realms/rosetta
-      IDENTITY_URL: http://identity:8080/identity/realms/rosetta
+      OIDC_ISSUER: ${PUBLIC_URL:-http://127.0.0.1:8080}/identity/realms/junctura
+      IDENTITY_URL: http://identity:8080/identity/realms/junctura
       CORE_CLIENT_SECRET: ${CORE_CLIENT_SECRET:?Run npm run setup first}
       DATA_URL: http://data:3000
       DATA_JWT_SECRET: ${DATA_JWT_SECRET:?Run npm run setup first}
@@ -213,7 +214,7 @@ services:
       CLAMAV_PORT: "3310"
       CLAMAV_TIMEOUT_MS: ${CLAMAV_TIMEOUT_MS:-30000}
       SECRETS_URL: http://secrets:8200
-      SECRETS_TOKEN_FILE: /run/rosetta/core-token
+      SECRETS_TOKEN_FILE: /run/junctura/core-token
       SECRETS_MOUNT: ${SECRETS_MOUNT:-secret}
       WORKFLOW_URL: http://workflow:8080/flowable-rest/service
       WORKFLOW_ADMIN_PASSWORD: ${WORKFLOW_ADMIN_PASSWORD:?Run npm run setup first}
@@ -236,7 +237,7 @@ services:
         condition: service_completed_successfully
     read_only: true
     volumes:
-      - openbao-init:/run/rosetta:ro
+      - openbao-init:/run/junctura:ro
     tmpfs:
       - /tmp:rw,noexec,nosuid,nodev,size=32m,mode=1777
     cap_drop:
@@ -263,7 +264,7 @@ services:
     networks: [edge, identity]
   console:
     profiles: ["console"]
-    image: rosetta-console:local
+    image: junctura-console:local
     build:
       context: .
       dockerfile: console/Dockerfile

@@ -14,7 +14,7 @@ export async function compositionCommand(config, identity, operation, payload) {
   let result;
   try {
     const response = await fetch(`${config.dataUrl}/rpc/composition_command`, { method: "POST", redirect: "error",
-      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "rosetta_composition_api")}`,
+      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "junctura_composition_api")}`,
         "Content-Type": "application/json" },
       body: JSON.stringify({ operation, payload }), signal: AbortSignal.timeout(5000) });
     if (!response.ok) throw Error();

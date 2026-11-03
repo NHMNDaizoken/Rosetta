@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { checkReadiness } from "../src/bootstrap/readiness.mjs";
 
-const issuer = "http://identity.test/realms/rosetta";
+const issuer = "http://identity.test/realms/junctura";
 const config = { issuer, identityUrl: "http://identity.test" };
 
 test("readiness accepts only a responding identity provider with the configured issuer", async () => {

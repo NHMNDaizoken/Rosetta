@@ -15,7 +15,7 @@ import { pipeline } from "node:stream/promises";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
-export const DATABASES = ["rosetta_identity", "rosetta_data", "rosetta_workflow"];
+export const DATABASES = ["junctura_identity", "junctura_data", "junctura_workflow"];
 export const OBJECTS_ARCHIVE = "objects.tar.gz";
 const APP_SERVICES = ["console", "gateway", "core", "data", "workflow", "identity", "objects"];
 
@@ -72,17 +72,17 @@ function compose(args, { input, output } = {}) {
   });
 }
 
-const psql = sql => compose(["exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-Atc", sql]);
+const psql = sql => compose(["exec", "-T", "database", "psql", "-U", "junctura_admin", "-d", "postgres", "-v", "ON_ERROR_STOP=1", "-Atc", sql]);
 const step = message => console.log(`• ${message}`);
 
 export async function backup(out) {
   const directory = resolve(out ?? join("backups", backupName()));
   if (existsSync(directory)) throw new Error(`${directory} already exists`);
-  await compose(["exec", "-T", "database", "pg_isready", "-U", "rosetta_admin"]);
+  await compose(["exec", "-T", "database", "pg_isready", "-U", "junctura_admin"]);
   mkdirSync(directory, { recursive: true });
   for (const db of DATABASES) {
     step(`Dumping ${db}`);
-    await compose(["exec", "-T", "database", "pg_dump", "-U", "rosetta_admin", "--format=custom", db], { output: join(directory, `${db}.dump`) });
+    await compose(["exec", "-T", "database", "pg_dump", "-U", "junctura_admin", "--format=custom", db], { output: join(directory, `${db}.dump`) });
   }
   step("Archiving object storage (object service paused briefly for a consistent copy)");
   await compose(["stop", "objects"]);
@@ -121,7 +121,7 @@ export async function restore({ source, yes, safetyBackup }) {
     step(`Restoring ${db}`);
     await psql(`DROP DATABASE IF EXISTS ${db} WITH (FORCE);`);
     // --create recreates the database with its original owner, ACLs and settings.
-    await compose(["exec", "-T", "database", "pg_restore", "-U", "rosetta_admin", "--create", "--exit-on-error", "-d", "postgres"], { input: join(directory, `${db}.dump`) });
+    await compose(["exec", "-T", "database", "pg_restore", "-U", "junctura_admin", "--create", "--exit-on-error", "-d", "postgres"], { input: join(directory, `${db}.dump`) });
   }
   step("Restoring object storage");
   await compose(["run", "--rm", "--no-deps", "-T", "--entrypoint", "sh", "objects", "-c",

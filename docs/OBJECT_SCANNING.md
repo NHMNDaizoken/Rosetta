@@ -51,7 +51,7 @@ shares still require a committed clean version.
 - Signature freshness depends on FreshClam and network access from the scanner
   container.
 - Quarantine prefixes are best-effort cleaned; operators may periodically purge
-  orphaned `rosetta-quarantine/` paths after incidents.
+  orphaned `junctura-quarantine/` paths after incidents.
 - This is not a substitute for endpoint AV on operator workstations.
 
 ## Tests

@@ -7,16 +7,16 @@ import net from "node:net";
 import path from "node:path";
 
 const root = process.cwd();
-const image = "rosetta-console:contract-test";
+const image = "junctura-console:contract-test";
 const nodeImage =
   "node:24.21.0-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20";
 const suffix = `${process.pid}-${Date.now()}`;
-const network = `rosetta-console-test-${suffix}`;
-const fixtureName = `rosetta-console-fixture-${suffix}`;
-const consoleName = `rosetta-console-${suffix}`;
+const network = `junctura-console-test-${suffix}`;
+const fixtureName = `junctura-console-fixture-${suffix}`;
+const consoleName = `junctura-console-${suffix}`;
 const fixturePath = path.join(root, "tests", "console-proxy-fixture.mjs");
 const uuid = "c3d4e5f6-7a8b-4c9d-0e1f-2a3b4c5d6e7f";
-const executionId = "rosetta_checkpoint:1:test";
+const executionId = "junctura_checkpoint:1:test";
 const idempotencyKey = "11111111-2222-4333-8444-555555555555";
 
 function dockerOutput(args) {
@@ -189,7 +189,7 @@ async function main() {
       "sh",
       image,
       "-c",
-      "test -f /usr/share/nginx/html/index.html && test -s /usr/share/licenses/rosetta/LICENSE && test ! -e /console && test ! -e /app && ! command -v vite",
+      "test -f /usr/share/nginx/html/index.html && test -s /usr/share/licenses/junctura/LICENSE && test ! -e /console && test ! -e /app && ! command -v vite",
     ],
     { encoding: "utf8" },
   );
@@ -325,7 +325,7 @@ async function main() {
     ["unproxied v2 data", "/api/v2/data/widgets", 404],
     ["unproxied v1 data", "/api/v1/data/widgets", 404],
     ["unproxied approval lookup", `/api/v1/approvals/${uuid}`, 404],
-    ["unproxied OIDC", "/api/identity/realms/rosetta/protocol/openid-connect/token", 404],
+    ["unproxied OIDC", "/api/identity/realms/junctura/protocol/openid-connect/token", 404],
     ["trailing slash bypass", "/api/v1/identity/", 404],
     ["invalid application id", "/api/v1/applications/not-a-uuid", 404],
     ["application suffix bypass", `/api/v1/applications/${uuid}/approve/`, 404],

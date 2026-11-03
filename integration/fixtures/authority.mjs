@@ -4,13 +4,13 @@
 import assert from "node:assert/strict";
 import { createHash, randomBytes } from "node:crypto";
 export function createAuthorityFixture({ base, prefix, sql, q, api, clientIds, users }) {
-const issuer = `${base}/identity/realms/rosetta`;
+const issuer = `${base}/identity/realms/junctura`;
 let adminToken;
 async function operatorToken() {
   const deadline = Date.now() + 30000;
   while (Date.now() < deadline) {
     try {
-      const response = await fetch(`${base}/identity/realms/master/protocol/openid-connect/token`, { method: "POST", body: new URLSearchParams({ grant_type: "password", client_id: "admin-cli", username: "rosetta-admin", password: process.env.KEYCLOAK_ADMIN_PASSWORD }), signal: AbortSignal.timeout(5000) });
+      const response = await fetch(`${base}/identity/realms/master/protocol/openid-connect/token`, { method: "POST", body: new URLSearchParams({ grant_type: "password", client_id: "admin-cli", username: "junctura-admin", password: process.env.KEYCLOAK_ADMIN_PASSWORD }), signal: AbortSignal.timeout(5000) });
       if (response.status === 200) return adminToken = (await response.json()).access_token;
     } catch { /* The real database/Core recreation can leave stale IdP connections. */ }
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -18,7 +18,7 @@ async function operatorToken() {
   assert.fail("Operator authentication did not recover within thirty seconds");
 }
 async function admin(path, body, method = "GET") {
-  return fetch(`${base}/identity/admin/realms/rosetta/${path}`, { method, headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  return fetch(`${base}/identity/admin/realms/junctura/${path}`, { method, headers: { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
 }
 async function login(username, password, clientId) {
   const verifier = randomBytes(32).toString("base64url");

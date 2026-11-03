@@ -6,7 +6,7 @@ import { join } from "node:path";
 
 const root = fileURLToPath(new URL("../console/", import.meta.url));
 const lock = JSON.parse(readFileSync(join(root, "package-lock.json"), "utf8"));
-const sections = ["Rosetta Console: upstream runtime notices. Original Rosetta: Apache-2.0; see LICENSE and NOTICE."];
+const sections = ["Junctura Console: upstream runtime notices. Original Junctura: Apache-2.0; see LICENSE and NOTICE."];
 for (const [path, entry] of Object.entries(lock.packages).sort(([a], [b]) => a.localeCompare(b))) {
   if (!path || entry.dev || entry.optional) continue;
   const dir = join(root, path);

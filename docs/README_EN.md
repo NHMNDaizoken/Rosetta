@@ -16,8 +16,8 @@ A minimal server-side Node SDK is available in `sdk/node/`. There is no public d
 **Start here:** [What works today](PRODUCT.md) · [Quickstart](#quickstart) · [First API request](#core-api-usage) · [Developer onboarding](GETTING_STARTED.md) · [Extension guide](DEVELOPING.md) · [Architecture](#layer-1-and-layer-2) · [Roadmap](#development-roadmap)
 
 ```sh
-git clone https://github.com/NHMNDaizoken/Rosetta.git
-cd Rosetta
+git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
+cd junctura
 npm run setup
 npm run local:up
 npm run healthcheck
@@ -34,7 +34,7 @@ Junctura addresses the infrastructure work through a reusable Core. Its longer-t
 ## Vision and objectives
 
 The consolidated target is a **Self-Hosted Open-Source Developer Cloud Platform**:
-external applications use Junctura BaaS; proposed Rosetta-hosted applications run
+external applications use Junctura BaaS; proposed Junctura-hosted applications run
 on approved operator infrastructure and use the same contracts. Project/environment
 management, deployment controllers, app ingress/TLS and credential bindings remain
 **PROPOSED**, not working hosting features. Optional **Verifiable Capability
@@ -150,8 +150,8 @@ The Core runtime has no npm dependencies, package installation or transpilation 
 ### Start the local platform
 
 ```sh
-git clone https://github.com/NHMNDaizoken/Rosetta.git
-cd Rosetta
+git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
+cd junctura
 npm run setup
 docker compose config --quiet
 npm run local:up
@@ -164,7 +164,7 @@ If you already have a checkout, start from its root. `npm run setup` creates an 
 
 The gateway is available at `http://127.0.0.1:8080` by default. This is an API entry point, with no application home page. Only Nginx publishes a host port. Provider ports stay on private Compose networks. Core runs as a nonroot user with a read-only filesystem, dropped capabilities and no Docker socket. PostgreSQL and SeaweedFS persist state in named volumes.
 
-`GET /health` returns `{"service":"rosetta-core","status":"ok"}` for process liveness; `HEAD /health` returns the same status/headers without a body. Other methods return `405`. `GET /ready` returns `200` or `503` based on configured dependencies. A passing health probe alone does not verify the whole platform.
+`GET /health` returns `{"service":"junctura-core","status":"ok"}` for process liveness; `HEAD /health` returns the same status/headers without a body. Other methods return `405`. `GET /ready` returns `200` or `503` based on configured dependencies. A passing health probe alone does not verify the whole platform.
 
 ### Configuration and common startup problems
 
@@ -184,7 +184,7 @@ After Compose is ready, this Node.js example works without an SDK or `jq`. It us
 ```sh
 node --env-file=.env --input-type=module -e "
 const base = process.env.PUBLIC_URL ?? 'http://127.0.0.1:8080';
-const issued = await fetch(base + '/identity/realms/rosetta/protocol/openid-connect/token', {
+const issued = await fetch(base + '/identity/realms/junctura/protocol/openid-connect/token', {
   method: 'POST',
   body: new URLSearchParams({ grant_type: 'client_credentials', client_id: 'tenant-a', client_secret: process.env.TENANT_A_SECRET })
 });
@@ -200,7 +200,7 @@ The identity includes `subject`, `tenantId: 'tenant-a'` and supported roles. Tok
 
 | API surface | Available behavior |
 | --- | --- |
-| `/identity/realms/rosetta/.well-known/openid-configuration` | Standard upstream OIDC discovery and authorization/token/logout endpoints. |
+| `/identity/realms/junctura/.well-known/openid-configuration` | Standard upstream OIDC discovery and authorization/token/logout endpoints. |
 | `GET /v1/identity` | Verified subject, tenant and reader/writer roles. |
 | `/v2/data/{collection}` and `/{id}` | Application-private records with forced tenant/app RLS and owner-only writes. |
 | `/v2/objects` and `/{uuid}` | Application-private binary objects with durable ownership/version metadata. |
@@ -221,11 +221,11 @@ supplied) proves a denied cross-app read before the share and an allowed read
 after it. It calls only the public Gateway.
 
 ```sh
-ROSETTA_APP_CLIENT_ID=<enrolled-backend-client> \
-ROSETTA_APP_CLIENT_SECRET=<backend-secret> \
-ROSETTA_GRANTEE_APP_ID=<second-enrolled-app-uuid> \
-ROSETTA_GRANTEE_CLIENT_ID=<grantee-client> \
-ROSETTA_GRANTEE_CLIENT_SECRET=<grantee-secret> \
+JUNCTURA_APP_CLIENT_ID=<enrolled-backend-client> \
+JUNCTURA_APP_CLIENT_SECRET=<backend-secret> \
+JUNCTURA_GRANTEE_APP_ID=<second-enrolled-app-uuid> \
+JUNCTURA_GRANTEE_CLIENT_ID=<grantee-client> \
+JUNCTURA_GRANTEE_CLIENT_SECRET=<grantee-secret> \
 node --env-file=.env examples/foundation-http.mjs
 ```
 
@@ -270,7 +270,7 @@ infra/flowable/               Original technical BPMN checkpoint fixture
 tests/                        Unit and HTTP contract tests
 integration/                  Real-service, restart and isolated restore checks
 scripts/                      Setup, source checks, health probe and workflow initializer
-console/                      Rosetta Console — Layer-1 Operational Control Plane (React/Vite/TS)
+console/                      Junctura Console — Layer-1 Operational Control Plane (React/Vite/TS)
 docs/                         Vision, architecture, API, operations and project policies
 .github/workflows/ci.yml       Verification pipeline
 compose.yaml                  Local provider networks, persistence and startup ordering

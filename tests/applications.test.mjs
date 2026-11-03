@@ -30,7 +30,7 @@ test("application wire reader rejects duplicate/escaped duplicate keys, malforme
 });
 test("application context uses introspected client_id without changing the existing identity contract", async () => {
   const issuer = "https://identity.example.invalid";
-  const claims = { active: true, iss: issuer, aud: "rosetta-core", sub: "human", exp: Date.now()/1000+30, client_id: "management", tenant_id: "tenant-a", tenant_memberships: ["tenant-a"], realm_access: { roles: ["core-reader"] } };
+  const claims = { active: true, iss: issuer, aud: "junctura-core", sub: "human", exp: Date.now()/1000+30, client_id: "management", tenant_id: "tenant-a", tenant_memberships: ["tenant-a"], realm_access: { roles: ["core-reader"] } };
   const authorize = createAuthorizer({ issuer }, async () => ({ ok: true, json: async () => claims }));
   const request = { headers: { authorization: "Bearer fixture" } };
   assert.deepEqual(Object.keys(await authorize(request)), ["subject", "tenantId", "roles"]);

@@ -8,7 +8,7 @@ test("app:enroll derives a client id and default https origin", () => {
   const options = parseArgs(["daotao"]);
   assert.equal(options.clientId, "app-daotao");
   assert.equal(options.tenant, "tenant-a");
-  assert.equal(options.origin, "https://app-daotao.rosetta.local");
+  assert.equal(options.origin, "https://app-daotao.junctura.local");
   assert.equal(options.displayName, "daotao");
 });
 
@@ -27,7 +27,7 @@ test("app:enroll rejects unsafe names, origins and options", () => {
 
 test("app:enroll writes only the app's own settings", () => {
   const text = renderEnv({ baseUrl: "http://127.0.0.1:8080", tenant: "tenant-a", appId: "00000000-0000-4000-8000-000000000000", clientId: "app-x", clientSecret: "s" });
-  assert.match(text, /^ROSETTA_APP_CLIENT_ID=app-x$/m);
-  assert.match(text, /^ROSETTA_APP_CLIENT_SECRET=s$/m);
+  assert.match(text, /^JUNCTURA_APP_CLIENT_ID=app-x$/m);
+  assert.match(text, /^JUNCTURA_APP_CLIENT_SECRET=s$/m);
   assert.doesNotMatch(text, /KEYCLOAK|POSTGRES|ADMIN/);
 });

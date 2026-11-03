@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.1",
   "info": {
-    "title": "Rosetta Capability Extensions v1",
+    "title": "Junctura Capability Extensions v1",
     "version": "1.0.0-draft",
     "description": "Implemented: Application Authority, C1 Registry, C2 direct Trust/discovery, protected Audit, opt-in C4A single invocation and opt-in C4B bounded composition. C3 is an offline resolver used by composition validation. C4B remains disabled by default; no delegation, cancellation, resume, automatic retry, HA or general side effects. Operation-level status identifies implemented subsets.",
     "license": {
@@ -10,10 +10,10 @@
     }
   },
   "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
-  "x-rosetta-status": "partially-implemented",
+  "x-junctura-status": "partially-implemented",
   "servers": [
     {
-      "url": "https://rosetta.example.invalid",
+      "url": "https://junctura.example.invalid",
       "description": "Reserved documentation host, not a deployment."
     }
   ],
@@ -90,7 +90,7 @@
             "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "applications.register"
         ],
         "requestBody": {
@@ -103,7 +103,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented"
+        "x-junctura-status": "implemented"
       }
     },
     "/v1/applications/{appId}": {
@@ -173,7 +173,7 @@
             "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "parameters": [
@@ -187,7 +187,7 @@
             }
           }
         ],
-        "x-rosetta-status": "implemented"
+        "x-junctura-status": "implemented"
       }
     },
     "/v1/applications/{appId}/approve": {
@@ -257,7 +257,7 @@
             "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "applications.approve",
           "trust.approve"
         ],
@@ -291,7 +291,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented"
+        "x-junctura-status": "implemented"
       }
     },
     "/v1/applications/{appId}/state": {
@@ -361,7 +361,7 @@
             "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "applications.approve"
         ],
         "parameters": [
@@ -394,7 +394,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented"
+        "x-junctura-status": "implemented"
       }
     },
     "/v1/capabilities": {
@@ -453,7 +453,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "parameters": [
@@ -477,7 +477,7 @@
             "description": "Opaque hex position. Consumer cursors bind tenant and backend app; every page rechecks current grants. C1 management cursors retain their existing representation."
           }
         ],
-        "x-rosetta-status": "implemented-authorized-discovery"
+        "x-junctura-status": "implemented-authorized-discovery"
       }
     },
     "/v1/capabilities/{capabilityId}/versions": {
@@ -544,7 +544,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "capabilities.write"
         ],
         "parameters": [
@@ -567,7 +567,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c1"
+        "x-junctura-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions/{version}": {
@@ -634,7 +634,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "parameters": [
@@ -656,7 +656,7 @@
             }
           }
         ],
-        "x-rosetta-status": "implemented-authorized-discovery"
+        "x-junctura-status": "implemented-authorized-discovery"
       },
       "put": {
         "operationId": "replaceCapabilityDraft",
@@ -721,7 +721,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "capabilities.write"
         ],
         "parameters": [
@@ -762,7 +762,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c1"
+        "x-junctura-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions/{version}/validate": {
@@ -829,7 +829,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "capabilities.write"
         ],
         "parameters": [
@@ -870,7 +870,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c1"
+        "x-junctura-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions/{version}/publish": {
@@ -937,7 +937,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "capabilities.publish"
         ],
         "parameters": [
@@ -978,7 +978,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c1"
+        "x-junctura-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions/{version}/deprecate": {
@@ -1045,7 +1045,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "capabilities.write"
         ],
         "parameters": [
@@ -1086,7 +1086,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c1"
+        "x-junctura-status": "implemented-c1"
       }
     },
     "/v1/capabilities/{capabilityId}/versions/{version}/revoke": {
@@ -1153,7 +1153,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "capabilities.write"
         ],
         "parameters": [
@@ -1194,7 +1194,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c1"
+        "x-junctura-status": "implemented-c1"
       }
     },
     "/v1/trust/grants": {
@@ -1261,7 +1261,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "trust.write"
         ],
         "requestBody": {
@@ -1274,8 +1274,8 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-direct-grants",
-        "x-rosetta-core-roles": [
+        "x-junctura-status": "implemented-direct-grants",
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ]
@@ -1345,7 +1345,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-trust-management-policy"
         ],
         "parameters": [
@@ -1359,8 +1359,8 @@
             }
           }
         ],
-        "x-rosetta-status": "implemented-direct-grants",
-        "x-rosetta-core-roles": [
+        "x-junctura-status": "implemented-direct-grants",
+        "x-junctura-core-roles": [
           "core-reader"
         ]
       }
@@ -1429,7 +1429,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "trust.approve"
         ],
         "parameters": [
@@ -1462,8 +1462,8 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-direct-grants",
-        "x-rosetta-core-roles": [
+        "x-junctura-status": "implemented-direct-grants",
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ]
@@ -1533,7 +1533,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-trust-management-policy"
         ],
         "parameters": [
@@ -1566,8 +1566,8 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-direct-grants",
-        "x-rosetta-core-roles": [
+        "x-junctura-status": "implemented-direct-grants",
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ]
@@ -1640,7 +1640,7 @@
             "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "resource-specific-approval-policy"
         ],
         "requestBody": {
@@ -1663,7 +1663,7 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-application-capability-grant"
+        "x-junctura-status": "implemented-application-capability-grant"
       }
     },
     "/v1/approvals/{approvalId}/revoke": {
@@ -1733,7 +1733,7 @@
             "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "resource-specific-approval-policy"
         ],
         "parameters": [
@@ -1766,14 +1766,14 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-application-capability-grant"
+        "x-junctura-status": "implemented-application-capability-grant"
       }
     },
     "/v1/delegations": {
       "post": {
         "operationId": "createDelegation",
         "summary": "Human subject creates a narrowed one-hop delegation",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "DESIGN ONLY. Not served by current Junctura Core. Apply all semantic and live authorization checks in the linked specification.",
         "tags": [
           "delegations"
         ],
@@ -1833,7 +1833,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "requestBody": {
@@ -1852,7 +1852,7 @@
       "post": {
         "operationId": "revokeDelegation",
         "summary": "Revoke own or administratively controlled delegation",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "DESIGN ONLY. Not served by current Junctura Core. Apply all semantic and live authorization checks in the linked specification.",
         "tags": [
           "delegations"
         ],
@@ -1912,7 +1912,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "parameters": [
@@ -1951,7 +1951,7 @@
       "post": {
         "operationId": "reauthorizeDelegation",
         "summary": "Original human refreshes memory proof without extending immutable scope/expiry",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "DESIGN ONLY. Not served by current Junctura Core. Apply all semantic and live authorization checks in the linked specification.",
         "tags": [
           "delegations"
         ],
@@ -2011,7 +2011,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "parameters": [
@@ -2120,7 +2120,7 @@
             }
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "compositions.write"
         ],
         "requestBody": {
@@ -2133,9 +2133,9 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/registry.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -2217,7 +2217,7 @@
             }
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "compositions.write"
         ],
         "parameters": [
@@ -2241,9 +2241,9 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/registry.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -2325,7 +2325,7 @@
             }
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "compositions.write or compositions.publish"
         ],
         "parameters": [
@@ -2348,9 +2348,9 @@
             }
           }
         ],
-        "x-rosetta-status": "implemented-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/registry.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -2430,7 +2430,7 @@
             }
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "compositions.write"
         ],
         "parameters": [
@@ -2472,9 +2472,9 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/registry.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -2556,7 +2556,7 @@
             }
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "compositions.write"
         ],
         "parameters": [
@@ -2598,9 +2598,9 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/registry.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -2682,7 +2682,7 @@
             }
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "compositions.publish"
         ],
         "parameters": [
@@ -2724,9 +2724,9 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/registry.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -2808,7 +2808,7 @@
             }
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "compositions.write"
         ],
         "parameters": [
@@ -2850,9 +2850,9 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/registry.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -2934,7 +2934,7 @@
             }
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "compositions.write"
         ],
         "parameters": [
@@ -2976,9 +2976,9 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/registry.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/registry.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -3060,7 +3060,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "parameters": [
@@ -3091,9 +3091,9 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c4a-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/runtime.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4a-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/runtime.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -3165,7 +3165,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "parameters": [
@@ -3179,9 +3179,9 @@
             }
           }
         ],
-        "x-rosetta-status": "implemented-c4a-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/runtime.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4a-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/runtime.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -3193,7 +3193,7 @@
       "post": {
         "operationId": "cancelCapabilityExecution",
         "summary": "Request stop; never imply rollback of dispatched effects",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "DESIGN ONLY. Not served by current Junctura Core. Apply all semantic and live authorization checks in the linked specification.",
         "tags": [
           "capability-executions"
         ],
@@ -3253,7 +3253,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "parameters": [
@@ -3286,14 +3286,14 @@
             }
           }
         },
-        "x-rosetta-status": "design-only"
+        "x-junctura-status": "design-only"
       }
     },
     "/v1/capability-executions/{executionId}/resume": {
       "post": {
         "operationId": "resumeCapabilityExecution",
         "summary": "Original initiator supplies fresh OIDC proof within the existing deadline",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "DESIGN ONLY. Not served by current Junctura Core. Apply all semantic and live authorization checks in the linked specification.",
         "tags": [
           "capability-executions"
         ],
@@ -3353,7 +3353,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "parameters": [
@@ -3386,7 +3386,7 @@
             }
           }
         },
-        "x-rosetta-status": "design-only"
+        "x-junctura-status": "design-only"
       }
     },
     "/v1/capability-authorizations/introspect": {
@@ -3445,7 +3445,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "requestBody": {
@@ -3458,9 +3458,9 @@
             }
           }
         },
-        "x-rosetta-status": "implemented-c4a-c4b-opt-in",
-        "x-rosetta-source": "src/modules/capability/composition/runtime.mjs",
-        "x-rosetta-test-suite": "compositions",
+        "x-junctura-status": "implemented-c4a-c4b-opt-in",
+        "x-junctura-source": "src/modules/capability/composition/runtime.mjs",
+        "x-junctura-test-suite": "compositions",
         "security": [
           {
             "oidcBearer": []
@@ -3472,7 +3472,7 @@
       "get": {
         "operationId": "listCapabilityAuditEvents",
         "summary": "Read tenant-scoped audit events under explicit audit authority",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "DESIGN ONLY. Not served by current Junctura Core. Apply all semantic and live authorization checks in the linked specification.",
         "tags": [
           "audit-events"
         ],
@@ -3524,7 +3524,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "audit.read"
         ],
         "parameters": [
@@ -3616,7 +3616,7 @@
             "description": "Method not allowed. Core uses the documented Error envelope."
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "resource-specific-approval-policy"
         ],
         "parameters": [
@@ -3630,14 +3630,14 @@
             }
           }
         ],
-        "x-rosetta-status": "implemented-application-capability-grant"
+        "x-junctura-status": "implemented-application-capability-grant"
       }
     },
     "/v1/delegations/{delegationId}": {
       "get": {
         "operationId": "getDelegation",
         "summary": "Read an authorized delegation",
-        "description": "DESIGN ONLY. Not served by current Rosetta Core. Apply all semantic and live authorization checks in the linked specification.",
+        "description": "DESIGN ONLY. Not served by current Junctura Core. Apply all semantic and live authorization checks in the linked specification.",
         "tags": [
           "delegations"
         ],
@@ -3697,7 +3697,7 @@
             "$ref": "#/components/responses/Unavailable"
           }
         },
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "live-resource-policy"
         ],
         "parameters": [
@@ -3719,7 +3719,7 @@
       "oidcBearer": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "OIDC access token with rosetta-core audience; live introspection and explicit tenant/app/grant checks"
+        "bearerFormat": "OIDC access token with junctura-core audience; live introspection and explicit tenant/app/grant checks"
       }
     },
     "schemas": {
@@ -4216,7 +4216,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "pattern": "^urn:rosetta:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+              "pattern": "^urn:junctura:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
             },
             "minItems": 1,
             "maxItems": 32,
@@ -4430,7 +4430,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "pattern": "^urn:rosetta:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+              "pattern": "^urn:junctura:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
             },
             "minItems": 1,
             "maxItems": 32,
@@ -4488,7 +4488,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "pattern": "^urn:rosetta:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+              "pattern": "^urn:junctura:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
             },
             "minItems": 1,
             "maxItems": 32,
@@ -4863,7 +4863,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "pattern": "^urn:rosetta:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
+              "pattern": "^urn:junctura:permission:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$"
             },
             "minItems": 1,
             "maxItems": 32,

@@ -47,15 +47,15 @@ def composition_inventory(spec, source=None):
         for method, oid in methods.items():
             op = spec['paths'][path][method]
             require(op['operationId'] == oid, 'Composition operation incorrectly mapped')
-            require(op.get('x-rosetta-source') == expected_source, 'Composition operation source incorrectly mapped')
-            require(op.get('x-rosetta-status') == 'implemented-c4b-opt-in', 'Composition status missing')
-            require(op.get('x-rosetta-test-suite') == 'compositions', 'Composition coverage missing')
+            require(op.get('x-junctura-source') == expected_source, 'Composition operation source incorrectly mapped')
+            require(op.get('x-junctura-status') == 'implemented-c4b-opt-in', 'Composition status missing')
+            require(op.get('x-junctura-test-suite') == 'compositions', 'Composition coverage missing')
             require(op.get('security') == [{'oidcBearer': []}], 'Composition OIDC missing')
             require(f'request.method === "{method.upper()}"' in source or f'request.method !== "{method.upper()}"' in source,
                     'Composition method missing in handler')
     for action in ('cancel', 'resume'):
         op = spec['paths'][f'/v1/capability-executions/{{executionId}}/{action}']['post']
-        require(op.get('x-rosetta-status') == 'design-only', 'Unsupported execution operation marked implemented')
+        require(op.get('x-junctura-status') == 'design-only', 'Unsupported execution operation marked implemented')
     runtime_source = 'src/modules/capability/composition/runtime.mjs'
     runtime = (ROOT / runtime_source).read_text(encoding='utf-8')
     router = (ROOT / 'src/api.mjs').read_text(encoding='utf-8')
@@ -63,8 +63,8 @@ def composition_inventory(spec, source=None):
                                 ('/v1/capability-executions/{executionId}', 'get', 'get'),
                                 ('/v1/capability-authorizations/introspect', 'post', 'introspect')):
         op = spec['paths'][path][method]
-        require(op.get('x-rosetta-source') == runtime_source, 'Composition execution source incorrectly mapped')
-        require(op.get('x-rosetta-status') == 'implemented-c4a-c4b-opt-in', 'Composition execution status missing')
+        require(op.get('x-junctura-source') == runtime_source, 'Composition execution source incorrectly mapped')
+        require(op.get('x-junctura-status') == 'implemented-c4a-c4b-opt-in', 'Composition execution status missing')
         require(f'async {entry}(' in runtime and f'config.compositionRuntime.{entry}(' in router,
                 'Composition execution handler missing')
     return sum(len(m) for m in COMPOSITION_ROUTES.values()) + 3
@@ -86,7 +86,7 @@ for version in ('v1', 'v2'):
                      f'/{version}/data/{{collection}}/{{id}}': {'get', 'patch', 'delete'},
                      f'/{version}/objects': {'post'},
                      f'/{version}/objects/{{id}}': {'get', 'put', 'delete'}})
-OIDC = '/identity/realms/rosetta'
+OIDC = '/identity/realms/junctura'
 EXPECTED[OIDC + '/.well-known/openid-configuration'] = {'get'}
 for suffix, methods in {'auth': {'get'}, 'token': {'post'}, 'certs': {'get'},
                         'userinfo': {'get', 'post'}, 'logout': {'get', 'post'}}.items():
@@ -156,7 +156,7 @@ def validate_official_structure(spec):
 
 def validate_document(spec, official=True):
     require(spec.get('openapi') == '3.1.1', 'Expected OpenAPI 3.1.1')
-    require(spec.get('x-rosetta-status') == 'implemented', 'Foundation must describe implemented routes')
+    require(spec.get('x-junctura-status') == 'implemented', 'Foundation must describe implemented routes')
     actual = {p: set(v) & METHODS for p, v in spec['paths'].items()}
     require(actual == EXPECTED, 'Route/method inventory differs from reviewed handlers')
     ids = set()
@@ -180,8 +180,8 @@ def validate_document(spec, official=True):
             oid = operation['operationId']
             require(oid not in ids, 'Duplicate operationId')
             ids.add(oid)
-            require((ROOT / operation['x-rosetta-source']).is_file(), oid + ': source missing')
-            require(operation['x-rosetta-test-suite'] in ('core', 'applications'), oid + ': coverage suite missing')
+            require((ROOT / operation['x-junctura-source']).is_file(), oid + ': source missing')
+            require(operation['x-junctura-test-suite'] in ('core', 'applications'), oid + ': coverage suite missing')
             parameters = [resolve(spec, p) for p in operation.get('parameters', [])]
             require(len({(p['in'], p['name']) for p in parameters}) == len(parameters), oid + ': duplicate parameter')
             require({p['name'] for p in parameters if p['in'] == 'path'} == set(re.findall(r'{([^}]+)}', path)), oid + ': path parameters differ')
@@ -190,11 +190,11 @@ def validate_document(spec, official=True):
                 require(operation['security'] == [{'coreBearer': []}], oid + ': bearer protection missing')
                 admin = path.startswith(('/v1/applications', '/v1/approvals'))
                 roles = ['core-reader'] + (['core-writer'] if method != 'get' and not admin else [])
-                require(operation['x-rosetta-core-roles'] == roles, oid + ': role contract differs')
+                require(operation['x-junctura-core-roles'] == roles, oid + ': role contract differs')
             if path.startswith(('/v1/data/', '/v1/objects')):
-                require(operation.get('deprecated') is True and operation['x-rosetta-authority'] == 'legacy-tenant', oid + ': legacy boundary missing')
+                require(operation.get('deprecated') is True and operation['x-junctura-authority'] == 'legacy-tenant', oid + ': legacy boundary missing')
             if path.startswith('/v2/'):
-                require(operation['x-rosetta-authority'] == 'app-resource', oid + ': app boundary missing')
+                require(operation['x-junctura-authority'] == 'app-resource', oid + ': app boundary missing')
     if official:
         validate_official_structure(spec)
     return len(ids)
@@ -241,7 +241,7 @@ def validate_observations(spec, observations, suite=None):
         require(not security or {} in security or item['authorized'], label + ': protected request succeeded without credentials')
         parameters = [resolve(spec, p) for p in operation.get('parameters', [])]
         known_query = {p['name'] for p in parameters if p['in'] == 'query'}
-        if operation['x-rosetta-query-policy'] == 'closed':
+        if operation['x-junctura-query-policy'] == 'closed':
             require(set(item['query']) <= known_query, label + ': unknown query succeeded')
         for param in parameters:
             where = {'path': item['pathParams'], 'query': item['query'], 'header': item['requestHeaders']}[param['in']]
@@ -266,7 +266,7 @@ def validate_observations(spec, observations, suite=None):
                 require(not item.get('requestInvalidJson'), label + ': accepted invalid request JSON')
                 check_value(spec, operation['requestBody']['content'][media]['schema'], item.get('requestBody'), label + ' request')
     if suite:
-        required = {o['operationId'] for m in spec['paths'].values() for o in m.values() if o['x-rosetta-test-suite'] == suite}
+        required = {o['operationId'] for m in spec['paths'].values() for o in m.values() if o['x-junctura-test-suite'] == suite}
         require(required <= covered, 'Missing positive operation coverage: ' + ', '.join(sorted(required - covered)))
     return len(observations), len(covered)
 
@@ -274,7 +274,7 @@ def validate_observations(spec, observations, suite=None):
 def self_test(spec):
     good = {'path':'/health','method':'GET','status':200,'authorized':False,'query':{},'pathParams':{},'requestHeaders':{},'requestBytes':0,
             'responseHeaders':{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff, nosniff'},
-            'responseBody':{'service':'rosetta-core','status':'ok'},'responseBytes':44}
+            'responseBody':{'service':'junctura-core','status':'ok'},'responseBytes':44}
     validate_observations(spec, [good])
     mutations = [lambda d:d.update(status=201), lambda d:d['responseBody'].pop('status'),
                  lambda d:d['responseBody'].update(status=123), lambda d:d['responseBody'].update(extra=True),
@@ -324,11 +324,11 @@ def self_test(spec):
         if change == 'missing-route':
             del bad['paths']['/v1/compositions']
         elif change == 'wrong-source':
-            op['x-rosetta-source'] = 'src/api.mjs'  # Exists, but is the wrong mapping.
+            op['x-junctura-source'] = 'src/api.mjs'  # Exists, but is the wrong mapping.
         elif change == 'wrong-operation':
             op['operationId'] = 'getCompositionVersion'
         else:
-            source = (ROOT / op['x-rosetta-source']).read_text(encoding='utf-8').replace('compositions', 'absent')
+            source = (ROOT / op['x-junctura-source']).read_text(encoding='utf-8').replace('compositions', 'absent')
         try:
             composition_inventory(bad, source)
         except ContractError:

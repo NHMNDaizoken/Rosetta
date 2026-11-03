@@ -5,7 +5,7 @@ import { ScreenId, IdentityState } from "../../types";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { BRAND } from "../../constants/brand";
-import { RosettaLogo } from "../common/RosettaLogo";
+import { JuncturaLogo } from "../common/JuncturaLogo";
 import { X } from "lucide-react";
 
 interface AppShellProps {
@@ -56,7 +56,7 @@ export const AppShell: React.FC<AppShellProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="h-16 px-4 border-b border-slate-100 dark:border-[#223E50]/70 flex items-center justify-between">
-              <RosettaLogo size={28} showText={true} />
+              <JuncturaLogo size={28} showText={true} />
               <button
                 onClick={() => setIsMobileOpen(false)}
                 className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"

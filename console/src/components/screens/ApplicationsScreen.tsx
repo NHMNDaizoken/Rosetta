@@ -209,7 +209,7 @@ export const ApplicationsScreen: React.FC = () => {
 
       {/* Contract & Directory Architecture Notice */}
       <div className="p-4 rounded-lg bg-slate-50 dark:bg-[#12232F] border border-slate-200/80 dark:border-[#223E50] flex items-start gap-3 text-xs text-slate-600 dark:text-slate-300">
-        <Info className="w-4 h-4 text-rosetta-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
+        <Info className="w-4 h-4 text-junctura-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
         <p className="leading-relaxed">
           {isLive ? t.applications.liveListNotice : t.applications.globalListNotice}
         </p>
@@ -226,7 +226,7 @@ export const ApplicationsScreen: React.FC = () => {
                 value={lookupId}
                 onChange={(e) => setLookupId(e.target.value)}
                 placeholder={t.applications.enterAppId}
-                className="w-full pl-9 pr-4 py-1.5 text-xs rounded-md border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+                className="w-full pl-9 pr-4 py-1.5 text-xs rounded-md border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
               />
             </div>
             <Button
@@ -409,7 +409,7 @@ export const ApplicationsScreen: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500">Provider Origin:</span>
-                  <span className="font-mono text-rosetta-blue dark:text-sky-400">{selectedApp.providerOrigin}</span>
+                  <span className="font-mono text-junctura-blue dark:text-sky-400">{selectedApp.providerOrigin}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-500">Revision:</span>
@@ -461,7 +461,7 @@ export const ApplicationsScreen: React.FC = () => {
               value={newDisplayName}
               onChange={(e) => setNewDisplayName(e.target.value)}
               placeholder="VD: Junctura Logistics Hub"
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
           </div>
           <div>
@@ -474,7 +474,7 @@ export const ApplicationsScreen: React.FC = () => {
               value={newOAuthClientId}
               onChange={(e) => setNewOAuthClientId(e.target.value)}
               placeholder="VD: tenant-a-logistics-client"
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
           </div>
           <div>
@@ -487,7 +487,7 @@ export const ApplicationsScreen: React.FC = () => {
               value={newProviderOrigin}
               onChange={(e) => setNewProviderOrigin(e.target.value)}
               placeholder="https://provider.example.com"
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
             <span className="text-[10px] text-slate-400 mt-0.5 block">
               Bắt buộc giao thức HTTPS chuẩn, không chứa IP hoặc path.
@@ -579,7 +579,7 @@ export const ApplicationsScreen: React.FC = () => {
               value={stateReason}
               onChange={(e) => setStateReason(e.target.value)}
               placeholder={t.applications.actionReasonPlaceholder}
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
           </div>
         </div>

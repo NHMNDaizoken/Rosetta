@@ -150,7 +150,7 @@ Evidence may move an ADR to accepted in a later reviewed change.
   roles cannot modify it. Migration 005 adds server-derived actor/tenant metadata,
   event/outcome/reason validation, best-effort secret redaction, tenant/time
   keyset reads through `core.audit_query(jsonb)`, an explicit `audit.read`
-  principal permission and a `rosetta_audit_api` role with no table write access.
+  principal permission and a `junctura_audit_api` role with no table write access.
   Audit append failure rolls back the authority mutation. Evidence:
   [AUDIT.md](../AUDIT.md), `integration/audit.mjs`, `integration/recovery.mjs` and
   the existing application rollback test.

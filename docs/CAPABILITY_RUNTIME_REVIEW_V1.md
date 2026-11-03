@@ -128,8 +128,8 @@ are not implemented; future integrations must add transactional revocation check
 
 Migration 003 is additive and transactional. Private authority tables have forced
 RLS with tenant predicates; a nonlogin, non-bypass owner executes fixed SQL RPCs.
-The generic `rosetta_api` role has no access to these tables or functions. Internal
-Core assertions select a distinct `rosetta_app_api` role and include only verified
+The generic `junctura_api` role has no access to these tables or functions. Internal
+Core assertions select a distinct `junctura_app_api` role and include only verified
 identity data. The private authenticator/signing key remain trusted Core credentials
 and must never be issued to applications. Database superusers and Docker operators
 are outside the end-user security boundary, as in the existing foundation.

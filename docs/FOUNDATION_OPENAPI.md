@@ -129,9 +129,9 @@ variables privately, then run `npm run example:foundation`:
 
 ```text
 PUBLIC_URL=http://127.0.0.1:8080
-ROSETTA_APP_CLIENT_ID=<registered confidential backend client>
-ROSETTA_APP_CLIENT_SECRET=<privately provisioned credential>
-ROSETTA_GRANTEE_APP_ID=<different active same-tenant registered app UUID>
+JUNCTURA_APP_CLIENT_ID=<registered confidential backend client>
+JUNCTURA_APP_CLIENT_SECRET=<privately provisioned credential>
+JUNCTURA_GRANTEE_APP_ID=<different active same-tenant registered app UUID>
 ```
 
 These are placeholders, not working credentials. Default tenant-a/tenant-b

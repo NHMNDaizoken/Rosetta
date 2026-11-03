@@ -72,8 +72,8 @@ npm run backup                                   # -> backups/<YYYYMMDD-HHMMSS>/
 npm run restore -- backups/20261103-220000 --yes
 ```
 
-`npm run backup` writes pg_dump custom archives of `rosetta_identity`,
-`rosetta_data` and `rosetta_workflow`, a tar.gz of the SeaweedFS object volume
+`npm run backup` writes pg_dump custom archives of `junctura_identity`,
+`junctura_data` and `junctura_workflow`, a tar.gz of the SeaweedFS object volume
 (the `objects` service is paused for a consistent copy) and `manifest.json` with
 SHA-256 checksums and the source commit. The `backups/` folder is Git-ignored;
 it holds identities and private data, so store it like `.env`.
@@ -109,8 +109,8 @@ the audit role/ACL/tenant query. See [protected audit](AUDIT.md).
 
 Migrations 006–009 add Registry and bounded direct Trust/discovery. Retain
 `trust_private`, `app_private`, Registry versions, approvals, enrolled identities
-and Audit together. Restore requires `rosetta_app_owner`, `rosetta_capability_api`
-and `rosetta_trust_api` in addition to the existing roles. The capability suite
+and Audit together. Restore requires `junctura_app_owner`, `junctura_capability_api`
+and `junctura_trust_api` in addition to the existing roles. The capability suite
 invokes the isolated restore harness while its real OIDC fixtures exist, checking
 active, revoked and expired grant decisions, tenant RLS, private ownership/ACLs
 and revocation audit. Run `npm run test:capabilities` followed by the ordinary
@@ -121,7 +121,7 @@ replaying old authority migrations. See [direct Trust](CAPABILITY_DIRECT_TRUST.m
 using the pinned image, and streams `pg_dump --format=custom` into `pg_restore`.
 The target has no network or published ports and keeps its database in temporary
 memory. The test preserves table ownership, ACLs and policies, then checks the
-record is visible to tenant A and invisible to tenant B under `rosetta_api`.
+record is visible to tenant A and invisible to tenant B under `junctura_api`.
 It also checks that the audit role cannot write the audit table but can run the
 tenant-scoped query after restore, and that tenant B cannot read tenant A's event.
 It stops only its own temporary container and removes only its own source fixture.

@@ -7,11 +7,12 @@ All notable changes to Junctura are recorded here. Versions follow
 
 First public release of the Junctura Layer 1 platform for OLP'26.
 
-- Product renamed from Rosetta to **Junctura DX-OS** (Latin for "joint"): README,
-  documentation, Console branding, J monogram logo and copyright holder. Technical
-  identifiers (`ROSETTA_*` settings, container, database and realm names) are unchanged
-  so existing installations keep working; the SDK adds `createJuncturaClient` and
-  `JuncturaError` aliases.
+- **Renamed from Rosetta to Junctura DX-OS** (Latin for "joint") before the first
+  release, everywhere: code, SDK (`createJuncturaClient`), settings (`JUNCTURA_*`),
+  database names and roles (`junctura_*`), Keycloak realm `junctura`, capability URNs
+  (`urn:junctura:`), Compose project `junctura`, Console branding and J monogram logo.
+  Pre-release local installations are recreated on the next `npm run local:up`
+  (new Compose project and volumes; old `rosetta` volumes are left untouched).
 
 - Five headless Foundation services behind one Nginx gateway: Keycloak SSO,
   PostgreSQL/PostgREST with row-level security, SeaweedFS with ClamAV ingress
@@ -29,8 +30,7 @@ First public release of the Junctura Layer 1 platform for OLP'26.
   workflow databases and the object volume; restore verifies, takes a safety backup,
   recreates databases with original ACLs/RLS and restarts the stack.
 - Gateway JSON access log with request IDs (paths only, no query strings or headers).
-- Byte-frozen files (migrations, BPMN, OpenBao policies, published contracts) keep
-  their original attribution so stored checksums remain valid.
+- Migration checksums, contract digests and fixtures regenerated for the new names.
 - `npm run app:enroll -- <name>`: one-command local enrollment of a Layer-2 backend
   application with separated demo owner/approver and an ignored per-app env file.
 

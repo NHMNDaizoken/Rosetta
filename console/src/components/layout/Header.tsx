@@ -82,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
           className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 dark:bg-[#172E3C] border border-slate-200/80 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 font-mono"
           title={identityState.status === "preview" ? t.identity.preview : undefined}
         >
-          <Building2 className="w-3.5 h-3.5 text-rosetta-blue dark:text-sky-400" />
+          <Building2 className="w-3.5 h-3.5 text-junctura-blue dark:text-sky-400" />
           <span>{identityText}</span>
           {identityVerified && (
             <CheckCircle2 className="w-3 h-3 text-teal-600 dark:text-teal-400 ml-0.5" />

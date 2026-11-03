@@ -1,16 +1,16 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 BEGIN;
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='rosetta_audit_api') THEN
-    CREATE ROLE rosetta_audit_api NOLOGIN NOBYPASSRLS;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='junctura_audit_api') THEN
+    CREATE ROLE junctura_audit_api NOLOGIN NOBYPASSRLS;
   END IF;
 END $$;
-GRANT rosetta_audit_api TO rosetta_data;
-GRANT USAGE ON SCHEMA core TO rosetta_audit_api;
-GRANT USAGE ON SCHEMA core TO rosetta_app_owner;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
-SET LOCAL ROLE rosetta_app_owner;
+GRANT junctura_audit_api TO junctura_data;
+GRANT USAGE ON SCHEMA core TO junctura_audit_api;
+GRANT USAGE ON SCHEMA core TO junctura_app_owner;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 
 -- A1 keeps the existing app_private.audit table. These columns add the
 -- control-plane metadata needed by later capability lifecycle events without
@@ -167,7 +167,7 @@ BEGIN
 END $$;
 
 -- Internal tenant/time-filtered read contract. It is intentionally not exposed
--- by a Core HTTP route; rosetta_audit_api can only be asserted by trusted Core.
+-- by a Core HTTP route; junctura_audit_api can only be asserted by trusted Core.
 CREATE OR REPLACE FUNCTION core.audit_query(payload jsonb) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,app_private AS $$
 DECLARE
@@ -265,17 +265,17 @@ BEGIN
   RETURN jsonb_build_object('status',200,'value',jsonb_build_object('items',items,'nextCursor',v_next));
 END $$;
 
-ALTER FUNCTION app_private.audit_append(text,text,uuid,integer,text,text,text) OWNER TO rosetta_app_owner;
-ALTER FUNCTION core.audit_query(jsonb) OWNER TO rosetta_app_owner;
-REVOKE ALL ON app_private.audit FROM PUBLIC,rosetta_api,rosetta_app_api,rosetta_resource_api,rosetta_audit_api;
-REVOKE ALL ON FUNCTION app_private.audit_redact_text(text) FROM PUBLIC,rosetta_api,rosetta_app_api,rosetta_resource_api,rosetta_audit_api;
-REVOKE ALL ON FUNCTION app_private.audit_guard() FROM PUBLIC,rosetta_api,rosetta_app_api,rosetta_resource_api,rosetta_audit_api;
-REVOKE ALL ON FUNCTION app_private.audit_append(text,text,uuid,integer,text,text,text) FROM PUBLIC,rosetta_api,rosetta_app_api,rosetta_resource_api,rosetta_audit_api;
-REVOKE ALL ON FUNCTION core.audit_query(jsonb) FROM PUBLIC,rosetta_api,rosetta_app_api,rosetta_resource_api;
-GRANT EXECUTE ON FUNCTION core.audit_query(jsonb) TO rosetta_audit_api;
+ALTER FUNCTION app_private.audit_append(text,text,uuid,integer,text,text,text) OWNER TO junctura_app_owner;
+ALTER FUNCTION core.audit_query(jsonb) OWNER TO junctura_app_owner;
+REVOKE ALL ON app_private.audit FROM PUBLIC,junctura_api,junctura_app_api,junctura_resource_api,junctura_audit_api;
+REVOKE ALL ON FUNCTION app_private.audit_redact_text(text) FROM PUBLIC,junctura_api,junctura_app_api,junctura_resource_api,junctura_audit_api;
+REVOKE ALL ON FUNCTION app_private.audit_guard() FROM PUBLIC,junctura_api,junctura_app_api,junctura_resource_api,junctura_audit_api;
+REVOKE ALL ON FUNCTION app_private.audit_append(text,text,uuid,integer,text,text,text) FROM PUBLIC,junctura_api,junctura_app_api,junctura_resource_api,junctura_audit_api;
+REVOKE ALL ON FUNCTION core.audit_query(jsonb) FROM PUBLIC,junctura_api,junctura_app_api,junctura_resource_api;
+GRANT EXECUTE ON FUNCTION core.audit_query(jsonb) TO junctura_audit_api;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA app_private FROM PUBLIC;
 RESET ROLE;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 INSERT INTO core.schema_migrations(version) VALUES(5) ON CONFLICT DO NOTHING;
 NOTIFY pgrst,'reload schema';
 COMMIT;

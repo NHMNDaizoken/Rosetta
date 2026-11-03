@@ -45,7 +45,7 @@ test("restart and original credential expiry cannot be replaced by executor cred
 });
 
 test("execution bodies accept only one exact capability and canonical digests bind values", () => {
-  const reference = { capabilityId: "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo", version: "1.0.0", manifestDigest: `sha256:${"a".repeat(64)}` };
+  const reference = { capabilityId: "urn:junctura:capability:11111111-1111-4111-8111-111111111111:echo", version: "1.0.0", manifestDigest: `sha256:${"a".repeat(64)}` };
   const body = { target: { kind: "capability", capability: reference }, input: { a: 1, b: "🙂" } };
   assert.equal(validateExecutionCreate(body), body);
   for (const invalid of [{ ...body, tenantId: "tenant-b" }, { ...body, delegationId: randomUUID() }, { ...body, approvalId: randomUUID() },
@@ -64,7 +64,7 @@ test("idempotent replays preserve a live initiating credential and cannot recrea
   const now = Date.now(), id = randomUUID();
   const current = { ...identity, credentialExpiresAt: now + 8000 };
   const e = { executionId: id, state: "accepted", deadlineAt: new Date(now + 9000).toISOString() };
-  const body = { target: { kind: "capability", capability: { capabilityId: "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+  const body = { target: { kind: "capability", capability: { capabilityId: "urn:junctura:capability:11111111-1111-4111-8111-111111111111:echo",
     version: "1.0.0", manifestDigest: `sha256:${"a".repeat(64)}` } }, input: {} };
   const config = { dataUrl: "https://data.example.invalid", dataSecret: "synthetic-test-signing-secret-with-no-authority" };
   const request = { headers: { "idempotency-key": randomUUID(), authorization: "Bearer synthetic-fresh" } };

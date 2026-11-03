@@ -1,10 +1,10 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- Add exact result version and tighten registry lifecycle authority. Version 16
 -- also opts the migration runner into fingerprinting composition_private.
 BEGIN;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
-SET LOCAL ROLE rosetta_app_owner;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 DO $fix$
 DECLARE source text;
 BEGIN
@@ -24,7 +24,7 @@ BEGIN
   EXECUTE source;
 END $fix$;
 RESET ROLE;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 INSERT INTO core.schema_migrations(version) VALUES(16);
 NOTIFY pgrst,'reload schema';
 COMMIT;

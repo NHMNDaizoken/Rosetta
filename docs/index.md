@@ -28,7 +28,7 @@ creating competing module, data and API inventories.
 | --- | --- |
 | [Product definition and status](PRODUCT.md) | Four product areas, status vocabulary, implemented-versus-planned catalog |
 | [Developer and extension guide](DEVELOPING.md) | Module map, add-a-route checklist, tests and Console rules |
-| [Platform architecture](architecture/ROSETTA_PLATFORM_ARCHITECTURE.md) | Product scope, statuses, AS-IS versus target, document precedence |
+| [Platform architecture](architecture/JUNCTURA_PLATFORM_ARCHITECTURE.md) | Product scope, statuses, AS-IS versus target, document precedence |
 | [Core catalog](architecture/LAYER1_CORE_CATALOG.md) | Actual modules, provider ownership, routes, evidence and candidate services |
 | [Planes](architecture/CONTROL_DATA_RUNTIME_PLANES.md) | Control, data, runtime, operational and capability boundaries |
 | [Ownership](architecture/RESOURCE_OWNERSHIP.md) | Entities, identifiers, lifecycle, authority and namespace migration |

@@ -5,10 +5,10 @@
 ## Consolidated architecture and changes
 
 Start with the [architecture index](index.md) and
-[platform definition](architecture/ROSETTA_PLATFORM_ARCHITECTURE.md).
+[platform definition](architecture/JUNCTURA_PLATFORM_ARCHITECTURE.md).
 This consolidation accounts for Application Authority, v2 ownership/sharing,
 Foundation OpenAPI and the partially connected Console. It proposes external
-and Rosetta-hosted application models while preserving optional Verifiable
+and Junctura-hosted application models while preserving optional Verifiable
 Capability Composition. Hosting, projects and deployments are not implemented or approved by this documentation. Separately authorized [C4B](CAPABILITY_COMPOSITION.md) adds opt-in bounded composition using the same Core boundaries. The separately authorized
 [C4A runtime](CAPABILITY_EXECUTION.md) implements only opt-in guarded single-capability
 execution, with Flowable as its sole engine and technical providers outside Core.

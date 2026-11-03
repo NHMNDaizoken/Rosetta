@@ -27,18 +27,18 @@ at v1, and workflow variables remain tenant-scoped.
   plus a registered storage volume, and the authenticated workflow engine.
   It does not prove every future operation or a complete disaster recovery.
 - `GET /v1/identity`: authenticated `{subject, tenantId, roles}`.
-- `/identity/realms/rosetta/.well-known/openid-configuration`: upstream Keycloak
+- `/identity/realms/junctura/.well-known/openid-configuration`: upstream Keycloak
   discovery. Use its standard OIDC authorization, token, refresh and logout APIs.
 
 Gateway auth-request and Core independently introspect bearer tokens through
-Keycloak's confidential `rosetta-core` client. Require active, unexpired tokens,
-the configured issuer, audience `rosetta-core`, realm role `core-reader`, and
+Keycloak's confidential `junctura-core` client. Require active, unexpired tokens,
+the configured issuer, audience `junctura-core`, realm role `core-reader`, and
 `tenant_id` matching an authoritative `tenant_memberships` group. Caller tenant
 headers are ignored. Provider errors fail closed. No custom JWT verifier,
 password database or email-only login is implemented.
 
 The imported realm contains two local service-account tenants and a read-only
-account, all using random secrets from ignored `.env`. `rosetta-local` is a public
+account, all using random secrets from ignored `.env`. `junctura-local` is a public
 authorization-code client requiring S256 PKCE, with exactly one loopback callback:
 `http://127.0.0.1:9876/callback`. The technical `local-user` fixture belongs to
 tenant A; its random password stays in `.env`. Registration is disabled. These
@@ -84,7 +84,7 @@ query parameters are rejected. Writes require `core-writer`; all access requires
 This is generic structured storage; no app-specific schema/business rules exist.
 
 Core issues a short-lived, tenant-scoped internal assertion for PostgREST with
-audience `rosetta-data` and role `rosetta_api`. Caller tokens are never treated as
+audience `junctura-data` and role `junctura_api`. Caller tokens are never treated as
 internal database credentials. PostgreSQL FORCE ROW LEVEL SECURITY enforces
 tenant claims for reads and writes, including direct service-level queries.
 The assertion secret stays inside Compose; there is no anonymous PostgREST role
@@ -173,7 +173,7 @@ transaction. Migration 005 derives actor/tenant metadata, validates event/outcom
 and redacts free text; failure to append rolls back the mutation. The internal
 `core.audit_query(jsonb)` function accepts only `since`, `until`, `limit` and
 `cursor`, requires a principal with `audit.read`, and is executable only by
-`rosetta_audit_api`; application roles cannot read or write the table directly.
+`junctura_audit_api`; application roles cannot read or write the table directly.
 
 This is not a Foundation route and has no public OpenAPI operation. Do not expose
 it through PostgREST or `/v1`/`/v2` without a separately reviewed contract,

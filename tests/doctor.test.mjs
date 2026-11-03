@@ -6,7 +6,7 @@ import { test } from "node:test";
 
 test("doctor fails actionably on missing configuration without printing subprocess output or credentials", () => {
   const secret = "synthetic-do-not-print-this-secret";
-  const result = spawnSync(process.execPath, ["scripts/doctor.mjs", "--config", "/missing-rosetta-config/.env"], {
+  const result = spawnSync(process.execPath, ["scripts/doctor.mjs", "--config", "/missing-junctura-config/.env"], {
     encoding: "utf8", timeout: 55000, env: { ...process.env, CORE_CLIENT_SECRET: secret },
   });
   assert.ifError(result.error);

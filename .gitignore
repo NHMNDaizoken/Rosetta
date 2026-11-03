@@ -1,4 +1,4 @@
-# Rosetta DX-OS — repository hygiene
+# Junctura DX-OS — repository hygiene
 # Keep source, AGENTS.md, documentation, LICENSE, lockfiles,
 # migration scripts, tests and reproducible deployment examples tracked.
 
@@ -46,7 +46,7 @@ AGENTS.md
 CLAUDE.md
 CODEX_MASTER.md
 START_CODEX.md
-ROSETTA_CODEX_MASTER_PROMPT.md
+JUNCTURA_CODEX_MASTER_PROMPT.md
 /prompts/
 .codex/
 .opencode/

@@ -139,7 +139,7 @@ export const AccessResourcesScreen: React.FC = () => {
       <PageHeader
         title={t.resources.title}
         subtitle={t.resources.subtitle}
-        badges={<Badge variant="rosetta">v2 App-Private Namespace</Badge>}
+        badges={<Badge variant="junctura">v2 App-Private Namespace</Badge>}
         actions={
           activeTab === "records" ? (
             <Button
@@ -169,7 +169,7 @@ export const AccessResourcesScreen: React.FC = () => {
 
       {/* Legacy Boundary Notice */}
       <div className="p-4 rounded-lg bg-slate-50 dark:bg-[#12232F] border border-slate-200/80 dark:border-[#223E50] flex items-start gap-3 text-xs text-slate-600 dark:text-slate-300">
-        <Lock className="w-4 h-4 text-rosetta-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
+        <Lock className="w-4 h-4 text-junctura-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
         <p className="leading-relaxed">
           {t.resources.legacyNotice}
         </p>
@@ -387,7 +387,7 @@ export const AccessResourcesScreen: React.FC = () => {
                         {s.shareId.substring(0, 13)}...
                       </td>
                       <td className="px-5 py-3">
-                        <Badge variant="rosetta">{s.resourceType.toUpperCase()}</Badge>
+                        <Badge variant="junctura">{s.resourceType.toUpperCase()}</Badge>
                       </td>
                       <td className="px-5 py-3 font-mono text-[11px] text-slate-500">
                         {s.resourceId}
@@ -474,7 +474,7 @@ export const AccessResourcesScreen: React.FC = () => {
               value={newCollection}
               onChange={(e) => setNewCollection(e.target.value)}
               placeholder="VD: devices, sensors, logs"
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
           </div>
           <div>
@@ -486,7 +486,7 @@ export const AccessResourcesScreen: React.FC = () => {
               required
               value={newRecordJson}
               onChange={(e) => setNewRecordJson(e.target.value)}
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
           </div>
         </div>
@@ -543,7 +543,7 @@ export const AccessResourcesScreen: React.FC = () => {
               value={shareResourceId}
               onChange={(e) => setShareResourceId(e.target.value)}
               placeholder="Nhập UUID của bản ghi hoặc object..."
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
           </div>
           <div>
@@ -556,7 +556,7 @@ export const AccessResourcesScreen: React.FC = () => {
               value={shareGranteeAppId}
               onChange={(e) => setShareGranteeAppId(e.target.value)}
               placeholder="Nhập App ID của ứng dụng được cấp quyền đọc..."
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
           </div>
           <div>
@@ -569,7 +569,7 @@ export const AccessResourcesScreen: React.FC = () => {
               max={10080}
               value={shareMinutes}
               onChange={(e) => setShareMinutes(Number(e.target.value))}
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
           </div>
         </div>

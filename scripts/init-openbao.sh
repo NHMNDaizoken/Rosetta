@@ -39,7 +39,7 @@ if ! bao secrets list 2>/dev/null | grep -q '^secret/'; then
   bao secrets enable -path=secret kv-v2 >/dev/null
 fi
 
-bao policy write rosetta-core /policy/rosetta-core.hcl >/dev/null
+bao policy write junctura-core /policy/junctura-core.hcl >/dev/null
 
 if [ -f "$TOKEN_DIR/core-token" ]; then
   OLD_TOKEN="$(cat "$TOKEN_DIR/core-token")"
@@ -49,7 +49,7 @@ if [ -f "$TOKEN_DIR/core-token" ]; then
   fi
 fi
 
-TOKEN_JSON="$(bao token create -policy=rosetta-core -display-name=rosetta-core -format=json)"
+TOKEN_JSON="$(bao token create -policy=junctura-core -display-name=junctura-core -format=json)"
 TOKEN="$(printf '%s' "$TOKEN_JSON" | awk -F'"' '/"client_token"/{print $4; exit}')"
 if [ -z "$TOKEN" ]; then
   echo "failed to mint Core token" >&2
@@ -60,4 +60,4 @@ printf '%s' "$TOKEN" > "$TOKEN_DIR/core-token"
 chmod 600 "$TOKEN_DIR/core-token" 2>/dev/null || true
 # Core runs as non-root; allow read of the token file only.
 chmod 644 "$TOKEN_DIR/core-token" 2>/dev/null || true
-echo "OpenBao ready for Rosetta Core"
+echo "OpenBao ready for Junctura Core"

@@ -39,7 +39,7 @@ function mockGateway(options: GatewayMockOptions = {}) {
     if (url.includes("/health")) {
       return Promise.resolve(
         new Response(
-          JSON.stringify({ service: "rosetta-core", status: "ok" }),
+          JSON.stringify({ service: "junctura-core", status: "ok" }),
           { status: 200, headers: { "Content-Type": "application/json" } }
         )
       );

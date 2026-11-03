@@ -109,7 +109,7 @@ export const SecurityActivityScreen: React.FC = () => {
             </h5>
             <ol className="list-decimal list-inside space-y-1 text-slate-500 dark:text-slate-400 text-[11px] font-mono">
               <li>docker compose logs --follow core | grep "application_"</li>
-              <li>docker compose exec database psql -U rosetta_admin -d rosetta_data -c "SELECT * FROM app_private.audit_events ORDER BY created_at DESC LIMIT 20;"</li>
+              <li>docker compose exec database psql -U junctura_admin -d junctura_data -c "SELECT * FROM app_private.audit_events ORDER BY created_at DESC LIMIT 20;"</li>
             </ol>
           </div>
 

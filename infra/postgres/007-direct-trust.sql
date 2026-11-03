@@ -1,11 +1,11 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- C2 increment A: private persistence only; no public Trust command yet.
 BEGIN;
-CREATE SCHEMA IF NOT EXISTS trust_private AUTHORIZATION rosetta_app_owner;
+CREATE SCHEMA IF NOT EXISTS trust_private AUTHORIZATION junctura_app_owner;
 REVOKE ALL ON SCHEMA trust_private FROM PUBLIC;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
-SET LOCAL ROLE rosetta_app_owner;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 ALTER TABLE app_private.principals DROP CONSTRAINT IF EXISTS principals_permissions_check;
 ALTER TABLE app_private.principals ADD CONSTRAINT principals_permissions_check
   CHECK (permissions <@ ARRAY['applications.register','applications.approve','trust.write','trust.approve','audit.read',
@@ -64,7 +64,7 @@ DO $$ DECLARE t text; BEGIN
     EXECUTE format('ALTER TABLE trust_private.%I ENABLE ROW LEVEL SECURITY',t);
     EXECUTE format('ALTER TABLE trust_private.%I FORCE ROW LEVEL SECURITY',t);
     IF NOT EXISTS (SELECT FROM pg_policies WHERE schemaname='trust_private' AND tablename=t AND policyname='tenant_isolation') THEN
-      EXECUTE format('CREATE POLICY tenant_isolation ON trust_private.%I TO rosetta_app_owner USING (tenant_id=(current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id'')) WITH CHECK (tenant_id=(current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id''))',t);
+      EXECUTE format('CREATE POLICY tenant_isolation ON trust_private.%I TO junctura_app_owner USING (tenant_id=(current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id'')) WITH CHECK (tenant_id=(current_setting(''request.jwt.claims'',true)::jsonb->>''tenant_id''))',t);
     END IF;
   END LOOP;
 END $$;
@@ -77,7 +77,7 @@ DO $$ BEGIN
     ALTER FUNCTION core.capability_command_c1(text,jsonb) SET SCHEMA app_private;
   END IF;
 END $$;
-REVOKE ALL ON FUNCTION app_private.capability_command_c1(text,jsonb) FROM PUBLIC,rosetta_capability_api;
+REVOKE ALL ON FUNCTION app_private.capability_command_c1(text,jsonb) FROM PUBLIC,junctura_capability_api;
 CREATE OR REPLACE FUNCTION core.capability_command(operation text,payload jsonb) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,app_private AS $$
 DECLARE resource text; cap text; ver text; target uuid; matches integer;
@@ -87,7 +87,7 @@ BEGIN
     cap:=split_part(resource,'@',1); ver:=split_part(resource,'@',2);
     IF resource IS NULL OR resource ~ '[[:cntrl:][:space:]]' OR NOT (
       resource ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' OR
-      (cap ~ '^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'
+      (cap ~ '^urn:junctura:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'
         AND (resource=cap OR (resource=cap||'@'||ver AND ver ~ '^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$')))) THEN
       RETURN jsonb_build_object('status',400,'error','invalid_capability_approval');
     END IF;
@@ -114,10 +114,10 @@ BEGIN
   RETURN app_private.capability_command_c1(operation,payload);
 END $$;
 REVOKE ALL ON FUNCTION core.capability_command(text,jsonb) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION core.capability_command(text,jsonb) TO rosetta_capability_api;
+GRANT EXECUTE ON FUNCTION core.capability_command(text,jsonb) TO junctura_capability_api;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA trust_private FROM PUBLIC;
 RESET ROLE;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 INSERT INTO core.schema_migrations(version) VALUES(7) ON CONFLICT DO NOTHING;
 NOTIFY pgrst,'reload schema';
 COMMIT;

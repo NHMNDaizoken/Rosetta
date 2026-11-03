@@ -10,14 +10,14 @@ const share = { resourceType: "record", resourceId: id, granteeAppId: id, action
 test("resource assertions carry verified binding context and a separate SQL role, never an asserted app owner", () => {
   const identity = { issuer: "https://issuer.example.invalid", subject: "backend-subject", tenantId: "tenant-a", clientId: "backend", roles: ["core-reader"], appId: id };
   const decode = token => JSON.parse(Buffer.from(token.split(".")[1], "base64url"));
-  const claims = decode(applicationToken(identity, "synthetic-test-key", "rosetta_resource_api"));
-  assert.equal(claims.role, "rosetta_resource_api");
+  const claims = decode(applicationToken(identity, "synthetic-test-key", "junctura_resource_api"));
+  assert.equal(claims.role, "junctura_resource_api");
   assert.equal(claims.sub, identity.subject); assert.equal(claims.client_id, identity.clientId);
   assert.equal(claims.tenant_id, identity.tenantId); assert.equal(claims.resource_writer, false);
   assert.equal(claims.app_id, undefined);
   identity.roles.push("core-writer");
-  assert.equal(decode(applicationToken(identity, "synthetic-test-key", "rosetta_resource_api")).resource_writer, true);
-  assert.equal(decode(applicationToken(identity, "synthetic-test-key")).role, "rosetta_app_api");
+  assert.equal(decode(applicationToken(identity, "synthetic-test-key", "junctura_resource_api")).resource_writer, true);
+  assert.equal(decode(applicationToken(identity, "synthetic-test-key")).role, "junctura_app_api");
 });
 
 test("legacy resources require an explicit verified client allowlist, including for writer tokens", () => {

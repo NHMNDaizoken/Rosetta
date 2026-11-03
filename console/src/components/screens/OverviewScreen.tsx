@@ -101,11 +101,11 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
           title={t.overview.processLiveness}
           value={health?.status === "ok" ? "200 OK" : "DEGRADED"}
           subtitle={health?.latencyMs ? `${health.latencyMs}ms latency` : "Responding"}
-          icon={<Activity className="w-4 h-4 text-rosetta-blue dark:text-sky-400" />}
+          icon={<Activity className="w-4 h-4 text-junctura-blue dark:text-sky-400" />}
           statusIndicator={
             <StatusIndicator status={health?.status === "ok" ? "ok" : "error"} />
           }
-          badge={<Badge variant="rosetta">GET /health</Badge>}
+          badge={<Badge variant="junctura">GET /health</Badge>}
         />
 
         {/* 5 Core Dependencies Readiness */}
@@ -185,7 +185,7 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
 
       {/* Architectural Notice on Honest Telemetry */}
       <div className="p-4 rounded-lg bg-slate-50 dark:bg-[#12232F] border border-slate-200/80 dark:border-[#223E50] flex items-start gap-3 text-xs text-slate-600 dark:text-slate-300">
-        <Info className="w-4 h-4 text-rosetta-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
+        <Info className="w-4 h-4 text-junctura-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
         <div className="space-y-1">
           <p className="font-semibold text-stone-ink dark:text-slate-100">
             {t.overview.verifiedReadinessNotice}
@@ -270,13 +270,13 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <button
               onClick={() => onNavigate("applications")}
-              className="p-4 rounded-lg border border-slate-200 dark:border-[#223E50] hover:border-rosetta-blue dark:hover:border-sky-500 bg-white dark:bg-[#12232F] hover:shadow-xs transition-all text-left flex items-start gap-3 group cursor-pointer"
+              className="p-4 rounded-lg border border-slate-200 dark:border-[#223E50] hover:border-junctura-blue dark:hover:border-sky-500 bg-white dark:bg-[#12232F] hover:shadow-xs transition-all text-left flex items-start gap-3 group cursor-pointer"
             >
-              <div className="p-2 rounded bg-sky-50 dark:bg-sky-950/60 text-rosetta-blue dark:text-sky-400 group-hover:scale-105 transition-transform">
+              <div className="p-2 rounded bg-sky-50 dark:bg-sky-950/60 text-junctura-blue dark:text-sky-400 group-hover:scale-105 transition-transform">
                 <Layers className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-stone-ink dark:text-slate-100 group-hover:text-rosetta-blue dark:group-hover:text-sky-400">
+                <h4 className="text-xs font-semibold text-stone-ink dark:text-slate-100 group-hover:text-junctura-blue dark:group-hover:text-sky-400">
                   {t.overview.registerApp}
                 </h4>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">

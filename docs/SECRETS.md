@@ -60,4 +60,4 @@ exposed as a public HTTP route and must not be proxied to browsers.
   event bodies
 - Deny when authorization or OpenBao health cannot be verified
 - Root token is for operator recovery only; normal Core traffic uses the
-  `rosetta-core` policy token
+  `junctura-core` policy token

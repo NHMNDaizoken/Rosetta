@@ -4,8 +4,8 @@
 // validated and ordered; this only serializes it into Flowable's external-worker
 // construct. Step identity comes from the generated element ID and the database
 // row, never from caller-supplied XML or extension fields.
-export const COMPOSITION_PROCESS_KEY = "rosetta_c4b_composition";
-export const COMPOSITION_TOPIC = "rosetta-c4b-step";
+export const COMPOSITION_PROCESS_KEY = "junctura_c4b_composition";
+export const COMPOSITION_TOPIC = "junctura-c4b-step";
 
 export function compositionBpmn(stepIds) {
   if (!Array.isArray(stepIds) || stepIds.length < 1 || stepIds.length > 16 ||
@@ -26,7 +26,7 @@ export function compositionBpmn(stepIds) {
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
              xmlns:flowable="http://flowable.org/bpmn"
-             targetNamespace="urn:rosetta:c4b">
+             targetNamespace="urn:junctura:c4b">
   <process id="${COMPOSITION_PROCESS_KEY}" name="Guarded bounded composition" isExecutable="true">
     <startEvent id="start" />
 ${nodes.join("\n")}

@@ -59,9 +59,9 @@ jobs:
       - name: Verify deterministic source candidate packaging
         run: |
           npm run release:package
-          cp dist/releases/*.tar /tmp/rosetta-first.tar
+          cp dist/releases/*.tar /tmp/junctura-first.tar
           npm run release:package
-          cmp /tmp/rosetta-first.tar dist/releases/*.tar
+          cmp /tmp/junctura-first.tar dist/releases/*.tar
           npm run release:verify
       - name: Verify guarded provider transport with host OpenSSL
         run: npm run test:provider-network

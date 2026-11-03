@@ -49,11 +49,11 @@ export function validateApplicationBody(body, operation) {
   return body;
 }
 
-export function applicationToken(identity, secret, role = "rosetta_app_api") {
+export function applicationToken(identity, secret, role = "junctura_app_api") {
   return signInternalToken(secret, { role, tenant_id: identity.tenantId, sub: identity.subject,
-    ...(role === "rosetta_resource_api" ? { resource_writer: identity.roles.includes("core-writer") } : {}),
-    ...(role === "rosetta_trust_api" ? { trust_writer: identity.roles.includes("core-writer") } : {}),
-    iss: identity.issuer, client_id: identity.clientId, aud: "rosetta-data", exp: Math.floor(Date.now() / 1000) + 30 });
+    ...(role === "junctura_resource_api" ? { resource_writer: identity.roles.includes("core-writer") } : {}),
+    ...(role === "junctura_trust_api" ? { trust_writer: identity.roles.includes("core-writer") } : {}),
+    iss: identity.issuer, client_id: identity.clientId, aud: "junctura-data", exp: Math.floor(Date.now() / 1000) + 30 });
 }
 
 export async function handleApplications(request, response, identity, config, url) {

@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.1",
   "info": {
-    "title": "Rosetta implemented Foundation API",
+    "title": "Junctura implemented Foundation API",
     "version": "1.0.0",
     "license": {
       "name": "Apache License 2.0",
@@ -36,9 +36,9 @@
       "name": "oidc-upstream"
     }
   ],
-  "x-rosetta-status": "implemented",
-  "x-rosetta-upstream-boundary": "/identity/ is a Keycloak passthrough. Only the documented protocol integration is standardized here; upstream admin/login-action/other protocol surfaces remain governed by the pinned provider, not advertised as Rosetta-owned APIs.",
-  "x-rosetta-routing-errors": "Unsupported methods are normally 405 on health, identity, data, objects, administration and existing workflow instance paths. /ready, workflow definition/execution collections and resource-share routes return 404 for unsupported methods. Authentication, writer checks or resource lookup may reject first. Invalid app/record/object paths can return 400. HEAD always has no wire body. Unknown public routes return 404; Gateway /v1,/v2 auth precedes lookup. Gateway auth errors may be HTML.",
+  "x-junctura-status": "implemented",
+  "x-junctura-upstream-boundary": "/identity/ is a Keycloak passthrough. Only the documented protocol integration is standardized here; upstream admin/login-action/other protocol surfaces remain governed by the pinned provider, not advertised as Junctura-owned APIs.",
+  "x-junctura-routing-errors": "Unsupported methods are normally 405 on health, identity, data, objects, administration and existing workflow instance paths. /ready, workflow definition/execution collections and resource-share routes return 404 for unsupported methods. Authentication, writer checks or resource lookup may reject first. Invalid app/record/object paths can return 400. HEAD always has no wire body. Unknown public routes return 404; Gateway /v1,/v2 auth precedes lookup. Gateway auth errors may be HTML.",
   "paths": {
     "/health": {
       "get": {
@@ -48,8 +48,8 @@
         "tags": [
           "process"
         ],
-        "x-rosetta-query-policy": "ignored",
-        "x-rosetta-source": "src/platform/health/health.mjs",
+        "x-junctura-query-policy": "ignored",
+        "x-junctura-source": "src/platform/health/health.mjs",
         "security": [],
         "responses": {
           "200": {
@@ -80,7 +80,7 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       },
       "head": {
         "operationId": "headHealth",
@@ -89,8 +89,8 @@
         "tags": [
           "process"
         ],
-        "x-rosetta-query-policy": "ignored",
-        "x-rosetta-source": "src/platform/health/health.mjs",
+        "x-junctura-query-policy": "ignored",
+        "x-junctura-source": "src/platform/health/health.mjs",
         "security": [],
         "responses": {
           "200": {
@@ -117,7 +117,7 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     },
     "/ready": {
@@ -128,8 +128,8 @@
         "tags": [
           "process"
         ],
-        "x-rosetta-query-policy": "ignored",
-        "x-rosetta-source": "src/api.mjs",
+        "x-junctura-query-policy": "ignored",
+        "x-junctura-source": "src/api.mjs",
         "security": [],
         "responses": {
           "200": {
@@ -160,7 +160,7 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     },
     "/v1/identity": {
@@ -171,8 +171,8 @@
         "tags": [
           "tenant"
         ],
-        "x-rosetta-query-policy": "ignored",
-        "x-rosetta-source": "src/api.mjs",
+        "x-junctura-query-policy": "ignored",
+        "x-junctura-source": "src/api.mjs",
         "security": [
           {
             "coreBearer": []
@@ -219,11 +219,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "tenant",
-        "x-rosetta-test-suite": "core"
+        "x-junctura-authority": "tenant",
+        "x-junctura-test-suite": "core"
       }
     },
     "/v1/data/{collection}": {
@@ -234,8 +234,8 @@
         "tags": [
           "legacy-tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/data/data.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -285,10 +285,10 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "legacy-tenant",
+        "x-junctura-authority": "legacy-tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/Collection"
@@ -298,7 +298,7 @@
           }
         ],
         "deprecated": true,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       },
       "post": {
         "operationId": "v1CreateRecord",
@@ -307,8 +307,8 @@
         "tags": [
           "legacy-tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/data/data.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -367,11 +367,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "legacy-tenant",
+        "x-junctura-authority": "legacy-tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/Collection"
@@ -389,7 +389,7 @@
         },
         "x-max-body-bytes": 65536,
         "deprecated": true,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     },
     "/v1/data/{collection}/{id}": {
@@ -400,8 +400,8 @@
         "tags": [
           "legacy-tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/data/data.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -454,10 +454,10 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "legacy-tenant",
+        "x-junctura-authority": "legacy-tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/Collection"
@@ -470,7 +470,7 @@
           }
         ],
         "deprecated": true,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       },
       "patch": {
         "operationId": "v1ReplaceRecordData",
@@ -479,8 +479,8 @@
         "tags": [
           "legacy-tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/data/data.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -542,11 +542,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "legacy-tenant",
+        "x-junctura-authority": "legacy-tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/Collection"
@@ -567,7 +567,7 @@
         },
         "x-max-body-bytes": 65536,
         "deprecated": true,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       },
       "delete": {
         "operationId": "v1DeleteRecord",
@@ -576,8 +576,8 @@
         "tags": [
           "legacy-tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/data/data.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -615,11 +615,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "legacy-tenant",
+        "x-junctura-authority": "legacy-tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/Collection"
@@ -629,7 +629,7 @@
           }
         ],
         "deprecated": true,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     },
     "/v1/objects": {
@@ -640,8 +640,8 @@
         "tags": [
           "legacy-tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/objects/objects.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -697,11 +697,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "legacy-tenant",
+        "x-junctura-authority": "legacy-tenant",
         "requestBody": {
           "required": true,
           "content": {
@@ -716,7 +716,7 @@
         "x-max-body-bytes": 5242880,
         "x-min-body-bytes": 1,
         "deprecated": true,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     },
     "/v1/objects/{id}": {
@@ -727,8 +727,8 @@
         "tags": [
           "legacy-tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/objects/objects.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -805,11 +805,11 @@
             }
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "legacy-tenant",
+        "x-junctura-authority": "legacy-tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/Id"
@@ -829,7 +829,7 @@
         "x-max-body-bytes": 5242880,
         "x-min-body-bytes": 1,
         "deprecated": true,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       },
       "get": {
         "operationId": "v1DownloadObject",
@@ -838,8 +838,8 @@
         "tags": [
           "legacy-tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/objects/objects.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -899,17 +899,17 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "legacy-tenant",
+        "x-junctura-authority": "legacy-tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/Id"
           }
         ],
         "deprecated": true,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       },
       "delete": {
         "operationId": "v1DeleteObject",
@@ -918,8 +918,8 @@
         "tags": [
           "legacy-tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/objects/objects.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -957,18 +957,18 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "legacy-tenant",
+        "x-junctura-authority": "legacy-tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/Id"
           }
         ],
         "deprecated": true,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     },
     "/v2/data/{collection}": {
@@ -979,8 +979,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/data/data.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1030,10 +1030,10 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "parameters": [
           {
             "$ref": "#/components/parameters/Collection"
@@ -1042,7 +1042,7 @@
             "$ref": "#/components/parameters/Limit"
           }
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       },
       "post": {
         "operationId": "v2CreateRecord",
@@ -1051,8 +1051,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/data/data.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1111,11 +1111,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "parameters": [
           {
             "$ref": "#/components/parameters/Collection"
@@ -1132,7 +1132,7 @@
           }
         },
         "x-max-body-bytes": 65536,
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v2/data/{collection}/{id}": {
@@ -1143,8 +1143,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/data/data.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1197,10 +1197,10 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "parameters": [
           {
             "$ref": "#/components/parameters/Collection"
@@ -1212,7 +1212,7 @@
             "$ref": "#/components/parameters/Limit"
           }
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       },
       "patch": {
         "operationId": "v2ReplaceRecordData",
@@ -1221,8 +1221,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/data/data.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1284,11 +1284,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "parameters": [
           {
             "$ref": "#/components/parameters/Collection"
@@ -1308,7 +1308,7 @@
           }
         },
         "x-max-body-bytes": 65536,
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       },
       "delete": {
         "operationId": "v2DeleteRecord",
@@ -1317,8 +1317,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/data/data.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/data/data.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1356,11 +1356,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "parameters": [
           {
             "$ref": "#/components/parameters/Collection"
@@ -1369,7 +1369,7 @@
             "$ref": "#/components/parameters/Id"
           }
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v2/objects": {
@@ -1380,8 +1380,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/objects/objects.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1437,11 +1437,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "requestBody": {
           "required": true,
           "content": {
@@ -1455,7 +1455,7 @@
         },
         "x-max-body-bytes": 5242880,
         "x-min-body-bytes": 1,
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v2/objects/{id}": {
@@ -1466,8 +1466,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/objects/objects.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1544,11 +1544,11 @@
             }
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "parameters": [
           {
             "$ref": "#/components/parameters/Id"
@@ -1567,7 +1567,7 @@
         },
         "x-max-body-bytes": 5242880,
         "x-min-body-bytes": 1,
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       },
       "get": {
         "operationId": "v2DownloadObject",
@@ -1576,8 +1576,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/objects/objects.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1637,16 +1637,16 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "parameters": [
           {
             "$ref": "#/components/parameters/Id"
           }
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       },
       "delete": {
         "operationId": "v2DeleteObject",
@@ -1655,8 +1655,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/objects/objects.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/objects/objects.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1694,17 +1694,17 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "parameters": [
           {
             "$ref": "#/components/parameters/Id"
           }
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v2/resource-shares": {
@@ -1715,8 +1715,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/resources/resources.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/resources/resources.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1772,11 +1772,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "requestBody": {
           "required": true,
           "content": {
@@ -1788,7 +1788,7 @@
           }
         },
         "x-max-body-bytes": 65536,
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v2/resource-shares/{shareId}": {
@@ -1799,8 +1799,8 @@
         "tags": [
           "app-resource"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/resources/resources.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/resources/resources.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1835,17 +1835,17 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "app-resource",
+        "x-junctura-authority": "app-resource",
         "parameters": [
           {
             "$ref": "#/components/parameters/ShareId"
           }
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v1/applications": {
@@ -1856,8 +1856,8 @@
         "tags": [
           "application-admin"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/applications/applications.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -1925,10 +1925,10 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "application-admin",
+        "x-junctura-authority": "application-admin",
         "requestBody": {
           "required": true,
           "content": {
@@ -1940,10 +1940,10 @@
           }
         },
         "x-max-body-bytes": 65536,
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "applications.register"
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v1/applications/{appId}": {
@@ -1954,8 +1954,8 @@
         "tags": [
           "application-admin"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/applications/applications.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2011,17 +2011,17 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "application-admin",
+        "x-junctura-authority": "application-admin",
         "parameters": [
           {
             "$ref": "#/components/parameters/AppId"
           }
         ],
-        "x-rosetta-required-permissions": [],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-required-permissions": [],
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v1/applications/{appId}/approve": {
@@ -2032,8 +2032,8 @@
         "tags": [
           "application-admin"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/applications/applications.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2104,10 +2104,10 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "application-admin",
+        "x-junctura-authority": "application-admin",
         "parameters": [
           {
             "$ref": "#/components/parameters/AppId"
@@ -2127,11 +2127,11 @@
           }
         },
         "x-max-body-bytes": 65536,
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "applications.approve",
           "trust.approve"
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v1/applications/{appId}/state": {
@@ -2142,8 +2142,8 @@
         "tags": [
           "application-admin"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/applications/applications.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2214,10 +2214,10 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "application-admin",
+        "x-junctura-authority": "application-admin",
         "parameters": [
           {
             "$ref": "#/components/parameters/AppId"
@@ -2237,10 +2237,10 @@
           }
         },
         "x-max-body-bytes": 65536,
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "applications.approve"
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v1/approvals": {
@@ -2251,8 +2251,8 @@
         "tags": [
           "application-admin"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/applications/applications.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2320,10 +2320,10 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "application-admin",
+        "x-junctura-authority": "application-admin",
         "requestBody": {
           "required": true,
           "content": {
@@ -2335,11 +2335,11 @@
           }
         },
         "x-max-body-bytes": 65536,
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "applications.approve",
           "trust.approve"
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v1/approvals/{approvalId}": {
@@ -2350,8 +2350,8 @@
         "tags": [
           "application-admin"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/applications/applications.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2407,17 +2407,17 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "application-admin",
+        "x-junctura-authority": "application-admin",
         "parameters": [
           {
             "$ref": "#/components/parameters/ApprovalId"
           }
         ],
-        "x-rosetta-required-permissions": [],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-required-permissions": [],
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v1/approvals/{approvalId}/revoke": {
@@ -2428,8 +2428,8 @@
         "tags": [
           "application-admin"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/applications/applications.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/applications/applications.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2500,10 +2500,10 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "application-admin",
+        "x-junctura-authority": "application-admin",
         "parameters": [
           {
             "$ref": "#/components/parameters/ApprovalId"
@@ -2523,11 +2523,11 @@
           }
         },
         "x-max-body-bytes": 65536,
-        "x-rosetta-required-permissions": [
+        "x-junctura-required-permissions": [
           "applications.approve",
           "trust.approve"
         ],
-        "x-rosetta-test-suite": "applications"
+        "x-junctura-test-suite": "applications"
       }
     },
     "/v1/workflows/definitions": {
@@ -2538,8 +2538,8 @@
         "tags": [
           "tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/workflow/workflow.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/workflow/workflow.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2586,11 +2586,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "tenant",
-        "x-rosetta-test-suite": "core"
+        "x-junctura-authority": "tenant",
+        "x-junctura-test-suite": "core"
       }
     },
     "/v1/workflows/executions": {
@@ -2601,8 +2601,8 @@
         "tags": [
           "tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/workflow/workflow.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/workflow/workflow.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2679,11 +2679,11 @@
             }
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "tenant",
+        "x-junctura-authority": "tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -2700,7 +2700,7 @@
           }
         },
         "x-max-body-bytes": 65536,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     },
     "/v1/workflows/executions/{executionId}": {
@@ -2711,8 +2711,8 @@
         "tags": [
           "tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/workflow/workflow.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/workflow/workflow.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2765,16 +2765,16 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader"
         ],
-        "x-rosetta-authority": "tenant",
+        "x-junctura-authority": "tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/ExecutionId"
           }
         ],
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       },
       "delete": {
         "operationId": "cancelWorkflow",
@@ -2783,8 +2783,8 @@
         "tags": [
           "tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/workflow/workflow.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/workflow/workflow.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2825,17 +2825,17 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "tenant",
+        "x-junctura-authority": "tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/ExecutionId"
           }
         ],
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     },
     "/v1/workflows/executions/{executionId}/complete": {
@@ -2846,8 +2846,8 @@
         "tags": [
           "tenant"
         ],
-        "x-rosetta-query-policy": "closed",
-        "x-rosetta-source": "src/modules/workflow/workflow.mjs",
+        "x-junctura-query-policy": "closed",
+        "x-junctura-source": "src/modules/workflow/workflow.mjs",
         "security": [
           {
             "coreBearer": []
@@ -2909,11 +2909,11 @@
             "$ref": "#/components/responses/GatewayTimeout"
           }
         },
-        "x-rosetta-core-roles": [
+        "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
         ],
-        "x-rosetta-authority": "tenant",
+        "x-junctura-authority": "tenant",
         "parameters": [
           {
             "$ref": "#/components/parameters/ExecutionId"
@@ -2930,10 +2930,10 @@
           }
         },
         "x-max-body-bytes": 65536,
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     },
-    "/identity/realms/rosetta/.well-known/openid-configuration": {
+    "/identity/realms/junctura/.well-known/openid-configuration": {
       "get": {
         "operationId": "getOidcDiscovery",
         "summary": "Get oidc discovery",
@@ -2941,8 +2941,8 @@
         "tags": [
           "oidc-upstream"
         ],
-        "x-rosetta-query-policy": "upstream",
-        "x-rosetta-source": "infra/nginx/default.conf",
+        "x-junctura-query-policy": "upstream",
+        "x-junctura-source": "infra/nginx/default.conf",
         "security": [],
         "responses": {
           "200": {
@@ -3007,20 +3007,20 @@
             }
           }
         },
-        "x-rosetta-upstream": "Keycloak 26.8.1",
-        "x-rosetta-test-suite": "core"
+        "x-junctura-upstream": "Keycloak 26.8.1",
+        "x-junctura-test-suite": "core"
       }
     },
-    "/identity/realms/rosetta/protocol/openid-connect/auth": {
+    "/identity/realms/junctura/protocol/openid-connect/auth": {
       "get": {
         "operationId": "authorizeOidc",
         "summary": "Authorize oidc",
-        "description": "Browser authorization-code flow with S256 PKCE for rosetta-local. Local callback is exactly http://127.0.0.1:9876/callback. Do not embed backend secrets in browsers. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
+        "description": "Browser authorization-code flow with S256 PKCE for junctura-local. Local callback is exactly http://127.0.0.1:9876/callback. Do not embed backend secrets in browsers. Upstream Keycloak protocol; discover current endpoints. Provider admin, dynamic login-action paths and other provider APIs are outside the Foundation-owned contract.",
         "tags": [
           "oidc-upstream"
         ],
-        "x-rosetta-query-policy": "upstream",
-        "x-rosetta-source": "infra/nginx/default.conf",
+        "x-junctura-query-policy": "upstream",
+        "x-junctura-source": "infra/nginx/default.conf",
         "security": [],
         "responses": {
           "200": {
@@ -3093,7 +3093,7 @@
             }
           }
         },
-        "x-rosetta-upstream": "Keycloak 26.8.1",
+        "x-junctura-upstream": "Keycloak 26.8.1",
         "parameters": [
           {
             "name": "client_id",
@@ -3160,10 +3160,10 @@
             }
           }
         ],
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     },
-    "/identity/realms/rosetta/protocol/openid-connect/token": {
+    "/identity/realms/junctura/protocol/openid-connect/token": {
       "post": {
         "operationId": "issueOidcToken",
         "summary": "Issue oidc token",
@@ -3171,8 +3171,8 @@
         "tags": [
           "oidc-upstream"
         ],
-        "x-rosetta-query-policy": "upstream",
-        "x-rosetta-source": "infra/nginx/default.conf",
+        "x-junctura-query-policy": "upstream",
+        "x-junctura-source": "infra/nginx/default.conf",
         "security": [
           {},
           {
@@ -3252,11 +3252,11 @@
             }
           }
         },
-        "x-rosetta-upstream": "Keycloak 26.8.1",
-        "x-rosetta-test-suite": "core"
+        "x-junctura-upstream": "Keycloak 26.8.1",
+        "x-junctura-test-suite": "core"
       }
     },
-    "/identity/realms/rosetta/protocol/openid-connect/certs": {
+    "/identity/realms/junctura/protocol/openid-connect/certs": {
       "get": {
         "operationId": "getOidcKeys",
         "summary": "Get oidc keys",
@@ -3264,8 +3264,8 @@
         "tags": [
           "oidc-upstream"
         ],
-        "x-rosetta-query-policy": "upstream",
-        "x-rosetta-source": "infra/nginx/default.conf",
+        "x-junctura-query-policy": "upstream",
+        "x-junctura-source": "infra/nginx/default.conf",
         "security": [],
         "responses": {
           "200": {
@@ -3330,11 +3330,11 @@
             }
           }
         },
-        "x-rosetta-upstream": "Keycloak 26.8.1",
-        "x-rosetta-test-suite": "core"
+        "x-junctura-upstream": "Keycloak 26.8.1",
+        "x-junctura-test-suite": "core"
       }
     },
-    "/identity/realms/rosetta/protocol/openid-connect/userinfo": {
+    "/identity/realms/junctura/protocol/openid-connect/userinfo": {
       "get": {
         "operationId": "getOidcUserInfo",
         "summary": "Get oidc user info",
@@ -3342,8 +3342,8 @@
         "tags": [
           "oidc-upstream"
         ],
-        "x-rosetta-query-policy": "upstream",
-        "x-rosetta-source": "infra/nginx/default.conf",
+        "x-junctura-query-policy": "upstream",
+        "x-junctura-source": "infra/nginx/default.conf",
         "security": [
           {
             "oidcUserToken": []
@@ -3412,8 +3412,8 @@
             }
           }
         },
-        "x-rosetta-upstream": "Keycloak 26.8.1",
-        "x-rosetta-test-suite": "core"
+        "x-junctura-upstream": "Keycloak 26.8.1",
+        "x-junctura-test-suite": "core"
       },
       "post": {
         "operationId": "postOidcUserInfo",
@@ -3422,8 +3422,8 @@
         "tags": [
           "oidc-upstream"
         ],
-        "x-rosetta-query-policy": "upstream",
-        "x-rosetta-source": "infra/nginx/default.conf",
+        "x-junctura-query-policy": "upstream",
+        "x-junctura-source": "infra/nginx/default.conf",
         "security": [
           {
             "oidcUserToken": []
@@ -3492,11 +3492,11 @@
             }
           }
         },
-        "x-rosetta-upstream": "Keycloak 26.8.1",
-        "x-rosetta-test-suite": "core"
+        "x-junctura-upstream": "Keycloak 26.8.1",
+        "x-junctura-test-suite": "core"
       }
     },
-    "/identity/realms/rosetta/protocol/openid-connect/logout": {
+    "/identity/realms/junctura/protocol/openid-connect/logout": {
       "post": {
         "operationId": "logoutOidc",
         "summary": "Logout oidc",
@@ -3504,8 +3504,8 @@
         "tags": [
           "oidc-upstream"
         ],
-        "x-rosetta-query-policy": "upstream",
-        "x-rosetta-source": "infra/nginx/default.conf",
+        "x-junctura-query-policy": "upstream",
+        "x-junctura-source": "infra/nginx/default.conf",
         "security": [],
         "responses": {
           "204": {
@@ -3573,8 +3573,8 @@
             }
           }
         },
-        "x-rosetta-upstream": "Keycloak 26.8.1",
-        "x-rosetta-test-suite": "core"
+        "x-junctura-upstream": "Keycloak 26.8.1",
+        "x-junctura-test-suite": "core"
       },
       "get": {
         "operationId": "browserLogoutOidc",
@@ -3583,8 +3583,8 @@
         "tags": [
           "oidc-upstream"
         ],
-        "x-rosetta-query-policy": "upstream",
-        "x-rosetta-source": "infra/nginx/default.conf",
+        "x-junctura-query-policy": "upstream",
+        "x-junctura-source": "infra/nginx/default.conf",
         "security": [],
         "responses": {
           "200": {
@@ -3657,7 +3657,7 @@
             }
           }
         },
-        "x-rosetta-upstream": "Keycloak 26.8.1",
+        "x-junctura-upstream": "Keycloak 26.8.1",
         "parameters": [
           {
             "name": "id_token_hint",
@@ -3692,7 +3692,7 @@
             }
           }
         ],
-        "x-rosetta-test-suite": "core"
+        "x-junctura-test-suite": "core"
       }
     }
   },
@@ -4138,7 +4138,7 @@
         "type": "object",
         "properties": {
           "service": {
-            "const": "rosetta-core"
+            "const": "junctura-core"
           },
           "status": {
             "const": "ok"

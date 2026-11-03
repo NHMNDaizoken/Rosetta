@@ -15,7 +15,7 @@ COPY console/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY console/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY console/nginx/proxy.conf /etc/nginx/snippets/console-proxy.conf
 COPY --from=builder /console/dist/ /usr/share/nginx/html/
-COPY LICENSE NOTICE THIRD-PARTY.md /usr/share/licenses/rosetta/
+COPY LICENSE NOTICE THIRD-PARTY.md /usr/share/licenses/junctura/
 
 USER nginx
 EXPOSE 3000

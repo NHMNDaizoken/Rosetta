@@ -29,8 +29,8 @@ function start(args, input, readyText) {
 }
 
 export async function createRuntimeFixture(options) {
-  const suffix = randomUUID(), network = `rosetta-c4a-${suffix}`, provider = `rosetta-provider-${suffix}`, core = `rosetta-invoker-${suffix}`;
-  const directory = mkdtempSync(join(tmpdir(), "rosetta-c4a-"));
+  const suffix = randomUUID(), network = `junctura-c4a-${suffix}`, provider = `junctura-provider-${suffix}`, core = `junctura-invoker-${suffix}`;
+  const directory = mkdtempSync(join(tmpdir(), "junctura-c4a-"));
   const providers = options.providers ?? [options];
   const hostname = new URL(options.origin ?? providers[0].origin).hostname;
   const hostnames = providers.map(item => new URL(item.origin).hostname);
@@ -70,7 +70,7 @@ export async function createRuntimeFixture(options) {
   }
   async function engine(path, body, method = body === undefined ? "GET" : "POST") {
     return inside(`const root=process.env.WORKFLOW_URL.replace(new RegExp('/service/?$'),'');
-      const authorization='Basic '+Buffer.from('rosetta-engine:'+process.env.WORKFLOW_ADMIN_PASSWORD).toString('base64');
+      const authorization='Basic '+Buffer.from('junctura-engine:'+process.env.WORKFLOW_ADMIN_PASSWORD).toString('base64');
       let payload=data.body;
       if(data.body?.xml){payload=new FormData();payload.append('file',new Blob([data.body.xml],{type:'application/xml'}),'forged.bpmn20.xml')}
       const r=await fetch(root+data.path,{method:data.method,headers:{Authorization:authorization,...(payload instanceof FormData?{}:{'Content-Type':'application/json'})},
@@ -83,7 +83,7 @@ export async function createRuntimeFixture(options) {
       "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true", ...envArgs,
       "--mount", `type=bind,source=${resolve("integration/fixtures")},target=/fixtures,readonly`,
       "--mount", `type=bind,source=${tls.certPath},target=/tls/provider-ca.pem,readonly`,
-      "rosetta-core:local", "node", "/fixtures/capability-core.mjs"], { ...process.env, ...coreEnv });
+      "junctura-core:local", "node", "/fixtures/capability-core.mjs"], { ...process.env, ...coreEnv });
     for (const backendNetwork of backendNetworks) await docker(["network", "connect", backendNetwork, core]);
     coreProcess = start(["start", "--attach", "--interactive", core], { origin: options.origin, address, origins: providers.map(item => item.origin), addresses, composition: options.composition === true }, "runtime-ready");
     await coreProcess.ready;
@@ -96,7 +96,7 @@ export async function createRuntimeFixture(options) {
     const providerProcess = start(["run", "--rm", "-i", "--name", providerName, "--network", network, "--network-alias", host,
       "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
       "--mount", `type=bind,source=${resolve("integration/fixtures")},target=/fixtures,readonly`,
-      "--mount", `type=bind,source=${directory},target=/tls,readonly`, "rosetta-core:local", "node", "/fixtures/capability-provider.mjs"],
+      "--mount", `type=bind,source=${directory},target=/tls,readonly`, "junctura-core:local", "node", "/fixtures/capability-provider.mjs"],
     { coreUrl: "http://runtime.c4a.test:8080", oidcToken: item.token, providerAppId: item.providerAppId,
       capability: item.capability, tenantId: item.tenantId }, "provider-ready");
     providerProcesses.push(providerProcess);
@@ -124,7 +124,7 @@ export async function createRuntimeFixture(options) {
     async forgeJob(tenantId = "tenant-b", { businessKey = `forged:${randomUUID()}`, elementId = "invoke" } = {}) {
       const key = `forged_${randomUUID().replaceAll("-", "")}`;
       if (!/^[a-z][a-z0-9_]{0,31}$/.test(elementId)) throw new Error("Invalid technical element");
-      const xml = `<?xml version="1.0"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn" targetNamespace="urn:rosetta:test"><process id="${key}" isExecutable="true"><startEvent id="s"/><sequenceFlow id="a" sourceRef="s" targetRef="${elementId}"/><serviceTask id="${elementId}" flowable:type="external-worker" flowable:topic="${options.composition ? "rosetta-c4b-step" : "rosetta-c4a-invoke"}"/><sequenceFlow id="b" sourceRef="${elementId}" targetRef="e"/><endEvent id="e"/></process></definitions>`;
+      const xml = `<?xml version="1.0"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn" targetNamespace="urn:junctura:test"><process id="${key}" isExecutable="true"><startEvent id="s"/><sequenceFlow id="a" sourceRef="s" targetRef="${elementId}"/><serviceTask id="${elementId}" flowable:type="external-worker" flowable:topic="${options.composition ? "junctura-c4b-step" : "junctura-c4a-invoke"}"/><sequenceFlow id="b" sourceRef="${elementId}" targetRef="e"/><endEvent id="e"/></process></definitions>`;
       const deployment = await engine(`/service/repository/deployments?tenantId=${tenantId}`, { xml });
       if (deployment.status !== 201) throw new Error("Could not create forged technical job");
       forgedDeployments.push(deployment.body.id);

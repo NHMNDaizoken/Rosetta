@@ -154,7 +154,7 @@ policy separately. Stop before binding secrets or deploying containers.
 
 **Delivered:** migration 005 extends the existing `app_private.audit` with derived
 actor/tenant metadata, event/outcome/reason validation, redaction, an explicit
-`audit.read` permission, `rosetta_audit_api`, internal tenant/time keyset query
+`audit.read` permission, `junctura_audit_api`, internal tenant/time keyset query
 `core.audit_query(jsonb)` and an owner-only `audit_append` helper. Existing
 application/approval/share inserts remain transactional; append failure rolls the
 mutation back. No public audit HTTP route or generic payload column exists.
@@ -223,7 +223,7 @@ fake-worker integration, no real container launch.
 
 ## R0 — Restricted runtime adapter spike
 
-**Objective/why:** choose narrow Rosetta/OSS runtime integration using evidence.
+**Objective/why:** choose narrow Junctura/OSS runtime integration using evidence.
 **Reuse/files:** D1 typed adapter/outbox; new privileged worker process boundary,
 disposable runtime harness and operational policy. **API/DB:** private authenticated
 admitted-intent/observation protocol; worker never writes other private tables.

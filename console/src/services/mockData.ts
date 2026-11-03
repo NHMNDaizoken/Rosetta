@@ -6,8 +6,8 @@ export const MOCK_IDENTITY: UserIdentity = {
   subject: "9f8c6e2b-45a1-42e7-9104-58bfa791e23a",
   tenantId: "tenant-a",
   roles: ["core-reader", "core-writer", "admin"],
-  clientId: "rosetta-local",
-  issuer: "http://127.0.0.1:8080/identity/realms/rosetta",
+  clientId: "junctura-local",
+  issuer: "http://127.0.0.1:8080/identity/realms/junctura",
 };
 
 export const MOCK_APPLICATIONS: Application[] = [
@@ -74,8 +74,8 @@ export const MOCK_APPROVALS: Approval[] = [
 
 export const MOCK_WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
   {
-    id: "rosetta_checkpoint:1:7f4a2b10",
-    key: "rosetta_checkpoint",
+    id: "junctura_checkpoint:1:7f4a2b10",
+    key: "junctura_checkpoint",
     version: 1,
     name: "Junctura Technical Checkpoint Fixture",
     description: "Original technical checkpoint: start event -> user checkpoint task -> end event. Safe idempotency test.",
@@ -92,8 +92,8 @@ export const MOCK_WORKFLOW_DEFINITIONS: WorkflowDefinition[] = [
 export const MOCK_WORKFLOW_EXECUTIONS: WorkflowExecution[] = [
   {
     id: "f8e7d6c5-b4a3-4210-9876-543210abcdef",
-    definitionId: "rosetta_checkpoint:1:7f4a2b10",
-    definitionKey: "rosetta_checkpoint",
+    definitionId: "junctura_checkpoint:1:7f4a2b10",
+    definitionKey: "junctura_checkpoint",
     status: "running",
     startTime: "2026-10-25T15:20:00.000Z",
     input: { technicalFixture: true, runId: "run_984" },
@@ -102,8 +102,8 @@ export const MOCK_WORKFLOW_EXECUTIONS: WorkflowExecution[] = [
   },
   {
     id: "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5e",
-    definitionId: "rosetta_checkpoint:1:7f4a2b10",
-    definitionKey: "rosetta_checkpoint",
+    definitionId: "junctura_checkpoint:1:7f4a2b10",
+    definitionKey: "junctura_checkpoint",
     status: "completed",
     startTime: "2026-10-25T14:10:00.000Z",
     endTime: "2026-10-25T14:12:30.000Z",
@@ -116,7 +116,7 @@ export const MOCK_STRUCTURED_RECORDS: StructuredRecord[] = [
     id: "0d8f7e6c-5b4a-4321-9876-abcdef012345",
     collection: "devices",
     data: {
-      serialNumber: "DEV-ROSETTA-8821",
+      serialNumber: "DEV-JUNCTURA-8821",
       model: "Edge Gateway X2",
       firmware: "v2.4.1",
       status: "active",
@@ -194,7 +194,7 @@ export const MOCK_AUDIT_EVENTS: AuditSessionEvent[] = [
     subject: "9f8c6e2b-45a1-42e7-9104-58bfa791e23a",
     tenantId: "tenant-a",
     status: "success",
-    details: "Started execution for definition 'rosetta_checkpoint' with idempotency key reservation.",
+    details: "Started execution for definition 'junctura_checkpoint' with idempotency key reservation.",
     requestId: "req-983-b21e",
   },
   {
