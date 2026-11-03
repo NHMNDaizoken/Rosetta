@@ -6,7 +6,7 @@ import { applicationToken, validateApplicationBody } from "../../applications/ap
 import { createAuthorizer } from "../../../platform/auth/auth.mjs";
 import { HttpError, json, readBody, readFlatJsonObject, requireWriter, uuidPattern } from "../../../platform/http/http.mjs";
 
-const capabilityId = /^urn:rosetta:capability:([0-9a-f-]{36}):[a-z][a-z0-9-]{0,62}$/;
+const capabilityId = /^urn:junctura:capability:([0-9a-f-]{36}):[a-z][a-z0-9-]{0,62}$/;
 const exactVersion = /^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$/;
 const digest = /^sha256:[0-9a-f]{64}$/;
 const cleanString = value => typeof value === "string" && value.isWellFormed() &&
@@ -26,10 +26,10 @@ export function validateGrant(body) {
   const ref = body.capabilities[0];
   if (!ref || typeof ref !== "object" || Array.isArray(ref) || Object.keys(ref).sort().join(",") !== "capabilityId,manifestDigest,version" ||
     ["capabilityId", "version", "manifestDigest"].some(key => !cleanString(ref[key])) ||
-    !capabilityId.test(ref.capabilityId) || !ref.capabilityId.startsWith(`urn:rosetta:capability:${body.providerAppId}:`) ||
+    !capabilityId.test(ref.capabilityId) || !ref.capabilityId.startsWith(`urn:junctura:capability:${body.providerAppId}:`) ||
     !exactVersion.test(ref.version) || !digest.test(ref.manifestDigest)) invalid();
   if (body.operations.some(value => !["discover", "invoke"].includes(value)) ||
-    body.permissions.some(value => !cleanString(value) || !new RegExp(`^urn:rosetta:permission:${body.providerAppId}:[a-z][a-z0-9-]{0,62}$`).test(value)) ||
+    body.permissions.some(value => !cleanString(value) || !new RegExp(`^urn:junctura:permission:${body.providerAppId}:[a-z][a-z0-9-]{0,62}$`).test(value)) ||
     body.subjectIds.some(value => !cleanString(value))) invalid();
   if (typeof body.expiresAt !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(body.expiresAt) || !Number.isFinite(Date.parse(body.expiresAt))) invalid();
   const normalized = body.expiresAt.replace(/(?:\.(\d{1,3}))?Z$/, (_, fraction) => `.${(fraction ?? "").padEnd(3, "0")}Z`);
@@ -48,7 +48,7 @@ export async function trustCommand(config, identity, operation, payload) {
   let result;
   try {
     const response = await fetch(`${config.dataUrl}/rpc/trust_command`, { method: "POST",
-      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "rosetta_trust_api")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "junctura_trust_api")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ operation, payload }), signal: AbortSignal.timeout(5000), redirect: "error" });
     if (!response.ok) throw Error();
     result = await response.json();
@@ -109,7 +109,7 @@ export async function evaluateCapabilityEligibility(request, config, reference) 
   if (!identity.clientId) return deny("consumer_binding_required");
   try {
     const response = await fetch(`${config.dataUrl}/rpc/trust_eligibility`, { method: "POST",
-      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "rosetta_trust_api")}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "junctura_trust_api")}`, "Content-Type": "application/json" },
       body: JSON.stringify({ payload: reference }), signal: AbortSignal.timeout(5000), redirect: "error" });
     if (!response.ok) return deny("authority_unavailable");
     const decision = await response.json();

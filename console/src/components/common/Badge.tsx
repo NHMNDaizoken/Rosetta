@@ -4,7 +4,7 @@ import React from "react";
 
 export type BadgeVariant =
   | "default"
-  | "rosetta"
+  | "junctura"
   | "teal"
   | "sandstone"
   | "success"
@@ -30,7 +30,7 @@ export const Badge: React.FC<BadgeProps> = ({
 }) => {
   const getVariantStyles = () => {
     switch (variant) {
-      case "rosetta":
+      case "junctura":
         return "bg-[#E8F3F5] text-[#176B80] border-[#C2E1E7] dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800";
       case "teal":
         return "bg-[#E6F5F3] text-[#18877A] border-[#BCE4DF] dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800";

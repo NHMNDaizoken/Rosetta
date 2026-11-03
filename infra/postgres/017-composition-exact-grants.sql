@@ -1,8 +1,8 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- A replacement grant must never substitute for an execution's reserved grant.
 BEGIN;
-SET LOCAL ROLE rosetta_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 CREATE OR REPLACE FUNCTION composition_private.live(e composition_private.executions) RETURNS boolean
 LANGUAGE plpgsql SET search_path=pg_catalog AS $$
 DECLARE

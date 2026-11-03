@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 
 export function removeTlsDirectory(directory) {
   const target = resolve(directory);
-  if (dirname(target) !== resolve(tmpdir()) || !/^rosetta-(?:provider|c4a)-/.test(basename(target))) throw new Error("Unexpected TLS fixture cleanup path");
+  if (dirname(target) !== resolve(tmpdir()) || !/^junctura-(?:provider|c4a)-/.test(basename(target))) throw new Error("Unexpected TLS fixture cleanup path");
   rmSync(target, { recursive: true, force: true });
 }
 

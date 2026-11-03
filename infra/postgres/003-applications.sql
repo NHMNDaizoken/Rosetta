@@ -1,19 +1,19 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 BEGIN;
 DO $$ BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='rosetta_app_api') THEN
-    CREATE ROLE rosetta_app_api NOLOGIN NOBYPASSRLS;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='junctura_app_api') THEN
+    CREATE ROLE junctura_app_api NOLOGIN NOBYPASSRLS;
   END IF;
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='rosetta_app_owner') THEN
-    CREATE ROLE rosetta_app_owner NOLOGIN NOBYPASSRLS;
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname='junctura_app_owner') THEN
+    CREATE ROLE junctura_app_owner NOLOGIN NOBYPASSRLS;
   END IF;
 END $$;
-GRANT rosetta_app_api TO rosetta_data;
-GRANT USAGE ON SCHEMA core TO rosetta_app_api;
-CREATE SCHEMA IF NOT EXISTS app_private AUTHORIZATION rosetta_app_owner;
+GRANT junctura_app_api TO junctura_data;
+GRANT USAGE ON SCHEMA core TO junctura_app_api;
+CREATE SCHEMA IF NOT EXISTS app_private AUTHORIZATION junctura_app_owner;
 REVOKE ALL ON SCHEMA app_private FROM PUBLIC;
-SET LOCAL ROLE rosetta_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 CREATE TABLE IF NOT EXISTS app_private.principals (
   tenant_id text NOT NULL CHECK (tenant_id ~ '^[a-z][a-z0-9-]{0,62}$'),
   issuer text NOT NULL, subject text NOT NULL, management_client text NOT NULL,
@@ -59,7 +59,7 @@ DO $$ DECLARE t text; BEGIN
     EXECUTE format('ALTER TABLE app_private.%I ENABLE ROW LEVEL SECURITY',t);
     EXECUTE format('ALTER TABLE app_private.%I FORCE ROW LEVEL SECURITY',t);
     IF NOT EXISTS (SELECT FROM pg_policies WHERE schemaname='app_private' AND tablename=t AND policyname='tenant_isolation') THEN
-      EXECUTE format('CREATE POLICY tenant_isolation ON app_private.%I TO rosetta_app_owner USING (tenant_id = (current_setting(''request.jwt.claims'',true)::jsonb ->> ''tenant_id'')) WITH CHECK (tenant_id = (current_setting(''request.jwt.claims'',true)::jsonb ->> ''tenant_id''))',t);
+      EXECUTE format('CREATE POLICY tenant_isolation ON app_private.%I TO junctura_app_owner USING (tenant_id = (current_setting(''request.jwt.claims'',true)::jsonb ->> ''tenant_id'')) WITH CHECK (tenant_id = (current_setting(''request.jwt.claims'',true)::jsonb ->> ''tenant_id''))',t);
     END IF;
   END LOOP;
 END $$;
@@ -76,7 +76,7 @@ LANGUAGE sql STABLE SET search_path=pg_catalog AS $$
     'approverSubject',a.approver_subject,'revision',a.revision)
 $$;
 RESET ROLE;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
 CREATE OR REPLACE FUNCTION core.application_command(operation text, payload jsonb) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,app_private AS $$
 DECLARE
@@ -171,10 +171,10 @@ BEGIN
   RETURN jsonb_build_object('status',CASE WHEN operation IN ('create','approval_create') THEN 201 ELSE 200 END,'value',result);
 EXCEPTION WHEN unique_violation THEN RETURN jsonb_build_object('status',409,'error','application_conflict');
 END $$;
-ALTER FUNCTION core.application_command(text,jsonb) OWNER TO rosetta_app_owner;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+ALTER FUNCTION core.application_command(text,jsonb) OWNER TO junctura_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 REVOKE ALL ON FUNCTION core.application_command(text,jsonb) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION core.application_command(text,jsonb) TO rosetta_app_api;
+GRANT EXECUTE ON FUNCTION core.application_command(text,jsonb) TO junctura_app_api;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA app_private FROM PUBLIC;
 INSERT INTO core.schema_migrations(version) VALUES(3) ON CONFLICT DO NOTHING;
 NOTIFY pgrst,'reload schema';

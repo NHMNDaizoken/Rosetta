@@ -26,7 +26,7 @@ Trusted:
 - PostgreSQL superusers, the database owner and a malicious host/operator can read
   or alter persisted rows. This slice does not provide cryptographic tamper
   evidence against a privileged database administrator.
-- `rosetta_app_owner` and trusted owner functions are part of the write boundary.
+- `junctura_app_owner` and trusted owner functions are part of the write boundary.
   They must not accept caller-supplied actor, tenant, timestamp or event ID.
 - Loss of the database, backups or volume is a recovery problem, not an audit
   integrity guarantee.
@@ -46,10 +46,10 @@ and the unresolved audit-integrity row in the same file.
   no active enrolled application actor.
 - `audit_tenant_time_idx` for tenant-scoped descending reads.
 
-`rosetta_audit_api` is `NOLOGIN` and `NOBYPASSRLS`. It has schema usage and execute
-on `core.audit_query(jsonb)`, but no table privileges. `rosetta_data` may assume
-this role only through trusted database/PostgREST configuration. `rosetta_api`,
-`rosetta_app_api`, `rosetta_resource_api`, PUBLIC and ordinary callers have no
+`junctura_audit_api` is `NOLOGIN` and `NOBYPASSRLS`. It has schema usage and execute
+on `core.audit_query(jsonb)`, but no table privileges. `junctura_data` may assume
+this role only through trusted database/PostgREST configuration. `junctura_api`,
+`junctura_app_api`, `junctura_resource_api`, PUBLIC and ordinary callers have no
 audit table privileges and cannot execute the query function.
 
 `audit.read` is an explicit principal permission. It is not implied by
@@ -84,7 +84,7 @@ therefore the enclosing transaction.
 ## Internal read contract
 
 `core.audit_query(jsonb)` is a `SECURITY DEFINER` function owned by
-`rosetta_app_owner`, callable only as `rosetta_audit_api`. It accepts only
+`junctura_app_owner`, callable only as `junctura_audit_api`. It accepts only
 `since`, `until`, `limit` and `cursor`:
 
 - `since`/`until` are timestamps; `since > until` is rejected.

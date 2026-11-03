@@ -3,10 +3,10 @@
 import { randomUUID } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
 
-export class RosettaError extends Error {
+export class JuncturaError extends Error {
   constructor(status, code, requestId) {
-    super(`Rosetta request failed (${status}, ${code})`);
-    this.name = "RosettaError";
+    super(`Junctura request failed (${status}, ${code})`);
+    this.name = "JuncturaError";
     this.status = status;
     this.code = code;
     this.requestId = requestId;
@@ -17,16 +17,16 @@ async function boundedJson(response) {
   const chunks = []; let size = 0;
   for await (const chunk of response.body ?? []) {
     size += chunk.length;
-    if (size > 65536) throw new RosettaError(response.status, "response_too_large");
+    if (size > 65536) throw new JuncturaError(response.status, "response_too_large");
     chunks.push(chunk);
   }
   try { return JSON.parse(Buffer.concat(chunks).toString("utf8")); }
-  catch { throw new RosettaError(response.status, "invalid_response"); }
+  catch { throw new JuncturaError(response.status, "invalid_response"); }
 }
 
 // Server-side only. Secrets and tokens stay in this closure; no Core imports,
 // token persistence, credential forwarding, mutation retries or implicit approval.
-export function createRosettaClient({ baseUrl, clientId, clientSecret, timeoutMs = 15000, fetcher = fetch }) {
+export function createJuncturaClient({ baseUrl, clientId, clientSecret, timeoutMs = 15000, fetcher = fetch }) {
   const base = new URL(baseUrl);
   if (base.username || base.password || base.search || base.hash || base.pathname !== "/" ||
     (base.protocol !== "https:" && !(base.protocol === "http:" && ["127.0.0.1", "localhost", "[::1]"].includes(base.hostname)))) {
@@ -41,15 +41,15 @@ export function createRosettaClient({ baseUrl, clientId, clientSecret, timeoutMs
     pending = (async () => {
       let response;
       try {
-        response = await fetcher(new URL("/identity/realms/rosetta/protocol/openid-connect/token", base), {
+        response = await fetcher(new URL("/identity/realms/junctura/protocol/openid-connect/token", base), {
           method: "POST", redirect: "error", signal: signalFor(),
           body: new URLSearchParams({ grant_type: "client_credentials", client_id: clientId, client_secret: clientSecret }),
         });
-      } catch { throw new RosettaError(0, "identity_unavailable"); }
-      if (!response.ok) { await response.body?.cancel(); throw new RosettaError(response.status, "authentication_failed"); }
+      } catch { throw new JuncturaError(0, "identity_unavailable"); }
+      if (!response.ok) { await response.body?.cancel(); throw new JuncturaError(response.status, "authentication_failed"); }
       const issued = await boundedJson(response);
       if (typeof issued.access_token !== "string" || !issued.access_token || issued.token_type?.toLowerCase() !== "bearer" ||
-        !Number.isFinite(issued.expires_in) || issued.expires_in <= 0) throw new RosettaError(502, "invalid_token_response");
+        !Number.isFinite(issued.expires_in) || issued.expires_in <= 0) throw new JuncturaError(502, "invalid_token_response");
       cached = { value: issued.access_token, until: Date.now() + Math.max(0, issued.expires_in - 10) * 1000 };
       return cached.value;
     })();
@@ -67,14 +67,14 @@ export function createRosettaClient({ baseUrl, clientId, clientSecret, timeoutMs
     if (idempotencyKey) headers.set("Idempotency-Key", idempotencyKey);
     let response;
     try { response = await fetcher(url, { method, headers, body: json === undefined ? body : JSON.stringify(json), redirect: "error", signal: signalFor(signal) }); }
-    catch { throw new RosettaError(0, "gateway_unavailable"); }
+    catch { throw new JuncturaError(0, "gateway_unavailable"); }
     if (!response.ok) {
       let detail;
       try { detail = await boundedJson(response); } catch { /* Never echo an untrusted error body. */ }
       if (response.status === 401) cached = undefined;
       const code = typeof detail?.error === "string" && /^[a-z][a-z0-9_]{0,79}$/.test(detail.error) ? detail.error : "request_failed";
       const requestId = response.headers.get("x-request-id");
-      throw new RosettaError(response.status, code, /^[A-Za-z0-9-]{1,80}$/.test(requestId ?? "") ? requestId : undefined);
+      throw new JuncturaError(response.status, code, /^[A-Za-z0-9-]{1,80}$/.test(requestId ?? "") ? requestId : undefined);
     }
     return response;
   }
@@ -114,6 +114,3 @@ export function createRosettaClient({ baseUrl, clientId, clientSecret, timeoutMs
   };
   return Object.freeze(client);
 }
-
-// Junctura brand aliases; the original export names remain supported.
-export { createRosettaClient as createJuncturaClient, RosettaError as JuncturaError };

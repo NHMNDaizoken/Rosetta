@@ -1,10 +1,6 @@
 Junctura DX-OS (formerly Rosetta DX-OS)
 Copyright 2026 Junctura Contributors
 
-"Rosetta Contributors" in older or byte-frozen files (database migrations,
-workflow definitions, policies and published contracts) refers to the same
-contributors; those files are not rewritten so stored checksums stay valid.
-
 Original Junctura DX-OS source code is licensed under the Apache License,
 Version 2.0. The attribution above is subject to each contributor's actual
 rights and agreement; it does not claim ownership of upstream components.

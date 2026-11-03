@@ -7,7 +7,7 @@ export async function workflowRequest(config, path, options = {}) {
   try {
     response = await fetch(`${config.workflowUrl}/${path}`, {
       ...options,
-      headers: { Authorization: `Basic ${Buffer.from(`rosetta-engine:${config.workflowPassword}`).toString("base64")}`,
+      headers: { Authorization: `Basic ${Buffer.from(`junctura-engine:${config.workflowPassword}`).toString("base64")}`,
         ...(options.body instanceof FormData ? {} : { "Content-Type": "application/json" }) },
       signal: AbortSignal.timeout(10000), redirect: "error",
     });

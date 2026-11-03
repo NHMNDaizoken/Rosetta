@@ -69,7 +69,7 @@ export const ApiExplorerScreen: React.FC = () => {
         title={t.apiExplorer.title}
         subtitle={t.apiExplorer.subtitle}
         badges={
-          <Badge variant="rosetta">
+          <Badge variant="junctura">
             {FOUNDATION_ENDPOINTS.length} Implemented Operations
           </Badge>
         }
@@ -77,7 +77,7 @@ export const ApiExplorerScreen: React.FC = () => {
 
       {/* Contract Notice */}
       <div className="p-4 rounded-lg bg-slate-50 dark:bg-[#12232F] border border-slate-200/80 dark:border-[#223E50] flex items-start gap-3 text-xs text-slate-600 dark:text-slate-300">
-        <Info className="w-4 h-4 text-rosetta-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
+        <Info className="w-4 h-4 text-junctura-blue dark:text-sky-400 flex-shrink-0 mt-0.5" />
         <p className="leading-relaxed">
           {t.apiExplorer.capabilityNotice}
         </p>
@@ -95,7 +95,7 @@ export const ApiExplorerScreen: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t.apiExplorer.searchEndpoint}
-                className="w-full pl-9 pr-4 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+                className="w-full pl-9 pr-4 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
               />
             </div>
 

@@ -1,8 +1,8 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 BEGIN;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
-SET LOCAL ROLE rosetta_app_owner;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 
 -- One live predicate for discovery and future invocation eligibility. Never
 -- combine partial permissions from different grants or cache this decision.
@@ -39,7 +39,7 @@ BEGIN
   IF jsonb_typeof(payload) IS DISTINCT FROM 'object' THEN RETURN jsonb_build_object('allowed',false,'reason','invalid_reference'); END IF;
   IF EXISTS(SELECT FROM jsonb_object_keys(payload) k WHERE k NOT IN ('capabilityId','version','manifestDigest','operation'))
     OR coalesce(payload->>'operation','') NOT IN ('discover','invoke')
-    OR coalesce(payload->>'capabilityId','') !~ '^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'
+    OR coalesce(payload->>'capabilityId','') !~ '^urn:junctura:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'
     OR coalesce(payload->>'version','') !~ '^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$'
     OR coalesce(payload->>'manifestDigest','') !~ '^sha256:[0-9a-f]{64}$' THEN RETURN jsonb_build_object('allowed',false,'reason','invalid_reference'); END IF;
   IF coalesce(c->>'iss','')='' OR coalesce(c->>'sub','')='' OR coalesce(c->>'client_id','')='' THEN
@@ -53,7 +53,7 @@ BEGIN
   RETURN jsonb_build_object('allowed',false,'reason','grant_not_authorized');
 END $$;
 REVOKE ALL ON FUNCTION core.trust_eligibility(jsonb) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION core.trust_eligibility(jsonb) TO rosetta_trust_api;
+GRANT EXECUTE ON FUNCTION core.trust_eligibility(jsonb) TO junctura_trust_api;
 
 CREATE OR REPLACE FUNCTION trust_private.capability_view(v app_private.capability_versions) RETURNS jsonb
 LANGUAGE sql STABLE SET search_path=pg_catalog AS $$
@@ -67,7 +67,7 @@ DO $$ BEGIN
     ALTER FUNCTION core.capability_management_command(text,jsonb) SET SCHEMA app_private;
   END IF;
 END $$;
-REVOKE ALL ON FUNCTION app_private.capability_management_command(text,jsonb) FROM PUBLIC,rosetta_capability_api;
+REVOKE ALL ON FUNCTION app_private.capability_management_command(text,jsonb) FROM PUBLIC,junctura_capability_api;
 
 CREATE OR REPLACE FUNCTION core.capability_command(operation text,payload jsonb) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog AS $$
@@ -84,7 +84,7 @@ BEGIN
   actor:=core.resource_actor();
   IF NOT management AND actor IS NULL THEN RETURN jsonb_build_object('status',403,'error','capability_permission_required'); END IF;
   IF operation='get' THEN
-    IF coalesce(payload->>'capabilityId','') !~ '^urn:rosetta:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'
+    IF coalesce(payload->>'capabilityId','') !~ '^urn:junctura:capability:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:[a-z][a-z0-9-]{0,62}$'
       OR coalesce(payload->>'version','') !~ '^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$' THEN RETURN jsonb_build_object('status',400,'error','invalid_capability_reference'); END IF;
     SELECT cv.* INTO v FROM app_private.capability_versions cv JOIN app_private.applications a
       ON a.tenant_id=cv.tenant_id AND a.app_id=cv.provider_app_id AND a.issuer=c->>'iss'
@@ -130,10 +130,10 @@ BEGIN
   RETURN jsonb_build_object('status',200,'value',jsonb_build_object('items',items,'nextCursor',next_cursor));
 END $$;
 REVOKE ALL ON FUNCTION core.capability_command(text,jsonb) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION core.capability_command(text,jsonb) TO rosetta_capability_api;
+GRANT EXECUTE ON FUNCTION core.capability_command(text,jsonb) TO junctura_capability_api;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA trust_private FROM PUBLIC;
 RESET ROLE;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 INSERT INTO core.schema_migrations(version) VALUES(9) ON CONFLICT DO NOTHING;
 NOTIFY pgrst,'reload schema';
 COMMIT;

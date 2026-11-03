@@ -28,7 +28,7 @@ export const CapabilitiesScreen: React.FC = () => {
       id: "registry",
       title: t.capabilities.registryTitle,
       description: t.capabilities.registryDesc,
-      icon: <Layers className="w-5 h-5 text-rosetta-blue dark:text-sky-400" />,
+      icon: <Layers className="w-5 h-5 text-junctura-blue dark:text-sky-400" />,
       specFile: "CAPABILITY_EXTENSIONS_V1.md",
       specEndpoint: "GET /v1/capabilities (Planned)",
     },

@@ -61,10 +61,10 @@ async function storage(config, tenantId, id, options = {}, scope, { quarantine =
   let response;
   try {
     const path = quarantine
-      ? `rosetta-quarantine/${tenantId}/${id}/${scope?.version ?? "legacy"}`
+      ? `junctura-quarantine/${tenantId}/${id}/${scope?.version ?? "legacy"}`
       : scope
-        ? `rosetta-app/${tenantId}/${scope.ownerAppId}/${id}/${scope.version}`
-        : `rosetta/${tenantId}/${id}`;
+        ? `junctura-app/${tenantId}/${scope.ownerAppId}/${id}/${scope.version}`
+        : `junctura/${tenantId}/${id}`;
     response = await fetch(`${config.objectsUrl}/${path}`, {
       ...options, signal: AbortSignal.timeout(10000), redirect: "error",
     });

@@ -4,7 +4,7 @@ import { HttpError } from "../http/http.mjs";
 
 export function validateIdentity(claims, issuer, now = Date.now() / 1000) {
   const audiences = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
-  if (claims.active !== true || claims.iss !== issuer || !audiences.includes("rosetta-core") ||
+  if (claims.active !== true || claims.iss !== issuer || !audiences.includes("junctura-core") ||
       !Number.isFinite(claims.exp) || claims.exp <= now || typeof claims.sub !== "string" || !claims.sub) {
     throw new HttpError(401, "invalid_token");
   }
@@ -28,7 +28,7 @@ export function createAuthorizer(config, fetcher = fetch) {
       response = await fetcher(`${config.identityUrl}/protocol/openid-connect/token/introspect`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ client_id: "rosetta-core", client_secret: config.clientSecret, token: authorization.slice(7) }),
+        body: new URLSearchParams({ client_id: "junctura-core", client_secret: config.clientSecret, token: authorization.slice(7) }),
         signal: AbortSignal.timeout(3000),
         redirect: "error",
       });

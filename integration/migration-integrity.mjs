@@ -12,15 +12,15 @@ import { promisify } from "node:util";
 import { randomUUID } from "node:crypto";
 
 const image = readFileSync(new URL("../compose.yaml", import.meta.url), "utf8").match(/image: (postgres:[^\s]+)/)[1];
-const name = `rosetta-migration-test-${randomUUID()}`;
-const directory = mkdtempSync(join(tmpdir(), "rosetta-migrations-"));
+const name = `junctura-migration-test-${randomUUID()}`;
+const directory = mkdtempSync(join(tmpdir(), "junctura-migrations-"));
 const run = promisify(execFile);
 const docker = (...args) => run("docker", args, { timeout: 120000, maxBuffer: 2097152 });
-const sql = async (text) => (await docker("exec", name, "psql", "-X", "-U", "rosetta_admin", "-d", "rosetta_data", "-Atq", "-v", "ON_ERROR_STOP=1", "-c", text)).stdout.trim();
+const sql = async (text) => (await docker("exec", name, "psql", "-X", "-U", "junctura_admin", "-d", "junctura_data", "-Atq", "-v", "ON_ERROR_STOP=1", "-c", text)).stdout.trim();
 async function migrate(env = {}) {
   const args = ["exec"];
   for (const [key, value] of Object.entries(env)) args.push("-e", `${key}=${value}`);
-  args.push(name, "sh", "/migrations/migrate.sh", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1");
+  args.push(name, "sh", "/migrations/migrate.sh", "-U", "junctura_admin", "-d", "junctura_data", "-v", "ON_ERROR_STOP=1");
   return run("docker", args, { timeout: 120000, maxBuffer: 2097152 });
 }
 async function refused(env = {}) {
@@ -31,15 +31,15 @@ async function refused(env = {}) {
 before(async () => {
   cpSync(resolve("infra/postgres"), directory, { recursive: true });
   await docker("run", "--detach", "--name", name, "--network", "none", "--tmpfs", "/var/lib/postgresql/data:rw",
-    "-e", "POSTGRES_USER=rosetta_admin", "-e", "POSTGRES_DB=rosetta_data", "-e", "POSTGRES_HOST_AUTH_METHOD=trust",
+    "-e", "POSTGRES_USER=junctura_admin", "-e", "POSTGRES_DB=junctura_data", "-e", "POSTGRES_HOST_AUTH_METHOD=trust",
     "--mount", `type=bind,source=${directory},target=/migrations,readonly`, image);
   let ready = false;
   for (let attempt = 0; attempt < 40; attempt++) {
-    try { await docker("exec", name, "psql", "-X", "-h", "127.0.0.1", "-U", "rosetta_admin", "-d", "rosetta_data", "-Atqc", "SELECT 1"); ready = true; break; }
+    try { await docker("exec", name, "psql", "-X", "-h", "127.0.0.1", "-U", "junctura_admin", "-d", "junctura_data", "-Atqc", "SELECT 1"); ready = true; break; }
     catch { await new Promise(resolve => setTimeout(resolve, 250)); }
   }
   assert.ok(ready, "fresh disposable database ready");
-  await sql("CREATE ROLE rosetta_data NOLOGIN NOINHERIT; ALTER DATABASE rosetta_data OWNER TO rosetta_data;");
+  await sql("CREATE ROLE junctura_data NOLOGIN NOINHERIT; ALTER DATABASE junctura_data OWNER TO junctura_data;");
 });
 
 after(async () => {

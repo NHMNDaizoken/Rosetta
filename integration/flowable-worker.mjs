@@ -10,12 +10,12 @@ test("pinned Flowable external-worker REST supports locking, failure and complet
   const script = `
     import assert from 'node:assert/strict';
     const root = 'http://workflow:8080/flowable-rest';
-    const authorization = 'Basic '+Buffer.from('rosetta-engine:'+process.env.WORKFLOW_ADMIN_PASSWORD).toString('base64');
+    const authorization = 'Basic '+Buffer.from('junctura-engine:'+process.env.WORKFLOW_ADMIN_PASSWORD).toString('base64');
     async function call(path, body, method='POST') {
       return fetch(root+path,{method,headers:{Authorization:authorization,...(body instanceof FormData?{}:{'Content-Type':'application/json'})},body:body===undefined?undefined:body instanceof FormData?body:JSON.stringify(body),signal:AbortSignal.timeout(5000)});
     }
     const topic = 'review-${randomUUID()}';
-    const xml = '<?xml version="1.0"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn" targetNamespace="urn:rosetta:review"><process id="'+topic+'" isExecutable="true"><startEvent id="s"/><sequenceFlow id="a" sourceRef="s" targetRef="w"/><serviceTask id="w" flowable:type="external-worker" flowable:topic="'+topic+'"/><sequenceFlow id="b" sourceRef="w" targetRef="e"/><endEvent id="e"/></process></definitions>';
+    const xml = '<?xml version="1.0"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn" targetNamespace="urn:junctura:review"><process id="'+topic+'" isExecutable="true"><startEvent id="s"/><sequenceFlow id="a" sourceRef="s" targetRef="w"/><serviceTask id="w" flowable:type="external-worker" flowable:topic="'+topic+'"/><sequenceFlow id="b" sourceRef="w" targetRef="e"/><endEvent id="e"/></process></definitions>';
     let deployment;
     try {
       const form=new FormData(); form.append('file',new Blob([xml],{type:'application/xml'}),'review.bpmn20.xml');
@@ -47,13 +47,13 @@ test("expired external locks are reacquired and zero retries quarantine a job", 
   const script = `
     import assert from 'node:assert/strict';
     const root='http://workflow:8080/flowable-rest';
-    const authorization='Basic '+Buffer.from('rosetta-engine:'+process.env.WORKFLOW_ADMIN_PASSWORD).toString('base64');
+    const authorization='Basic '+Buffer.from('junctura-engine:'+process.env.WORKFLOW_ADMIN_PASSWORD).toString('base64');
     async function call(path,body,method='POST'){
       return fetch(root+path,{method,headers:{Authorization:authorization,...(body instanceof FormData?{}:{'Content-Type':'application/json'})},
         body:body===undefined?undefined:body instanceof FormData?body:JSON.stringify(body),redirect:'error',signal:AbortSignal.timeout(5000)});
     }
     const topic=${JSON.stringify(topic)};
-    const xml='<?xml version="1.0"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn" targetNamespace="urn:rosetta:test"><process id="'+topic+'" isExecutable="true"><startEvent id="s"/><sequenceFlow id="a" sourceRef="s" targetRef="w"/><serviceTask id="w" flowable:type="external-worker" flowable:topic="'+topic+'"/><sequenceFlow id="b" sourceRef="w" targetRef="e"/><endEvent id="e"/></process></definitions>';
+    const xml='<?xml version="1.0"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:flowable="http://flowable.org/bpmn" targetNamespace="urn:junctura:test"><process id="'+topic+'" isExecutable="true"><startEvent id="s"/><sequenceFlow id="a" sourceRef="s" targetRef="w"/><serviceTask id="w" flowable:type="external-worker" flowable:topic="'+topic+'"/><sequenceFlow id="b" sourceRef="w" targetRef="e"/><endEvent id="e"/></process></definitions>';
     let deployment;
     try{
       const form=new FormData();form.append('file',new Blob([xml],{type:'application/xml'}),'expiry.bpmn20.xml');

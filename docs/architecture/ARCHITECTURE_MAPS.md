@@ -20,12 +20,12 @@ unimplemented. See [direct Trust](../CAPABILITY_DIRECT_TRUST.md) for scope/evide
 flowchart TB
   L3["CONTEXT: Layer 3<br/>industry products and business rules"]
   L2["CONTEXT: Layer 2 H-P-D-I<br/>required GUI product; DEFERRED"]
-  L1["VERIFIED: Rosetta Layer 1<br/>five headless capabilities"]
+  L1["VERIFIED: Junctura Layer 1<br/>five headless capabilities"]
   EX["PROPOSED product model A<br/>external application"]
-  HO["PROPOSED product model B<br/>Rosetta-hosted application"]
+  HO["PROPOSED product model B<br/>Junctura-hosted application"]
   UI["PARTIALLY VERIFIED<br/>optional management Console"]
   CAP["PARTIAL Capability overlay<br/>C1/direct C2; offline C3; C4 future"]
-  EXT["PROPOSED Rosetta extensions<br/>projects and hosting"]
+  EXT["PROPOSED Junctura extensions<br/>projects and hosting"]
   L3 -.->|business capabilities use| L2
   L2 -.->|required demo consumes APIs| L1
   EX -.->|same public APIs| L1
@@ -88,9 +88,9 @@ flowchart TB
   OA -->|generated version paths| SW
   WA -->|tenant ledger| PR
   WA -->|tenant checked REST| FL
-  KC -->|rosetta_identity| PG
-  PR -->|rosetta_data and private authority| PG
-  FL -->|rosetta_workflow| PG
+  KC -->|junctura_identity| PG
+  PR -->|junctura_data and private authority| PG
+  FL -->|junctura_workflow| PG
 ```
 
 The PostgreSQL container joins identity/data/workflow networks; it is one shared
@@ -137,7 +137,7 @@ Group letters and F modules are not container counts or new competition minimums
 
 ```mermaid
 flowchart TB
-  CON["PARTIALLY VERIFIED<br/>Rosetta Admin Console"]
+  CON["PARTIALLY VERIFIED<br/>Junctura Admin Console"]
   DEV["PROPOSED Developer Console"]
   MG["PROPOSED Platform Management API<br/>intent and policy, no daemon access"]
   AA["VERIFIED Application Authority"]
@@ -178,7 +178,7 @@ on the ordinary BaaS/hosting request path. Operational host access remains trust
 ```mermaid
 flowchart TB
   ID["VERIFIED Keycloak<br/>issuer; subject; client; tenant membership"]
-  AUTH["VERIFIED Rosetta Authority<br/>enrollment and active app lookup"]
+  AUTH["VERIFIED Junctura Authority<br/>enrollment and active app lookup"]
   A["VERIFIED registered App A UUID"]
   B["VERIFIED registered App B UUID"]
   REC["VERIFIED private records / objects<br/>tenant + owner app UUID"]
@@ -346,10 +346,10 @@ sequenceDiagram
   Note over A,W: PROPOSED reuse scenario, existing providers do not imply implemented capability steps
   A->>F: Use own private records and objects through Foundation APIs
   B->>F: Use separate private resources through the same APIs
-  opt App A chooses Rosetta hosting
+  opt App A chooses Junctura hosting
     H->>A: Run admitted image under existing app identity
   end
-  opt App B independently chooses Rosetta hosting
+  opt App B independently chooses Junctura hosting
     H->>B: Run admitted image under separate app identity
   end
   A->>R: Publish immutable versioned capability manifest

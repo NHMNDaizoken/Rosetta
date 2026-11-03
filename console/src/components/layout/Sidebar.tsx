@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { ScreenId } from "../../types";
 import { useI18n } from "../../locales/i18n";
-import { RosettaLogo } from "../common/RosettaLogo";
+import { JuncturaLogo } from "../common/JuncturaLogo";
 import { BRAND } from "../../constants/brand";
 
 interface SidebarProps {
@@ -110,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => onNavigate("overview")}
           className="flex items-center text-left focus:outline-none"
         >
-          <RosettaLogo size={32} showText={!isCollapsed} />
+          <JuncturaLogo size={32} showText={!isCollapsed} />
         </button>
         <button
           onClick={onToggleCollapse}
@@ -182,7 +182,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               href={BRAND.githubUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1 text-[10px] text-rosetta-blue dark:text-sky-400 hover:underline mt-1"
+              className="flex items-center gap-1 text-[10px] text-junctura-blue dark:text-sky-400 hover:underline mt-1"
             >
               <span>Mã nguồn GitHub</span>
               <ExternalLink className="w-3 h-3" />

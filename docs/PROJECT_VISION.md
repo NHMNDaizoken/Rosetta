@@ -1,10 +1,10 @@
 # Junctura DX-OS project vision
 
 > Architecture consolidation: 2026-10-26, baseline `7fdd7fc` on main.
-> [Master architecture](architecture/ROSETTA_PLATFORM_ARCHITECTURE.md) adds the
+> [Master architecture](architecture/JUNCTURA_PLATFORM_ARCHITECTURE.md) adds the
 > proposed Developer Cloud/Hosting direction while preserving this Capability vision.
 
-The target supports externally hosted applications and proposed Rosetta-hosted
+The target supports externally hosted applications and proposed Junctura-hosted
 applications using the same Foundation APIs and authority. Hosting location
 does not grant data access. Project/environment/deployment/runtime modules remain
 PROPOSED; no hosting service is present. Neither model requires Capability Runtime.

@@ -5,7 +5,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 @theme {
   --color-stone-ink: #172F3D;
-  --color-rosetta-blue: #176B80;
+  --color-junctura-blue: #176B80;
   --color-app-bg: #F7F8F6;
   --color-surface: #FFFFFF;
 }
@@ -14,9 +14,9 @@
   :root {
     /* Primitive Palette Tokens */
     --color-stone-ink: #172F3D;
-    --color-rosetta-blue: #176B80;
-    --color-rosetta-blue-hover: #135566;
-    --color-rosetta-blue-light: #E8F3F5;
+    --color-junctura-blue: #176B80;
+    --color-junctura-blue-hover: #135566;
+    --color-junctura-blue-light: #E8F3F5;
     --color-teal-mediterranean: #18877A;
     --color-teal-light: #E6F5F3;
     --color-sandstone: #C58B62;
@@ -61,9 +61,9 @@
 
   .dark {
     --color-stone-ink: #F1F5F9;
-    --color-rosetta-blue: #38BDF8;
-    --color-rosetta-blue-hover: #0284C7;
-    --color-rosetta-blue-light: #0C4A6E;
+    --color-junctura-blue: #38BDF8;
+    --color-junctura-blue-hover: #0284C7;
+    --color-junctura-blue-light: #0C4A6E;
     --color-teal-mediterranean: #2DD4BF;
     --color-teal-light: #134E48;
     --color-sandstone: #E2A782;

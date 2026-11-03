@@ -71,7 +71,7 @@ not clearance of the explicitly unresolved container security gate.
 
 ## Newly executed local verification
 
-Shared-stack suites ran sequentially on the new isolated `rosetta-rc-test` Compose
+Shared-stack suites ran sequentially on the new isolated `junctura-rc-test` Compose
 project, Gateway 18080, Console 13000, with newly generated credentials and new
 project-qualified volumes. No existing .env or real persistent volume was overwritten.
 
@@ -104,7 +104,7 @@ project-qualified volumes. No existing .env or real persistent volume was overwr
 | Docker Scout CVE/SPDX | executed for seven runtime image families; unresolved findings recorded, not a clean audit |
 | `npm run check:docs` | pass; 45 Markdown files, local file links |
 | `npm run test:release` / `release:package` / `release:verify` | pass; guard test, repeated identical TAR bytes, checksum and 237-file source inventory |
-| Extracted source installation | pass on new rosetta-release-smoke and updated rosetta-final-smoke volumes; build/start/readiness/SDK/schema/Console/notices verified |
+| Extracted source installation | pass on new junctura-release-smoke and updated junctura-final-smoke volumes; build/start/readiness/SDK/schema/Console/notices verified |
 | Baseline-to-candidate upgrade | pass; original identity subject, synthetic record, object bytes, running workflow, all 17 checksum rows and exact environment bytes preserved |
 | Retained-volume shutdown | pass; documented local:down preserves named volumes |
 | Known-local-secret check | 237 tracked files checked against 48 local credential values; none found (not a general secret-scanner claim) |
@@ -124,15 +124,15 @@ recovery and Console suites. Targeted SDK/setup/release reruns overlap that tota
 
 Source `1aedc5f9b96754cde7b665b15addbb0068cde8b4` produced an identical repeated TAR
 with SHA-256 `be6b46cb4c7cc99cfa4a01726ac0a2e1872ec8ec43781284b02d15b0a3d045fa`.
-It was installed from extraction on new `rosetta-release-smoke` volumes, ports
+It was installed from extraction on new `junctura-release-smoke` volumes, ports
 28080/23000. Setup, preflight doctor, local:up build/wait, healthcheck, SDK identity,
 Console HTML navigation and schema verification passed. local:down retained volumes.
 An updated archive from `05886df` with hash
 `b71eb028bc8ef6beee7e027bf99baadd016c035fd335b94cef4ae24d2922079f` repeated the
-fresh workflow on new `rosetta-final-smoke` volumes, ports 28082/23002, and verified
+fresh workflow on new `junctura-final-smoke` volumes, ports 28082/23002, and verified
 the explicit upstream notice URL too. Generated credentials remain ignored/local.
 
-Upgrade used a separately extracted **starting SHA** and new `rosetta-upgrade-test`
+Upgrade used a separately extracted **starting SHA** and new `junctura-upgrade-test`
 volumes at 28081. Its synthetic identity, record, object and live workflow were
 seeded before switching to candidate source with the same project and .env. After
 container recreation, all values, all 17 complete checksum rows and .env SHA-256

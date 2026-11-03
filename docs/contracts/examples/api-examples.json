@@ -28,9 +28,9 @@
       "consumerAppId": "22222222-2222-4222-8222-222222222222",
       "capabilities": [
         {
-          "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+          "capabilityId": "urn:junctura:capability:11111111-1111-4111-8111-111111111111:echo",
           "version": "1.0.0",
-          "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+          "manifestDigest": "sha256:fd2b4612971c8d4c2e4ab4eb2c49dcd3017260f16f0bd9e2a74b5746ba983bc3"
         }
       ],
       "operations": [
@@ -38,7 +38,7 @@
         "invoke"
       ],
       "permissions": [
-        "urn:rosetta:permission:11111111-1111-4111-8111-111111111111:invoke"
+        "urn:junctura:permission:11111111-1111-4111-8111-111111111111:invoke"
       ],
       "subjectIds": [
         "synthetic-user"
@@ -54,13 +54,13 @@
       "receiverAppId": "22222222-2222-4222-8222-222222222222",
       "capabilities": [
         {
-          "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+          "capabilityId": "urn:junctura:capability:11111111-1111-4111-8111-111111111111:echo",
           "version": "1.0.0",
-          "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+          "manifestDigest": "sha256:fd2b4612971c8d4c2e4ab4eb2c49dcd3017260f16f0bd9e2a74b5746ba983bc3"
         }
       ],
       "permissions": [
-        "urn:rosetta:permission:11111111-1111-4111-8111-111111111111:invoke"
+        "urn:junctura:permission:11111111-1111-4111-8111-111111111111:invoke"
       ],
       "ttlSeconds": 60
     }
@@ -69,8 +69,8 @@
     "schema": "ApprovalCreate",
     "value": {
       "resourceType": "capability-version",
-      "resourceId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
-      "resourceDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd",
+      "resourceId": "urn:junctura:capability:11111111-1111-4111-8111-111111111111:echo",
+      "resourceDigest": "sha256:fd2b4612971c8d4c2e4ab4eb2c49dcd3017260f16f0bd9e2a74b5746ba983bc3",
       "resourceRevision": 1,
       "requesterSubject": "synthetic-owner",
       "requesterAppId": "11111111-1111-4111-8111-111111111111",
@@ -84,9 +84,9 @@
       "target": {
         "kind": "capability",
         "capability": {
-          "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+          "capabilityId": "urn:junctura:capability:11111111-1111-4111-8111-111111111111:echo",
           "version": "1.0.0",
-          "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+          "manifestDigest": "sha256:fd2b4612971c8d4c2e4ab4eb2c49dcd3017260f16f0bd9e2a74b5746ba983bc3"
         }
       },
       "input": {
@@ -101,7 +101,7 @@
         "kind": "composition",
         "compositionId": "33333333-3333-4333-8333-333333333333",
         "version": "1.0.0",
-        "compositionDigest": "sha256:9210b05f103265e8011a560a28ae8fd72b05bd51a4cc87cdf06ba2d98ff360cd"
+        "compositionDigest": "sha256:721ebc5c29235709acdc90e18b2c879962cb2723ebd0027b985a86ed5c309ab2"
       },
       "input": {
         "value": "technical-fixture"
@@ -116,9 +116,9 @@
       "target": {
         "kind": "capability",
         "capability": {
-          "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+          "capabilityId": "urn:junctura:capability:11111111-1111-4111-8111-111111111111:echo",
           "version": "1.0.0",
-          "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+          "manifestDigest": "sha256:fd2b4612971c8d4c2e4ab4eb2c49dcd3017260f16f0bd9e2a74b5746ba983bc3"
         }
       },
       "state": "accepted",
@@ -131,7 +131,7 @@
     "schema": "ValidationReport",
     "value": {
       "status": "valid",
-      "digest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd",
+      "digest": "sha256:fd2b4612971c8d4c2e4ab4eb2c49dcd3017260f16f0bd9e2a74b5746ba983bc3",
       "revision": 1,
       "policyRevision": 1,
       "issues": [],
@@ -143,9 +143,9 @@
     "value": {
       "invocationId": "33333333-3333-4333-8333-333333333333",
       "capability": {
-        "capabilityId": "urn:rosetta:capability:11111111-1111-4111-8111-111111111111:echo",
+        "capabilityId": "urn:junctura:capability:11111111-1111-4111-8111-111111111111:echo",
         "version": "1.0.0",
-        "manifestDigest": "sha256:5d7446acb4c0ff8a329d1cd90f23d306065d0b5e2de5a2717a5a1d1ab1c826bd"
+        "manifestDigest": "sha256:fd2b4612971c8d4c2e4ab4eb2c49dcd3017260f16f0bd9e2a74b5746ba983bc3"
       },
       "input": {
         "value": "technical-fixture"

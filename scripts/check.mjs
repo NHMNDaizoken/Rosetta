@@ -17,9 +17,7 @@ function checkFile(file) {
   const source = readFileSync(file, "utf8");
   // REUSE-IgnoreStart
   assert.ok(source.slice(0, 200).includes("SPDX-License-Identifier: Apache-2.0"), `${file}: license header`);
-  // Byte-frozen files (checksummed migrations, deployed BPMN/policies, published
-  // contracts) keep the project's former name; both name the same contributors.
-  assert.ok(/SPDX-FileCopyrightText: 2026 (Junctura|Rosetta) Contributors/.test(source.slice(0, 200)), `${file}: attribution`);
+  assert.ok(source.slice(0, 200).includes("SPDX-FileCopyrightText: 2026 Junctura Contributors"), `${file}: attribution`);
   // REUSE-IgnoreEnd
   if (file.endsWith(".mjs")) {
     const result = spawnSync(process.execPath, ["--check", file], { stdio: "inherit" });

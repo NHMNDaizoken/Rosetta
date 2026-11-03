@@ -9,14 +9,14 @@ import { before, after, test } from "node:test";
 import { createAuthorityFixture } from "./fixtures/authority.mjs";
 import { createRuntimeFixture } from "./capability-runtime-fixture.mjs";
 import { verifyContracts } from "./contract.mjs";
-import { createRosettaClient } from "../sdk/node/index.mjs";
+import { createJuncturaClient } from "../sdk/node/index.mjs";
 
 const base = process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
 const prefix = `composition-${randomBytes(5).toString("hex")}`;
-const issuer = `${base}/identity/realms/rosetta`;
+const issuer = `${base}/identity/realms/junctura`;
 const clientIds = [], users = [];
 const run = promisify(execFile);
-const sql = text => run("docker", ["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1", "-Atc", text], { timeout: 30000 });
+const sql = text => run("docker", ["compose", "exec", "-T", "database", "psql", "-U", "junctura_admin", "-d", "junctura_data", "-v", "ON_ERROR_STOP=1", "-Atc", text], { timeout: 30000 });
 const q = value => `'${String(value).replaceAll("'", "''")}'`;
 async function publicApi(path, who, body, headers = {}, method = body === undefined ? "GET" : "POST") {
   return fetch(base + path, { method, headers: { Authorization: `Bearer ${who.token ?? who}`, "Content-Type": "application/json", ...headers },
@@ -142,10 +142,10 @@ before(async () => {
   for (const [index, label] of ["document-normalize", "document-validate"].entries()) {
     const origin = `https://${prefix}-${label}.test:8443`;
     const provider = await authority.backend(label, owner, approver, "tenant-a", true, origin);
-    const capabilityId = `urn:rosetta:capability:${provider.app.appId}:${label}`;
+    const capabilityId = `urn:junctura:capability:${provider.app.appId}:${label}`;
     const manifest = { ...structuredClone(manifestFixture), capabilityId, providerAppId: provider.app.appId,
       title: index ? "document.validate" : "document.normalize", timeoutMs: 5000,
-      requiredPermissions: [`urn:rosetta:permission:${provider.app.appId}:invoke`] };
+      requiredPermissions: [`urn:junctura:permission:${provider.app.appId}:invoke`] };
     const path = `/v1/capabilities/${encodeURIComponent(capabilityId)}/versions`;
     const created = await publicApi(path, owner, manifest); assert.equal(created.status, 201);
     const value = await created.json();
@@ -181,7 +181,7 @@ test("C4B: real two-provider execution agrees with durable SQL and completed Flo
   const key = randomUUID(), body = execution();
   // SDK uses the real fixture HTTP transport because the public Gateway remains
   // execution-disabled. Authentication still uses the real public OIDC endpoint.
-  const sdk = createRosettaClient({ baseUrl: base, clientId: consumer.clientId, clientSecret: consumer.clientSecret,
+  const sdk = createJuncturaClient({ baseUrl: base, clientId: consumer.clientId, clientSecret: consumer.clientSecret,
     fetcher: async (url, init) => {
       if (url.pathname.includes("/protocol/openid-connect/token")) return fetch(url, init);
       const headers = Object.fromEntries(init.headers);
@@ -227,7 +227,7 @@ test("C4B: plan schema, pinning and C3 compatibility deny malformed or unavailab
       p => p.steps[1].input.stepId = "future", p => p.inputSchema.$ref = "https://example.invalid/schema"]) {
       const doc = plan(); change(doc); expect(await api("/v1/compositions", consumer, doc), 422);
     }
-    const unknown = plan(); unknown.steps[0].capability.capabilityId = `urn:rosetta:capability:${randomUUID()}:unknown`;
+    const unknown = plan(); unknown.steps[0].capability.capabilityId = `urn:junctura:capability:${randomUUID()}:unknown`;
     assert.equal((await validate(await createPlan(unknown))).body.validation.status, "invalid");
     for (const field of ["version", "manifestDigest"]) {
       const stale = plan(); stale.steps[0].capability[field] = field === "version" ? "99.0.0" : `sha256:${"f".repeat(64)}`;

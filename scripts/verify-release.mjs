@@ -8,7 +8,7 @@ import { resolve } from "node:path";
 import { releaseFiles } from "./package-release.mjs";
 
 const version = JSON.parse(readFileSync("package.json", "utf8")).version;
-const name = `rosetta-${version}`;
+const name = `junctura-${version}`;
 const directory = resolve(process.argv[2] ?? "dist/releases");
 const bytes = readFileSync(resolve(directory, `${name}.tar`));
 const manifest = JSON.parse(readFileSync(resolve(directory, `${name}.manifest.json`), "utf8"));

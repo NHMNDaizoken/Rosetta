@@ -1,9 +1,9 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- Follow-up corrections discovered by real HTTP execution; 012/013 stay immutable.
 BEGIN;
-GRANT CREATE ON SCHEMA core TO rosetta_app_owner;
-SET LOCAL ROLE rosetta_app_owner;
+GRANT CREATE ON SCHEMA core TO junctura_app_owner;
+SET LOCAL ROLE junctura_app_owner;
 DO $fix$
 DECLARE source text:=pg_get_functiondef('core.composition_command(text,jsonb)'::regprocedure);
 BEGIN
@@ -15,7 +15,7 @@ BEGIN
   EXECUTE source;
 END $fix$;
 RESET ROLE;
-REVOKE CREATE ON SCHEMA core FROM rosetta_app_owner;
+REVOKE CREATE ON SCHEMA core FROM junctura_app_owner;
 INSERT INTO core.schema_migrations(version) VALUES(14);
 NOTIFY pgrst,'reload schema';
 COMMIT;

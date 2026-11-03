@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import React from "react";
 
-interface RosettaLogoProps {
+interface JuncturaLogoProps {
   size?: number;
   showText?: boolean;
   className?: string;
 }
 
-export const RosettaLogo: React.FC<RosettaLogoProps> = ({
+export const JuncturaLogo: React.FC<JuncturaLogoProps> = ({
   size = 32,
   showText = true,
   className = "",
@@ -48,7 +48,7 @@ export const RosettaLogo: React.FC<RosettaLogoProps> = ({
           <span className="font-bold text-base leading-tight tracking-tight text-stone-ink dark:text-slate-100 font-sans">
             Junctura
           </span>
-          <span className="text-[11px] font-medium uppercase tracking-wider text-rosetta-blue dark:text-sky-400">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-junctura-blue dark:text-sky-400">
             Console
           </span>
         </div>

@@ -104,7 +104,7 @@ export const PlatformSettingsScreen: React.FC = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Server className="w-5 h-5 text-rosetta-blue dark:text-sky-400" />
+              <Server className="w-5 h-5 text-junctura-blue dark:text-sky-400" />
               <CardTitle>Cấu hình cổng Gateway & Kết nối</CardTitle>
             </div>
           </CardHeader>
@@ -120,7 +120,7 @@ export const PlatformSettingsScreen: React.FC = () => {
                   value={gatewayUrl}
                   onChange={(e) => setGatewayUrl(e.target.value)}
                   placeholder="http://127.0.0.1:8080"
-                  className="flex-1 px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+                  className="flex-1 px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
                 />
                 <Button
                   type="button"
@@ -197,7 +197,7 @@ export const PlatformSettingsScreen: React.FC = () => {
               value={token}
               onChange={(e) => setToken(e.target.value)}
               placeholder={t.settings.tokenPlaceholder}
-              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
+              className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 font-mono focus:outline-none focus:ring-1 focus:ring-junctura-blue"
             />
             <Button
               type="button"

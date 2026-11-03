@@ -11,11 +11,11 @@ import { createServer } from "node:http";
 import { promisify } from "node:util";
 
 test("setup uses template, unique secrets and exclusive creation; rejects invalid options", () => {
-  const dir = mkdtempSync(join(tmpdir(), "rosetta-setup-"));
+  const dir = mkdtempSync(join(tmpdir(), "junctura-setup-"));
   try {
     const file = join(dir, ".env");
     const run = (...args) => spawnSync(process.execPath, ["scripts/setup-local.mjs", "--output", file, ...args], { encoding: "utf8" });
-    assert.equal(run("--port", "18080", "--console-port", "13000", "--project", "rosetta-test").status, 0);
+    assert.equal(run("--port", "18080", "--console-port", "13000", "--project", "junctura-test").status, 0);
     const bytes = readFileSync(file, "utf8"), env = parseEnv(bytes);
     const secrets = Object.entries(env).filter(([key]) => /PASSWORD|SECRET/.test(key)).map(([, value]) => value);
     assert.equal(secrets.length, 12);
@@ -23,7 +23,7 @@ test("setup uses template, unique secrets and exclusive creation; rejects invali
     assert.ok(secrets.every(value => /^[a-f0-9]{64}$/.test(value)));
     assert.equal(env.C4A_ENABLED, "false"); assert.equal(env.C4B_ENABLED, "false");
     assert.equal(env.PUBLIC_URL, "http://127.0.0.1:18080");
-    assert.equal(env.COMPOSE_PROJECT_NAME, "rosetta-test");
+    assert.equal(env.COMPOSE_PROJECT_NAME, "junctura-test");
     const again = run();
     assert.equal(again.status, 1); assert.equal(readFileSync(file, "utf8"), bytes);
     assert.ok(!again.stderr.includes(secrets[0]));
@@ -34,7 +34,7 @@ test("setup uses template, unique secrets and exclusive creation; rejects invali
 test("readiness probe fails when liveness succeeds but dependencies are unavailable", async () => {
   const server = createServer((req, res) => {
     res.setHeader("Content-Type", "application/json");
-    if (req.url === "/health") res.end(JSON.stringify({ service: "rosetta-core", status: "ok" }));
+    if (req.url === "/health") res.end(JSON.stringify({ service: "junctura-core", status: "ok" }));
     else { res.statusCode = 503; res.end('{"error":"not_ready"}'); }
   });
   await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));

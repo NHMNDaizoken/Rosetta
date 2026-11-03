@@ -11,7 +11,7 @@ export async function foundationExample({ base, clientId, clientSecret, granteeA
   assert.ok(Boolean(granteeClientId) === Boolean(granteeClientSecret), 'Grantee client ID and secret must be supplied together');
 
   async function authenticate(enrolledClientId, enrolledSecret) {
-    const issued = await fetcher(`${base}/identity/realms/rosetta/protocol/openid-connect/token`, {
+    const issued = await fetcher(`${base}/identity/realms/junctura/protocol/openid-connect/token`, {
       method: 'POST', body: new URLSearchParams({ grant_type: 'client_credentials', client_id: enrolledClientId, client_secret: enrolledSecret }),
       redirect: 'error', signal: AbortSignal.timeout(15000),
     });
@@ -50,7 +50,7 @@ export async function foundationExample({ base, clientId, clientSecret, granteeA
     deniedBeforeShare = true;
   }
 
-  const bytes = Buffer.from('Rosetta technical HTTP example');
+  const bytes = Buffer.from('Junctura technical HTTP example');
   const uploaded = await request('/v2/objects', token, 'POST', bytes, { 'Content-Type': 'application/octet-stream' });
   assert.equal(uploaded.status, 201);
   const object = await uploaded.json();
@@ -60,7 +60,7 @@ export async function foundationExample({ base, clientId, clientSecret, granteeA
 
   const definitions = await request('/v1/workflows/definitions');
   assert.equal(definitions.status, 200);
-  const definition = (await definitions.json()).items.find(item => item.key === 'rosetta_checkpoint');
+  const definition = (await definitions.json()).items.find(item => item.key === 'junctura_checkpoint');
   assert.ok(definition, 'Operator-installed technical checkpoint required');
   // Workflow variables remain tenant-visible: no private record/object content here.
   const started = await json('/v1/workflows/executions', { definitionId: definition.id, input: { technicalFixture: true } },
@@ -94,10 +94,10 @@ export async function foundationExample({ base, clientId, clientSecret, granteeA
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const result = await foundationExample({ base: process.env.PUBLIC_URL ?? 'http://127.0.0.1:8080',
-      clientId: process.env.ROSETTA_APP_CLIENT_ID, clientSecret: process.env.ROSETTA_APP_CLIENT_SECRET,
-      granteeAppId: process.env.ROSETTA_GRANTEE_APP_ID,
-      granteeClientId: process.env.ROSETTA_GRANTEE_CLIENT_ID,
-      granteeClientSecret: process.env.ROSETTA_GRANTEE_CLIENT_SECRET });
+      clientId: process.env.JUNCTURA_APP_CLIENT_ID, clientSecret: process.env.JUNCTURA_APP_CLIENT_SECRET,
+      granteeAppId: process.env.JUNCTURA_GRANTEE_APP_ID,
+      granteeClientId: process.env.JUNCTURA_GRANTEE_CLIENT_ID,
+      granteeClientSecret: process.env.JUNCTURA_GRANTEE_CLIENT_SECRET });
     console.log(`recordId=${result.recordId} objectId=${result.objectId} shareId=${result.shareId} executionId=${result.executionId}`);
     console.log('HTTP example succeeded. Created resources and expiring share remain owned by the backend; credentials and tokens withheld.');
   } catch {

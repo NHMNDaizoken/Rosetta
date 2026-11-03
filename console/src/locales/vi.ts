@@ -207,7 +207,7 @@ export const vi = {
     subtitle: "Ranh giới kiểm soát an ninh, mô hình cô lập tenant, lược đồ xác thực Token Introspection và nhật ký phiên.",
     architectureTitle: "Kiến trúc kiểm soát an ninh đa tầng",
     layerBoundary1: "1. Ranh giới API Gateway (Nginx): auth-request subrequest đến Core, giới hạn dung lượng 64 KiB/5 MiB, rate-limiting chống lạm dụng.",
-    layerBoundary2: "2. Ranh giới Xác thực Core: Introspect trực tiếp qua Keycloak bằng tài khoản rosetta-core bí mật. Bắt buộc vai trò core-reader và khớp tenant_id.",
+    layerBoundary2: "2. Ranh giới Xác thực Core: Introspect trực tiếp qua Keycloak bằng tài khoản junctura-core bí mật. Bắt buộc vai trò core-reader và khớp tenant_id.",
     layerBoundary3: "3. Ranh giới Cơ sở dữ liệu: PostgREST nhận JWT nội bộ 30 giây ký bởi Core. RLS SQL cưỡng chế bắt buộc mọi câu truy vấn.",
     layerBoundary4: "4. Ranh giới Đối tượng: SeaweedFS đặt trong mạng riêng objects. Đường dẫn file sinh tự động từ tenant_id và UUID, không nhận đường dẫn tùy tiện từ client.",
     layerBoundary5: "5. Ranh giới Quy trình: Flowable bảo vệ bởi bảng lưu trữ idempotency unique (tenant_id, key) dưới RLS.",

@@ -77,9 +77,9 @@ bind the previous step's canonical output, not the original request input.
 
 ## Execution transition matrix
 
-Only the private `rosetta_composition_api` RPC can request these mutations.
+Only the private `junctura_composition_api` RPC can request these mutations.
 It has no direct table privileges. All five Composition tables use forced
-tenant RLS under `rosetta_app_owner`; generic CRUD roles cannot access them.
+tenant RLS under `junctura_app_owner`; generic CRUD roles cannot access them.
 Core alone signs internal assertions. Caller-controlled input cannot select
 the database role, identity or lease proof.
 
@@ -107,7 +107,7 @@ No distributed exactly-once guarantee is claimed.
 ## Engine correlation and recovery limits
 
 Core generates deterministic BPMN with fixed process key
-`rosetta_c4b_composition`, topic `rosetta-c4b-step` and generated step element
+`junctura_c4b_composition`, topic `junctura-c4b-step` and generated step element
 IDs. It verifies definition bytes, process/definition/tenant/business key,
 execution ID, input digest and deadline variables. Jobs without an exact
 reservation are quarantined with zero retries. Flowable's acquire endpoint

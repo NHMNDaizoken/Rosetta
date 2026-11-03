@@ -13,30 +13,30 @@ import { jsonDigest, ticketDigest } from "../src/modules/capability/execution/ex
 import { verifyContracts } from "./contract.mjs";
 
 const image = readFileSync(new URL("../compose.yaml", import.meta.url), "utf8").match(/image: (postgres:[^\s]+)/)[1];
-const name = `rosetta-ledger-test-${randomUUID()}`;
+const name = `junctura-ledger-test-${randomUUID()}`;
 const run = promisify(execFile);
 const docker = (...args) => run("docker", args, { timeout: 120000, maxBuffer: 2097152 });
 const q = value => `'${String(value).replaceAll("'", "''")}'`;
 const observations = [];
-const sql = async text => (await docker("exec", name, "psql", "-X", "-U", "rosetta_admin", "-d", "rosetta_data", "-Atq", "-v", "ON_ERROR_STOP=1", "-c", text)).stdout.trim();
+const sql = async text => (await docker("exec", name, "psql", "-X", "-U", "junctura_admin", "-d", "junctura_data", "-Atq", "-v", "ON_ERROR_STOP=1", "-c", text)).stdout.trim();
 const tenant = "tenant-a", issuer = "https://issuer.example.invalid";
 const providerId = randomUUID(), consumerId = randomUUID(), otherId = randomUUID(), foreignId = randomUUID(), grantId = randomUUID(), approvalId = randomUUID();
-const capabilityId = `urn:rosetta:capability:${providerId}:echo`;
+const capabilityId = `urn:junctura:capability:${providerId}:echo`;
 const manifest = { ...JSON.parse(readFileSync(new URL("../docs/contracts/examples/capability-manifest.json", import.meta.url))),
-  providerAppId: providerId, capabilityId, timeoutMs: 10000, requiredPermissions: [`urn:rosetta:permission:${providerId}:invoke`] };
+  providerAppId: providerId, capabilityId, timeoutMs: 10000, requiredPermissions: [`urn:junctura:permission:${providerId}:invoke`] };
 const digest = jsonDigest(manifest), ref = { capabilityId, version: "1.0.0", manifestDigest: digest };
 const claims = (subject = "consumer-service", client = "consumer", tenantId = tenant) => ({ tenant_id: tenantId, iss: issuer, sub: subject, client_id: client,
   trust_writer: true, exp: Math.floor(Date.now() / 1000) + 60 });
 const consumer = () => claims(), provider = () => claims("provider-service", "provider");
 const management = subject => claims(subject, "management");
-async function command(operation, payload, context = consumer(), role = "rosetta_execution_api", rpc = "execution_command") {
+async function command(operation, payload, context = consumer(), role = "junctura_execution_api", rpc = "execution_command") {
   const result = JSON.parse(await sql(`BEGIN; SET LOCAL "request.jwt.claims"=${q(JSON.stringify(context))}; SET LOCAL ROLE ${role};
     SELECT core.${rpc}(${q(operation)},${q(JSON.stringify(payload))}::jsonb); COMMIT;`));
   if (result.value?.state && result.value.target?.kind === "capability") observations.push({ schema: "Execution", value: result.value });
   if (operation === "redeem" && result.value) observations.push({ schema: "TicketResult", value: result.value });
   return result;
 }
-const capCommand = (operation, payload, subject) => command(operation, payload, management(subject), "rosetta_capability_api", "capability_command");
+const capCommand = (operation, payload, subject) => command(operation, payload, management(subject), "junctura_capability_api", "capability_command");
 const proof = e => ({ executionId: e.executionId, tenantId: tenant, issuer, subject: "consumer-service", clientId: "consumer", writer: true, expiresAt: e.deadlineAt });
 const withProof = e => ({ ...consumer(), c4a_lease: proof(e) });
 async function reserve(key = randomUUID(), input = { value: "technical fixture" }, patch = {}) {
@@ -68,18 +68,18 @@ const clearAuditFailure = () => sql("DROP TRIGGER IF EXISTS c4a_test_failure ON 
 
 before(async () => {
   await docker("run", "--detach", "--name", name, "--network", "none", "--tmpfs", "/var/lib/postgresql/data:rw",
-    "-e", "POSTGRES_USER=rosetta_admin", "-e", "POSTGRES_DB=rosetta_data", "-e", "POSTGRES_HOST_AUTH_METHOD=trust",
+    "-e", "POSTGRES_USER=junctura_admin", "-e", "POSTGRES_DB=junctura_data", "-e", "POSTGRES_HOST_AUTH_METHOD=trust",
     "--mount", `type=bind,source=${resolve("infra/postgres")},target=/migrations,readonly`, image);
   let ready = false;
   for (let n = 0; n < 40; n++) {
     // The image's bootstrap-only Unix socket can report ready before creating
     // the requested DB. TCP opens only for the final server after initialization.
-    try { await docker("exec", name, "psql", "-X", "-h", "127.0.0.1", "-U", "rosetta_admin", "-d", "rosetta_data", "-Atqc", "SELECT 1"); ready = true; break; }
+    try { await docker("exec", name, "psql", "-X", "-h", "127.0.0.1", "-U", "junctura_admin", "-d", "junctura_data", "-Atqc", "SELECT 1"); ready = true; break; }
     catch { await new Promise(resolve => setTimeout(resolve, 250)); }
   }
   assert.ok(ready, "fresh disposable database ready");
-  await sql("CREATE ROLE rosetta_data NOLOGIN NOINHERIT; ALTER DATABASE rosetta_data OWNER TO rosetta_data;");
-  await docker("exec", name, "sh", "/migrations/migrate.sh", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1");
+  await sql("CREATE ROLE junctura_data NOLOGIN NOINHERIT; ALTER DATABASE junctura_data OWNER TO junctura_data;");
+  await docker("exec", name, "sh", "/migrations/migrate.sh", "-U", "junctura_admin", "-d", "junctura_data", "-v", "ON_ERROR_STOP=1");
   assert.equal(await sql("SELECT max(version) FROM core.schema_migrations;"), "17");
   await sql(`INSERT INTO app_private.principals(tenant_id,issuer,subject,management_client,permissions) VALUES
     (${q(tenant)},${q(issuer)},'owner','management',ARRAY['applications.register','capabilities.write','trust.write']),
@@ -227,12 +227,12 @@ test("revocation, expiry, forged correlation, audit outage and restart stop futu
   const renewed = await command("reauthorize", { executionId: waiting.executionId }, withProof(waiting));
   assert.equal(renewed.value.state, "accepted");
   assert.equal(renewed.value.deadlineAt, waiting.deadlineAt, "reauthentication cannot extend the deadline");
-  for (const role of ["rosetta_api", "rosetta_resource_api", "rosetta_app_api", "rosetta_capability_api", "rosetta_trust_api"]) {
+  for (const role of ["junctura_api", "junctura_resource_api", "junctura_app_api", "junctura_capability_api", "junctura_trust_api"]) {
     assert.equal(await sql(`SELECT has_function_privilege(${q(role)},'core.execution_command(text,jsonb)','execute');`), "f", role);
     assert.equal(await sql(`SELECT has_schema_privilege(${q(role)},'execution_private','usage');`), "f", role);
   }
   assert.equal(await sql("SELECT relrowsecurity AND relforcerowsecurity FROM pg_class WHERE oid='execution_private.executions'::regclass;"), "t");
   assert.equal(await sql("SELECT count(*) FROM information_schema.columns WHERE table_schema='execution_private' AND column_name IN ('token','credential','authorization','ticket');"), "0");
-  const repeat = await docker("exec", name, "sh", "/migrations/migrate.sh", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1");
+  const repeat = await docker("exec", name, "sh", "/migrations/migrate.sh", "-U", "junctura_admin", "-d", "junctura_data", "-v", "ON_ERROR_STOP=1");
   assert.match(repeat.stdout, /Migration 11 verified/);
 });

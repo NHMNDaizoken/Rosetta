@@ -44,7 +44,7 @@ Extract the source TAR into a new directory. Run the following there, not inside
 your real development checkout. Choose unused ports and a unique project name:
 
 ```sh
-npm run setup -- --port=28080 --console-port=23000 --project=rosetta-release-smoke
+npm run setup -- --port=28080 --console-port=23000 --project=junctura-release-smoke
 npm run doctor
 npm run local:up
 npm run healthcheck
@@ -135,12 +135,12 @@ The owner publishes a final version from a committed `main` checkout after CI pa
 ```sh
 npm run release:package
 npm run release:verify
-gzip -9 -k -n dist/releases/rosetta-0.1.0.tar
-git tag -a v0.1.0 -m "Rosetta v0.1.0 - Layer 1 Foundation and Capability Services"
+gzip -9 -k -n dist/releases/junctura-0.1.0.tar
+git tag -a v0.1.0 -m "Junctura v0.1.0 - Layer 1 Foundation and Capability Services"
 git push origin v0.1.0
 ```
 
-On GitHub, create a release from tag `v0.1.0` and attach `rosetta-0.1.0.tar.gz`,
-`rosetta-0.1.0.tar.sha256` and `rosetta-0.1.0.manifest.json`. List unresolved
+On GitHub, create a release from tag `v0.1.0` and attach `junctura-0.1.0.tar.gz`,
+`junctura-0.1.0.tar.sha256` and `junctura-0.1.0.manifest.json`. List unresolved
 upstream image advisories from [SECURITY_REVIEW.md](SECURITY_REVIEW.md) under
 **Known issues**; they are tracked, not hidden.

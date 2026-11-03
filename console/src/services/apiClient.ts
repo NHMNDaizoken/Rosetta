@@ -27,9 +27,9 @@ import {
 } from "./mockData";
 
 const DEFAULT_BASE_URL = "/api";
-const GATEWAY_KEY = "rosetta_gateway_url";
-const LIVE_MODE_KEY = "rosetta_live_mode";
-const LEGACY_TOKEN_KEY = "rosetta_token";
+const GATEWAY_KEY = "junctura_gateway_url";
+const LIVE_MODE_KEY = "junctura_live_mode";
+const LEGACY_TOKEN_KEY = "junctura_token";
 
 export function normalizeBaseUrl(value: string): string {
   const trimmed = value.trim();
@@ -227,7 +227,7 @@ export class ApiClient {
     const start = performance.now();
     if (!this.isLiveMode) {
       return {
-        service: "rosetta-core (preview)",
+        service: "junctura-core (preview)",
         status: "ok",
         timestamp: new Date().toISOString(),
         latencyMs: 4,
@@ -243,16 +243,16 @@ export class ApiClient {
       if (res.ok) {
         const data = await res.json();
         return {
-          service: data.service ?? "rosetta-core",
+          service: data.service ?? "junctura-core",
           status: data.status === "ok" ? "ok" : "degraded",
           timestamp: new Date().toISOString(),
           latencyMs: latency,
         };
       }
-      return { service: "rosetta-core", status: "degraded", latencyMs: latency };
+      return { service: "junctura-core", status: "degraded", latencyMs: latency };
     } catch {
       return {
-        service: "rosetta-core",
+        service: "junctura-core",
         status: "error",
         latencyMs: Math.round(performance.now() - start),
       };

@@ -32,7 +32,7 @@ export function packageRelease(directory = "dist/releases") {
   assert.ok(tree.every(entry => !entry.startsWith("120000 ") && !entry.startsWith("160000 ")), "Review symlinks/submodules before release");
   const files = releaseFiles(tree.map(entry => entry.slice(entry.indexOf("\t") + 1)));
   for (const required of ["LICENSE", "NOTICE", "THIRD-PARTY.md", "CHANGELOG.md", "REUSE.toml", "LICENSES/Apache-2.0.txt", "compose.yaml", ".env.example", "docs/GETTING_STARTED.md", "docs/RELEASE.md", "docs/DEVELOPING.md", "infra/postgres/017-composition-exact-grants.sql"]) assert.ok(files.includes(required), `Missing release file ${required}`);
-  const name = `rosetta-${version}`;
+  const name = `junctura-${version}`;
   const archive = execFileSync("git", ["archive", "--format=tar", `--prefix=${name}/`, sha, "--", ...files], { maxBuffer: 64 * 1024 * 1024 });
   const hash = createHash("sha256").update(archive).digest("hex");
   mkdirSync(directory, { recursive: true });

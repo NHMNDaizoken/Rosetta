@@ -16,13 +16,13 @@ const I18nContext = createContext<I18nContextType | null>(null);
 
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem("rosetta_lang");
+    const saved = localStorage.getItem("junctura_lang");
     return (saved === "en" || saved === "vi") ? saved : "vi"; // Vietnamese default as requested
   });
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("rosetta_lang", lang);
+    localStorage.setItem("junctura_lang", lang);
     document.documentElement.lang = lang;
   };
 

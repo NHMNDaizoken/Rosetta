@@ -6,8 +6,8 @@ import { HttpError } from "../../../platform/http/http.mjs";
 
 const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const UUID_RE = new RegExp(`^${UUID}$`);
-const CAPABILITY_ID_RE = new RegExp(`^urn:rosetta:capability:(${UUID}):([a-z][a-z0-9-]{0,62})$`);
-const PERMISSION_ID_RE = new RegExp(`^urn:rosetta:permission:(${UUID}):([a-z][a-z0-9-]{0,62})$`);
+const CAPABILITY_ID_RE = new RegExp(`^urn:junctura:capability:(${UUID}):([a-z][a-z0-9-]{0,62})$`);
+const PERMISSION_ID_RE = new RegExp(`^urn:junctura:permission:(${UUID}):([a-z][a-z0-9-]{0,62})$`);
 const VERSION_RE = /^(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})$/;
 const PROPERTY_RE = /^[A-Za-z][A-Za-z0-9_]{0,63}$/;
 const INVOCATION_PATH_RE = /^\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/;
@@ -54,7 +54,7 @@ export function validateManifest(manifest, expected = {}) {
   }
   if (manifest.manifestVersion !== "1.0") add("/manifestVersion", "unsupported_version", "Only manifestVersion 1.0 is accepted.");
   const capability = typeof manifest.capabilityId === "string" ? CAPABILITY_ID_RE.exec(manifest.capabilityId) : null;
-  if (!capability) add("/capabilityId", "invalid_capability_id", "Capability ID must be an exact Rosetta URN.");
+  if (!capability) add("/capabilityId", "invalid_capability_id", "Capability ID must be an exact Junctura URN.");
   if (typeof manifest.providerAppId !== "string" || !UUID_RE.test(manifest.providerAppId)) {
     add("/providerAppId", "invalid_provider_app_id", "Provider app ID must be an exact lowercase UUID.");
   } else if (capability && capability[1] !== manifest.providerAppId) {
@@ -247,7 +247,7 @@ function validatePermissions(permissions, providerAppId, add) {
   for (const permission of permissions) {
     const match = typeof permission === "string" ? PERMISSION_ID_RE.exec(permission) : null;
     if (!match || seen.has(permission)) {
-      add("/requiredPermissions", "invalid_permissions", "Permissions must be unique exact Rosetta URNs.");
+      add("/requiredPermissions", "invalid_permissions", "Permissions must be unique exact Junctura URNs.");
       continue;
     }
     if (typeof providerAppId === "string" && match[1] !== providerAppId) {

@@ -20,7 +20,7 @@ export const BRAND = {
       port: "Internal (8080)",
       description: "Quản lý định danh tập trung, xác thực người dùng & tài khoản dịch vụ, cấp phát token OIDC và phân quyền tenant.",
       enDescription: "Centralized identity provider, user & service account authentication, OIDC tokens and tenant segregation.",
-      statusRoute: "/identity/realms/rosetta/.well-known/openid-configuration",
+      statusRoute: "/identity/realms/junctura/.well-known/openid-configuration",
       limitations: "Tenant memberships managed by administrator. No email-only or password DB fallback.",
     },
     {

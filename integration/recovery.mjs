@@ -25,8 +25,8 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
   assert.match(image, /^postgres:17-bookworm@sha256:/);
   const id = randomUUID();
   const otherApp = randomUUID();
-  const sourceSql = (sql) => docker(["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1", "-Atc", sql]);
-  const sourceClaim = "SET ROLE rosetta_api; SELECT set_config('request.jwt.claims','{\"tenant_id\":\"tenant-a\"}',false);";
+  const sourceSql = (sql) => docker(["compose", "exec", "-T", "database", "psql", "-U", "junctura_admin", "-d", "junctura_data", "-v", "ON_ERROR_STOP=1", "-Atc", sql]);
+  const sourceClaim = "SET ROLE junctura_api; SELECT set_config('request.jwt.claims','{\"tenant_id\":\"tenant-a\"}',false);";
   let target;
   let seeded = false;
   let applicationSeeded = false;
@@ -45,13 +45,13 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
       INSERT INTO core.app_records(tenant_id,id,owner_app_id,collection,data) VALUES('tenant-a','${id}','${id}','recovery_fixture','{"private":true}');
       INSERT INTO app_private.principals(tenant_id,issuer,subject,management_client,permissions)
         VALUES('tenant-a','https://recovery.example.invalid','recovery-${id}','restore-${id}',ARRAY['audit.read']::text[]);
-      SET ROLE rosetta_app_owner;
+      SET ROLE junctura_app_owner;
       SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-a","iss":"https://recovery.example.invalid","sub":"recovery-${id}","client_id":"restore-${id}"}',false);
       INSERT INTO app_private.audit(tenant_id,issuer,subject,management_client,event,resource_id,revision)
         VALUES('tenant-a','https://recovery.example.invalid','recovery-${id}','restore-${id}','application.recovery_fixture','${id}',1);
       RESET ROLE;`);
-    const started = await docker(["run", "--detach", "--rm", "--name", `rosetta-restore-${randomBytes(6).toString("hex")}`,
-      "--network", "none", "--tmpfs", "/var/lib/postgresql/data:rw", "--env", "POSTGRES_USER=rosetta_admin",
+    const started = await docker(["run", "--detach", "--rm", "--name", `junctura-restore-${randomBytes(6).toString("hex")}`,
+      "--network", "none", "--tmpfs", "/var/lib/postgresql/data:rw", "--env", "POSTGRES_USER=junctura_admin",
       "--env", "POSTGRES_PASSWORD", image], { env: { ...process.env, POSTGRES_PASSWORD: randomBytes(32).toString("hex") } });
     target = started.stdout.trim();
     assert.match(target, /^[0-9a-f]{64}$/);
@@ -59,16 +59,16 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     let ready = false;
     while (Date.now() < deadline) {
       try {
-        await docker(["exec", target, "sh", "-c", 'test "$(cat /proc/1/comm)" = postgres && pg_isready -U rosetta_admin -d postgres']);
+        await docker(["exec", target, "sh", "-c", 'test "$(cat /proc/1/comm)" = postgres && pg_isready -U junctura_admin -d postgres']);
         ready = true;
         break;
       } catch { await new Promise((resolve) => setTimeout(resolve, 500)); }
     }
     assert.ok(ready, "Isolated PostgreSQL completed initialization");
-    await docker(["exec", target, "createdb", "-U", "rosetta_admin", "recovered"]);
-    await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-c", "CREATE ROLE rosetta_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_app_owner NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_resource_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_audit_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_capability_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_trust_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_execution_api NOLOGIN NOBYPASSRLS; CREATE ROLE rosetta_composition_api NOLOGIN NOBYPASSRLS;"]);
-    const dump = spawn("docker", ["compose", "exec", "-T", "database", "pg_dump", "-U", "rosetta_admin", "--format=custom", "rosetta_data"], { stdio: ["ignore", "pipe", "pipe"] });
-    const restore = spawn("docker", ["exec", "-i", target, "pg_restore", "-U", "rosetta_admin", "--exit-on-error", "--dbname=recovered"], { stdio: ["pipe", "ignore", "pipe"] });
+    await docker(["exec", target, "createdb", "-U", "junctura_admin", "recovered"]);
+    await docker(["exec", target, "psql", "-U", "junctura_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-c", "CREATE ROLE junctura_api NOLOGIN NOBYPASSRLS; CREATE ROLE junctura_app_api NOLOGIN NOBYPASSRLS; CREATE ROLE junctura_app_owner NOLOGIN NOBYPASSRLS; CREATE ROLE junctura_resource_api NOLOGIN NOBYPASSRLS; CREATE ROLE junctura_audit_api NOLOGIN NOBYPASSRLS; CREATE ROLE junctura_capability_api NOLOGIN NOBYPASSRLS; CREATE ROLE junctura_trust_api NOLOGIN NOBYPASSRLS; CREATE ROLE junctura_execution_api NOLOGIN NOBYPASSRLS; CREATE ROLE junctura_composition_api NOLOGIN NOBYPASSRLS;"]);
+    const dump = spawn("docker", ["compose", "exec", "-T", "database", "pg_dump", "-U", "junctura_admin", "--format=custom", "junctura_data"], { stdio: ["ignore", "pipe", "pipe"] });
+    const restore = spawn("docker", ["exec", "-i", target, "pg_restore", "-U", "junctura_admin", "--exit-on-error", "--dbname=recovered"], { stdio: ["pipe", "ignore", "pipe"] });
     const dumpCode = closeCode(dump);
     const restoreCode = closeCode(restore);
     dump.stderr.resume();
@@ -77,53 +77,53 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
     assert.equal(await dumpCode, 0, "Source dump succeeds");
     assert.equal(await restoreCode, 0, "Restore with ownership/ACL/policies succeeds");
     for (const [tenant, expected] of [["tenant-a", "1"], ["tenant-b", "0"]]) {
-      const sql = `SET ROLE rosetta_api; SELECT set_config('request.jwt.claims','{"tenant_id":"${tenant}"}',false); SELECT count(*) FROM core.records WHERE id='${id}';`;
-      const result = await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-Atc", sql]);
+      const sql = `SET ROLE junctura_api; SELECT set_config('request.jwt.claims','{"tenant_id":"${tenant}"}',false); SELECT count(*) FROM core.records WHERE id='${id}';`;
+      const result = await docker(["exec", target, "psql", "-U", "junctura_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-Atc", sql]);
       assert.equal(result.stdout.trim().split(/\r?\n/).at(-1), expected, `Restored RLS for ${tenant}`);
     }
     for (const [tenant, expected] of [["tenant-a", "1"], ["tenant-b", "0"]]) {
-      const claims = `SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims','{"tenant_id":"${tenant}"}',false);`;
-      const result = await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-Atc",
+      const claims = `SET ROLE junctura_app_owner; SELECT set_config('request.jwt.claims','{"tenant_id":"${tenant}"}',false);`;
+      const result = await docker(["exec", target, "psql", "-U", "junctura_admin", "-d", "recovered", "-v", "ON_ERROR_STOP=1", "-Atc",
         `${claims} SELECT count(*) FROM app_private.applications WHERE app_id='${id}';`]);
       assert.equal(result.stdout.trim().split(/\r?\n/).at(-1), expected, `Restored authority RLS for ${tenant}`);
     }
-    const acl = await docker(["exec", target, "psql", "-U", "rosetta_admin", "-d", "recovered", "-Atc",
-      "SELECT has_schema_privilege('rosetta_api','app_private','USAGE'),has_function_privilege('rosetta_api','core.application_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_app_api','core.application_command(text,jsonb)','EXECUTE');"]);
+    const acl = await docker(["exec", target, "psql", "-U", "junctura_admin", "-d", "recovered", "-Atc",
+      "SELECT has_schema_privilege('junctura_api','app_private','USAGE'),has_function_privilege('junctura_api','core.application_command(text,jsonb)','EXECUTE'),has_function_privilege('junctura_app_api','core.application_command(text,jsonb)','EXECUTE');"]);
     assert.equal(acl.stdout.trim(), "f|f|t", "Restore preserves isolated authority RPC grants");
     for(const [tenant,appId,expected] of [['tenant-a',id,'1'],['tenant-a',otherApp,'0'],['tenant-b',id,'0']]) {
       const claims=JSON.stringify({tenant_id:tenant,iss:'https://recovery.example.invalid',client_id:`restore-${appId}`,sub:`subject-${appId}`,app_id:id,resource_writer:true});
-      const result=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
-        `SET ROLE rosetta_resource_api; SELECT set_config('request.jwt.claims','${claims}',false); SELECT count(*) FROM core.app_records WHERE id='${id}';`]);
+      const result=await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
+        `SET ROLE junctura_resource_api; SELECT set_config('request.jwt.claims','${claims}',false); SELECT count(*) FROM core.app_records WHERE id='${id}';`]);
       assert.equal(result.stdout.trim().split(/\r?\n/).at(-1),expected,`Restored app RLS: ${tenant}/${appId}`);
     }
-    const resourceAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
-      "SELECT has_table_privilege('rosetta_api','core.app_records','SELECT'),has_schema_privilege('rosetta_resource_api','app_private','USAGE');"]);
+    const resourceAcl=await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-Atc',
+      "SELECT has_table_privilege('junctura_api','core.app_records','SELECT'),has_schema_privilege('junctura_resource_api','app_private','USAGE');"]);
     assert.equal(resourceAcl.stdout.trim(),'f|f','Restore preserves resource role separation');
-    const auditAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
-      "SELECT has_function_privilege('rosetta_audit_api','core.audit_query(jsonb)','EXECUTE'),has_table_privilege('rosetta_audit_api','app_private.audit','INSERT'),has_table_privilege('rosetta_app_api','app_private.audit','INSERT');"]);
+    const auditAcl=await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-Atc',
+      "SELECT has_function_privilege('junctura_audit_api','core.audit_query(jsonb)','EXECUTE'),has_table_privilege('junctura_audit_api','app_private.audit','INSERT'),has_table_privilege('junctura_app_api','app_private.audit','INSERT');"]);
     assert.equal(auditAcl.stdout.trim(),'t|f|f','Restore preserves audit role separation');
-    const capabilityAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
-      "SELECT has_function_privilege('rosetta_capability_api','core.capability_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_capability_api','core.application_command(text,jsonb)','EXECUTE'),has_table_privilege('rosetta_capability_api','app_private.capability_versions','SELECT');"]);
+    const capabilityAcl=await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-Atc',
+      "SELECT has_function_privilege('junctura_capability_api','core.capability_command(text,jsonb)','EXECUTE'),has_function_privilege('junctura_capability_api','core.application_command(text,jsonb)','EXECUTE'),has_table_privilege('junctura_capability_api','app_private.capability_versions','SELECT');"]);
     assert.equal(capabilityAcl.stdout.trim(),'t|f|f','Restore preserves capability registry role separation');
-    const trustAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
-      "SELECT n.nspowner::regrole, bool_and(c.relrowsecurity AND c.relforcerowsecurity) FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='trust_private' AND c.relkind='r' GROUP BY n.nspowner; SELECT has_schema_privilege('rosetta_api','trust_private','USAGE'),has_table_privilege('rosetta_app_api','trust_private.grants','INSERT');"]);
-    assert.equal(trustAcl.stdout.trim(),'rosetta_app_owner|t\nf|f','Restore preserves Trust ownership, forced RLS and private ACLs');
-    const executionAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
-      "SELECT n.nspowner::regrole,c.relrowsecurity AND c.relforcerowsecurity FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='execution_private' AND c.relname='executions'; SELECT has_function_privilege('rosetta_execution_api','core.execution_command(text,jsonb)','EXECUTE'),has_function_privilege('rosetta_api','core.execution_command(text,jsonb)','EXECUTE'),has_schema_privilege('rosetta_execution_api','execution_private','USAGE');"]);
-    assert.equal(executionAcl.stdout.trim(),'rosetta_app_owner|t\nt|f|f','Restore preserves private execution authority and forced RLS');
-    const compositionAcl=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
-      "SELECT n.nspowner::regrole,count(*),bool_and(c.relrowsecurity AND c.relforcerowsecurity) FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='composition_private' AND c.relkind='r' GROUP BY n.nspowner; SELECT has_function_privilege('rosetta_composition_api','core.composition_execution_command(text,jsonb)','EXECUTE'),has_schema_privilege('rosetta_composition_api','composition_private','USAGE'),has_table_privilege('rosetta_api','composition_private.executions','SELECT');"]);
-    assert.equal(compositionAcl.stdout.trim(),'rosetta_app_owner|5|t\nt|f|f','Restore preserves Composition ownership, all forced RLS policies and restricted RPC role');
+    const trustAcl=await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-Atc',
+      "SELECT n.nspowner::regrole, bool_and(c.relrowsecurity AND c.relforcerowsecurity) FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='trust_private' AND c.relkind='r' GROUP BY n.nspowner; SELECT has_schema_privilege('junctura_api','trust_private','USAGE'),has_table_privilege('junctura_app_api','trust_private.grants','INSERT');"]);
+    assert.equal(trustAcl.stdout.trim(),'junctura_app_owner|t\nf|f','Restore preserves Trust ownership, forced RLS and private ACLs');
+    const executionAcl=await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-Atc',
+      "SELECT n.nspowner::regrole,c.relrowsecurity AND c.relforcerowsecurity FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='execution_private' AND c.relname='executions'; SELECT has_function_privilege('junctura_execution_api','core.execution_command(text,jsonb)','EXECUTE'),has_function_privilege('junctura_api','core.execution_command(text,jsonb)','EXECUTE'),has_schema_privilege('junctura_execution_api','execution_private','USAGE');"]);
+    assert.equal(executionAcl.stdout.trim(),'junctura_app_owner|t\nt|f|f','Restore preserves private execution authority and forced RLS');
+    const compositionAcl=await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-Atc',
+      "SELECT n.nspowner::regrole,count(*),bool_and(c.relrowsecurity AND c.relforcerowsecurity) FROM pg_namespace n JOIN pg_class c ON c.relnamespace=n.oid WHERE n.nspname='composition_private' AND c.relkind='r' GROUP BY n.nspowner; SELECT has_function_privilege('junctura_composition_api','core.composition_execution_command(text,jsonb)','EXECUTE'),has_schema_privilege('junctura_composition_api','composition_private','USAGE'),has_table_privilege('junctura_api','composition_private.executions','SELECT');"]);
+    assert.equal(compositionAcl.stdout.trim(),'junctura_app_owner|5|t\nt|f|f','Restore preserves Composition ownership, all forced RLS policies and restricted RPC role');
     const compositions = process.env.COMPOSITION_RECOVERY_CASES ? JSON.parse(process.env.COMPOSITION_RECOVERY_CASES) : [];
     for (const fixture of compositions) {
       assert.match(fixture.execution.execution_id, /^[0-9a-f-]{36}$/);
       for (const tenant of ['tenant-a','tenant-b']) {
-        const query = `SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims','${JSON.stringify({tenant_id:tenant})}',false);
+        const query = `SET ROLE junctura_app_owner; SELECT set_config('request.jwt.claims','${JSON.stringify({tenant_id:tenant})}',false);
           SELECT coalesce((SELECT jsonb_build_object('execution',to_jsonb(e),'steps',
             (SELECT jsonb_agg(to_jsonb(s) ORDER BY step_index) FROM composition_private.execution_steps s WHERE s.execution_id=e.execution_id),
             'auditCount',(SELECT count(*) FROM app_private.audit WHERE resource_id=e.execution_id))
             FROM composition_private.executions e WHERE execution_id='${fixture.execution.execution_id}'),'null'::jsonb);`;
-        const result = await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',query]);
+        const result = await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',query]);
         assert.deepEqual(JSON.parse(result.stdout.trim().split(/\r?\n/).at(-1)), tenant===fixture.execution.tenant_id ? fixture : null,
           'Restored Composition state, exact steps, ticket hashes, operation IDs, output, audit and tenant RLS');
       }
@@ -139,10 +139,10 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
         'idempotency_key','operation_id','ticket_hash','state','attempt','engine_process_id','output'];
       assert.deepEqual(Object.keys(fixture).sort(), [...fields].sort());
       for (const tenant of [fixture.tenant_id, 'tenant-b']) {
-        const query = `SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims','${JSON.stringify({tenant_id:tenant})}',false);
+        const query = `SET ROLE junctura_app_owner; SELECT set_config('request.jwt.claims','${JSON.stringify({tenant_id:tenant})}',false);
           SELECT coalesce((SELECT jsonb_build_object(${fields.map(key => `'${key}',e.${key}`).join(',')})
             FROM execution_private.executions e WHERE execution_id='${fixture.execution_id}'),'null'::jsonb);`;
-        const result = await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',query]);
+        const result = await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',query]);
         assert.deepEqual(JSON.parse(result.stdout.trim().split(/\r?\n/).at(-1)), tenant===fixture.tenant_id ? fixture : null,
           'Restored execution bindings, outcome and forced tenant RLS');
       }
@@ -157,29 +157,29 @@ test("pg_dump/pg_restore preserves real data and tenant RLS in an isolated tempo
       for (const fixture of liveTrust.cases) {
         for (const tenant of [liveTrust.tenant, 'tenant-b']) {
           const claims = JSON.stringify({tenant_id:tenant,iss:liveTrust.issuer,sub:liveTrust.subject,client_id:liveTrust.clientId,trust_writer:true});
-          const result = await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
-            `SET ROLE rosetta_trust_api; SELECT set_config('request.jwt.claims',${literal(claims)},false); SELECT core.trust_eligibility(${literal(JSON.stringify(fixture.reference))}::jsonb)->>'allowed';`]);
+          const result = await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
+            `SET ROLE junctura_trust_api; SELECT set_config('request.jwt.claims',${literal(claims)},false); SELECT core.trust_eligibility(${literal(JSON.stringify(fixture.reference))}::jsonb)->>'allowed';`]);
           assert.equal(result.stdout.trim().split(/\r?\n/).at(-1), String(tenant===liveTrust.tenant && fixture.state==='active'), 'Restored live Trust decision');
-          const stored = await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
-            `SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims',${literal(claims)},false); SELECT coalesce((SELECT trust_private.grant_view(g)->>'state' FROM trust_private.grants g WHERE grant_id=${literal(fixture.grantId)}::uuid),'hidden');`]);
+          const stored = await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
+            `SET ROLE junctura_app_owner; SELECT set_config('request.jwt.claims',${literal(claims)},false); SELECT coalesce((SELECT trust_private.grant_view(g)->>'state' FROM trust_private.grants g WHERE grant_id=${literal(fixture.grantId)}::uuid),'hidden');`]);
           assert.equal(stored.stdout.trim().split(/\r?\n/).at(-1), tenant===liveTrust.tenant ? fixture.state : 'hidden', 'Restored grant state and tenant RLS');
         }
       }
       const revoked = liveTrust.cases.find(fixture=>fixture.state==='revoked');
-      const evidence = await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-Atc',
-        `SELECT count(*) FROM app_private.audit WHERE resource_id=${literal(revoked.grantId)}::uuid AND event='grant.revoked'; SELECT has_function_privilege('rosetta_trust_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('rosetta_api','core.trust_eligibility(jsonb)','EXECUTE'),has_table_privilege('rosetta_trust_api','trust_private.grants','UPDATE');`]);
+      const evidence = await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-Atc',
+        `SELECT count(*) FROM app_private.audit WHERE resource_id=${literal(revoked.grantId)}::uuid AND event='grant.revoked'; SELECT has_function_privilege('junctura_trust_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('junctura_api','core.trust_eligibility(jsonb)','EXECUTE'),has_table_privilege('junctura_trust_api','trust_private.grants','UPDATE');`]);
       assert.equal(evidence.stdout.trim(),'1\nt|f|f','Restored revocation audit and Trust ACLs');
       console.log(`Trust restore: ${liveTrust.cases.length} live grants, tenant RLS, revocation audit and ACLs passed`);
     }
     for(const [tenant,expected] of [['tenant-a','1'],['tenant-b','0']]) {
       const claims=JSON.stringify({tenant_id:tenant,iss:'https://recovery.example.invalid',sub:`recovery-${id}`,client_id:`restore-${id}`});
-      const result=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
-        `SET ROLE rosetta_app_owner; SELECT set_config('request.jwt.claims','${claims}',false); SELECT count(*) FROM app_private.audit WHERE resource_id='${id}';`]);
+      const result=await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
+        `SET ROLE junctura_app_owner; SELECT set_config('request.jwt.claims','${claims}',false); SELECT count(*) FROM app_private.audit WHERE resource_id='${id}';`]);
       assert.equal(result.stdout.trim().split(/\r?\n/).at(-1),expected,`Restored audit RLS for ${tenant}`);
     }
     const auditClaims=JSON.stringify({tenant_id:'tenant-a',iss:'https://recovery.example.invalid',sub:`recovery-${id}`,client_id:`restore-${id}`});
-    const auditQuery=await docker(['exec',target,'psql','-U','rosetta_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
-      `SET ROLE rosetta_audit_api; SELECT set_config('request.jwt.claims','${auditClaims}',false); SELECT EXISTS(SELECT 1 FROM jsonb_array_elements(core.audit_query('{"limit":100}'::jsonb)->'value'->'items') item WHERE item->>'resourceId'='${id}');`]);
+    const auditQuery=await docker(['exec',target,'psql','-U','junctura_admin','-d','recovered','-v','ON_ERROR_STOP=1','-Atc',
+      `SET ROLE junctura_audit_api; SELECT set_config('request.jwt.claims','${auditClaims}',false); SELECT EXISTS(SELECT 1 FROM jsonb_array_elements(core.audit_query('{"limit":100}'::jsonb)->'value'->'items') item WHERE item->>'resourceId'='${id}');`]);
     assert.equal(auditQuery.stdout.trim().split(/\r?\n/).at(-1),'t','Restored protected audit query returns the event');
   } finally {
     if (target && /^[0-9a-f]{64}$/.test(target)) await docker(["stop", target]);

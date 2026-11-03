@@ -6,7 +6,7 @@ This document retains the full proposed v1 trust, delegation and execution desig
 
 ## Identity, caller context and authority
 
-Continue to validate the existing issuer, `rosetta-core` audience, expiry/active status, authoritative tenant membership and baseline reader/writer roles. New GET operations require `core-reader`; new mutations require `core-writer` as well. These baseline roles are necessary but never sufficient for ownership, administration, publication or invocation rights.
+Continue to validate the existing issuer, `junctura-core` audience, expiry/active status, authoritative tenant membership and baseline reader/writer roles. New GET operations require `core-reader`; new mutations require `core-writer` as well. These baseline roles are necessary but never sufficient for ownership, administration, publication or invocation rights.
 
 Proposed context is server-derived: `tenantId`, `issuer`, effective `subject`, `actorAppId`, initiating `subject`/app, principal type, internal executor identity, exact capability/version/digest, invocation/step IDs, permission set, grant/approval/delegation IDs, input digest and deadline. Do not accept context, tenant, role, permission or subject overrides in invocation bodies or `X-*` headers. Provider context is obtained through a short-lived Core authorization ticket, not unsigned propagated identity headers.
 

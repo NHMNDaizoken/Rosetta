@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 import { contractFetch as fetch, verifyContracts } from './contract.mjs';
 
 const base = process.env.PUBLIC_URL ?? "http://127.0.0.1:8080";
-const issuer = `${base}/identity/realms/rosetta`;
+const issuer = `${base}/identity/realms/junctura`;
 let tokenA, tokenB, reader;
 
 async function token(client, secret) {
@@ -59,7 +59,7 @@ test('public process and OIDC boundary methods conform without changing their wi
 });
 
 test("gateway preserves health and exposes real OIDC discovery/readiness", async () => {
-  assert.deepEqual(await (await api("/health")).json(), { service: "rosetta-core", status: "ok" });
+  assert.deepEqual(await (await api("/health")).json(), { service: "junctura-core", status: "ok" });
   assert.equal((await api("/ready")).status, 200);
   const discovery = await (await fetch(`${issuer}/.well-known/openid-configuration`)).json();
   assert.equal(discovery.issuer, issuer);
@@ -71,7 +71,7 @@ test("gateway rejects missing/invalid credentials and trusts only verified tenan
   assert.equal((await api("/v1/identity")).status, 401);
   assert.equal((await api("/v1/identity", "invalid.token.value")).status, 401);
   for (const [accessToken, tenantId] of [[tokenA, "tenant-a"], [tokenB, "tenant-b"]]) {
-    const response = await api("/v1/identity", accessToken, { headers: { "X-Tenant-Id": "spoofed", "X-Rosetta-Tenant": "spoofed" } });
+    const response = await api("/v1/identity", accessToken, { headers: { "X-Tenant-Id": "spoofed", "X-Junctura-Tenant": "spoofed" } });
     assert.equal(response.status, 200);
     const identity = await response.json();
     assert.equal(identity.tenantId, tenantId);
@@ -84,7 +84,7 @@ test("SSO completes a real authorization-code + PKCE flow and revokes the sessio
   const verifier = randomBytes(32).toString("base64url");
   const state = randomBytes(16).toString("hex");
   const params = new URLSearchParams({
-    client_id: "rosetta-local", response_type: "code", scope: "openid",
+    client_id: "junctura-local", response_type: "code", scope: "openid",
     redirect_uri: "http://127.0.0.1:9876/callback", state,
     code_challenge_method: "S256", code_challenge: createHash("sha256").update(verifier).digest("base64url"),
   });
@@ -106,7 +106,7 @@ test("SSO completes a real authorization-code + PKCE flow and revokes the sessio
   assert.ok(callback.searchParams.get("code"));
   const exchange = await fetch(`${issuer}/protocol/openid-connect/token`, {
     method: "POST",
-    body: new URLSearchParams({ grant_type: "authorization_code", client_id: "rosetta-local",
+    body: new URLSearchParams({ grant_type: "authorization_code", client_id: "junctura-local",
       redirect_uri: "http://127.0.0.1:9876/callback", code: callback.searchParams.get("code"), code_verifier: verifier }),
   });
   assert.equal(exchange.status, 200, "PKCE code exchange succeeds");
@@ -116,7 +116,7 @@ test("SSO completes a real authorization-code + PKCE flow and revokes the sessio
     assert.equal(userInfo.status, 200);
   }
   const refreshed = await fetch(`${issuer}/protocol/openid-connect/token`, {
-    method: 'POST', body: new URLSearchParams({ grant_type: 'refresh_token', client_id: 'rosetta-local', refresh_token: session.refresh_token }),
+    method: 'POST', body: new URLSearchParams({ grant_type: 'refresh_token', client_id: 'junctura-local', refresh_token: session.refresh_token }),
   });
   assert.equal(refreshed.status, 200);
   const renewed = await refreshed.json();
@@ -124,7 +124,7 @@ test("SSO completes a real authorization-code + PKCE flow and revokes the sessio
   assert.equal(identity.status, 200);
   assert.equal((await identity.json()).tenantId, "tenant-a");
   const logout = await fetch(`${issuer}/protocol/openid-connect/logout`, {
-    method: "POST", body: new URLSearchParams({ client_id: "rosetta-local", refresh_token: renewed.refresh_token }),
+    method: "POST", body: new URLSearchParams({ client_id: "junctura-local", refresh_token: renewed.refresh_token }),
   });
   assert.equal(logout.status, 204);
   assert.equal((await api("/v1/identity", session.access_token)).status, 401, "Revoked session is rejected");
@@ -151,12 +151,12 @@ test("structured data CRUD enforces roles, input limits and tenant isolation in 
   const updated = await api(item, tokenA, { ...post({ data: { fixture: "updated" } }), method: "PATCH" });
   assert.equal(updated.status, 200);
   assert.equal((await updated.json()).data.fixture, "updated");
-  const sql = `SET ROLE rosetta_api; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-b"}',false); SELECT count(*) FROM core.records WHERE id='${record.id}';`;
-  const result = await promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-Atc", sql]);
+  const sql = `SET ROLE junctura_api; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-b"}',false); SELECT count(*) FROM core.records WHERE id='${record.id}';`;
+  const result = await promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "junctura_admin", "-d", "junctura_data", "-Atc", sql]);
   assert.equal(result.stdout.trim().split(/\r?\n/).at(-1), "0", "SQL RLS hides tenant A's row from tenant B");
-  const forbiddenSql = `SET ROLE rosetta_api; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-a"}',false); UPDATE core.records SET tenant_id='tenant-b' WHERE id='${record.id}';`;
+  const forbiddenSql = `SET ROLE junctura_api; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-a"}',false); UPDATE core.records SET tenant_id='tenant-b' WHERE id='${record.id}';`;
   await assert.rejects(
-    promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-Atc", forbiddenSql]),
+    promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "junctura_admin", "-d", "junctura_data", "-Atc", forbiddenSql]),
     (error) => error.code === 1 && /row-level security/.test(error.stderr),
   );
   assert.equal((await api(item, tokenA, { method: "DELETE" })).status, 204);
@@ -196,7 +196,7 @@ test("workflow engine enforces tenant ownership, durable idempotency, completion
   assert.equal(definitions.status, 200);
   const [definition] = (await definitions.json()).items;
   assert.ok(definition.id);
-  assert.equal(definition.key, "rosetta_checkpoint");
+  assert.equal(definition.key, "junctura_checkpoint");
   const [otherDefinition] = (await (await api("/v1/workflows/definitions", tokenB)).json()).items;
   assert.notEqual(definition.id, otherDefinition.id);
   const key = randomUUID();
@@ -228,8 +228,8 @@ test("workflow engine enforces tenant ownership, durable idempotency, completion
   assert.equal(replay.status, 200);
   assert.equal((await replay.json()).id, instance.id);
   assert.equal((await start(tokenA, { definitionId: definition.id, input: { changed: true } })).status, 409);
-  const clearPointer = `SET ROLE rosetta_api; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-a"}',false); UPDATE core.workflow_requests SET engine_id=NULL WHERE key='${key}';`;
-  await promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_data", "-Atc", clearPointer]);
+  const clearPointer = `SET ROLE junctura_api; SELECT set_config('request.jwt.claims','{"tenant_id":"tenant-a"}',false); UPDATE core.workflow_requests SET engine_id=NULL WHERE key='${key}';`;
+  await promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "junctura_admin", "-d", "junctura_data", "-Atc", clearPointer]);
   const recovered = await start(tokenA);
   assert.equal(recovered.status, 200, "An ambiguous engine outcome is reconciled from durable history");
   assert.equal((await recovered.json()).id, instance.id);
@@ -241,7 +241,7 @@ test("workflow engine enforces tenant ownership, durable idempotency, completion
   assert.ok(attempts.every((result) => [200, 201, 409].includes(result.status)));
   const concurrent = await (await start(tokenA, body, concurrentKey)).json();
   const countSql = `SELECT count(*) FROM act_hi_procinst WHERE tenant_id_='tenant-a' AND business_key_='tenant-a:${concurrentKey}';`;
-  const count = await promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin", "-d", "rosetta_workflow", "-Atc", countSql]);
+  const count = await promisify(execFile)("docker", ["compose", "exec", "-T", "database", "psql", "-U", "junctura_admin", "-d", "junctura_workflow", "-Atc", countSql]);
   assert.equal(count.stdout.trim(), "1", "Concurrent retries create exactly one engine execution");
   const cancelledPath = `/v1/workflows/executions/${encodeURIComponent(concurrent.id)}`;
   assert.equal((await api(cancelledPath, tokenA, { method: "DELETE" })).status, 204);
@@ -251,7 +251,7 @@ test("workflow engine enforces tenant ownership, durable idempotency, completion
 
 test("all five Cores preserve a technical fixture through dependency failure and container recreation", { timeout: 240000 }, async () => {
   const objectId = randomUUID();
-  const bytes = Buffer.from(`rosetta-cross-core-${randomUUID()}`);
+  const bytes = Buffer.from(`junctura-cross-core-${randomUUID()}`);
   const checksum = createHash("sha256").update(bytes).digest("hex");
   const upload = await api(`/v1/objects/${objectId}`, tokenA, { method: "PUT", headers: { "Content-Type": "application/octet-stream" }, body: bytes });
   assert.equal(upload.status, 201);

@@ -27,7 +27,7 @@ after(async () => {
 test("GET /health reports process liveness without infrastructure details", async () => {
   const response = await fetch(`${baseUrl}/health`);
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { service: "rosetta-core", status: "ok" });
+  assert.deepEqual(await response.json(), { service: "junctura-core", status: "ok" });
   assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
   assert.equal(response.headers.get("cache-control"), "no-store");
 });

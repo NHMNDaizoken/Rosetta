@@ -16,7 +16,7 @@ Migration `006-capability-registry.sql` adds `app_private.capability_versions`
 and `app_private.capability_publication_approvals`. Both tables force RLS and
 are not directly readable or writable by API roles. Core calls
 `core.capability_command(text,jsonb)` through the dedicated
-`rosetta_capability_api` role. Application approvals continue to use
+`junctura_capability_api` role. Application approvals continue to use
 `core.application_command`; `/v1/approvals` dispatches application requests
 first and falls back to the capability command for `capability-version`
 resources.

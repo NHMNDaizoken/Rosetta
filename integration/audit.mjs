@@ -7,8 +7,8 @@ import { after, before, test } from "node:test";
 import { promisify } from "node:util";
 
 const run = (...args) => promisify(execFile)("docker", args, { timeout: 180000 });
-const sql = async text => (await run("compose", "exec", "-T", "database", "psql", "-U", "rosetta_admin",
-  "-d", "rosetta_data", "-v", "ON_ERROR_STOP=1", "-Atc", text)).stdout;
+const sql = async text => (await run("compose", "exec", "-T", "database", "psql", "-U", "junctura_admin",
+  "-d", "junctura_data", "-v", "ON_ERROR_STOP=1", "-Atc", text)).stdout;
 const q = value => `'${String(value).replaceAll("'", "''")}'`;
 const lastLine = output => output.trim().split(/\r?\n/).at(-1);
 
@@ -28,9 +28,9 @@ const claims = (tenant, actor, actorIssuer = issuer) => ({
 });
 const asRole = (role, actorClaims, statement) =>
   `SET ROLE ${role}; SELECT set_config('request.jwt.claims',${q(JSON.stringify(actorClaims))},false); ${statement}`;
-const asOwner = (actorClaims, statement) => asRole("rosetta_app_owner", actorClaims, statement);
+const asOwner = (actorClaims, statement) => asRole("junctura_app_owner", actorClaims, statement);
 const read = async (tenant, actor, payload) => {
-  const output = await sql(asRole("rosetta_audit_api", claims(tenant, actor),
+  const output = await sql(asRole("junctura_audit_api", claims(tenant, actor),
     `SELECT core.audit_query(${q(JSON.stringify(payload))}::jsonb);`));
   return JSON.parse(lastLine(output));
 };
@@ -44,7 +44,7 @@ async function waitForDatabase() {
   const deadline = Date.now() + 90000;
   while (Date.now() < deadline) {
     try {
-      await run("compose", "exec", "-T", "database", "pg_isready", "-U", "rosetta_admin", "-d", "rosetta_data");
+      await run("compose", "exec", "-T", "database", "pg_isready", "-U", "junctura_admin", "-d", "junctura_data");
       return;
     } catch {
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -131,7 +131,7 @@ test("malformed events, forged tenants and missing claims fail before any durabl
   await assert.rejects(sql(asOwner(claims(tenantA, readerA),
     `INSERT INTO app_private.audit(tenant_id,event,resource_id,revision)
       VALUES(${q(tenantA)},'audit.missing_target',NULL,1);`)));
-  await assert.rejects(sql(`SET ROLE rosetta_app_owner;
+  await assert.rejects(sql(`SET ROLE junctura_app_owner;
     INSERT INTO app_private.audit(tenant_id,event,resource_id,revision)
       VALUES(${q(tenantA)},'audit.no_claims',${q(randomUUID())},1);`));
   const after = await read(tenantA, readerA, { limit: 100 });
@@ -139,29 +139,29 @@ test("malformed events, forged tenants and missing claims fail before any durabl
 });
 
 test("ordinary application roles cannot read, append, update or delete audit history", async () => {
-  const acl = await sql(`SELECT has_table_privilege('rosetta_app_api','app_private.audit','SELECT'),
-    has_table_privilege('rosetta_app_api','app_private.audit','INSERT'),
-    has_table_privilege('rosetta_audit_api','app_private.audit','INSERT'),
-    has_table_privilege('rosetta_audit_api','app_private.audit','UPDATE'),
-    has_table_privilege('rosetta_audit_api','app_private.audit','DELETE'),
-    has_function_privilege('rosetta_app_api','core.audit_query(jsonb)','EXECUTE'),
-    has_function_privilege('rosetta_api','core.audit_query(jsonb)','EXECUTE'),
-    has_function_privilege('rosetta_resource_api','core.audit_query(jsonb)','EXECUTE'),
-    has_function_privilege('rosetta_audit_api','core.audit_query(jsonb)','EXECUTE');`);
+  const acl = await sql(`SELECT has_table_privilege('junctura_app_api','app_private.audit','SELECT'),
+    has_table_privilege('junctura_app_api','app_private.audit','INSERT'),
+    has_table_privilege('junctura_audit_api','app_private.audit','INSERT'),
+    has_table_privilege('junctura_audit_api','app_private.audit','UPDATE'),
+    has_table_privilege('junctura_audit_api','app_private.audit','DELETE'),
+    has_function_privilege('junctura_app_api','core.audit_query(jsonb)','EXECUTE'),
+    has_function_privilege('junctura_api','core.audit_query(jsonb)','EXECUTE'),
+    has_function_privilege('junctura_resource_api','core.audit_query(jsonb)','EXECUTE'),
+    has_function_privilege('junctura_audit_api','core.audit_query(jsonb)','EXECUTE');`);
   assert.equal(lastLine(acl), "f|f|f|f|f|f|f|f|t");
-  await assert.rejects(sql(asRole("rosetta_app_api", claims(tenantA, readerA),
+  await assert.rejects(sql(asRole("junctura_app_api", claims(tenantA, readerA),
     `SELECT core.audit_query('{}'::jsonb);`)));
-  await assert.rejects(sql(asRole("rosetta_app_api", claims(tenantA, readerA),
+  await assert.rejects(sql(asRole("junctura_app_api", claims(tenantA, readerA),
     `INSERT INTO app_private.audit(tenant_id,event,resource_id,revision)
       VALUES(${q(tenantA)},'audit.unauthorized',${q(randomUUID())},1);`)));
-  await assert.rejects(sql(asRole("rosetta_audit_api", claims(tenantA, readerA),
+  await assert.rejects(sql(asRole("junctura_audit_api", claims(tenantA, readerA),
     `INSERT INTO app_private.audit(tenant_id,event,resource_id,revision)
       VALUES(${q(tenantA)},'audit.unauthorized',${q(randomUUID())},1);`)));
-  await assert.rejects(sql(asRole("rosetta_audit_api", claims(tenantA, readerA),
+  await assert.rejects(sql(asRole("junctura_audit_api", claims(tenantA, readerA),
     `UPDATE app_private.audit SET reason='tampered';`)));
-  await assert.rejects(sql(asRole("rosetta_audit_api", claims(tenantA, readerA),
+  await assert.rejects(sql(asRole("junctura_audit_api", claims(tenantA, readerA),
     `DELETE FROM app_private.audit;`)));
-  await assert.rejects(sql(asRole("rosetta_audit_api", claims(tenantA, readerA),
+  await assert.rejects(sql(asRole("junctura_audit_api", claims(tenantA, readerA),
     `SELECT app_private.audit_append('audit.unauthorized','audit',${q(randomUUID())},1);`)));
 });
 
@@ -236,7 +236,7 @@ test("a sensitive authority mutation and its audit roll back together when the a
     CREATE TRIGGER ${failureTrigger} BEFORE INSERT ON app_private.audit
       FOR EACH ROW EXECUTE FUNCTION app_private.${failureTrigger}();`);
   try {
-    await assert.rejects(sql(asRole("rosetta_app_api", claims(tenantA, appAdmin),
+    await assert.rejects(sql(asRole("junctura_app_api", claims(tenantA, appAdmin),
       `SELECT core.application_command('state',${q(JSON.stringify({
         appId, action: "suspend", reason: "audit failure fixture",
         etag: `"application-${appId}-3"`,
@@ -251,7 +251,7 @@ test("a sensitive authority mutation and its audit roll back together when the a
     await sql(`DROP TRIGGER ${failureTrigger} ON app_private.audit;
       DROP FUNCTION app_private.${failureTrigger}();`);
   }
-  const output = await sql(asRole("rosetta_app_api", claims(tenantA, appAdmin),
+  const output = await sql(asRole("junctura_app_api", claims(tenantA, appAdmin),
     `SELECT core.application_command('state',${q(JSON.stringify({
       appId, action: "suspend", reason: "technical audit fixture",
       etag: `"application-${appId}-3"`,
@@ -278,7 +278,7 @@ test("audit history and the read boundary survive a database restart", async () 
   const afterRestart = await read(tenantA, readerA, { limit: 100 });
   assert.equal(afterRestart.status, 200);
   assert.ok(ids.every(id => afterRestart.value.items.some(item => item.eventId === id)));
-  const acl = await sql(`SELECT has_table_privilege('rosetta_app_api','app_private.audit','INSERT'),
-    has_function_privilege('rosetta_audit_api','core.audit_query(jsonb)','EXECUTE');`);
+  const acl = await sql(`SELECT has_table_privilege('junctura_app_api','app_private.audit','INSERT'),
+    has_function_privilege('junctura_audit_api','core.audit_query(jsonb)','EXECUTE');`);
   assert.equal(lastLine(acl), "f|t");
 });
