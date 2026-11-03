@@ -36,6 +36,8 @@ required corresponding-source offers; process separation alone is not an exempti
 | PostgREST OSS | `v16.5`, `sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc` | [MIT](https://github.com/PostgREST/postgrest/blob/v16.5/LICENSE), [image build source](https://github.com/PostgREST/postgrest/tree/v16.5) | Hosted data API. Preserve copyright/permission notice for any redistribution; SQL authorization uses upstream RLS support. |
 | SeaweedFS OSS | `4.48`, `sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d` | [Apache-2.0](https://github.com/seaweedfs/seaweedfs/blob/4.48/LICENSE), [image source](https://github.com/seaweedfs/seaweedfs/tree/4.48/docker) | Hosted filer/object storage; not the Enterprise image. Preserve Apache notices and base-package obligations if redistributed. |
 | Flowable REST OSS | `8.0.0`, `sha256:708dfa32f27b93180bb6e7a30684d881d995fe257f5b8413e14b20a55c25672d` | [Apache-2.0](https://github.com/flowable/flowable-engine/blob/flowable-8.0.0/LICENSE), [image/base source](https://github.com/flowable/flowable-engine/tree/flowable-8.0.0/docker) | Hosted BPMN engine via REST, without a Rosetta GUI. Java runtime, fonts and Alpine packages have separate terms; retain their notices and review corresponding-source requirements before binary distribution. |
+| ClamAV (Debian image) | `1.5.4`, `sha256:c21aa18cc0a358678255a3dfb343a4555b58f71b97d7b869df8fdf7ea0a5b4b1` | [GPL-2.0-only](https://github.com/Cisco-Talos/clamav/blob/clamav-1.5.4/COPYING.txt), [official Docker docs](https://docs.clamav.net/manual/Installing/Docker.html), [clamav-debian image](https://hub.docker.com/r/clamav/clamav-debian) | Isolated malware scanner on the internal `scanner` network. GPLv2 applies to the ClamAV programs; Rosetta does not modify or vendor ClamAV source. Binary redistribution of the image requires preserving GPL notices and corresponding-source offers for GPLv2 components. Signature databases have separate upstream terms from Cisco Talos. |
+| OpenBao | `2.7.2`, `sha256:5046911075e137e154ce49ab051502f4ec7cf367d484ae4a4dce665d9b90561f` | [MPL-2.0](https://github.com/openbao/openbao/blob/v2.7.2/LICENSE), [official image](https://hub.docker.com/r/openbao/openbao) | Self-hosted secrets manager for application runtime secrets. MPL-2.0 covered-file obligations apply if OpenBao source files are modified; Rosetta ships configuration/adapters only. Alpine base packages retain their own notices. |
 
 The review above establishes source provenance, selected edition and the current
 configuration-only hosting model. It is not a claim that every transitive binary
@@ -43,6 +45,11 @@ package has passed a redistribution or vulnerability audit. Rosetta does not
 strip upstream license material, republish images or change their licensing.
 
 ## Contract-validation tooling
+
+REUSE SPDX validation uses `requirements-reuse.txt` (`reuse==6.2.0`,
+[GPL-3.0-or-later](https://github.com/fsfe/reuse-tool/blob/v6.2.0/LICENSES/GPL-3.0-or-later.txt)
+with additional dependency licenses). It is a CI/development tool only and is not
+shipped in the Core image.
 
 The Foundation OpenAPI milestone reuses these validators in development/CI via
 `requirements-contracts.txt`; they are not copied into the Core image or added as

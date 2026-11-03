@@ -1,3 +1,7 @@
+<!--
+SPDX-FileCopyrightText: 2026 Rosetta Contributors
+SPDX-License-Identifier: Apache-2.0
+-->
 # License and third-party policy
 
 ## Approved project license
@@ -22,9 +26,17 @@ SPDX-FileCopyrightText: 2026 Rosetta Contributors
 SPDX-License-Identifier: Apache-2.0
 ```
 
-JSON cannot contain comments: declare Apache-2.0 in package license metadata.
-Root LICENSE and NOTICE cover other original repository files and documentation.
-Do not copy third-party source or put Rosetta attribution on upstream files.
+For Markdown, HTML and SVG, use the corresponding comment syntax with the same
+two SPDX fields. JSON and other comment-hostile formats must not receive
+inserted comments. Cover them with `REUSE.toml` path annotations and/or
+REUSE-compliant `.license` sidecars, and keep package `license` metadata as
+`Apache-2.0` where a package manifest exists (`package.json`,
+`console/package.json`, `sdk/node/package.json`). Machine-readable license text
+for REUSE lives in `LICENSES/Apache-2.0.txt`. Do not copy third-party source or
+put Rosetta attribution on upstream files.
+
+CI runs `reuse lint` (read-only) in addition to `npm run check`. The check must
+detect missing or invalid metadata without rewriting source during CI.
 
 ## Before integrating a component
 

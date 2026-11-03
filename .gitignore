@@ -25,6 +25,7 @@ Desktop.ini
 !.env.*.example
 !.env.template
 !.env.*.template
+.openbao/
 *.pem
 *.key
 *.p12
@@ -40,12 +41,17 @@ Desktop.ini
 .terraform.tfstate.lock.info
 # Never store real credentials in tracked example files.
 
-# Private agent context and local tooling; AGENTS.md remains public.
+# Private AI-agent context and local tooling (remain on the developer machine).
+AGENTS.md
+CLAUDE.md
 CODEX_MASTER.md
 START_CODEX.md
 ROSETTA_CODEX_MASTER_PROMPT.md
 /prompts/
 .codex/
+.opencode/
+.cursor/
+.claude/
 .agent/
 .agents/
 .aider*
@@ -143,8 +149,9 @@ kind-data/
 # Generated SDKs (ignore only if reproducible and not distributed in repo)
 # packages/sdk-*/generated/
 
-# Do NOT ignore: AGENTS.md, README.md, LICENSE, CHANGELOG.md,
+# Do NOT ignore: README.md, LICENSE, CHANGELOG.md, REUSE.toml,
 # docs/, tests/, Dockerfiles, compose*.yaml, OpenAPI specs,
 # package-lock.json, pnpm-lock.yaml, yarn.lock, uv.lock,
 # poetry.lock, requirements*.txt, go.sum, gradle wrapper,
 # or source/configuration templates needed for build-from-source.
+# AI-agent instruction files stay local via the patterns above.

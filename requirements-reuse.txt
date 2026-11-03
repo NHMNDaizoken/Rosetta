@@ -1,0 +1,4 @@
+# SPDX-FileCopyrightText: 2026 Rosetta Contributors
+# SPDX-License-Identifier: Apache-2.0
+# Development/CI REUSE validation only; does not modify source files.
+reuse==6.2.0

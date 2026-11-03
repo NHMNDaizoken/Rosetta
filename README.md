@@ -274,7 +274,7 @@ docs/                         Vision, architecture, API, operations and project 
 compose.yaml                  Local provider networks, persistence and startup ordering
 Dockerfile                    Minimal nonroot Core image
 .env.example                  Configuration template without working credentials
-AGENTS.md                     Public repository development rules
+REUSE.toml, LICENSES/         SPDX/REUSE annotations and license text
 LICENSE, NOTICE, THIRD-PARTY.md Licensing, attribution and component inventory
 ```
 
@@ -305,9 +305,9 @@ There are no promised dates or published release milestones in this roadmap. The
 
 ## Contributing, security and licensing
 
-Read [AGENTS.md](AGENTS.md), [architecture boundaries](docs/ARCHITECTURE.md) and the [development workflow](docs/WORKFLOW.md) before changing code. Use the existing `main` branch and cohesive, tested Conventional Commits. Discuss new services, frameworks, breaking contracts and license changes before implementation. Keep domain logic in Layer 2 and add relevant tests and documentation.
+Read [docs/DEVELOPING.md](docs/DEVELOPING.md), [architecture boundaries](docs/ARCHITECTURE.md) and the [development workflow](docs/WORKFLOW.md) before changing code. Use the existing `main` branch and cohesive, tested Conventional Commits. Discuss new services, frameworks, breaking contracts and license changes before implementation. Keep domain logic in Layer 2 and add relevant tests and documentation.
 
-Use [GitHub Issues](https://github.com/NHMNDaizoken/Rosetta/issues) for public bugs and design discussions. Do not post credentials, private data or vulnerability exploit details there; arrange a private channel with the repository maintainer before disclosure. No dedicated security contact or response SLA is published. Do not commit `.env`, private agent context, execution logs or local tool state. `AGENTS.md` remains public. Inspect exclusions, indexed files and secret exposure before pushing; never force-push or deploy to production without approval.
+Use [GitHub Issues](https://github.com/NHMNDaizoken/Rosetta/issues) for public bugs and design discussions. Do not post credentials, private data or vulnerability exploit details there; arrange a private channel with the repository maintainer before disclosure. No dedicated security contact or response SLA is published. Do not commit `.env`, private AI-agent prompts/instructions, execution logs or local tool state. Inspect exclusions, indexed files and secret exposure before pushing; never force-push or deploy to production without approval.
 
 Original Rosetta source and documentation are licensed under [Apache License 2.0](LICENSE), with attribution **Copyright 2026 Rosetta Contributors**, subject to contributors' actual rights and agreement. Preserve upstream notices. See [NOTICE](NOTICE), [THIRD-PARTY.md](THIRD-PARTY.md) and the [licensing policy](docs/LICENSING.md). `private: true` in package metadata prevents accidental npm publication; it does not change the project's open-source license.
 
@@ -330,6 +330,9 @@ Original Rosetta source and documentation are licensed under [Apache License 2.0
 - [Integration roadmap](docs/INTEGRATION_ROADMAP.md): foundational acceptance criteria and reference review.
 - [Development workflow](docs/WORKFLOW.md): verification, handoff and release procedure.
 - [Licensing](docs/LICENSING.md): approved project terms and dependency obligations.
+- [Object malware scanning](docs/OBJECT_SCANNING.md): ClamAV quarantine ingress and fail-closed rules.
+- [Secrets management](docs/SECRETS.md): OpenBao bootstrap versus runtime secrets.
+- [Competition principles](docs/COMPETITION_PRINCIPLES.md): implemented versus deferred principle mapping.
 - [OLP requirements](docs/OLP_REQUIREMENTS.md): project compliance notes and official references.
 
 Self-hosting currently means the loopback-bound local Compose stack. VPS hosting, a public domain and production operation are future steps, not quickstart prerequisites. No public demo, registry publishing, Kubernetes or OpenStack deployment is provided. The broader project includes a future Layer-2 application; the implemented and verified scope here remains the Layer-1 foundation.

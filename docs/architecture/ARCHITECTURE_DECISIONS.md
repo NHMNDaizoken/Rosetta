@@ -86,16 +86,16 @@ Evidence may move an ADR to accepted in a later reviewed change.
 
 ## ADR 007 — Secrets and service bindings
 
-- Accepted baseline: operator-owned local env credentials and exact enrollment;
-  no vault/binding API. Browser backends do not receive service-client secrets.
-- Proposed decision: reference-only management metadata; scoped private delivery,
-  versioned rotation and separate recovery-key custody. Reuse Keycloak lifecycle.
-- Deferred: secret backend (OpenBao is a candidate), mount versus environment
-  delivery and overlap/revocation policy.
+- Accepted baseline: operator-owned local env credentials for bootstrap; OpenBao
+  KV v2 for application runtime secrets on the internal `secrets` network;
+  `/v2/secrets` metadata API with no plaintext GET. Browser backends do not
+  receive service-client secrets. See [SECRETS.md](../SECRETS.md).
+- Deferred: production TLS, auto-unseal/KMS, HA, and hosted environment bindings.
 - Rejected alternative: plaintext generic records, frontend credential injection,
-  peer-readable mounts, or decrypt key beside ciphertext as the sole protection.
-- Approval evidence: license/version review, wrong-scope denial, no response/log leak,
-  rotation/restart/restore and operator recovery. Blocks B1/integrated hosting.
+  peer-readable mounts, HashiCorp Vault under a non-OSI license, or decrypt key
+  beside ciphertext as the sole protection.
+- Approval evidence: license/version pin, wrong-scope denial, no response/log leak,
+  persistence after restart and operator recovery material outside Git.
 
 ## ADR 008 — Cross-app access
 
@@ -173,7 +173,7 @@ Evidence may move an ADR to accepted in a later reviewed change.
 
 | ADR / topic | Accepted baseline | Proposed direction / deferred choice | Rejected shortcut | Evidence required |
 | --- | --- | --- | --- | --- |
-| 011 — Quarantine | Objects currently publish opaque bytes immediately. | Version-bound scan before visibility; scan engine/resource/migration semantics unresolved. | Quietly making current PUT asynchronous or treating a successful upload as clean. | Reviewed API compatibility; clean/infected/unknown/timeouts/races; rollback cannot expose unscanned versions. |
+| 011 — Quarantine | Synchronous ClamAV scan before publish; v2 commit only after clean. | Async scan-worker, signature ops metrics and quarantine GC tooling remain open. | Quietly treating a successful upload as clean without a scanner verdict. | Clean/EICAR/unavailable/timeout/oversize tests; shares require committed clean versions. |
 | 012 — Audit integrity (residual) | Atomic authority/share audit plus the bounded A1 tenant query, role separation, redaction and fail-closed admission; DBAs trusted. | Independent export/integrity sink, remote retention and cryptographic design deferred. | Treating the protected PostgreSQL boundary as DBA tamper evidence. | Independent sink/export, retention/key recovery, DBA/operator tamper and coordinated restore tests. |
 | 013 — Messaging | No public bus. | Outbox then optional durable broker when two apps need it; transport unresolved. | “Exactly once” delivery without consumer idempotency. | ACL/replay/backpressure/dedup/recovery and version/license pin. |
 | 014 — Search | No shared search; PostgreSQL available. | Prefer scoped PostgreSQL proof first; additional engine/edition deferred. | Raw index access or post-revocation snippets; blanket MIT claim for mixed-license Meilisearch. | Query-time authority and stale-index deletion/share revocation tests; capacity/license evidence. |
