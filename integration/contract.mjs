@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Test-only HTTP observer. No runtime files, credentials or payload logs are produced.
 import { spawn } from 'node:child_process';

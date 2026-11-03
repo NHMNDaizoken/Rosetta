@@ -1,16 +1,16 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 
 export const vi = {
   common: {
-    appName: "Rosetta Console",
-    appSubtitle: "Trung tâm điều khiển Rosetta DX-OS",
+    appName: "Junctura Console",
+    appSubtitle: "Trung tâm điều khiển Junctura DX-OS",
     tagline: "Một nền tảng. Nhiều ứng dụng. Năng lực kết nối.",
     layer1Notice: "Control Plane Vận hành Layer-1 (Headless PaaS)",
     liveMode: "KẾT NỐI TRỰC TIẾP",
     previewMode: "CHẾ ĐỘ MÔ PHỎNG",
     previewModeTooltip: "Dữ liệu mẫu trực quan giúp khám phá giao diện khi chưa kết nối Gateway trực tiếp.",
-    liveModeTooltip: "Đang truy vấn cổng Rosetta Gateway đã cấu hình. Dữ liệu mô phỏng không được sử dụng.",
+    liveModeTooltip: "Đang truy vấn cổng Junctura Gateway đã cấu hình. Dữ liệu mô phỏng không được sử dụng.",
     switchMode: "Chuyển chế độ",
     refresh: "Làm mới",
     save: "Lưu",
@@ -77,7 +77,7 @@ export const vi = {
     capabilities: "Hosting & Năng lực (Kế hoạch)",
   },
   overview: {
-    title: "Tổng quan trạng thái Rosetta DX-OS",
+    title: "Tổng quan trạng thái Junctura DX-OS",
     subtitle: "Giám sát tiến trình Core, mức độ sẵn sàng của 5 thành phần phụ thuộc và thông tin tenant.",
     processLiveness: "Tiến trình Core (Liveness)",
     dependencyReadiness: "Phụ thuộc 5 Cores (Readiness)",
@@ -91,7 +91,7 @@ export const vi = {
     coreSummaryTitle: "Năm trụ cột kiến trúc Core (Layer 1)",
     coreSummaryDesc: "Các dịch vụ nền tảng cung cấp cho ứng dụng qua hợp đồng API công khai, bảo vệ bởi ranh giới mạng riêng biệt.",
     verifiedReadinessNotice: "Trạng thái được xác thực thực tế thông qua endpoint /ready (OIDC discovery, SQL RLS query, SeaweedFS filer metadata & Flowable engine).",
-    honestMetricsNotice: "Rosetta Console chỉ hiển thị số liệu đo đạc thực tế từ gateway và API hợp đồng. Không tạo biểu đồ CPU/RAM giả lập.",
+    honestMetricsNotice: "Junctura Console chỉ hiển thị số liệu đo đạc thực tế từ gateway và API hợp đồng. Không tạo biểu đồ CPU/RAM giả lập.",
     identityRequiredTitle: "Cần danh tính vận hành hợp lệ ở chế độ LIVE",
     identityRequiredDesc: "Console không thay thế tenant, vai trò hoặc quyền bằng dữ liệu mô phỏng. Hãy nhập Bearer Token trong Cài đặt hệ thống; token chỉ được giữ trong bộ nhớ của tab này.",
     identityRejectedDesc: "Gateway đã từ chối Bearer Token. Hãy thay token trong Cài đặt hệ thống; Console không dùng tenant hoặc vai trò mô phỏng.",
@@ -220,7 +220,7 @@ export const vi = {
   settings: {
     title: "Cài đặt & Tùy chọn hệ thống",
     subtitle: "Cấu hình kết nối cổng Gateway, OIDC Issuer, ngôn ngữ giao diện và chế độ hiển thị.",
-    gatewayUrlLabel: "Địa chỉ Rosetta Gateway URL",
+    gatewayUrlLabel: "Địa chỉ Junctura Gateway URL",
     oidcIssuerLabel: "OIDC Issuer (Keycloak Realm)",
     languageLabel: "Ngôn ngữ giao diện",
     themeLabel: "Chủ đề màu sắc",
@@ -248,7 +248,7 @@ export const vi = {
     trustDesc: "Cơ chế ủy quyền an toàn giữa các ứng dụng Layer-2 với phạm vi giới hạn rõ ràng, có thời hạn và có thể thu hồi bất kỳ lúc nào.",
     compositionTitle: "4. Composition Engine (Bộ phối ghép luồng năng lực)",
     compositionDesc: "Tự động kết hợp các năng lực rời rạc thành chuỗi xử lý nghiệp vụ phức hợp với khả năng giám sát và xử lý lỗi phân tán.",
-    hostingTitle: "5. Rosetta Cloud Hosting",
+    hostingTitle: "5. Junctura Cloud Hosting",
     hostingDesc: "Dự án, môi trường, điều khiển triển khai, runtime worker, tên miền/TLS và service binding. Chỉ là kiến trúc đề xuất; chưa có runtime hay endpoint.",
   },
 };

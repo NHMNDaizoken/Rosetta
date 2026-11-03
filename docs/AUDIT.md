@@ -2,7 +2,7 @@
 
 > Reviewed: 2026-10-28 | Status: IMPLEMENTED, bounded threat model
 
-Rosetta appends authority and control-plane audit events in the same database
+Junctura appends authority and control-plane audit events in the same database
 transaction as the mutation they describe. Migration 005 adds a restricted
 tenant read contract, server-derived actor metadata, redaction and explicit role
 separation around the existing `app_private.audit` table. There is no public

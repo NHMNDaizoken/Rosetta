@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Deterministic BPMN generation for a bounded composition. The plan is already
 // validated and ordered; this only serializes it into Flowable's external-worker
@@ -22,7 +22,7 @@ export function compositionBpmn(stepIds) {
   });
   nodes.push(`    <sequenceFlow id="to_end" sourceRef="${previous}" targetRef="end" />`);
   return `<?xml version="1.0" encoding="UTF-8"?>
-<!-- SPDX-FileCopyrightText: 2026 Rosetta Contributors -->
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
              xmlns:flowable="http://flowable.org/bpmn"

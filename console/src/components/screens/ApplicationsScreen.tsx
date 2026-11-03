@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 import React, { useState, useEffect } from "react";
 import {
@@ -460,7 +460,7 @@ export const ApplicationsScreen: React.FC = () => {
               required
               value={newDisplayName}
               onChange={(e) => setNewDisplayName(e.target.value)}
-              placeholder="VD: Rosetta Logistics Hub"
+              placeholder="VD: Junctura Logistics Hub"
               className="w-full px-3 py-1.5 text-xs rounded border border-slate-200 dark:border-[#223E50] bg-white dark:bg-[#12232F] text-stone-ink dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-rosetta-blue"
             />
           </div>

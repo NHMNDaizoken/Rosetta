@@ -98,7 +98,7 @@ deduplicate advisory/package pairs per image; advisory exceptions remain visible
 | SeaweedFS | 51 | 10 | 28 |
 | Flowable | 156 | 16 | 62 |
 
-These are scanner findings, not confirmed remotely exploitable Rosetta defects.
+These are scanner findings, not confirmed remotely exploitable Junctura defects.
 Reachability assessment from the actual configuration/source:
 
 - Core's critical entries concern Debian Perl, which Core does not invoke on API
@@ -109,7 +109,7 @@ Reachability assessment from the actual configuration/source:
   no fix. We cannot claim these are unreachable or safe for public ingress.
 - PostgreSQL findings include the image's Go helper inventory; database SQL is on
   private networks. That distinction is not a blanket exemption for DB packages.
-- Keycloak's critical SQLite entry is in its base metadata; Rosetta uses PostgreSQL.
+- Keycloak's critical SQLite entry is in its base metadata; Junctura uses PostgreSQL.
   Keycloak itself is exposed through Gateway identity routes. Other library findings
   require individual review before deployment.
 - SeaweedFS includes Go/network and OS utility findings. Its ports are private and

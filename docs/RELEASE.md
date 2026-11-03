@@ -1,6 +1,6 @@
 # Local source release candidates
 
-Rosetta's candidate is a versioned **source** distribution for the loopback local
+Junctura's candidate is a versioned **source** distribution for the loopback local
 installation. It does not bundle upstream images, Node modules, databases, credentials
 or private test state. No public deployment, registry publication, release tag or
 final GitHub Release is authorized by this workflow.

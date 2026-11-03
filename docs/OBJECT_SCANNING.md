@@ -1,10 +1,10 @@
 <!--
-SPDX-FileCopyrightText: 2026 Rosetta Contributors
+SPDX-FileCopyrightText: 2026 Junctura Contributors
 SPDX-License-Identifier: Apache-2.0
 -->
 # Object malware scanning
 
-Rosetta scans every publicly reachable object upload before bytes become
+Junctura scans every publicly reachable object upload before bytes become
 downloadable.
 
 ## Flow

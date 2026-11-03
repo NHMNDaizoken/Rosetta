@@ -41,8 +41,8 @@ flowchart TB
 ```
 
 Official context is traced in [the requirement matrix](OLP_REQUIREMENT_TRACEABILITY.md).
-Hosting and composition are Rosetta extensions. Console is not the required
-business GUI. Business schemas/decisions remain in L2/L3 even when hosted by Rosetta.
+Hosting and composition are Junctura extensions. Console is not the required
+business GUI. Business schemas/decisions remain in L2/L3 even when hosted by Junctura.
 
 ## MAP 02: Current implemented architecture
 

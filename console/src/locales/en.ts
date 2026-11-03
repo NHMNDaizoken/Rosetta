@@ -1,16 +1,16 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 
 export const en = {
   common: {
-    appName: "Rosetta Console",
-    appSubtitle: "The Control Center for Rosetta DX-OS",
+    appName: "Junctura Console",
+    appSubtitle: "The Control Center for Junctura DX-OS",
     tagline: "One platform. Many applications. Connected capabilities.",
     layer1Notice: "Layer-1 Operational Control Plane (Headless PaaS)",
     liveMode: "LIVE CONNECTED",
     previewMode: "PREVIEW MODE",
     previewModeTooltip: "Realistic mock data for UI exploration and visual demonstrations when direct Gateway connection is unavailable.",
-    liveModeTooltip: "Querying the configured Rosetta Gateway. Preview data is not used.",
+    liveModeTooltip: "Querying the configured Junctura Gateway. Preview data is not used.",
     switchMode: "Switch Mode",
     refresh: "Refresh",
     save: "Save",
@@ -77,7 +77,7 @@ export const en = {
     capabilities: "Hosting & Capabilities (Planned)",
   },
   overview: {
-    title: "Rosetta DX-OS Platform Overview",
+    title: "Junctura DX-OS Platform Overview",
     subtitle: "Monitor Core process health, readiness across all five foundational dependencies, and tenant context.",
     processLiveness: "Process Liveness (/health)",
     dependencyReadiness: "Dependency Readiness (/ready)",
@@ -91,7 +91,7 @@ export const en = {
     coreSummaryTitle: "Five Core Architectural Pillars (Layer 1)",
     coreSummaryDesc: "Reusable headless foundation services exposed to applications via documented contracts and isolated networks.",
     verifiedReadinessNotice: "Status verified via GET /ready (OIDC discovery, SQL RLS check, SeaweedFS filer metadata & Flowable engine).",
-    honestMetricsNotice: "Rosetta Console only reports actual telemetry from gateway and contract APIs. Zero fabricated CPU/RAM charts.",
+    honestMetricsNotice: "Junctura Console only reports actual telemetry from gateway and contract APIs. Zero fabricated CPU/RAM charts.",
     identityRequiredTitle: "A verified operator identity is required in LIVE mode",
     identityRequiredDesc: "The Console does not substitute a preview tenant, roles or permissions. Add a bearer token in Platform Settings; it is kept only in this tab's memory.",
     identityRejectedDesc: "The Gateway rejected the bearer token. Replace it in Platform Settings; no preview tenant or roles are used.",
@@ -220,7 +220,7 @@ export const en = {
   settings: {
     title: "Platform Settings & Preferences",
     subtitle: "Configure Gateway connectivity, OIDC issuer, interface language, and visual theme.",
-    gatewayUrlLabel: "Rosetta Gateway Base URL",
+    gatewayUrlLabel: "Junctura Gateway Base URL",
     oidcIssuerLabel: "OIDC Issuer URL",
     languageLabel: "Interface Language",
     themeLabel: "Color Theme",
@@ -248,7 +248,7 @@ export const en = {
     trustDesc: "Fine-grained, time-bounded cross-app authorization model allowing Layer-2 applications to delegate access without token sharing.",
     compositionTitle: "4. Composition Engine",
     compositionDesc: "Choreograph and execute multi-step capability dependency graphs with distributed error recovery and state checkpointing.",
-    hostingTitle: "5. Rosetta Cloud hosting",
+    hostingTitle: "5. Junctura Cloud hosting",
     hostingDesc: "Projects, environments, deployment control, runtime workers, domains/TLS and service bindings. Proposed architecture only; no runtime or endpoint exists.",
   },
 };

@@ -121,4 +121,4 @@ Equal types do not prove units, consent, business meaning, privacy, availability
 
 ## Standards and interpretation
 
-Use [JSON Schema 2020-12](https://json-schema.org/draft/2020-12/json-schema-core) with the restricted profile above and [JCS RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) for proposed digests. These references define syntax/canonicalization; ownership, trust, state and approval rules are Rosetta design decisions. No upstream schema/source text is copied, and no dependency or image is added by this specification.
+Use [JSON Schema 2020-12](https://json-schema.org/draft/2020-12/json-schema-core) with the restricted profile above and [JCS RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) for proposed digests. These references define syntax/canonicalization; ownership, trust, state and approval rules are Junctura design decisions. No upstream schema/source text is copied, and no dependency or image is added by this specification.

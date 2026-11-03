@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { test } from "node:test";
@@ -94,4 +94,10 @@ test("SDK polling and malformed/oversized authentication responses are bounded",
     const invalid = createRosettaClient({ ...options, fetcher: async () => issued });
     await assert.rejects(invalid.identity(), RosettaError);
   }
+});
+
+test("Junctura brand aliases point to the same SDK exports", async () => {
+  const sdk = await import("../sdk/node/index.mjs");
+  assert.equal(sdk.createJuncturaClient, sdk.createRosettaClient);
+  assert.equal(sdk.JuncturaError, sdk.RosettaError);
 });

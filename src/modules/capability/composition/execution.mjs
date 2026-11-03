@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // C4B composition execution adapter. Authority lives in SQL; this module only
 // validates wire shape, carries the memory lease and correlates steps.

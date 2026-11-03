@@ -79,7 +79,7 @@ before starting work and reconciles ambiguous outcomes against engine history.
 The one-shot initializer provisions only an original technical checkpoint
 fixture. No Layer-2 business GUI/workflow or AI component is implemented. The
 independent server-side SDK uses public APIs only; see [onboarding](GETTING_STARTED.md).
-The optional Rosetta Console is a management client with the limitations recorded
+The optional Junctura Console is a management client with the limitations recorded
 in the catalog; it is not a separate authorization server or hosting control API.
 
 The current topology is maintained in

@@ -1,6 +1,6 @@
 # Product definition and status
 
-Rosetta DX-OS is a **self-hostable backend platform for independent applications**:
+Junctura DX-OS is a **self-hostable backend platform for independent applications**:
 shared Foundation services with authoritative application ownership and explicitly
 controlled resource sharing. The long-term direction adds application hosting and
 verifiable cross-application capability composition.
@@ -24,7 +24,7 @@ the [Foundation OpenAPI](contracts/foundation-api.openapi.json) and the
 
 These are explanatory groupings, not new services, endpoints or brands.
 
-### Rosetta Backend — IMPLEMENTED
+### Junctura Backend — IMPLEMENTED
 
 The headless Core. It must remain usable without the Console.
 
@@ -42,7 +42,7 @@ The exact operation inventory is generated from the Foundation OpenAPI and check
 in CI (44 operations at this revision). See [CORE_API.md](CORE_API.md) and
 [RESOURCE_AUTHORIZATION.md](RESOURCE_AUTHORIZATION.md).
 
-### Rosetta Developer Experience — PARTIAL
+### Junctura Developer Experience — PARTIAL
 
 Working today:
 
@@ -57,7 +57,7 @@ Known gaps: there is no self-service operator enrollment, no browser login/sessi
 management beyond the documented local fixtures, and several Console views
 are operational/read-only rather than full administration surfaces.
 
-### Rosetta Cloud — PROPOSED
+### Junctura Cloud — PROPOSED
 
 Projects and environments, application hosting, deployment management, runtime
 workers, domains/TLS, service bindings and developer operations are **not
@@ -66,7 +66,7 @@ them. The design is bounded by
 [DEPLOYMENT_MODEL.md](architecture/DEPLOYMENT_MODEL.md) and the
 [implementation handoff](architecture/IMPLEMENTATION_BACKLOG.md).
 
-### Rosetta Connect — PARTIAL
+### Junctura Connect — PARTIAL
 
 C1 Registry and bounded C2 direct grants/authorized discovery are implemented
 inside the headless Core, with private Registry/Trust persistence, independent
@@ -127,7 +127,7 @@ See the [developer guide](DEVELOPING.md) for commands and the
 
 ## Boundaries
 
-- Rosetta Backend remains headless; the Console is optional.
+- Junctura Backend remains headless; the Console is optional.
 - A project owner, deployment operator or Console reader is not automatically a
   platform administrator or an application resource reader.
 - Preview data in the Console is synthetic and never server truth.

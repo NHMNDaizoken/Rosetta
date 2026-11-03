@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Rosetta Contributors
+// SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 // Real Keycloak identities and operator-enrolled technical apps; credentials stay in memory.
 import assert from "node:assert/strict";

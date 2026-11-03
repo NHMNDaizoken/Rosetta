@@ -1,4 +1,4 @@
--- SPDX-FileCopyrightText: 2026 Rosetta Contributors
+-- SPDX-FileCopyrightText: 2026 Junctura Contributors
 -- SPDX-License-Identifier: Apache-2.0
 -- Follow-up corrections discovered by real HTTP execution; 012/013 stay immutable.
 BEGIN;
