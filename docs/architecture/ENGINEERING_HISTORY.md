@@ -1,4 +1,4 @@
-# Codex Layer 1 engineering handoff
+# Layer 1 engineering history
 
 > Historical implementation checkpoint. The subsequent stabilization/release program and current open security gates are in [implementation status](LAYER1_IMPLEMENTATION_STATUS.md). This historical COMPLETE assessment applies only to its earlier bounded implementation scope.
 
@@ -18,7 +18,7 @@ Exact-SHA [Actions run](https://github.com/NHMNDaizoken/Rosetta/actions/runs/413
 completed successfully. Downloaded CI logs confirm the real C4B suite passed 29/29.
 The exact remote main SHA was independently verified after push.
 The final documentation revision is the commit containing this handoff; resolve
-it with `git log -1 --format=%H -- docs/architecture/CODEX_LAYER1_REVIEW_HANDOFF.md`.
+it with `git log -1 --format=%H -- docs/architecture/ENGINEERING_HISTORY.md`.
 The final user handoff also supplies the exact final HEAD and its Actions URL.
 A document cannot contain its own Git commit hash as literal content.
 

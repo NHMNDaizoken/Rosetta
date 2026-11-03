@@ -1,4 +1,4 @@
-# OpenCode implementation handoff
+# Implementation backlog
 
 > Reviewed: 2026-10-28 | Branch: main | Audit baseline: `360a7dd741442a2e3dbfc0f10d45a1e387d3b697`
 > Current status (2026-10-29): A1, C1, offline C3 and bounded C2 direct grants/discovery are implemented. Human delegation and C4 remain deferred; hosting is proposed. Publishing this backlog does not authorize additional slices.

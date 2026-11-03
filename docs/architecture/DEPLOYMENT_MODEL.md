@@ -176,5 +176,5 @@ identity/data boundaries. Capability publication remains an independent later de
 ## Notes
 
 See [MAP 06](ARCHITECTURE_MAPS.md#map-06-proposed-deployment-lifecycle),
-[ADRs](ARCHITECTURE_DECISIONS.md) and the [handoff](OPENCODE_IMPLEMENTATION_HANDOFF.md).
+[ADRs](ARCHITECTURE_DECISIONS.md) and the [handoff](IMPLEMENTATION_BACKLOG.md).
 No installation command in vendor documentation is authorization to run it here.

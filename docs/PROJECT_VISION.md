@@ -84,7 +84,7 @@ AI may eventually propose plans or help discover candidates. Any planner output 
 
 ## Example and validation direction
 
-The [README example](../README.md#illustrative-cross-application-use-case) describes an intake application and a review application. Their business operations belong to those applications; Rosetta would own the generic checks and orchestration. The example is illustrative and supplies no domain-specific code or commitments about a future demonstration product.
+The [README example](README_EN.md#illustrative-cross-application-use-case) describes an intake application and a review application. Their business operations belong to those applications; Rosetta would own the generic checks and orchestration. The example is illustrative and supplies no domain-specific code or commitments about a future demonstration product.
 
 Before implementing extensions, review capability publication/versioning, supported schema compatibility, trust/delegation, workflow binding and failure semantics. A useful acceptance scenario would demonstrate both a valid connection and rejected incompatible inputs, unauthorized invocation, revoked permission, cross-tenant access and unsafe retry. Evidence must distinguish static validation from runtime enforcement and external side effects.
 
@@ -94,6 +94,6 @@ The implemented scope is the five-Core Layer-1 foundation, Application Authority
 
 Docker Compose is the initial self-hosting strategy. A VPS and public domain are future operational choices; no Kubernetes or OpenStack work is planned in this scope. Public deployment needs an approved target, TLS, secret management, full-platform recovery and rollback verification. Current limits are documented in [OPERATIONS.md](OPERATIONS.md).
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for current service boundaries and [INTEGRATION_ROADMAP.md](INTEGRATION_ROADMAP.md) for foundational acceptance criteria. The README's [development roadmap](../README.md#development-roadmap) connects that foundation to the proposed product direction.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for current service boundaries and [INTEGRATION_ROADMAP.md](INTEGRATION_ROADMAP.md) for foundational acceptance criteria. The README's [development roadmap](README_EN.md#development-roadmap) connects that foundation to the proposed product direction.
 
 The [Capability v1 design](CAPABILITY_EXTENSIONS_V1.md) now makes concrete proposed choices for the model above. Its [trust/execution rules](CAPABILITY_TRUST_EXECUTION_V1.md) and [acceptance gates](CAPABILITY_ACCEPTANCE_V1.md) require review before runtime work; their publication is not implementation approval.

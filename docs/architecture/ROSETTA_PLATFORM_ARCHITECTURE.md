@@ -102,7 +102,7 @@ by this document. Kubernetes/OpenStack have no demonstrated requirement here.
 | Enrollment and application state | [Registration](../APPLICATION_REGISTRATION.md), migration 003 |
 | Future capability wire contracts | [Capability v1](../CAPABILITY_EXTENSIONS_V1.md), [trust/execution](../CAPABILITY_TRUST_EXECUTION_V1.md), [runtime review](../CAPABILITY_RUNTIME_REVIEW_V1.md) |
 | New target relationships and decisions | This bundle; [ADRs](ARCHITECTURE_DECISIONS.md) identify approval gates |
-| Next implementation scope | One explicitly authorized [handoff slice](OPENCODE_IMPLEMENTATION_HANDOFF.md) |
+| Next implementation scope | One explicitly authorized [handoff slice](IMPLEMENTATION_BACKLOG.md) |
 
 Do not copy proposed hosting endpoints into the implemented OpenAPI. Add a
 separate management contract only after review, then publish implemented status

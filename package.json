@@ -1,6 +1,6 @@
 {
   "name": "rosetta-core-foundation",
-  "version": "0.1.0-rc.1",
+  "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",
   "type": "module",
@@ -19,6 +19,7 @@
     "test": "node --test \"tests/*.test.mjs\"",
     "healthcheck": "node --env-file-if-exists=.env scripts/check-health.mjs --ready",
     "doctor": "node scripts/doctor.mjs",
+    "app:enroll": "node --env-file=.env scripts/enroll-app.mjs",
     "local:up": "docker compose --profile console up --build --detach --wait --wait-timeout 900",
     "local:down": "docker compose --profile console down",
     "local:status": "docker compose --profile console ps",

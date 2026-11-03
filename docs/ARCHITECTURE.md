@@ -20,7 +20,7 @@ The [catalog](architecture/LAYER1_CORE_CATALOG.md) owns implementation/evidence;
 Use the [eight maps](architecture/ARCHITECTURE_MAPS.md),
 [ADRs](architecture/ARCHITECTURE_DECISIONS.md),
 [dependency DAG](architecture/IMPLEMENTATION_DEPENDENCIES.md) and
-[one-slice handoff](architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md).
+[one-slice handoff](architecture/IMPLEMENTATION_BACKLOG.md).
 Official interpretation is consolidated in [traceability](architecture/OLP_REQUIREMENT_TRACEABILITY.md).
 
 ## Layer 1 — Headless PaaS
