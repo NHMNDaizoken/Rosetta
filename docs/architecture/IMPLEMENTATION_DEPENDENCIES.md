@@ -85,7 +85,7 @@ L2 and release compliance remain independently deliverable.
 
 ## Notes
 
-[OpenCode handoff](OPENCODE_IMPLEMENTATION_HANDOFF.md) defines each working slice,
+[Implementation backlog](IMPLEMENTATION_BACKLOG.md) defines each working slice,
 failure tests and approvals. If the final choice integrates an external deployment
 component, replace R0's adapter implementation without silently changing its
 acceptance contract or adding circular dependencies.

@@ -64,7 +64,7 @@ workers, domains/TLS, service bindings and developer operations are **not
 implemented**. Do not expect routes, tables, containers or Console controls for
 them. The design is bounded by
 [DEPLOYMENT_MODEL.md](architecture/DEPLOYMENT_MODEL.md) and the
-[implementation handoff](architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md).
+[implementation handoff](architecture/IMPLEMENTATION_BACKLOG.md).
 
 ### Rosetta Connect — PARTIAL
 
@@ -80,7 +80,7 @@ See [CAPABILITY_EXTENSIONS_V1.md](CAPABILITY_EXTENSIONS_V1.md) and
 
 | Area | Status | Evidence or next gate |
 | --- | --- | --- |
-| Five Foundation capabilities | IMPLEMENTED | Real-service integration suites in CI; see [README](../README.md#implementation-status). |
+| Five Foundation capabilities | IMPLEMENTED | Real-service integration suites in CI; see [README](README_EN.md#implementation-status). |
 | Tenant and application isolation | IMPLEMENTED | Negative tests for forged context, foreign IDs and direct SQL/RLS access. |
 | Application registration and approvals | IMPLEMENTED | Operator enrollment required; see [APPLICATION_REGISTRATION.md](APPLICATION_REGISTRATION.md). |
 | Private v2 records/objects and read shares | IMPLEMENTED | Owner-only writes, expiry/revocation and denied cross-app tests. |

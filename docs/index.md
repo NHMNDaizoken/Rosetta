@@ -37,7 +37,7 @@ creating competing module, data and API inventories.
 | [Official traceability](architecture/OLP_REQUIREMENT_TRACEABILITY.md) | Competition categories, evidence and compliance gaps |
 | [Decisions](architecture/ARCHITECTURE_DECISIONS.md) | Accepted baseline, proposals, deferred choices and approval evidence |
 | [Dependencies](architecture/IMPLEMENTATION_DEPENDENCIES.md) | Acyclic backlog dependencies and independent work |
-| [OpenCode handoff](architecture/OPENCODE_IMPLEMENTATION_HANDOFF.md) | Bounded implementation slices and stop conditions |
+| [Implementation backlog](architecture/IMPLEMENTATION_BACKLOG.md) | Bounded implementation slices and stop conditions |
 | [Validation ledger](architecture/VALIDATION.md) | Documentation checks, executed evidence, exclusions and reproducibility notes |
 | [Architecture entry](ARCHITECTURE.md) | Repository boundary rules and navigation |
 | [Foundation contract](FOUNDATION_OPENAPI.md) | Implemented public API; exact machine schemas remain in its linked OpenAPI |

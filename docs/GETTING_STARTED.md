@@ -56,6 +56,27 @@ the full-stack `npm run healthcheck` deliberately also requires `/ready`.
 
 ## Operator tasks: issue and enroll application credentials
 
+### Quick local enrollment (development/demo stacks)
+
+For Layer-2 prototyping on a local stack, one command performs the flow below:
+
+```sh
+npm run app:enroll -- daotao --display-name "Phòng Đào tạo"
+node --env-file=.env --env-file=.env.app.daotao.local examples/sdk-foundation.mjs --enrolled
+```
+
+It creates the confidential Keycloak client `app-daotao` and its tenant service
+account, demo owner and independent approver identities
+(`rosetta-demo-owner-<tenant>`, `rosetta-demo-approver-<tenant>`) with separated
+permissions, the SQL enrollment bound to the verified service-account subject, then
+registers, approves and activates the application. Only the app's own settings are
+written to the Git-ignored `.env.app.daotao.local`; operator credentials are never
+written. Options: `--tenant`, `--origin https://exact.origin`, `--display-name`.
+Run it only on development/demo stacks; production enrollment follows the reviewed
+manual flow below.
+
+### Reviewed manual flow
+
 The generated `tenant-a`, `tenant-b` and `reader` clients are synthetic identity
 fixtures. They prove Foundation authentication; they are **not** active enrolled
 applications and cannot access app-private v2 resources. `core-writer` does not

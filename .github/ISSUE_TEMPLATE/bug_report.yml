@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2026 Rosetta Contributors
+# SPDX-License-Identifier: Apache-2.0
+name: Báo lỗi / Bug report
+description: Một chức năng của Rosetta không chạy như mong đợi.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Mô tả lỗi
+      description: Điều gì đã xảy ra và bạn mong đợi điều gì?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Các bước tái hiện
+      placeholder: |
+        1. npm run local:up
+        2. Gọi ...
+        3. Thấy lỗi ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Phiên bản / commit
+      placeholder: v0.1.0 hoặc mã commit
+  - type: textarea
+    id: env
+    attributes:
+      label: Môi trường
+      description: Hệ điều hành, phiên bản Docker, kết quả `npm run doctor`. Không dán mật khẩu hay nội dung .env.
