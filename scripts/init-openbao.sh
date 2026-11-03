@@ -8,8 +8,7 @@ BAO_ADDR="${BAO_ADDR:-http://secrets:8200}"
 export BAO_ADDR
 OPERATOR_DIR="${OPERATOR_DIR:-/operator}"
 TOKEN_DIR="${TOKEN_DIR:-/token}"
-mkdir -p "$OPERATOR_DIR" "$TOKEN_DIR"
-chmod 700 "$OPERATOR_DIR" "$TOKEN_DIR"
+mkdir -p "$OPERATOR_DIR" "$TOKEN_DIR" 2>/dev/null || true
 
 i=0
 while [ "$i" -lt 90 ]; do
@@ -22,11 +21,12 @@ done
 
 if [ ! -f "$OPERATOR_DIR/init.json" ]; then
   bao operator init -key-shares=1 -key-threshold=1 -format=json > "$OPERATOR_DIR/init.json"
-  chmod 600 "$OPERATOR_DIR/init.json"
+  chmod 600 "$OPERATOR_DIR/init.json" 2>/dev/null || true
 fi
 
-UNSEAL_KEY="$(sed -n 's/.*"unseal_keys_b64":\["\([^"]*\)".*/\1/p' "$OPERATOR_DIR/init.json" | head -n1)"
-ROOT_TOKEN="$(sed -n 's/.*"root_token":"\([^"]*\)".*/\1/p' "$OPERATOR_DIR/init.json" | head -n1)"
+# Pretty-printed JSON from `bao operator init -format=json`.
+UNSEAL_KEY="$(awk '/"unseal_keys_b64"/{getline; gsub(/[", ]/, ""); print; exit}' "$OPERATOR_DIR/init.json")"
+ROOT_TOKEN="$(awk -F'"' '/"root_token"/{print $4; exit}' "$OPERATOR_DIR/init.json")"
 if [ -z "$UNSEAL_KEY" ] || [ -z "$ROOT_TOKEN" ]; then
   echo "openbao init material missing or unreadable" >&2
   exit 1
@@ -50,12 +50,14 @@ if [ -f "$TOKEN_DIR/core-token" ]; then
 fi
 
 TOKEN_JSON="$(bao token create -policy=rosetta-core -display-name=rosetta-core -format=json)"
-TOKEN="$(printf '%s' "$TOKEN_JSON" | sed -n 's/.*"client_token":"\([^"]*\)".*/\1/p' | head -n1)"
+TOKEN="$(printf '%s' "$TOKEN_JSON" | awk -F'"' '/"client_token"/{print $4; exit}')"
 if [ -z "$TOKEN" ]; then
   echo "failed to mint Core token" >&2
   exit 1
 fi
 umask 077
 printf '%s' "$TOKEN" > "$TOKEN_DIR/core-token"
-chmod 600 "$TOKEN_DIR/core-token"
+chmod 600 "$TOKEN_DIR/core-token" 2>/dev/null || true
+# Core runs as non-root; allow read of the token file only.
+chmod 644 "$TOKEN_DIR/core-token" 2>/dev/null || true
 echo "OpenBao ready for Rosetta Core"
