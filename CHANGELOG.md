@@ -3,54 +3,68 @@
 All notable changes to Junctura are recorded here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
-## 0.1.0 — Layer 1 release (2026-11)
+## 0.1.0 — Layer 1 release (2026-11-04)
 
-First public release of the Junctura Layer 1 platform for OLP'26.
+First public release of the Junctura DX-OS Layer 1 platform for OLP'26: a headless
+core that lets independent applications share data and capabilities with explicit,
+expiring, revocable and audited permission.
 
+### Platform
+- Five headless Foundation services behind one Nginx gateway: Keycloak SSO,
+  PostgreSQL/PostgREST with row-level security, SeaweedFS with ClamAV ingress
+  scanning, Flowable workflows and OpenBao secrets.
+- Capability Services: application registration with independent approval, expiring
+  resource shares, C1 Registry, C2 cross-app trust, C3 compatibility resolver,
+  opt-in C4A invocation and C4B composition, and protected audit.
+- **Tamper-evident audit** (migration 018): per-tenant SHA-256 hash chain over the
+  protected audit log and `POST /v1/audit-events/verify` (requires `audit.read`).
+  Detects modified, deleted, reordered and truncated sealed events; never seals over
+  a broken chain.
+- **Trust graph** (migration 019): read-only `GET /v1/trust/graph` returns the tenant's
+  applications and direct grants with effective state and expiry (administrators see
+  the tenant, writers only providers they own).
+- Gateway JSON access log with request IDs (paths only, no query strings or headers).
+
+### Console
+- **Capability sharing** screen with an interactive trust graph: state filters,
+  expiring-soon hints and one-click revocation with a required reason.
+- **Verify integrity** card on the Security screen for the audit hash chain.
+- Capability screens now reflect the implemented C1–C4B modules instead of the old
+  "planned" roadmap; Console, SDK and platform share version 0.1.0.
+
+### Operations and developer experience
+- `npm run app:enroll -- <name>`: one-command local enrollment of a Layer-2 backend
+  application with separated demo owner/approver and an ignored per-app env file.
+- `npm run backup` / `npm run restore`: checksummed backups of the identity, data and
+  workflow databases and the object volume; restore verifies, takes a safety backup,
+  recreates databases with original ACLs/RLS and restarts the stack.
+- Local demos through the real Gateway: `npm run trust:demo` (four sample apps, three
+  published capabilities, active, expiring, pending and revoked grants; `-- token`
+  prints an approver token for the Console) and `npm run audit:demo` (verify, tamper,
+  restore). Shared demo identity helpers live in `scripts/lib/demo-stack.mjs`.
+- Packaging accepts final semantic versions and writes a reproducible `.tar.gz` with
+  its own SHA-256 sidecar; `release:verify` checks both. GitHub Release steps documented.
+- Issue templates for bugs and tasks.
+
+### Project
 - **Renamed from Rosetta to Junctura DX-OS** (Latin for "joint") before the first
   release, everywhere: code, SDK (`createJuncturaClient`), settings (`JUNCTURA_*`),
   database names and roles (`junctura_*`), Keycloak realm `junctura`, capability URNs
   (`urn:junctura:`), Compose project `junctura`, Console branding and J monogram logo.
   Pre-release local installations are recreated on the next `npm run local:up`
   (new Compose project and volumes; old `rosetta` volumes are left untouched).
-
-- Five headless Foundation services behind one Nginx gateway: Keycloak SSO,
-  PostgreSQL/PostgREST with row-level security, SeaweedFS with ClamAV ingress
-  scanning, Flowable workflows and OpenBao secrets.
-- Capability Services: application registration, expiring resource shares,
-  C1 Registry, C2 cross-app trust, C3 compatibility resolver, opt-in C4A
-  invocation and C4B composition, and protected audit.
-- Vietnamese README with requirement mapping, architecture diagram and team details;
-  the full English reference moved to `docs/README_EN.md`.
+  Migration checksums, contract digests and fixtures were regenerated for the new names.
+- Vietnamese product README with architecture, security model, quick start and API
+  overview; the full English reference is `docs/README_EN.md`, and
+  `docs/OLP_REQUIREMENTS.md` maps the contest requirements.
 - Internal engineering notes renamed to `ENGINEERING_HISTORY.md` and
   `IMPLEMENTATION_BACKLOG.md`.
-- Packaging accepts final semantic versions; GitHub Release steps documented.
-- Issue templates for bugs and tasks.
-- `npm run backup` / `npm run restore`: checksummed backups of the identity, data and
-  workflow databases and the object volume; restore verifies, takes a safety backup,
-  recreates databases with original ACLs/RLS and restarts the stack.
-- **Tamper-evident audit** (migration 018): per-tenant SHA-256 hash chain over the
-  protected audit log, `POST /v1/audit-events/verify` (requires `audit.read`) and a
-  **Verify integrity** card on the Console Security screen. Detects modified,
-  deleted, reordered and truncated sealed events; never seals over a broken chain.
-- **Trust graph** (migration 019): read-only `GET /v1/trust/graph` returns the tenant's
-  applications and direct grants with effective state and expiry (administrators see
-  the tenant, writers only providers they own). The Console **Capability sharing**
-  screen draws it as an interactive graph with state filters, expiring-soon hints and
-  one-click revocation; the screen now reflects the implemented C1–C4B modules instead
-  of the old "planned" roadmap.
-- `npm run trust:demo`: local demo data for the trust graph through the real Gateway
-  (four university apps, three published capabilities, active, expiring, pending and
-  revoked grants with owner/approver separation); `-- token` prints an approver token
-  for the Console. Re-running reuses existing apps, versions and live grants. Shared
-  demo identity helpers moved to `scripts/lib/demo-stack.mjs` (used by `app:enroll`).
-- Gateway JSON access log with request IDs (paths only, no query strings or headers).
-- Migration checksums, contract digests and fixtures regenerated for the new names.
-- `npm run app:enroll -- <name>`: one-command local enrollment of a Layer-2 backend
-  application with separated demo owner/approver and an ignored per-app env file.
 
-**Known issues:** upstream container images carry unresolved advisories recorded in
-[docs/SECURITY_REVIEW.md](docs/SECURITY_REVIEW.md). Production deployment is out of scope.
+### Known issues
+- Upstream container images carry unresolved advisories recorded in
+  [docs/SECURITY_REVIEW.md](docs/SECURITY_REVIEW.md).
+- Loopback-only local installation; production deployment, TLS termination and HA are
+  out of scope for this release. Human delegation is not implemented.
 
 ## 0.1.0-rc.1 — local candidate preparation (2026-11-02)
 
