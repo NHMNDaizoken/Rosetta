@@ -70,7 +70,8 @@ not code coverage or product completeness.
    single-capability execution are implemented; C4A defaults to disabled.
 9. Local Compose is not production HA or hostile-workload isolation.
 10. Audit is transactional and tenant-queryable internally; DBAs are trusted and
-    there is no public route, independent export or cryptographic sealing.
+    a SHA-256 hash chain makes sealed-event tampering evident; there is no
+    independent export of the chain head.
 11. The mandatory Layer-2 GUI remains outstanding; Console does not satisfy it.
 
 ## Notes

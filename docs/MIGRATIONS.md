@@ -96,6 +96,13 @@ container and proves:
 and CI. It needs `DATABASE_SERVICE` (default `database`) and prints either
 `schema matches the recorded fingerprint` or the expected/actual fingerprints.
 
+## Audit hash chain (018)
+
+Migration 018 adds nullable `chain_seq`, `prev_hash` and `entry_hash` columns to
+`app_private.audit`, a forced-RLS `app_private.audit_chain_heads` table and
+`core.audit_verify(jsonb)`. Existing events are not rewritten by the migration;
+they are sealed by the first verification. See [AUDIT](AUDIT.md#tamper-evident-hash-chain).
+
 ## C4B forward corrections
 
 Migrations 013-017 are additive corrections to 012, preserving existing records,

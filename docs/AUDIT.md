@@ -24,15 +24,16 @@ Protected:
 Trusted:
 
 - PostgreSQL superusers, the database owner and a malicious host/operator can read
-  or alter persisted rows. This slice does not provide cryptographic tamper
-  evidence against a privileged database administrator.
+  or alter persisted rows. The [hash chain](#tamper-evident-hash-chain) makes later
+  modification, deletion or reordering of sealed events *evident*; it cannot stop
+  an administrator who rewrites the whole chain and its head consistently.
 - `junctura_app_owner` and trusted owner functions are part of the write boundary.
   They must not accept caller-supplied actor, tenant, timestamp or event ID.
 - Loss of the database, backups or volume is a recovery problem, not an audit
   integrity guarantee.
 
-Deferred: independently controlled export/sink, cryptographic sealing, external
-retention, legal hold and cross-store recovery. See
+Deferred: independently controlled export/sink (anchoring the chain head outside
+the database), external retention, legal hold and cross-store recovery. See
 [ADR 012](architecture/ARCHITECTURE_DECISIONS.md#adr-012---protected-audit-boundary)
 and the unresolved audit-integrity row in the same file.
 
@@ -108,6 +109,49 @@ This is an internal trusted-Core contract, not a Foundation OpenAPI operation.
 Exposing a public audit route requires a separately reviewed contract, pagination
 policy, error mapping and authorization review.
 
+## Tamper-evident hash chain
+
+Migration 018 seals each tenant's audit events into a SHA-256 hash chain.
+`core.audit_verify(jsonb)` (same caller contract as `audit_query`: trusted Core
+asserts `junctura_audit_api`, the verified principal needs `audit.read` in its own
+tenant) runs under a per-tenant advisory lock and:
+
+1. recomputes every sealed entry in `chain_seq` order. Entry `n` stores
+   `entry_hash = sha256(["junctura-audit/1", n, prev_hash, tenant, event ID,
+   time in microseconds, issuer, subject, client, event, resource type/ID,
+   revision, outcome, reason code, reason, actor app, schema version])`, with
+   `prev_hash` of entry 1 equal to 64 zeros;
+2. compares the result with `app_private.audit_chain_heads`, so removing the
+   newest entries is also detected;
+3. only if the chain is intact, seals pending events in `(occurred_at, event_id)`
+   order and advances the head. Nothing is ever sealed on top of a broken chain.
+
+Ordinary appends are unchanged: they take no new lock and remain unsealed until the
+next verification. The result reports `verified`, the number of intact `entries`,
+`newlySealed`, `headHash` and `firstBreak` (`chainSeq`, `eventId`, and
+`content_modified`, `chain_link_mismatch`, `missing_entry` or `head_mismatch`).
+Hashing uses integer microseconds and canonical JSON, so session time zone and
+date style do not change digests.
+
+Core exposes it as `POST /v1/audit-events/verify` with body `{}` (Capability
+OpenAPI `verifyAuditChain`); the Console Security screen has a **Verify integrity**
+button. Integration suites delete synthetic audit rows during cleanup, which is
+itself reported as a break: verify the chain on a stack that has not run them.
+
+### Local demonstration
+
+```sh
+npm run audit:demo              # verify through Gateway -> Core -> database (expect intact)
+npm run audit:demo -- tamper    # alter sealed event #2 directly in PostgreSQL
+npm run audit:demo              # reports the break at #2: content_modified
+npm run audit:demo -- restore   # undo the alteration; verification is intact again
+npm run audit:demo -- token     # short-lived auditor token to paste into the Console
+```
+
+The helper creates a local `junctura-demo-auditor-<tenant>` identity with only
+`audit.read` (run `npm run app:enroll` first so the demo management client exists).
+It is for development stacks only.
+
 ## Failure, retention and rollback
 
 - Audit append failure rolls back the enclosing authority mutation. Callers must
@@ -123,7 +167,8 @@ policy, error mapping and authorization review.
 ## Verification
 
 ```sh
-npm run test:audit
+npm test                      # includes the verification route unit tests
+npm run test:audit            # includes sealing, modification, deletion and truncation
 npm run test:recovery
 npm run test:applications
 npm run test:capabilities

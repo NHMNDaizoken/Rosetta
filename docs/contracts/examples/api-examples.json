@@ -178,5 +178,35 @@
         }
       ]
     }
+  },
+  "auditVerificationRequest": {
+    "schema": "AuditVerificationRequest",
+    "value": {}
+  },
+  "auditVerificationIntact": {
+    "schema": "AuditVerification",
+    "value": {
+      "verified": true,
+      "entries": 12,
+      "newlySealed": 2,
+      "headHash": "sha256:9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b9b",
+      "firstBreak": null,
+      "verifiedAt": "2026-11-04T07:44:36.669Z"
+    }
+  },
+  "auditVerificationBroken": {
+    "schema": "AuditVerification",
+    "value": {
+      "verified": false,
+      "entries": 1,
+      "newlySealed": 0,
+      "headHash": null,
+      "firstBreak": {
+        "chainSeq": 2,
+        "eventId": "b4b29652-3dba-4534-9271-6711ad105dbe",
+        "reason": "content_modified"
+      },
+      "verifiedAt": "2026-11-04T07:44:36.876Z"
+    }
   }
 }

@@ -3549,6 +3549,68 @@
         ]
       }
     },
+    "/v1/audit-events/verify": {
+      "post": {
+        "operationId": "verifyAuditChain",
+        "summary": "Seal pending audit events and verify the tenant hash chain",
+        "description": "Implemented. Seals the caller tenant's pending audit events into a SHA-256 hash chain, then recomputes every sealed entry. A modified, deleted or reordered sealed event, or a removed newest entry, is reported in firstBreak; nothing is sealed on top of a broken chain. Requires a verified management principal with audit.read in its own tenant. The database administrator remains trusted; see AUDIT.md.",
+        "tags": [
+          "audit-events"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuditVerificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verification result; verified=false is a successful check that found tampering.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditVerification"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "413": {
+            "$ref": "#/components/responses/ContentTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-junctura-required-permissions": [
+          "audit.read"
+        ],
+        "x-junctura-status": "implemented-audit-chain",
+        "x-junctura-source": "src/modules/audit/audit.mjs",
+        "x-junctura-test-suite": "applications"
+      }
+    },
     "/v1/approvals/{approvalId}": {
       "get": {
         "operationId": "getApproval",
@@ -5231,6 +5293,91 @@
           "target",
           "input"
         ]
+      },
+      "AuditVerificationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "maxProperties": 0,
+        "description": "Empty object; the tenant comes from the verified caller."
+      },
+      "AuditChainBreak": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "chainSeq",
+          "eventId",
+          "reason"
+        ],
+        "properties": {
+          "chainSeq": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "eventId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "content_modified",
+              "chain_link_mismatch",
+              "missing_entry",
+              "head_mismatch"
+            ]
+          }
+        }
+      },
+      "AuditVerification": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verified",
+          "entries",
+          "newlySealed",
+          "headHash",
+          "firstBreak",
+          "verifiedAt"
+        ],
+        "properties": {
+          "verified": {
+            "type": "boolean"
+          },
+          "entries": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Sealed entries verified intact before any break."
+          },
+          "newlySealed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "headHash": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "description": "Hash of the newest sealed entry; null when empty or broken."
+          },
+          "firstBreak": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AuditChainBreak"
+              }
+            ]
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     },
     "responses": {
