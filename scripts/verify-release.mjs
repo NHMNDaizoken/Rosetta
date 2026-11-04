@@ -5,6 +5,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { gunzipSync } from "node:zlib";
 import { releaseFiles } from "./package-release.mjs";
 
 const version = JSON.parse(readFileSync("package.json", "utf8")).version;
@@ -15,6 +16,11 @@ const manifest = JSON.parse(readFileSync(resolve(directory, `${name}.manifest.js
 const hash = createHash("sha256").update(bytes).digest("hex");
 assert.equal(manifest.sha256, hash);
 assert.equal(readFileSync(resolve(directory, `${name}.tar.sha256`), "utf8"), `${hash}  ${name}.tar\n`);
+const compressed = readFileSync(resolve(directory, `${name}.tar.gz`));
+const gzipHash = createHash("sha256").update(compressed).digest("hex");
+assert.equal(manifest.gzipSha256, gzipHash);
+assert.equal(readFileSync(resolve(directory, `${name}.tar.gz.sha256`), "utf8"), `${gzipHash}  ${name}.tar.gz\n`);
+assert.ok(gunzipSync(compressed).equals(bytes), "tar.gz must contain exactly the verified tar");
 const archive = execFileSync("tar", ["-tf", resolve(directory, `${name}.tar`)], { encoding: "utf8" }).split(/\r?\n/).filter(Boolean);
 assert.ok(archive.every(path => path.startsWith(`${name}/`)));
 const files = archive.filter(path => !path.endsWith("/")).map(path => path.slice(name.length + 1)).sort();
