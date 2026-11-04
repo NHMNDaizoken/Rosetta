@@ -180,6 +180,8 @@ const same = await junctura.getRecord("students", record.id);
 | `npm run local:up` / `local:down` / `local:status` | Khởi động, dừng (giữ dữ liệu), xem trạng thái hệ thống |
 | `npm run healthcheck` · `npm run doctor` | Kiểm tra sẵn sàng · chẩn đoán lỗi cấu hình |
 | `npm run app:enroll -- <tên>` | Đăng ký và phê duyệt một ứng dụng mới |
+| `npm run trust:demo` · `-- token` | Tạo dữ liệu demo cho sơ đồ tin cậy (4 ứng dụng, 3 chức năng, 5 quyền) · in token người duyệt cho Console |
+| `npm run audit:demo` · `-- tamper` · `-- restore` | Demo kiểm tra toàn vẹn nhật ký: kiểm tra, sửa lén một sự kiện, khôi phục |
 | `npm run backup` · `npm run restore -- <thư-mục> --yes` | Sao lưu · khôi phục toàn bộ dữ liệu |
 | `npm run console` | Chạy Console ở chế độ phát triển |
 | `npm test` · `npm run test:integration` | Kiểm thử đơn vị · kiểm thử tích hợp |
