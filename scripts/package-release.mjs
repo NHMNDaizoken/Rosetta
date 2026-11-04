@@ -6,6 +6,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { constants, gzipSync } from "node:zlib";
 
 const roots = new Set(["src", "console", "sdk", "infra", "scripts", "docs", "examples", "tests", "integration", ".github", "LICENSES"]);
 const rootFiles = new Set([".env.example", ".node-version", ".dockerignore", ".gitattributes", ".gitignore",
@@ -38,9 +39,15 @@ export function packageRelease(directory = "dist/releases") {
   mkdirSync(directory, { recursive: true });
   writeFileSync(resolve(directory, `${name}.tar`), archive);
   writeFileSync(resolve(directory, `${name}.tar.sha256`), `${hash}  ${name}.tar\n`);
-  writeFileSync(resolve(directory, `${name}.manifest.json`), JSON.stringify({ version, sourceCommit: sha, sha256: hash, files }, null, 2) + "\n");
-  console.log(`Prepared ${name}.tar from ${sha}; SHA-256 ${hash}. Source only; no release published.`);
-  return { name, sha, hash, files };
+  // The .tar.gz is the published asset. Node writes no file name or timestamp into the
+  // gzip header, so the same commit gives the same bytes with the same Node release.
+  const compressed = gzipSync(archive, { level: constants.Z_BEST_COMPRESSION });
+  const gzipHash = createHash("sha256").update(compressed).digest("hex");
+  writeFileSync(resolve(directory, `${name}.tar.gz`), compressed);
+  writeFileSync(resolve(directory, `${name}.tar.gz.sha256`), `${gzipHash}  ${name}.tar.gz\n`);
+  writeFileSync(resolve(directory, `${name}.manifest.json`), JSON.stringify({ version, sourceCommit: sha, sha256: hash, gzipSha256: gzipHash, files }, null, 2) + "\n");
+  console.log(`Prepared ${name}.tar and ${name}.tar.gz from ${sha}; SHA-256 ${gzipHash} (tar.gz). Source only; no release published.`);
+  return { name, sha, hash, gzipHash, files };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

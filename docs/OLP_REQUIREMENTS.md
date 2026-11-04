@@ -43,11 +43,11 @@ Verify the latest organizer announcements before submission. The references, not
 ## Pre-submission review
 
 - [ ] Confirm updated official rules/deadline.
-- [ ] Public repository, license and third-party notices in place.
-- [ ] A versioned release exists before the deadline.
+- [x] Public repository, license and third-party notices in place.
+- [ ] A versioned release exists before the deadline (Layer 1: `v0.1.0`, see [RELEASE](RELEASE.md#publishing-a-github-release)).
 - [ ] Clone/build/run on a clean environment without editing source to configure it.
-- [ ] Required five Core capabilities work together.
+- [x] Required five Core capabilities work together.
 - [ ] Layer 2 GUI uses Core in an end-to-end scenario.
-- [ ] README, setup, architecture, dependency list, changelog, and issue tracker are usable.
+- [x] README, setup, architecture, dependency list, changelog, and issue tracker are usable.
 
 **Note:** Exact scoring deductions and interpretations of license-header/source archive requirements should be checked directly against the official rules before final release.
