@@ -94,6 +94,31 @@ export async function handleTrust(request, response, identity, config, url) {
   return json(response, operation === "create" ? 201 : 200, value);
 }
 
+export const TRUST_GRAPH_PATH = "/v1/trust/graph";
+
+// Read-only view of the tenant's cross-application trust: applications as nodes,
+// direct grants as edges. The database applies the same visibility rule as a
+// grant lookup (administrators see the tenant, writers their own providers).
+export async function handleTrustGraph(request, response, identity, config, url) {
+  if (url.pathname !== TRUST_GRAPH_PATH) throw new HttpError(404, "not_found");
+  if (request.method !== "GET") throw new HttpError(405, "method_not_allowed");
+  if (url.search) throw new HttpError(400, "invalid_query");
+  if (!config.dataUrl) throw new HttpError(503, "trust_unavailable");
+  if (!identity.clientId) throw new HttpError(403, "verified_client_required");
+  let result;
+  try {
+    const db = await fetch(`${config.dataUrl}/rpc/trust_graph`, { method: "POST",
+      headers: { Authorization: `Bearer ${applicationToken(identity, config.dataSecret, "junctura_trust_api")}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ payload: {} }), signal: AbortSignal.timeout(5000), redirect: "error" });
+    if (!db.ok) throw Error();
+    result = await db.json();
+  } catch { throw new HttpError(503, "trust_unavailable"); }
+  if (result?.error) throw new HttpError(result.status, result.error);
+  if (result?.status !== 200 || !Array.isArray(result.value?.nodes) || !Array.isArray(result.value?.edges)) throw new HttpError(503, "trust_unavailable");
+  response.setHeader("Cache-Control", "no-store");
+  return json(response, 200, result.value);
+}
+
 // INTERNAL only. Authenticate anew for every check; C4 must call this immediately
 // before dispatch and still enforce invocation approvals/preconditions itself.
 export async function evaluateCapabilityEligibility(request, config, reference) {

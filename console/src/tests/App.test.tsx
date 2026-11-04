@@ -177,4 +177,20 @@ describe("Junctura Console Application Tests", () => {
     ).not.toBeInTheDocument();
     await screen.findAllByText(viStrings.identity.missing);
   });
+
+  it("shows the preview trust graph and revokes a grant from it", async () => {
+    window.history.replaceState(null, "", "/#/capabilities");
+    mockGateway();
+    render(<App />);
+    await screen.findByText(viStrings.capabilities.graphTitle);
+    expect(screen.getByText(viStrings.capabilities.graphPreview)).toBeInTheDocument();
+    const row = (await screen.findAllByText("Thư viện")).find((el) => el.tagName === "TD")!;
+    fireEvent.click(row);
+    expect(screen.getByText(viStrings.capabilities.detailTitle)).toBeInTheDocument();
+    const revoke = screen.getByRole("button", { name: viStrings.capabilities.revokeButton });
+    expect(revoke).toBeDisabled();
+    fireEvent.change(screen.getByLabelText(viStrings.capabilities.revokeReason), { target: { value: "hết hợp tác" } });
+    fireEvent.click(revoke);
+    await screen.findByText(viStrings.capabilities.revokeDone);
+  });
 });

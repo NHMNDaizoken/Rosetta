@@ -68,7 +68,7 @@ events. A partial unique index permits only one consumed approval per grant.
 Run `docker compose run --rm data-migrate` before rebuilding Core. The migrator
 now applies only pending numbered files: replaying older permission constraints
 would otherwise remove/reject later Trust assignments. Run one migrator at a time.
-Do not reapply historical migration 008 directly. The checksum-enforcing runner verifies applied 001–018; use additive migrations for corrections. See [MIGRATIONS](MIGRATIONS.md).
+Do not reapply historical migration 008 directly. The checksum-enforcing runner verifies applied 001–019; use additive migrations for corrections. See [MIGRATIONS](MIGRATIONS.md).
 Keep both private schemas, role ownership/ACLs, Registry and Audit in coordinated
 backups. Roll back code without dropping authority/history tables. No destructive
 down migration or purge is provided. The verification section below records
@@ -82,6 +82,26 @@ private validation reports, approvals, OAuth configuration or credentials.
 Authorization filters precede `LIMIT` and cursor creation; `nextCursor` counts
 only visible rows. Consumer cursors bind tenant/app, while C1 management cursor
 format remains compatible. Reusing a cursor never preserves a grant's authority.
+
+## Trust graph (019)
+
+`GET /v1/trust/graph` is a read-only view for management principals. Migration 019
+adds `core.trust_graph(jsonb)`, owned by `junctura_app_owner` and executable only by
+`junctura_trust_api`. It reuses the grant lookup rule of `core.trust_command`: a
+principal with `trust.approve` sees every grant in its tenant (`scope: "tenant"`); a
+principal with only `trust.write` sees grants whose provider application it owns
+(`scope: "owned"`). Other callers, including application service accounts, receive
+403. Tenant RLS stays forced, the request takes no query parameters, and at most the
+500 newest edges are returned (`truncated` reports more).
+
+Each edge carries the grant ID, provider and consumer application IDs, exact
+capability ID/version and manifest title, operations, revision, effective state
+(`pending`, `active`, `expired`, `revoked`) and timestamps. Nodes are the applications
+on visible edges plus, for administrators, every application of the tenant (and, for
+writers, their own). Creator subjects, digests, permissions, subject bindings and
+approval records are not included. The revision lets the Console revoke with the
+exact `If-Match: "grant-<id>-<revision>"`; revocation still goes through the
+unchanged `POST /v1/trust/grants/{grantId}/revoke` and its audit event.
 
 ## Internal eligibility and consistency
 

@@ -103,6 +103,12 @@ Migration 018 adds nullable `chain_seq`, `prev_hash` and `entry_hash` columns to
 `core.audit_verify(jsonb)`. Existing events are not rewritten by the migration;
 they are sealed by the first verification. See [AUDIT](AUDIT.md#tamper-evident-hash-chain).
 
+## Trust graph (019)
+
+Migration 019 only adds the read-only `core.trust_graph(jsonb)` function (no table or
+column changes) and grants it to `junctura_trust_api`. See
+[CAPABILITY_DIRECT_TRUST](CAPABILITY_DIRECT_TRUST.md#trust-graph-019).
+
 ## C4B forward corrections
 
 Migrations 013-017 are additive corrections to 012, preserving existing records,
