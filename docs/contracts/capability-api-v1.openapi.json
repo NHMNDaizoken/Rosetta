@@ -3,7 +3,7 @@
   "info": {
     "title": "Junctura Capability Extensions v1",
     "version": "1.0.0-draft",
-    "description": "Implemented: Application Authority, C1 Registry, C2 direct Trust/discovery, protected Audit, opt-in C4A single invocation and opt-in C4B bounded composition. C3 is an offline resolver used by composition validation. C4B remains disabled by default; no delegation, cancellation, resume, automatic retry, HA or general side effects. Operation-level status identifies implemented subsets.",
+    "description": "Implemented: Application Authority, C1 Registry, C2 direct Trust/discovery and trust graph, protected Audit, opt-in C4A single invocation and opt-in C4B bounded composition. C3 is an offline resolver used by composition validation. C4B remains disabled by default; no delegation, cancellation, resume, automatic retry, HA or general side effects. Operation-level status identifies implemented subsets.",
     "license": {
       "name": "Apache License 2.0",
       "identifier": "Apache-2.0"
@@ -1570,6 +1570,53 @@
         "x-junctura-core-roles": [
           "core-reader",
           "core-writer"
+        ]
+      }
+    },
+    "/v1/trust/graph": {
+      "get": {
+        "operationId": "getTrustGraph",
+        "summary": "Read the tenant trust graph",
+        "description": "Implemented. Read-only view of direct cross-application trust: applications as nodes and grants as edges, with the effective state (pending, active, expired, revoked) and expiry. An administrator with trust.approve sees every grant of its tenant; a writer with trust.write sees only grants whose provider application it owns. No query parameters: the tenant and scope come from the verified caller. At most 500 newest edges are returned; truncated reports more. See CAPABILITY_DIRECT_TRUST.md.",
+        "tags": [
+          "trust"
+        ],
+        "responses": {
+          "200": {
+            "description": "Trust graph",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustGraph"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-junctura-required-permissions": [
+          "trust.write",
+          "trust.approve"
+        ],
+        "x-junctura-status": "implemented-trust-graph",
+        "x-junctura-source": "src/modules/capability/trust/trust.mjs",
+        "x-junctura-test-suite": "capabilities",
+        "x-junctura-core-roles": [
+          "core-reader"
         ]
       }
     },
@@ -5374,6 +5421,177 @@
             ]
           },
           "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TrustGraphNode": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "appId",
+          "displayName",
+          "state",
+          "owned"
+        ],
+        "properties": {
+          "appId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "active",
+              "suspended",
+              "revoked"
+            ]
+          },
+          "owned": {
+            "type": "boolean",
+            "description": "The caller owns this application."
+          }
+        }
+      },
+      "TrustGraphEdge": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "grantId",
+          "providerAppId",
+          "consumerAppId",
+          "capabilityId",
+          "version",
+          "title",
+          "operations",
+          "revision",
+          "state",
+          "createdAt",
+          "activatedAt",
+          "revokedAt",
+          "expiresAt"
+        ],
+        "properties": {
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "providerAppId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "consumerAppId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "capabilityId": {
+            "type": "string",
+            "pattern": "^urn:junctura:capability:[0-9a-f-]{36}:[a-z][a-z0-9-]{0,62}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})\\.(0|[1-9][0-9]{0,8})$"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 120
+          },
+          "operations": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "discover",
+                "invoke"
+              ]
+            }
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Use as If-Match \"grant-<grantId>-<revision>\" to revoke."
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "active",
+              "expired",
+              "revoked"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "activatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "revokedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TrustGraph": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scope",
+          "nodes",
+          "edges",
+          "truncated",
+          "generatedAt"
+        ],
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "tenant",
+              "owned"
+            ]
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrustGraphNode"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "$ref": "#/components/schemas/TrustGraphEdge"
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "generatedAt": {
             "type": "string",
             "format": "date-time"
           }

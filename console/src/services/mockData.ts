@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { Application, Approval, StructuredRecord, StoredObject, ResourceShare, WorkflowDefinition, WorkflowExecution, AuditSessionEvent, UserIdentity } from "../types";
+import { Application, Approval, StructuredRecord, StoredObject, ResourceShare, WorkflowDefinition, WorkflowExecution, AuditSessionEvent, UserIdentity, TrustGraph } from "../types";
 
 export const MOCK_IDENTITY: UserIdentity = {
   subject: "9f8c6e2b-45a1-42e7-9104-58bfa791e23a",
@@ -209,3 +209,48 @@ export const MOCK_AUDIT_EVENTS: AuditSessionEvent[] = [
     requestId: "probe-882",
   },
 ];
+
+// Preview-only trust graph: a university scenario with every grant state.
+// Built on demand so expiry times stay relative to "now".
+export function mockTrustGraph(now = Date.now()): TrustGraph {
+  const at = (days: number) => new Date(now + days * 86_400_000).toISOString();
+  const dt = "a1000000-0000-4000-8000-000000000001";
+  const lib = "a1000000-0000-4000-8000-000000000002";
+  const dorm = "a1000000-0000-4000-8000-000000000003";
+  const fin = "a1000000-0000-4000-8000-000000000004";
+  const ctsv = "a1000000-0000-4000-8000-000000000005";
+  const cap = (app: string, name: string) => `urn:junctura:capability:${app}:${name}`;
+  return {
+    scope: "tenant",
+    preview: true,
+    truncated: false,
+    generatedAt: at(0),
+    nodes: [
+      { appId: dt, displayName: "Phòng Đào tạo", state: "active", owned: true },
+      { appId: fin, displayName: "Phòng Tài chính", state: "active", owned: false },
+      { appId: lib, displayName: "Thư viện", state: "active", owned: false },
+      { appId: dorm, displayName: "Ký túc xá", state: "active", owned: false },
+      { appId: ctsv, displayName: "Công tác sinh viên", state: "suspended", owned: false },
+    ],
+    edges: [
+      { grantId: "b2000000-0000-4000-8000-000000000001", providerAppId: dt, consumerAppId: lib, capabilityId: cap(dt, "student-lookup"),
+        version: "1.2.0", title: "Tra cứu sinh viên", operations: ["discover", "invoke"], revision: 2, state: "active",
+        createdAt: at(-12), activatedAt: at(-12), revokedAt: null, expiresAt: at(48) },
+      { grantId: "b2000000-0000-4000-8000-000000000002", providerAppId: dt, consumerAppId: dorm, capabilityId: cap(dt, "student-lookup"),
+        version: "1.2.0", title: "Tra cứu sinh viên", operations: ["invoke"], revision: 2, state: "active",
+        createdAt: at(-5), activatedAt: at(-5), revokedAt: null, expiresAt: at(2) },
+      { grantId: "b2000000-0000-4000-8000-000000000003", providerAppId: fin, consumerAppId: dt, capabilityId: cap(fin, "tuition-status"),
+        version: "2.0.0", title: "Trạng thái học phí", operations: ["discover", "invoke"], revision: 2, state: "active",
+        createdAt: at(-30), activatedAt: at(-29), revokedAt: null, expiresAt: at(60) },
+      { grantId: "b2000000-0000-4000-8000-000000000004", providerAppId: dt, consumerAppId: ctsv, capabilityId: cap(dt, "transcript"),
+        version: "1.0.0", title: "Bảng điểm", operations: ["invoke"], revision: 1, state: "pending",
+        createdAt: at(-1), activatedAt: null, revokedAt: null, expiresAt: at(30) },
+      { grantId: "b2000000-0000-4000-8000-000000000005", providerAppId: fin, consumerAppId: dorm, capabilityId: cap(fin, "tuition-status"),
+        version: "1.0.0", title: "Trạng thái học phí", operations: ["discover"], revision: 3, state: "revoked",
+        createdAt: at(-40), activatedAt: at(-40), revokedAt: at(-3), expiresAt: at(20) },
+      { grantId: "b2000000-0000-4000-8000-000000000006", providerAppId: dt, consumerAppId: fin, capabilityId: cap(dt, "enrollment-count"),
+        version: "1.0.0", title: "Sĩ số lớp học phần", operations: ["invoke"], revision: 2, state: "expired",
+        createdAt: at(-90), activatedAt: at(-90), revokedAt: null, expiresAt: at(-1) },
+    ],
+  };
+}

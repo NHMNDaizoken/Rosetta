@@ -14,7 +14,7 @@ import { checkReadiness } from "./bootstrap/readiness.mjs";
 import { handleWorkflow } from "./modules/workflow/workflow.mjs";
 import { handleShares, requireLegacyClient, resourceIdentity } from "./modules/resources/resources.mjs";
 import { handleSecrets } from "./modules/secrets/secrets.mjs";
-import { handleTrust } from "./modules/capability/trust/trust.mjs";
+import { TRUST_GRAPH_PATH, handleTrust, handleTrustGraph } from "./modules/capability/trust/trust.mjs";
 
 export function createApi(config) {
   const authorize = createAuthorizer(config);
@@ -125,6 +125,16 @@ export function createApi(config) {
         if (error.status === 413) response.setHeader("Connection", "close");
         return json(response, error instanceof HttpError ? error.status : 503,
           { error: error instanceof HttpError ? error.message : "audit_unavailable", requestId });
+      }
+    }
+    if (path === TRUST_GRAPH_PATH) {
+      const requestId = randomUUID();
+      response.setHeader("X-Request-Id", requestId);
+      try {
+        return await handleTrustGraph(request, response, await authorize(request, true), config, new URL(request.url, "http://core"));
+      } catch (error) {
+        return json(response, error instanceof HttpError ? error.status : 503,
+          { error: error instanceof HttpError ? error.message : "trust_unavailable", requestId });
       }
     }
     if (path === "/v1/trust/grants" || path?.startsWith("/v1/trust/grants/")) {
