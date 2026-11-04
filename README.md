@@ -6,12 +6,12 @@
 
 **Nền tảng lõi nguồn mở để các ứng dụng chia sẻ dữ liệu và năng lực với nhau — có cấp quyền, thu hồi và kiểm chứng.**
 
-[![Foundation checks](https://github.com/NHMNDaizoken/Rosetta/actions/workflows/ci.yml/badge.svg)](https://github.com/NHMNDaizoken/Rosetta/actions/workflows/ci.yml)
+[![Foundation checks](https://github.com/vku2-open-source-2026/junctura-dxos/actions/workflows/ci.yml/badge.svg)](https://github.com/vku2-open-source-2026/junctura-dxos/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/badge/release-v0.1.0-176B80.svg)](CHANGELOG.md)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![REUSE compliant](https://img.shields.io/badge/REUSE-compliant-18877A.svg)](REUSE.toml)
 
-[Bắt đầu nhanh](#bắt-đầu-nhanh) · [Kiến trúc](#kiến-trúc) · [Tài liệu](#tài-liệu) · [English](docs/README_EN.md)
+[Giới thiệu](#giới-thiệu) · [Kiến trúc](#kiến-trúc) · [Bắt đầu nhanh](#bắt-đầu-nhanh) · [API](#api-chính) · [Tài liệu](#tài-liệu) · [Lộ trình](#lộ-trình) · [English](docs/README_EN.md)
 
 </div>
 
@@ -27,6 +27,16 @@ Trong một tổ chức, mỗi phòng ban thường vận hành phần mềm ri�
 - **Capability** — mỗi ứng dụng giữ dữ liệu và nghiệp vụ của riêng mình nhưng có thể **công bố chức năng**; ứng dụng khác **được cấp quyền** để gọi; Junctura **kiểm tra, thực thi và ghi vết** từng lần gọi; chủ sở hữu **thu hồi** bất cứ lúc nào.
 
 > *Junctura* — tiếng Latin nghĩa là “mối nối”: nơi các ứng dụng độc lập gặp nhau.
+
+### Ví dụ áp dụng
+
+| Bối cảnh | Các ứng dụng độc lập | Junctura giúp gì |
+| --- | --- | --- |
+| **Trường đại học** | Đào tạo, Công tác sinh viên, Tài chính, Văn bản | Ứng dụng xét học bổng đọc bảng điểm, điểm rèn luyện, học phí từ ba phòng ban — mỗi lần đọc đều được cấp quyền và ghi vết — rồi gọi chức năng cấp giấy xác nhận của phòng Văn bản. |
+| **Y tế** | Phòng khám, Xét nghiệm, Nhà thuốc | Bệnh nhân cấp quyền xem hồ sơ cho từng cơ sở, có hạn dùng, thu hồi được và biết ai đã truy cập. |
+| **Đô thị** | Phòng cháy, Chiếu sáng, Thoát nước | Ứng dụng phản ánh hiện trường quét mã độc ảnh người dân gửi, rồi gọi chức năng “tạo phiếu sửa chữa” của đúng đơn vị. |
+
+Mỗi ứng dụng vẫn do đơn vị của mình phát triển và sở hữu; Junctura chỉ là mối nối dùng chung, không thay thế nghiệp vụ.
 
 ## Tính năng nổi bật
 
@@ -103,14 +113,28 @@ sequenceDiagram
   B->>J: Gọi lại → bị từ chối
 ```
 
+### Mô hình bảo mật
+
+| Lớp | Cơ chế |
+| --- | --- |
+| Biên mạng | Chỉ cổng API công bố cổng ra ngoài; mọi dịch vụ khác nằm trên mạng Docker nội bộ. |
+| Xác thực | Mọi request tới `/v1`, `/v2` được kiểm tra token OIDC ngay tại cổng (Nginx `auth_request`) trước khi tới Core. |
+| Phân quyền | Vai trò đọc/ghi, ứng dụng phải được đăng ký và phê duyệt; quyền được xác định từ token đã xác minh, không tin header do client gửi. |
+| Cô lập dữ liệu | Row-Level Security bắt buộc trong PostgreSQL theo tenant và theo ứng dụng sở hữu. |
+| Phân tách nhiệm vụ | Người yêu cầu và người phê duyệt phải khác nhau cho ứng dụng, năng lực, quyền và quy trình ghép. |
+| Tệp tải lên | ClamAV quét trước khi lưu; tệp nhiễm mã độc bị từ chối. |
+| Bí mật | OpenBao giữ khóa và mật khẩu vận hành; không có bí mật trong mã nguồn. |
+| Kiểm toán | Nhật ký được bảo vệ ở mức cơ sở dữ liệu, ứng dụng không thể sửa hay xóa; ghi kèm request-id. |
+| Container | Core chạy không quyền root, hệ thống tệp chỉ đọc, bỏ toàn bộ Linux capability. |
+
 ## Bắt đầu nhanh
 
 **Yêu cầu:** Git, Node.js 24, Docker Desktop (Linux engine) với Docker Compose ≥ 2.20. Khuyến nghị RAM 16 GB (dành ≥ 8 GB cho Docker).
 
 ```sh
-git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
-cd junctura
-npm run setup        # tạo .env với mật khẩu ngẫu nhiên (không commit)
+git clone https://github.com/vku2-open-source-2026/junctura-dxos.git
+cd junctura-dxos
+npm run setup        # tạo .env với mật khẩu ngẫu nhiên
 npm run local:up     # build và khởi động toàn bộ hệ thống
 npm run healthcheck  # kiểm tra các dịch vụ đã sẵn sàng
 ```
@@ -147,6 +171,37 @@ const same = await junctura.getRecord("students", record.id);
 
 Ứng dụng viết bằng ngôn ngữ nào cũng tích hợp được qua HTTP + JSON + OIDC; SDK chỉ là lựa chọn tiện lợi cho Node.js.
 
+### Lệnh thường dùng
+
+| Lệnh | Tác dụng |
+| --- | --- |
+| `npm run setup` | Tạo `.env` với mật khẩu ngẫu nhiên (chỉ chạy một lần) |
+| `npm run local:up` / `local:down` / `local:status` | Khởi động, dừng (giữ dữ liệu), xem trạng thái hệ thống |
+| `npm run healthcheck` · `npm run doctor` | Kiểm tra sẵn sàng · chẩn đoán lỗi cấu hình |
+| `npm run app:enroll -- <tên>` | Đăng ký và phê duyệt một ứng dụng mới |
+| `npm run backup` · `npm run restore -- <thư-mục> --yes` | Sao lưu · khôi phục toàn bộ dữ liệu |
+| `npm run console` | Chạy Console ở chế độ phát triển |
+| `npm test` · `npm run test:integration` | Kiểm thử đơn vị · kiểm thử tích hợp |
+
+## API chính
+
+Mọi API đi qua cổng `http://127.0.0.1:8080` và yêu cầu `Authorization: Bearer <token>` (trừ health và OIDC).
+
+| Nhóm | Endpoint | Mô tả |
+| --- | --- | --- |
+| Định danh | `GET /v1/identity` | Danh tính đã xác minh: subject, tenant, vai trò |
+| Dữ liệu | `GET·POST /v2/data/{collection}` · `GET·PATCH·DELETE /v2/data/{collection}/{id}` | Bản ghi JSON riêng của ứng dụng, cô lập bằng RLS |
+| Tệp | `POST /v2/objects` · `GET·PUT·DELETE /v2/objects/{id}` | Tệp nhị phân riêng của ứng dụng, quét mã độc khi tải lên |
+| Chia sẻ | `POST /v2/resource-shares` · `DELETE /v2/resource-shares/{id}` | Chia sẻ một bản ghi/tệp cho ứng dụng khác, có hạn dùng |
+| Quy trình | `GET /v1/workflows/definitions` · `POST /v1/workflows/executions` | Khởi chạy, theo dõi, hoàn thành, hủy quy trình BPMN |
+| Ứng dụng | `POST /v1/applications` · `POST /v1/approvals` | Đăng ký ứng dụng và phê duyệt độc lập |
+| Năng lực | `GET /v1/capabilities` · `POST /v1/capabilities/{id}/versions` | Công bố và khám phá năng lực có phiên bản |
+| Cấp quyền | `POST /v1/trust/grants` · `POST /v1/trust/grants/{id}/revoke` | Cấp, kích hoạt và thu hồi quyền giữa ứng dụng |
+| Thực thi | `POST /v1/capability-executions` · `POST /v1/compositions` | Gọi một năng lực hoặc chạy quy trình ghép nhiều năng lực |
+| Kiểm toán | `GET /v1/audit-events` | Tra cứu nhật ký kiểm toán trong tenant |
+
+Đặc tả đầy đủ: [Foundation OpenAPI](docs/contracts/foundation-api.openapi.json) (44 thao tác) và [Capability OpenAPI](docs/contracts/capability-api-v1.openapi.json).
+
 ## Công nghệ
 
 | Thành phần | Công nghệ |
@@ -176,18 +231,32 @@ Phiên bản chính xác và giấy phép của từng thành phần: [THIRD-PAR
 | [Đối chiếu đề thi OLP'26](docs/OLP_REQUIREMENTS.md) | Yêu cầu của đề và cách Junctura đáp ứng |
 | [Mục lục đầy đủ](docs/index.md) | Toàn bộ thiết kế và quyết định kiến trúc |
 
+## Cấu trúc thư mục
+
+```text
+src/            Junctura Core: xác thực, dữ liệu, tệp, quy trình, ứng dụng, năng lực
+sdk/node/       Node SDK cho ứng dụng Tầng 2
+console/        Junctura Console (React, Vite, TypeScript)
+infra/          Cấu hình Keycloak, Nginx, PostgreSQL (migration), SeaweedFS, Flowable, OpenBao
+scripts/        Cài đặt, chẩn đoán, đăng ký ứng dụng, sao lưu, đóng gói phát hành
+tests/          Kiểm thử đơn vị và hợp đồng HTTP
+integration/    Kiểm thử tích hợp với dịch vụ thật
+examples/       Ví dụ tích hợp qua HTTP và SDK
+docs/           Kiến trúc, API, vận hành, bảo mật, đặc tả OpenAPI
+```
+
 ## Kiểm thử
 
 GitHub Actions chạy ở mỗi lần push: kiểm tra giấy phép SPDX/REUSE, kiểm thử đơn vị, build và khởi động toàn bộ hệ thống, rồi kiểm thử tích hợp với dịch vụ thật — định danh, dữ liệu, tệp, quy trình, chia sẻ năng lực, kiểm toán và khôi phục dữ liệu.
 
 ```sh
 npm run check && npm test          # kiểm tra mã nguồn và kiểm thử đơn vị
-npm run test:integration           # kiểm thử tích hợp (cần hệ thống đang chạy)
+npm run test:integration           # kiểm thử tích hợp
 ```
 
 ## Đóng góp
 
-Mọi đóng góp đều được hoan nghênh. Báo lỗi và đề xuất tại [Issues](https://github.com/NHMNDaizoken/Rosetta/issues); trước khi gửi Pull Request, đọc [hướng dẫn phát triển](docs/DEVELOPING.md). Commit theo chuẩn Conventional Commits và không bao giờ commit tệp `.env` hay khóa bí mật. Lịch sử thay đổi: [CHANGELOG.md](CHANGELOG.md).
+Mọi đóng góp đều được hoan nghênh. Báo lỗi và đề xuất tại [Issues](https://github.com/vku2-open-source-2026/junctura-dxos/issues); trước khi gửi Pull Request, đọc [hướng dẫn phát triển](docs/DEVELOPING.md). Commit theo chuẩn Conventional Commits và không bao giờ commit tệp `.env` hay khóa bí mật. Lịch sử thay đổi: [CHANGELOG.md](CHANGELOG.md).
 
 ## Giấy phép
 

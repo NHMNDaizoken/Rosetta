@@ -221,8 +221,8 @@ correction. See [Registry audit](CAPABILITY_REGISTRY.md#audit).
 
 Verified source checkpoints:
 
-- A: `9cfe71488ed52c9378c203b9c435f96e3d732573` — [CI passed](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40726148042).
-- B: `09a614cf9defea659d8ca70cdf806e792b3885f3` — [CI passed](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40730650339).
+- A: `9cfe71488ed52c9378c203b9c435f96e3d732573` — [CI passed](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/40726148042).
+- B: `09a614cf9defea659d8ca70cdf806e792b3885f3` — [CI passed](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/40730650339).
 - Final C commit and matching CI outcome are reported in the implementation handoff;
   inspect the Actions run for the exact checked-out SHA rather than a branch badge.
 

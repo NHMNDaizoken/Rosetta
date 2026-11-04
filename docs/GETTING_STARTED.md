@@ -10,8 +10,8 @@ Ubuntu 24.04 is exercised by CI. Other host platforms are not verified here.
 Run these commands from the repository root in PowerShell or a shell:
 
 ```sh
-git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
-cd junctura
+git clone https://github.com/vku2-open-source-2026/junctura-dxos.git
+cd junctura-dxos
 npm run setup
 npm run doctor
 npm run local:up
