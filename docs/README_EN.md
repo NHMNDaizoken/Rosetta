@@ -16,8 +16,8 @@ A minimal server-side Node SDK is available in `sdk/node/`. There is no public d
 **Start here:** [What works today](PRODUCT.md) · [Quickstart](#quickstart) · [First API request](#core-api-usage) · [Developer onboarding](GETTING_STARTED.md) · [Extension guide](DEVELOPING.md) · [Architecture](#layer-1-and-layer-2) · [Roadmap](#development-roadmap)
 
 ```sh
-git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
-cd junctura
+git clone https://github.com/vku2-open-source-2026/junctura-dxos.git
+cd junctura-dxos
 npm run setup
 npm run local:up
 npm run healthcheck
@@ -150,8 +150,8 @@ The Core runtime has no npm dependencies, package installation or transpilation 
 ### Start the local platform
 
 ```sh
-git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
-cd junctura
+git clone https://github.com/vku2-open-source-2026/junctura-dxos.git
+cd junctura-dxos
 npm run setup
 docker compose config --quiet
 npm run local:up
@@ -256,7 +256,7 @@ Install the pinned development tools with `python -m pip install -r requirements
 
 The integration suite intentionally interrupts local services, restarts PostgreSQL and recreates containers. Use a development/test stack without application traffic. The recovery suite restores into its own network-isolated temporary PostgreSQL; it does not restore over project data. Run the audit suite last because it also restarts PostgreSQL. These checks do not establish coordinated recovery of identity, objects and workflow databases.
 
-[GitHub Actions](https://github.com/NHMNDaizoken/Rosetta/actions/workflows/ci.yml) runs source/license-header checks, native and pinned-container unit tests, a Compose build/start, health probes, integration tests, isolated restore and the audit-boundary suite. It stops its test stack afterwards and does not publish images or deploy. The source check verifies syntax and project license conventions; it is not a full license or vulnerability audit of container packages.
+[GitHub Actions](https://github.com/vku2-open-source-2026/junctura-dxos/actions/workflows/ci.yml) runs source/license-header checks, native and pinned-container unit tests, a Compose build/start, health probes, integration tests, isolated restore and the audit-boundary suite. It stops its test stack afterwards and does not publish images or deploy. The source check verifies syntax and project license conventions; it is not a full license or vulnerability audit of container packages.
 
 ## Repository structure
 
@@ -309,7 +309,7 @@ There are no promised dates or published release milestones in this roadmap. The
 
 Read [docs/DEVELOPING.md](DEVELOPING.md), [architecture boundaries](ARCHITECTURE.md) and the [development workflow](WORKFLOW.md) before changing code. Use the existing `main` branch and cohesive, tested Conventional Commits. Discuss new services, frameworks, breaking contracts and license changes before implementation. Keep domain logic in Layer 2 and add relevant tests and documentation.
 
-Use [GitHub Issues](https://github.com/NHMNDaizoken/Rosetta/issues) for public bugs and design discussions. Do not post credentials, private data or vulnerability exploit details there; arrange a private channel with the repository maintainer before disclosure. No dedicated security contact or response SLA is published. Do not commit `.env`, private AI-agent prompts/instructions, execution logs or local tool state. Inspect exclusions, indexed files and secret exposure before pushing; never force-push or deploy to production without approval.
+Use [GitHub Issues](https://github.com/vku2-open-source-2026/junctura-dxos/issues) for public bugs and design discussions. Do not post credentials, private data or vulnerability exploit details there; arrange a private channel with the repository maintainer before disclosure. No dedicated security contact or response SLA is published. Do not commit `.env`, private AI-agent prompts/instructions, execution logs or local tool state. Inspect exclusions, indexed files and secret exposure before pushing; never force-push or deploy to production without approval.
 
 Original Junctura source and documentation are licensed under [Apache License 2.0](../LICENSE), with attribution **Copyright 2026 Junctura Contributors**, subject to contributors' actual rights and agreement. Preserve upstream notices. See [NOTICE](../NOTICE), [THIRD-PARTY.md](../THIRD-PARTY.md) and the [licensing policy](LICENSING.md). `private: true` in package metadata prevents accidental npm publication; it does not change the project's open-source license.
 
