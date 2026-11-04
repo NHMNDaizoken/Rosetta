@@ -7,7 +7,7 @@
 **Nền tảng lõi nguồn mở để các ứng dụng chia sẻ dữ liệu và năng lực với nhau — có cấp quyền, thu hồi và kiểm chứng.**
 
 [![Foundation checks](https://github.com/vku2-open-source-2026/junctura-dxos/actions/workflows/ci.yml/badge.svg)](https://github.com/vku2-open-source-2026/junctura-dxos/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/badge/release-v0.1.0-176B80.svg)](CHANGELOG.md)
+[![Release](https://img.shields.io/badge/release-v0.1.0-176B80.svg)](https://github.com/vku2-open-source-2026/junctura-dxos/releases)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![REUSE compliant](https://img.shields.io/badge/REUSE-compliant-18877A.svg)](REUSE.toml)
 
@@ -139,6 +139,8 @@ npm run setup        # tạo .env với mật khẩu ngẫu nhiên
 npm run local:up     # build và khởi động toàn bộ hệ thống
 npm run healthcheck  # kiểm tra các dịch vụ đã sẵn sàng
 ```
+
+Hoặc dùng bản phát hành: tải `junctura-0.1.0.tar.gz` từ [Releases](https://github.com/vku2-open-source-2026/junctura-dxos/releases), kiểm tra bằng `sha256sum -c junctura-0.1.0.tar.gz.sha256`, giải nén (`tar -xzf junctura-0.1.0.tar.gz`), vào thư mục `junctura-0.1.0` rồi chạy ba lệnh trên từ `npm run setup`.
 
 | Địa chỉ | Dịch vụ |
 | --- | --- |

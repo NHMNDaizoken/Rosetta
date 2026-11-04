@@ -23,9 +23,12 @@ npm run release:package
 npm run release:verify
 ```
 
-Outputs under ignored `dist/releases/` are a TAR, SHA-256 sidecar and source manifest
-with exact Git commit and file list. The same commit produces identical TAR bytes
-across repeated builds: Git owns path ordering, timestamps, modes and contents.
+Outputs under ignored `dist/releases/` are a TAR, the published `.tar.gz`, SHA-256
+sidecars for both and a source manifest with exact Git commit, both checksums and the
+file list. The same commit produces identical TAR bytes across repeated builds: Git
+owns path ordering, timestamps, modes and contents. The `.tar.gz` is written by Node
+without a file name or timestamp, so it is also reproducible with the same Node
+release; `release:verify` checks that it decompresses to exactly the verified TAR.
 Tracked modifications cause packaging to refuse. Untracked files are never included;
 an explicit source allowlist rejects secrets and generated/private paths. Treat the
 allowlist as a control against accidental inclusion, not a general secret detector.
@@ -135,12 +138,13 @@ The owner publishes a final version from a committed `main` checkout after CI pa
 ```sh
 npm run release:package
 npm run release:verify
-gzip -9 -k -n dist/releases/junctura-0.1.0.tar
 git tag -a v0.1.0 -m "Junctura v0.1.0 - Layer 1 Foundation and Capability Services"
 git push origin v0.1.0
 ```
 
 On GitHub, create a release from tag `v0.1.0` and attach `junctura-0.1.0.tar.gz`,
-`junctura-0.1.0.tar.sha256` and `junctura-0.1.0.manifest.json`. List unresolved
+`junctura-0.1.0.tar.gz.sha256` and `junctura-0.1.0.manifest.json`. Users verify the
+download with `sha256sum -c junctura-0.1.0.tar.gz.sha256` (or
+`Get-FileHash junctura-0.1.0.tar.gz` on Windows) before extracting. List unresolved
 upstream image advisories from [SECURITY_REVIEW.md](SECURITY_REVIEW.md) under
 **Known issues**; they are tracked, not hidden.
