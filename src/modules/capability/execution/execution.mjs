@@ -16,10 +16,27 @@ const sameIdentity = (a, b) => ["tenantId", "issuer", "subject", "clientId"].eve
 export const jsonDigest = value => `sha256:${createHash("sha256").update(canonicalize(value)).digest("hex")}`;
 export const ticketDigest = ticket => `sha256:${createHash("sha256").update(ticket).digest("hex")}`;
 
+// Optional invocation context: why the consumer calls (purpose) and whose data the
+// call concerns (dataSubject, the subject's identity-provider subject). Both are
+// declared by the consumer, sealed into the audit chain and shown to the subject.
+export const PURPOSE = /^[a-z][a-z0-9_]{1,62}$/;
+export function validateExecutionContext(context) {
+  if (!context || typeof context !== "object" || Array.isArray(context) ||
+    Object.keys(context).some(key => key !== "purpose" && key !== "dataSubject") ||
+    typeof context.purpose !== "string" || !PURPOSE.test(context.purpose) ||
+    (Object.hasOwn(context, "dataSubject") && (typeof context.dataSubject !== "string" || !context.dataSubject.isWellFormed() ||
+      context.dataSubject.length < 1 || context.dataSubject.length > 255 || /[\u0000-\u001f\u007f]/u.test(context.dataSubject)))) {
+    throw new HttpError(422, "invalid_execution_context");
+  }
+  return context;
+}
+
 export function validateExecutionCreate(body) {
-  if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).sort().join(",") !== "input,target") {
+  const keys = body && typeof body === "object" && !Array.isArray(body) ? Object.keys(body).sort().join(",") : "";
+  if (keys !== "input,target" && keys !== "context,input,target") {
     throw new HttpError(400, "invalid_execution_request");
   }
+  if (keys === "context,input,target") validateExecutionContext(body.context);
   const target = body.target;
   if (!target || typeof target !== "object" || Array.isArray(target) || Object.keys(target).sort().join(",") !== "capability,kind" || target.kind !== "capability") {
     throw new HttpError(422, "single_capability_required");
@@ -118,10 +135,12 @@ export async function reserveExecution(config, identity, request, body, leases, 
   resolved ??= await resolveExecution(config, identity, body);
   const executionId = randomUUID();
   const inputDigest = jsonDigest(body.input);
-  const requestDigest = jsonDigest({ target: body.target, inputDigest });
+  // Requests without a context keep their original digest; a context is bound into it.
+  const requestDigest = jsonDigest({ target: body.target, inputDigest, ...(body.context ? { context: body.context } : {}) });
   const deadline = Math.min(Date.now() + resolved.manifest.timeoutMs, Date.parse(resolved.authorityExpiresAt));
   let result = await executionCommand(config, identity, "reserve", { executionId, idempotencyKey: key,
-    target: body.target.capability, input: body.input, inputDigest, requestDigest, deadlineAt: new Date(deadline).toISOString() });
+    target: body.target.capability, input: body.input, inputDigest, requestDigest, deadlineAt: new Date(deadline).toISOString(),
+    ...(body.context ? { context: body.context } : {}) });
   if (["accepted", "auth_required"].includes(result.value.state) && !leases.has(result.value.executionId)) {
     const { value: row } = await executionCommand(config, identity, "internal_get", { executionId: result.value.executionId });
     if (!leases.has(result.value.executionId)) {

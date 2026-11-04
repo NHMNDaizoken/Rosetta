@@ -5,6 +5,7 @@ export type CapabilityReference = { capabilityId: string; version: string; manif
 export type ExecutionTarget = { kind: 'capability'; capability: CapabilityReference }
   | { kind: 'composition'; compositionId: string; version: string; compositionDigest: string };
 export type Execution = { executionId: string; state: 'accepted' | 'running' | 'auth_required' | 'succeeded' | 'failed' | 'timed_out' | 'outcome_unknown' | 'cancelled'; output?: Json; [key: string]: unknown };
+export type ExecutionContext = { purpose: string; dataSubject?: string };
 export type RequestOptions = { method?: string; json?: Json; body?: BodyInit; contentType?: string; ifMatch?: string; idempotencyKey?: string; signal?: AbortSignal };
 export class JuncturaError extends Error { status: number; code: string; requestId?: string; }
 export function createJuncturaClient(options: { baseUrl: string; clientId: string; clientSecret: string; timeoutMs?: number; fetcher?: typeof fetch }): Readonly<{
@@ -17,7 +18,7 @@ export function createJuncturaClient(options: { baseUrl: string; clientId: strin
   workflowDefinitions(): Promise<unknown>;
   startWorkflow(definitionId: string, input: Json, idempotencyKey?: string): Promise<unknown>;
   discover(query?: { limit?: number; cursor?: string }): Promise<unknown>;
-  execute(target: ExecutionTarget, input: Json, idempotencyKey?: string): Promise<Execution>;
+  execute(target: ExecutionTarget, input: Json, idempotencyKey?: string, context?: ExecutionContext): Promise<Execution>;
   execution(id: string): Promise<Execution>;
   waitForExecution(id: string, options?: { timeoutMs?: number; intervalMs?: number; signal?: AbortSignal }): Promise<Execution>;
 }>;

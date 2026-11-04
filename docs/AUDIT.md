@@ -155,6 +155,16 @@ The helper creates a local `junctura-demo-auditor-<tenant>` identity with only
 `audit.read` (run `npm run app:enroll` first so the demo management client exists).
 It is for development stacks only.
 
+### Data subject access log
+
+Capability calls that declare a context (see
+[CAPABILITY_EXECUTION](CAPABILITY_EXECUTION.md#purpose-and-data-subject)) add an
+`execution.subject_accessed` event to the chain with the purpose as `reason_code` and a
+SHA-256 of the data subject as `reason`. The subject-to-execution binding lives in
+`execution_private.execution_contexts` (forced tenant RLS, owner-only). People read
+their own entries with `GET /v1/me/data-access`; tampering with the sealed purpose is
+detected by the chain verification.
+
 ## Failure, retention and rollback
 
 - Audit append failure rolls back the enclosing authority mutation. Callers must

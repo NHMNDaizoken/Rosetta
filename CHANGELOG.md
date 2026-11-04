@@ -16,6 +16,11 @@ All notable changes to Junctura are recorded here. Versions follow
 - `npm run provider:pki -- <name>...`: dependency-free local provider CA and server
   certificates (ECDSA P-256) in the Git-ignored `.junctura/pki`.
 - TLS verification failures such as an unknown issuer are reported as `tls_error`.
+- **Purpose-bound calls and "who accessed my data"** (migration 020): C4A requests may
+  carry `context: { purpose, dataSubject }`, bound into the idempotent request, sealed
+  into the audit chain (`execution.subject_accessed`, subject only as SHA-256) and passed
+  to the provider on redemption. `GET /v1/me/data-access` lists, for the signed-in person
+  only, the calls that named them. The SDK `execute()` accepts the context.
 
 ## 0.1.0 — Layer 1 release (2026-11-04)
 

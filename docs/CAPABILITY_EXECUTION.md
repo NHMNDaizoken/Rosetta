@@ -47,6 +47,41 @@ Creation and output use strict UTF-8/duplicate-key parsing and a 64 KiB wire bou
 The provider receives `{invocationId, capability, input}` and must redeem before
 executing; success requires HTTP 200 and exactly `{output: …}` matching the manifest.
 
+## Purpose and data subject
+
+A C4A request may carry an optional context:
+
+```json
+{ "target": { "kind": "capability", "capability": { "...": "..." } },
+  "input": { "patientId": "..." },
+  "context": { "purpose": "treatment", "dataSubject": "<identity-provider subject of the person>" } }
+```
+
+- `purpose` (required in a context): `^[a-z][a-z0-9_]{1,62}$`, for example `treatment`,
+  `referral`, `insurance_claim`. `dataSubject` (optional): 1–255 characters, no
+  control characters; the person's identity-provider subject, so the person can find
+  the call later.
+- The context is bound into the idempotent request digest (requests without a context
+  keep their previous digest); a replay with a different or missing context is an
+  `idempotency_conflict`.
+- On reservation the context is stored next to the execution and an
+  `execution.subject_accessed` audit event is sealed with `reason_code = purpose` and
+  `reason = data_subject_sha256:<hex>`; the subject itself is not written to the audit
+  log.
+- On ticket redemption the provider receives `purpose` and `dataSubject` in the caller
+  context, so it can enforce its own purpose rules and return data for that person only.
+- `GET /v1/me/data-access` lists, for the signed-in person only, the newest 200 calls
+  that named them: when, purpose, consumer and provider applications, capability and
+  state. It never returns inputs, outputs, tickets or operator identities.
+
+The context is declared by the consumer application; Junctura records and exposes it
+but cannot prove a consumer named the right person. Providers should check that the
+input concerns the declared data subject. C4B compositions do not accept a context yet.
+
+Migration 020 keeps the applied C4A authority byte-identical: it renames
+`core.execution_command` to `execution_private.execution_command_base` and installs a
+thin wrapper with the same name and grant that validates and records the context.
+
 ## Internal providers
 
 Layer 2 provider services usually run on the same host as the platform, on private

@@ -112,6 +112,14 @@ Migration 019 only adds the read-only `core.trust_graph(jsonb)` function (no tab
 column changes) and grants it to `junctura_trust_api`. See
 [CAPABILITY_DIRECT_TRUST](CAPABILITY_DIRECT_TRUST.md#trust-graph-019).
 
+## Purpose and subject access (020)
+
+Migration 020 adds `execution_private.execution_contexts`, the
+`junctura_subject_api` role and `core.subject_access(jsonb)`. It renames the applied
+`core.execution_command` to `execution_private.execution_command_base` (body unchanged)
+and installs a wrapper under the original name and grant. See
+[CAPABILITY_EXECUTION](CAPABILITY_EXECUTION.md#purpose-and-data-subject).
+
 ## C4B forward corrections
 
 Migrations 013-017 are additive corrections to 012, preserving existing records,
