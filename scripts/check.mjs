@@ -39,6 +39,7 @@ if (tracked.status === 0) {
 checkFile("Dockerfile");
 checkFile("console/Dockerfile");
 checkFile("compose.yaml");
+checkFile("compose.providers.yaml");
 assert.equal(JSON.parse(readFileSync("package.json", "utf8")).license, "Apache-2.0");
 assert.equal(JSON.parse(readFileSync("console/package.json", "utf8")).license, "Apache-2.0");
 assert.equal(JSON.parse(readFileSync("sdk/node/package.json", "utf8")).license, "Apache-2.0");

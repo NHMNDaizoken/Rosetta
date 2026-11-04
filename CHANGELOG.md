@@ -6,6 +6,17 @@
 All notable changes to Junctura are recorded here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+- **Internal capability providers:** C4A/C4B can call Layer 2 services that run next
+  to the platform. Exact `https://*.internal` origins only, private (RFC 1918 / ULA)
+  addresses only, TLS verified solely against the operator's provider CA; all other
+  invocation controls unchanged. Configured with `C4A_INTERNAL_PROVIDER_ORIGINS`,
+  `C4B_INTERNAL_PROVIDER_ORIGINS` and `PROVIDER_CA_FILE`, plus `compose.providers.yaml`.
+- `npm run provider:pki -- <name>...`: dependency-free local provider CA and server
+  certificates (ECDSA P-256) in the Git-ignored `.junctura/pki`.
+- TLS verification failures such as an unknown issuer are reported as `tls_error`.
+
 ## 0.1.0 — Layer 1 release (2026-11-04)
 
 First public release of the Junctura DX-OS Layer 1 platform for OLP'26: a headless

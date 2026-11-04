@@ -31,7 +31,7 @@ export async function readExecutionJson(request) {
 // these maps hold correlation and in-flight start promises, not a second queue.
 export function createCapabilityRuntime(config, networkOptions, { workerEnabled = true } = {}) {
   const network = createProviderNetwork(networkOptions);
-  const origins = new Set([...(networkOptions.origins ?? []), ...(networkOptions.testOrigins ?? [])]);
+  const origins = new Set([...(networkOptions.origins ?? []), ...(networkOptions.testOrigins ?? []), ...(networkOptions.internalOrigins ?? [])]);
   if (!origins.size) throw new Error("Capability execution requires approved provider origins");
   const template = readFileSync(new URL("../../../../infra/flowable/capability-single.bpmn20.xml", import.meta.url));
   const templateDigest = sha(template);

@@ -127,6 +127,8 @@ console/public/THIRD-PARTY-NOTICES.txt
 # Logs, runtime state and local databases
 # Local backups contain private data and identities (npm run backup).
 backups/
+# Local provider CA and keys (npm run provider:pki).
+.junctura/
 *.log
 logs/
 *.pid
