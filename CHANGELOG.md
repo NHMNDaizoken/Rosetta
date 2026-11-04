@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Changelog
 
 All notable changes to Junctura are recorded here. Versions follow
@@ -45,6 +48,9 @@ expiring, revocable and audited permission.
 - Packaging accepts final semantic versions and writes a reproducible `.tar.gz` with
   its own SHA-256 sidecar; `release:verify` checks both. GitHub Release steps documented.
 - Issue templates for bugs and tasks.
+- Every tracked file that can hold a comment now carries an inline SPDX header
+  (Markdown, HTML, SVG, TypeScript config, ignore files); `npm run check` enforces it and
+  REUSE.toml covers only comment-hostile files. README explains the license and its terms.
 
 ### Project
 - **Renamed from Rosetta to Junctura DX-OS** (Latin for "joint") before the first

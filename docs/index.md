@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Junctura architecture and codebase context
 
 Current entry points: [local onboarding and SDK](GETTING_STARTED.md),

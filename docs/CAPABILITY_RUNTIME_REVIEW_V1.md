@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Capability runtime review and Application Registration v1
 
 Current status: Application Registration, C1 Registry and bounded C2 direct grant

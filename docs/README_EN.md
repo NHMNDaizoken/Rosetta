@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Junctura DX-OS — English reference
 
 > Vietnamese overview: [README](../README.md). This page keeps the full English reference.

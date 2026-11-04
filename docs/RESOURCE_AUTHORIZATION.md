@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Application-scoped records and objects
 
 This milestone adds a v2 resource contract to the existing Core process,

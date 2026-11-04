@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Capability execution — implementation status
 
 C4A is the bounded, same-tenant, direct backend-subject execution path: one

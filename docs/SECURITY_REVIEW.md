@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Layer 1 stabilization review
 
 Started 2026-11-01 from `2cdcb6a6f9d80547e9b6effb585489f703158146`.
