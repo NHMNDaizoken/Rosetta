@@ -97,11 +97,11 @@ are never included in the production image.
 
 ## Prerequisites and infrastructure risks
 
-- **[Issue #1](https://github.com/NHMNDaizoken/Rosetta/issues/1) — closed as fixed.**
+- **[Issue #1](https://github.com/vku2-open-source-2026/junctura-dxos/issues/1) — closed as fixed.**
   The runner now verifies exact checksums, installed-version inventory, concurrent
   serialization and authority schema fingerprints through migrations 001–017.
   See [migration operations](MIGRATIONS.md). Applied migration bytes remain immutable.
-- **[Issue #2](https://github.com/NHMNDaizoken/Rosetta/issues/2) — C1
+- **[Issue #2](https://github.com/vku2-open-source-2026/junctura-dxos/issues/2) — C1
   validation-report audit gap — closed as fixed.** Migration 010 corrects the underlying C1 function
   while preserving the later approval/discovery wrappers. Report updates and
   their audit append now share a transaction; isolated failure tests roll both
@@ -215,9 +215,9 @@ rejection of the former worker and zero-retry dead-letter behavior.
 
 Starting source: `f2f78425161d072094190cce0fa01338485f4563`.
 Increment A is `62e221ae453f05ddb3bdbebe4c1ceff4e59e7ba4`
-([successful Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40814292115));
+([successful Actions](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/40814292115));
 Increment B is `12f8a0eb9d329d6c856f17d97e6ae953ee5849e9`
-([successful Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40819000389)).
+([successful Actions](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/40819000389)).
 The final Increment C SHA and exact-SHA Actions result are reported in the handoff.
 GitHub verification uses Git/GitHub REST; no GitHub MCP connector is installed.
 

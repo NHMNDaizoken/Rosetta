@@ -114,8 +114,8 @@ const COPY = {
   },
 };
 
-const START_COMMANDS = `git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
-cd junctura
+const START_COMMANDS = `git clone https://github.com/vku2-open-source-2026/junctura-dxos.git
+cd junctura-dxos
 npm run setup
 npm run doctor
 npm run local:up
