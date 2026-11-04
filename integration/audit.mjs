@@ -72,6 +72,7 @@ after(async () => {
       DROP FUNCTION IF EXISTS app_private.${failureTrigger}();`);
   } catch { /* Keep the original failure visible. */ }
   await sql(`DELETE FROM app_private.audit WHERE tenant_id IN (${q(tenantA)},${q(tenantB)});
+    DELETE FROM app_private.audit_chain_heads WHERE tenant_id IN (${q(tenantA)},${q(tenantB)});
     DELETE FROM app_private.principals WHERE tenant_id IN (${q(tenantA)},${q(tenantB)});
     DELETE FROM app_private.applications WHERE tenant_id=${q(tenantA)} AND app_id=${q(appId)};`);
 });
@@ -281,4 +282,54 @@ test("audit history and the read boundary survive a database restart", async () 
   const acl = await sql(`SELECT has_table_privilege('junctura_app_api','app_private.audit','INSERT'),
     has_function_privilege('junctura_audit_api','core.audit_query(jsonb)','EXECUTE');`);
   assert.equal(lastLine(acl), "f|t");
+});
+
+const verifyChain = async (tenant, actor) => JSON.parse(lastLine(await sql(asRole("junctura_audit_api", claims(tenant, actor),
+  "SELECT core.audit_verify('{}'::jsonb);"))));
+
+test("the hash chain seals events and exposes modification, deletion and truncation", async () => {
+  for (const reason of ["chain one", "chain two", "chain three"]) {
+    await append(tenantB, readerB, "application.chain_fixture", "application", randomUUID(), 1, "success", null, reason);
+  }
+  const sealed = await verifyChain(tenantB, readerB);
+  assert.equal(sealed.status, 200);
+  assert.equal(sealed.value.verified, true);
+  assert.ok(sealed.value.entries >= 3 && sealed.value.newlySealed === sealed.value.entries);
+  assert.match(sealed.value.headHash, /^sha256:[0-9a-f]{64}$/);
+  const repeat = await verifyChain(tenantB, readerB);
+  assert.deepEqual([repeat.value.verified, repeat.value.entries, repeat.value.newlySealed, repeat.value.headHash],
+    [true, sealed.value.entries, 0, sealed.value.headHash]);
+
+  const second = lastLine(await sql(`SELECT event_id||'|'||coalesce(reason,'') FROM app_private.audit WHERE tenant_id=${q(tenantB)} AND chain_seq=2;`));
+  const [eventId, original] = second.split("|");
+  await sql(`UPDATE app_private.audit SET reason='edited after sealing' WHERE tenant_id=${q(tenantB)} AND event_id=${q(eventId)};`);
+  const tampered = await verifyChain(tenantB, readerB);
+  assert.equal(tampered.value.verified, false);
+  assert.deepEqual(tampered.value.firstBreak, { chainSeq: 2, eventId, reason: "content_modified" });
+  assert.equal(tampered.value.headHash, null);
+  await append(tenantB, readerB, "application.chain_fixture", "application", randomUUID());
+  assert.equal((await verifyChain(tenantB, readerB)).value.newlySealed, 0, "nothing is sealed on top of a broken chain");
+  await sql(`UPDATE app_private.audit SET reason=${q(original)} WHERE tenant_id=${q(tenantB)} AND event_id=${q(eventId)};`);
+  const restored = await verifyChain(tenantB, readerB);
+  assert.equal(restored.value.verified, true);
+  assert.equal(restored.value.newlySealed, 1);
+
+  assert.equal((await verifyChain(tenantA, readerA)).value.verified, true, "tenant chains are independent");
+  const foreign = await verifyChain(tenantA, readerB);
+  assert.equal(foreign.status, 403, "a reader cannot verify another tenant");
+  assert.equal((await verifyChain(tenantB, stranger)).status, 403);
+
+  const last = lastLine(await sql(`SELECT max(chain_seq) FROM app_private.audit WHERE tenant_id=${q(tenantB)};`));
+  await sql(`DELETE FROM app_private.audit WHERE tenant_id=${q(tenantB)} AND chain_seq=${Number(last)};`);
+  const truncated = await verifyChain(tenantB, readerB);
+  assert.equal(truncated.value.verified, false);
+  assert.equal(truncated.value.firstBreak.reason, "missing_entry");
+  await sql(`DELETE FROM app_private.audit WHERE tenant_id=${q(tenantB)} AND chain_seq=2;`);
+  const gap = await verifyChain(tenantB, readerB);
+  assert.deepEqual([gap.value.verified, gap.value.firstBreak.chainSeq, gap.value.firstBreak.reason], [false, 2, "missing_entry"]);
+  const acl = await sql(`SELECT has_function_privilege('junctura_api','core.audit_verify(jsonb)','EXECUTE'),
+    has_function_privilege('junctura_app_api','core.audit_verify(jsonb)','EXECUTE'),
+    has_function_privilege('junctura_audit_api','core.audit_verify(jsonb)','EXECUTE'),
+    has_table_privilege('junctura_audit_api','app_private.audit_chain_heads','SELECT');`);
+  assert.equal(lastLine(acl), "f|f|t|f");
 });

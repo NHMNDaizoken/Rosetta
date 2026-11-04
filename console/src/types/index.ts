@@ -155,6 +155,22 @@ export interface WorkflowExecution {
   activeTaskName?: string;
 }
 
+export interface AuditChainBreak {
+  chainSeq: number;
+  eventId: string | null;
+  reason: "content_modified" | "chain_link_mismatch" | "missing_entry" | "head_mismatch";
+}
+
+export interface AuditVerification {
+  verified: boolean;
+  entries: number;
+  newlySealed: number;
+  headHash: string | null;
+  firstBreak: AuditChainBreak | null;
+  verifiedAt: string;
+  preview?: boolean;
+}
+
 export interface AuditSessionEvent {
   id: string;
   timestamp: string;
