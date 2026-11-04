@@ -21,6 +21,7 @@
     "doctor": "node scripts/doctor.mjs",
     "app:enroll": "node --env-file=.env scripts/enroll-app.mjs",
     "audit:demo": "node --env-file=.env scripts/audit-demo.mjs",
+    "trust:demo": "node --env-file=.env scripts/trust-demo.mjs",
     "backup": "node scripts/backup.mjs backup",
     "restore": "node scripts/backup.mjs restore",
     "local:up": "docker compose --profile console up --build --detach --wait --wait-timeout 900",

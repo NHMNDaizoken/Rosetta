@@ -103,6 +103,16 @@ approval records are not included. The revision lets the Console revoke with the
 exact `If-Match: "grant-<id>-<revision>"`; revocation still goes through the
 unchanged `POST /v1/trust/grants/{grantId}/revoke` and its audit event.
 
+### Local demo
+
+On a development stack, `npm run trust:demo` enrolls four demo applications
+(`app-daotao`, `app-thuvien`, `app-ktx`, `app-taichinh`), publishes three capabilities
+and creates active, expiring-soon, pending and revoked grants, all through the public
+API with the demo owner proposing and the independent demo approver approving.
+`npm run trust:demo -- token` prints a short-lived approver token: in the Console set
+LIVE mode, paste the token and open *Capability sharing*. The demo identities and
+`.env.app.*.local` files are local only and must never be used in production.
+
 ## Internal eligibility and consistency
 
 `evaluateCapabilityEligibility(request, config, reference)` in `src/modules/capability/trust/trust.mjs`
