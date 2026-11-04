@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Direct capability trust (C2)
 
 Status (2026-10-29): bounded C2 direct grants, authorized discovery and the live

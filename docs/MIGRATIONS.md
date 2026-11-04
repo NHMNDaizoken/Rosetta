@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Database migrations and schema integrity
 
 The migration runner is `infra/postgres/migrate.sh`. Compose runs it as the

@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Capability v1 acceptance and negative cases
 
 Implementation update (2026-11-01): C1 Registry, C2 direct Trust, the bounded offline C3 resolver, protected Audit, opt-in C4A guarded invocation and opt-in C4B bounded composition are implemented. Both execution paths are disabled by default. [C4B implementation and recovery limits](CAPABILITY_COMPOSITION.md) record real two-provider HTTP/OIDC/PostgreSQL/Flowable verification. Human delegation, general side effects, automatic retries, HA, cancellation and C4B resume remain unsupported.

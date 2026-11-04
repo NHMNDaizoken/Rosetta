@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # OLP PMNM 2026 — Competition Compliance
 
 The [consolidated requirement matrix](architecture/OLP_REQUIREMENT_TRACEABILITY.md)

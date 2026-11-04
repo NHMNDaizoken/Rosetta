@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Implementation dependencies and feasibility
 
 > Reviewed: 2026-10-28 | Branch: main | Audit baseline: `360a7dd741442a2e3dbfc0f10d45a1e387d3b697`

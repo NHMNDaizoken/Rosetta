@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Junctura Contributors
+# SPDX-License-Identifier: Apache-2.0
 # Junctura DX-OS — repository hygiene
 # Keep source, AGENTS.md, documentation, LICENSE, lockfiles,
 # migration scripts, tests and reproducible deployment examples tracked.

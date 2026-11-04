@@ -28,6 +28,14 @@ function checkFile(file) {
 for (const root of ["src", "scripts", "tests", "integration", "examples", "sdk", "infra", ".github", "console/scripts", "console/nginx"]) {
   if (existsSync(root)) check(root);
 }
+// Every tracked file that can hold a comment carries its own notice (contest rule:
+// the license is stated in each source file). Comment-hostile files are in REUSE.toml.
+const tracked = spawnSync("git", ["ls-files", "-z"], { encoding: "utf8" });
+if (tracked.status === 0) {
+  for (const file of tracked.stdout.split("\0").filter(Boolean)) {
+    if (/\.(ts|tsx|css|js|md|html|svg)$/.test(file) || ["console/tsconfig.json", "console/tsconfig.node.json", ".gitignore", ".gitattributes", ".dockerignore"].includes(file)) checkFile(file);
+  }
+}
 checkFile("Dockerfile");
 checkFile("console/Dockerfile");
 checkFile("compose.yaml");

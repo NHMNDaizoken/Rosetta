@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Start Junctura locally
 
 This is the application developer's entry point. You need Git, Node 24 and Docker

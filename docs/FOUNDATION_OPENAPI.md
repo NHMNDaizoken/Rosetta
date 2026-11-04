@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Implemented Foundation OpenAPI
 
 [foundation-api.openapi.json](contracts/foundation-api.openapi.json) is the

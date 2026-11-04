@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 <div align="center">
 
 <img src="console/public/favicon.svg" alt="Junctura" width="88" height="88">
@@ -274,4 +277,10 @@ Mọi đóng góp đều được hoan nghênh. Báo lỗi và đề xuất tạ
 
 ## Giấy phép
 
-Phát hành theo [Apache License 2.0](LICENSE) — Copyright 2026 Junctura Contributors. Các thành phần bên thứ ba giữ giấy phép riêng; xem [NOTICE](NOTICE) và [THIRD-PARTY.md](THIRD-PARTY.md).
+Junctura là phần mềm tự do, phát hành theo [Apache License 2.0](LICENSE), một giấy phép nguồn mở được OSI phê chuẩn — Copyright 2026 Junctura Contributors. Bạn được dùng, sửa đổi và phân phối lại (kể cả cho mục đích thương mại), miễn là giữ lại thông báo bản quyền và giấy phép, ghi rõ các thay đổi; giấy phép cũng cấp quyền sử dụng bằng sáng chế liên quan và không kèm bảo hành.
+
+<!-- REUSE-IgnoreStart -->
+- Mỗi tệp mã nguồn đều ghi giấy phép bằng tiêu đề [SPDX](https://spdx.dev/) (`SPDX-License-Identifier: Apache-2.0`); các tệp không chứa được chú thích (JSON, dữ liệu) được khai báo trong [REUSE.toml](REUSE.toml). Dự án tuân thủ chuẩn [REUSE 3.3](https://reuse.software/), kiểm tra bằng `reuse lint`.
+<!-- REUSE-IgnoreEnd -->
+- Toàn văn giấy phép: [LICENSE](LICENSE) · thông báo bản quyền: [NOTICE](NOTICE).
+- Thành phần bên thứ ba giữ giấy phép riêng, đều là giấy phép nguồn mở: các dịch vụ (Keycloak, PostgreSQL, PostgREST, Nginx, SeaweedFS, ClamAV, Flowable, OpenBao) chạy như chương trình độc lập trong container chính thức, không chép hay sửa mã nguồn của chúng; thư viện đóng gói vào Console chỉ dùng MIT/ISC. Danh sách, phiên bản và nghĩa vụ tại [THIRD-PARTY.md](THIRD-PARTY.md).

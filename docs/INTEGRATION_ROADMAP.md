@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Five-Core integration roadmap
 
 The current Foundation acceptance history below remains useful. New platform work

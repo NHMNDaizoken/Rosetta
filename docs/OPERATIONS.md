@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Local deployment and recovery
 
 This Compose stack is a single-host Layer 1 development/test environment. Only
