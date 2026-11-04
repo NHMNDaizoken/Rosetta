@@ -27,6 +27,23 @@ let c4aFixture, c4aProvider, c4aConsumer, c4aReference, c4aGrant;
 const authority = createAuthorityFixture({ base, prefix, sql, q, api, clientIds, users });
 const { operatorToken, admin, login, human } = authority;
 
+// A database restart recreates the Data and Core connection pools, and each
+// authority path (Trust, Registry discovery) reconnects independently. Wait until
+// the consumer's discovery path answers too, so the next test does not race a
+// pool that is still reconnecting. No assertion is relaxed: it must reach 200.
+async function awaitDiscoveryRecovery(timeoutMs = 30000) {
+  const deadline = Date.now() + timeoutMs;
+  let status;
+  do {
+    const response = await api("/v1/capabilities", consumer);
+    status = response.status;
+    await response.body?.cancel();
+    if (status === 200) return;
+    await new Promise(resolve => setTimeout(resolve, 500));
+  } while (Date.now() < deadline);
+  assert.equal(status, 200, "capability discovery recovers after the database restart");
+}
+
 async function api(path, who, body, headers = {}, method = body === undefined ? "GET" : "POST") {
   const response = await fetch(base + path, { method, headers: { ...(who ? { Authorization: `Bearer ${who.token ?? who}` } : {}), ...(body === undefined ? {} : { "Content-Type": "application/json" }), ...headers }, body: body === undefined ? undefined : typeof body === "string" ? body : JSON.stringify(body), signal: AbortSignal.timeout(15000) });
   if (response.ok && (path.startsWith("/v1/trust/grants") || path.startsWith("/v1/approvals"))) {
@@ -433,6 +450,7 @@ test("pending migrations and real restart preserve Trust authority, ACLs and ter
     await new Promise(resolve => setTimeout(resolve, 500));
   } while (Date.now() < deadline);
   assert.equal(read.status, 200); assert.equal((await read.json()).state, "revoked");
+  await awaitDiscoveryRecovery();
   assert.equal((await activate(g, approvalId)).status, 409);
   const consumed = await api(`/v1/approvals/${approvalId}`, approver);
   assert.equal(consumed.status, 200); assert.equal((await consumed.json()).state, "consumed");
@@ -551,6 +569,7 @@ test("internal eligibility fails closed during authority outage and rechecks aft
   await run("compose", "up", "--detach", "--no-deps", "--force-recreate", "--wait", "data", "core");
   let decision; const deadline = Date.now() + 30000;
   do { decision = await eligible(v); if (decision.allowed) break; await new Promise(resolve => setTimeout(resolve, 500)); } while (Date.now() < deadline);
+  await awaitDiscoveryRecovery();
   assert.equal(decision.allowed, true); assert.equal((await eligible(visibility.invoke.v)).allowed, true);
   assert.equal((await eligible(visibility.expired.v)).allowed, false); assert.equal((await eligible(visibility.discover.v, "discover")).allowed, false);
   const acl = await sql("SELECT has_function_privilege('junctura_trust_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('junctura_capability_api','core.trust_eligibility(jsonb)','EXECUTE'),has_function_privilege('junctura_api','core.trust_eligibility(jsonb)','EXECUTE');");
