@@ -71,7 +71,7 @@ events. A partial unique index permits only one consumed approval per grant.
 Run `docker compose run --rm data-migrate` before rebuilding Core. The migrator
 now applies only pending numbered files: replaying older permission constraints
 would otherwise remove/reject later Trust assignments. Run one migrator at a time.
-Do not reapply historical migration 008 directly. The checksum-enforcing runner verifies applied 001–019; use additive migrations for corrections. See [MIGRATIONS](MIGRATIONS.md).
+Do not reapply historical migration 008 directly. The checksum-enforcing runner verifies applied 001–020; use additive migrations for corrections. See [MIGRATIONS](MIGRATIONS.md).
 Keep both private schemas, role ownership/ACLs, Registry and Audit in coordinated
 backups. Roll back code without dropping authority/history tables. No destructive
 down migration or purge is provided. The verification section below records

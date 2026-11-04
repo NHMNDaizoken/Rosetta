@@ -206,6 +206,7 @@ Mọi API đi qua cổng `http://127.0.0.1:8080` và yêu cầu `Authorization: 
 | Ứng dụng | `POST /v1/applications` · `POST /v1/approvals` | Đăng ký ứng dụng và phê duyệt độc lập |
 | Năng lực | `GET /v1/capabilities` · `POST /v1/capabilities/{id}/versions` | Công bố và khám phá năng lực có phiên bản |
 | Cấp quyền | `POST /v1/trust/grants` · `POST /v1/trust/grants/{id}/revoke` | Cấp, kích hoạt và thu hồi quyền giữa ứng dụng |
+| Ai đã xem dữ liệu của tôi | `GET /v1/me/data-access` | Các lần gọi năng lực có liên quan đến người đang đăng nhập: cơ sở nào, lúc nào, mục đích gì |
 | Sơ đồ tin cậy | `GET /v1/trust/graph` | Ứng dụng và quyền giữa chúng, kèm trạng thái và hạn dùng (cần `trust.write` hoặc `trust.approve`) |
 | Thực thi | `POST /v1/capability-executions` · `POST /v1/compositions` | Gọi một năng lực hoặc chạy quy trình ghép nhiều năng lực |
 | Kiểm toán | `POST /v1/audit-events/verify` | Niêm phong và kiểm tra toàn vẹn chuỗi băm nhật ký (cần quyền `audit.read`) |

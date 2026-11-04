@@ -718,6 +718,31 @@ test("C4A real two-application OIDC invocation redeems a ticket and completes th
   const audit = await sql(`SELECT count(*) FROM app_private.audit WHERE resource_id=${q(completed.executionId)} AND event IN ('execution.accepted','invocation.dispatched','authorization.redeemed','execution.completed');`);
   assert.equal(audit.stdout.trim(), "4");
   console.log(`C4A proof: ${JSON.stringify({ executionId: completed.executionId, processId: stored.engine_process_id, definitionId: stored.engine_definition_id, providerExecutions: state.count, engineEnded: true })}`);
+
+  // Purpose-bound call naming a data subject: the provider sees the context, the
+  // audit chain seals it, and only that subject can list the access.
+  const context = { purpose: "treatment", dataSubject: owner.id };
+  const purposeful = await c4aStart({ ...executionBody("purpose"), context });
+  assert.equal(purposeful.status, 202);
+  const purposefulDone = await c4aWait(purposeful.body.executionId, ["succeeded"]);
+  const purposefulState = (await c4aFixture.providerState()).body;
+  assert.equal(purposefulState.last.authorization.context.purpose, "treatment");
+  assert.equal(purposefulState.last.authorization.context.dataSubject, owner.id);
+  trustCases.push({ schema: "TicketResult", value: purposefulState.last.authorization });
+  trustCases.push({ schema: "ExecutionContext", value: context });
+  const sealed = await sql(`SELECT reason_code||'|'||reason FROM app_private.audit WHERE resource_id=${q(purposefulDone.executionId)} AND event='execution.subject_accessed';`);
+  assert.equal(sealed.stdout.trim(), `treatment|data_subject_sha256:${createHash("sha256").update(owner.id).digest("hex")}`);
+  const accessLog = await api("/v1/me/data-access", owner);
+  assert.equal(accessLog.status, 200);
+  const accessed = await accessLog.json();
+  trustCases.push({ schema: "SubjectAccessLog", value: accessed });
+  const entry = accessed.entries.find(item => item.executionId === purposefulDone.executionId);
+  assert.ok(entry, "the data subject sees the call");
+  assert.deepEqual([entry.purpose, entry.consumer.appId, entry.provider.appId, entry.capability.capabilityId],
+    ["treatment", c4aConsumer.app.appId, c4aProvider.app.appId, c4aReference.capabilityId]);
+  const strangerLog = await (await api("/v1/me/data-access", stranger)).json();
+  assert.ok(!strangerLog.entries.some(item => item.executionId === purposefulDone.executionId), "other subjects see nothing");
+  assert.equal((await c4aApi("/v1/capability-executions", c4aConsumer, { ...executionBody(), context: { purpose: "Not valid" } }, { "Idempotency-Key": crypto.randomUUID() })).status, 422);
 });
 
 test("C4A rejects untrusted bodies and isolated callers; concurrent replays invoke the provider once", { timeout: 60000 }, async () => {

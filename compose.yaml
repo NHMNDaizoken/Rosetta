@@ -80,6 +80,7 @@ services:
       - ./infra/postgres/017-composition-exact-grants.sql:/migrations/017-composition-exact-grants.sql:ro
       - ./infra/postgres/018-audit-chain.sql:/migrations/018-audit-chain.sql:ro
       - ./infra/postgres/019-trust-graph.sql:/migrations/019-trust-graph.sql:ro
+      - ./infra/postgres/020-subject-access.sql:/migrations/020-subject-access.sql:ro
     depends_on:
       database:
         condition: service_healthy

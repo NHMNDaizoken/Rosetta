@@ -68,9 +68,11 @@ test("SDK sends exact workflow and execution contracts with caller-controlled id
   await client.startWorkflow("junctura_checkpoint:1:uuid", { synthetic: true }, "workflow-key");
   const target = { kind: "composition", compositionId: "synthetic", version: "1.0.0", compositionDigest: "sha256:synthetic" };
   await client.execute(target, { value: 1 }, "execution-key");
+  await client.execute(target, { value: 2 }, "context-key", { purpose: "treatment", dataSubject: "patient-1" });
   assert.deepEqual(bodies, [
     { path: "/v1/workflows/executions", key: "workflow-key", body: { definitionId: "junctura_checkpoint:1:uuid", input: { synthetic: true } } },
     { path: "/v1/capability-executions", key: "execution-key", body: { target, input: { value: 1 } } },
+    { path: "/v1/capability-executions", key: "context-key", body: { target, input: { value: 2 }, context: { purpose: "treatment", dataSubject: "patient-1" } } },
   ]);
 });
 

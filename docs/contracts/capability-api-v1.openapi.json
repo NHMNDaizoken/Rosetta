@@ -3037,7 +3037,7 @@
       "post": {
         "operationId": "createCapabilityExecution",
         "summary": "Accept one guarded pinned capability execution",
-        "description": "Opt-in guarded execution. C4B accepts only target and input and pins a published caller-owned composition. Every step rechecks original OIDC authority, active apps and independent same-tenant direct invoke grants; providers authenticate and redeem single-use step-bound tickets. C4B replay returns the durable reservation and never restores a lost lease or retries ambiguous work. Results require original consumer/subject/client and current authority. Success requires validated final output and confirmed Flowable history. No cancellation, resume, delegation or automatic retries. C4A retains its documented untouched-work replay contract. See CAPABILITY_COMPOSITION.md and CAPABILITY_EXECUTION.md.",
+        "description": "Opt-in guarded execution. C4B accepts only target and input and pins a published caller-owned composition. Every step rechecks original OIDC authority, active apps and independent same-tenant direct invoke grants; providers authenticate and redeem single-use step-bound tickets. C4B replay returns the durable reservation and never restores a lost lease or retries ambiguous work. Results require original consumer/subject/client and current authority. Success requires validated final output and confirmed Flowable history. No cancellation, resume, delegation or automatic retries. C4A retains its documented untouched-work replay contract. See CAPABILITY_COMPOSITION.md and CAPABILITY_EXECUTION.md. An optional context {purpose, dataSubject} declares why the call is made and whose data it concerns; it is bound into the idempotent request, sealed into the audit chain, passed to the provider on ticket redemption and listed for the data subject by GET /v1/me/data-access.",
         "tags": [
           "capability-executions"
         ],
@@ -3656,6 +3656,52 @@
         "x-junctura-status": "implemented-audit-chain",
         "x-junctura-source": "src/modules/audit/audit.mjs",
         "x-junctura-test-suite": "applications"
+      }
+    },
+    "/v1/me/data-access": {
+      "get": {
+        "operationId": "getSubjectAccessLog",
+        "summary": "List capability calls that concerned the caller",
+        "description": "Implemented. Returns the newest 200 capability invocations whose consumer named the caller as dataSubject, with purpose, consumer, provider, capability and state. Any verified principal may ask, only about itself, in its own tenant and issuer. No inputs, outputs, tickets or operator identities are returned. Purpose and a SHA-256 of the data subject are sealed in the audit chain (event execution.subject_accessed).",
+        "tags": [
+          "audit-events"
+        ],
+        "responses": {
+          "200": {
+            "description": "Access log of the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectAccessLog"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        },
+        "x-junctura-required-permissions": [
+          "verified-subject"
+        ],
+        "x-junctura-status": "implemented-subject-access",
+        "x-junctura-source": "src/modules/audit/audit.mjs",
+        "x-junctura-test-suite": "capabilities",
+        "x-junctura-core-roles": [
+          "core-reader"
+        ]
       }
     },
     "/v1/approvals/{approvalId}": {
@@ -4737,6 +4783,9 @@
           },
           "input": {
             "$ref": "#/components/schemas/JsonValue"
+          },
+          "context": {
+            "$ref": "#/components/schemas/ExecutionContext"
           }
         },
         "required": [
@@ -5014,6 +5063,17 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 3
+          },
+          "purpose": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,62}$",
+            "description": "Why the consumer calls, e.g. treatment or insurance_claim. Sealed into the audit chain."
+          },
+          "dataSubject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Identity-provider subject of the person whose data the call concerns. Shown to that person in GET /v1/me/data-access."
           }
         },
         "required": [
@@ -5586,6 +5646,155 @@
             "maxItems": 500,
             "items": {
               "$ref": "#/components/schemas/TrustGraphEdge"
+            }
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ExecutionContext": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "purpose"
+        ],
+        "properties": {
+          "purpose": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,62}$",
+            "description": "Why the consumer calls, e.g. treatment or insurance_claim. Sealed into the audit chain."
+          },
+          "dataSubject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Identity-provider subject of the person whose data the call concerns. Shown to that person in GET /v1/me/data-access."
+          }
+        }
+      },
+      "SubjectAccessEntry": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "executionId",
+          "accessedAt",
+          "purpose",
+          "state",
+          "consumer",
+          "provider",
+          "capability"
+        ],
+        "properties": {
+          "executionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accessedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "purpose": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,62}$",
+            "description": "Why the consumer calls, e.g. treatment or insurance_claim. Sealed into the audit chain."
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "running",
+              "auth_required",
+              "succeeded",
+              "failed",
+              "cancelled",
+              "timed_out",
+              "outcome_unknown"
+            ]
+          },
+          "consumer": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "appId",
+              "displayName"
+            ],
+            "properties": {
+              "appId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "displayName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "provider": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "appId",
+              "displayName"
+            ],
+            "properties": {
+              "appId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "displayName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "capability": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "capabilityId",
+              "version",
+              "title"
+            ],
+            "properties": {
+              "capabilityId": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "title": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "SubjectAccessLog": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "entries",
+          "truncated",
+          "generatedAt"
+        ],
+        "properties": {
+          "entries": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/SubjectAccessEntry"
             }
           },
           "truncated": {

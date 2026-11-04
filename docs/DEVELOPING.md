@@ -77,7 +77,7 @@ Rules:
   from provider calls where the existing module already allows it.
 - Reuse `HttpError` and the existing error shape rather than inventing a new one.
 - Never mint provider credentials in a browser or log tokens, secrets or bodies.
-- SQL files 001–019 are immutable. The migration runner owns checksum, applied-version,
+- SQL files 001–020 are immutable. The migration runner owns checksum, applied-version,
   lock and fingerprint checks. Authority modules use restricted owner-controlled RPCs;
   generic records cannot administer private tables. See [MIGRATIONS](MIGRATIONS.md).
 - The boundary checker enforces declared public entrypoints, downward dependencies and

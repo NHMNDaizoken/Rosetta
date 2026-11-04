@@ -96,8 +96,10 @@ export function createJuncturaClient({ baseUrl, clientId, clientSecret, timeoutM
       if (cursor !== undefined) query.set("cursor", cursor);
       return (await request(`/v1/capabilities${query.size ? `?${query}` : ""}`)).json();
     },
-    async execute(target, input, idempotencyKey = randomUUID()) {
-      return (await request("/v1/capability-executions", { method: "POST", json: { target, input }, idempotencyKey })).json();
+    // context: optional { purpose, dataSubject } — why the call is made and whose data it concerns.
+    async execute(target, input, idempotencyKey = randomUUID(), context) {
+      return (await request("/v1/capability-executions", { method: "POST",
+        json: context === undefined ? { target, input } : { target, input, context }, idempotencyKey })).json();
     },
     async execution(id) { return (await request(`/v1/capability-executions/${segment(id)}`)).json(); },
     async waitForExecution(id, { timeoutMs: pollTimeout = 60000, intervalMs = 500, signal } = {}) {
