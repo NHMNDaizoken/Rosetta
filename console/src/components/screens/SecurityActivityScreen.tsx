@@ -14,40 +14,42 @@ import {
   Clock,
   Info,
 } from "lucide-react";
-import { AuditSessionEvent } from "../../types";
+import { AuditSessionEvent, AuditVerification } from "../../types";
 import { api } from "../../services/apiClient";
 import { useI18n } from "../../locales/i18n";
 import { PageHeader } from "../layout/PageHeader";
 import { Card, CardHeader, CardTitle, CardContent } from "../common/Card";
 import { Badge } from "../common/Badge";
-import { CodeBlock } from "../common/CodeBlock";
+import { Button } from "../common/Button";
 
 export const SecurityActivityScreen: React.FC = () => {
   const { t } = useI18n();
   const [sessionEvents] = useState<AuditSessionEvent[]>(api.getSessionActivity());
 
-  const auditProposalContract = `// Proposed Administrative Audit Endpoint Contract
-// GET /v1/admin/audit-events
-// Requires: Administrator-enrolled subject + Keycloak 'admin' role
-{
-  "total": 128,
-  "limit": 50,
-  "offset": 0,
-  "items": [
-    {
-      "id": "audit-uuid-v4",
-      "timestamp": "2026-10-25T15:20:00Z",
-      "action": "APPLICATION_REGISTERED",
-      "subject": "operator-subject-uuid",
-      "tenantId": "tenant-a",
-      "resourceType": "application",
-      "resourceId": "app-uuid-v4",
-      "decision": "approve",
-      "digest": "sha256:...",
-      "clientIp": "127.0.0.1"
+  const [verification, setVerification] = useState<AuditVerification | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+
+  const runVerification = async () => {
+    setVerifying(true);
+    setVerifyError(null);
+    try {
+      setVerification(await api.verifyAuditChain());
+    } catch (error) {
+      setVerification(null);
+      const code = error instanceof Error ? error.message : "";
+      setVerifyError(
+        code === "audit_permission_required"
+          ? t.security.chainErrorPermission
+          : `${t.security.chainErrorGeneric}: ${code || "request_failed"}`
+      );
+    } finally {
+      setVerifying(false);
     }
-  ]
-}`;
+  };
+
+  const reasonLabel = (reason: string) =>
+    (t.security as Record<string, string>)[`reason_${reason}`] ?? reason;
 
   return (
     <div className="space-y-6">
@@ -89,36 +91,81 @@ export const SecurityActivityScreen: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Honest Audit Events Boundary Card */}
+      {/* Protected audit and hash-chain integrity check */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Database className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-            <CardTitle>{t.security.auditTitle}</CardTitle>
+            <Lock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            <CardTitle>{t.security.chainTitle}</CardTitle>
           </div>
-          <Badge variant="sandstone">Database Isolated</Badge>
+          <Badge variant="sandstone">SHA-256</Badge>
         </CardHeader>
         <CardContent className="space-y-4 text-xs text-slate-600 dark:text-slate-300">
-          <p className="leading-relaxed">
-            {t.security.auditExplanation}
-          </p>
+          <p className="leading-relaxed">{t.security.auditExplanation}</p>
+          <p className="leading-relaxed">{t.security.chainExplanation}</p>
 
-          <div className="p-3.5 bg-slate-50 dark:bg-[#172E3C]/30 rounded-lg border border-slate-200/80 dark:border-[#223E50] space-y-2">
-            <h5 className="font-semibold text-stone-ink dark:text-slate-100 text-xs">
-              Hướng dẫn kiểm toán cho Quản trị viên hệ thống (Operator):
-            </h5>
-            <ol className="list-decimal list-inside space-y-1 text-slate-500 dark:text-slate-400 text-[11px] font-mono">
-              <li>docker compose logs --follow core | grep "application_"</li>
-              <li>docker compose exec database psql -U junctura_admin -d junctura_data -c "SELECT * FROM app_private.audit_events ORDER BY created_at DESC LIMIT 20;"</li>
-            </ol>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button onClick={runVerification} disabled={verifying}>
+              <ShieldCheck className="w-4 h-4 mr-1.5" />
+              {verifying ? t.security.chainChecking : t.security.chainButton}
+            </Button>
+            {verification?.preview && (
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">{t.security.chainPreview}</span>
+            )}
           </div>
 
-          <div className="pt-2">
-            <span className="text-[11px] font-semibold text-slate-500 block mb-1">
-              Đề xuất hợp đồng tương lai cho Admin Audit API:
-            </span>
-            <CodeBlock code={auditProposalContract} language="json" />
-          </div>
+          {verifyError && (
+            <div role="alert" className="p-3 rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              <span>{verifyError}</span>
+            </div>
+          )}
+
+          {verification && !verification.preview && (
+            <div
+              role="status"
+              className={`p-4 rounded-lg border space-y-2 ${
+                verification.verified
+                  ? "border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30"
+                  : "border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/30"
+              }`}
+            >
+              <div className="flex items-center gap-2 font-semibold text-sm">
+                {verification.verified ? (
+                  <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                )}
+                <span className={verification.verified ? "text-emerald-800 dark:text-emerald-200" : "text-red-800 dark:text-red-200"}>
+                  {verification.verified ? t.security.chainIntact : t.security.chainBroken}
+                </span>
+              </div>
+              <p>
+                <strong>{verification.entries}</strong> {t.security.chainEntries}
+                {verification.newlySealed > 0 && (
+                  <> · <strong>{verification.newlySealed}</strong> {t.security.chainNewlySealed}</>
+                )}
+                {" · "}
+                <Clock className="inline w-3 h-3 -mt-0.5" />{" "}
+                {new Date(verification.verifiedAt).toLocaleString()}
+              </p>
+              {verification.headHash && (
+                <p className="font-mono text-[11px] break-all text-slate-500 dark:text-slate-400">
+                  {t.security.chainHead}: {verification.headHash}
+                </p>
+              )}
+              {verification.firstBreak && (
+                <p className="text-red-700 dark:text-red-300">
+                  {t.security.chainBreakAt} <strong>#{verification.firstBreak.chainSeq}</strong>
+                  {" — "}
+                  {reasonLabel(verification.firstBreak.reason)}
+                  {verification.firstBreak.eventId && (
+                    <span className="block font-mono text-[11px] mt-1 break-all">{verification.firstBreak.eventId}</span>
+                  )}
+                </p>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 

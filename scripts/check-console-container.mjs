@@ -270,6 +270,12 @@ async function main() {
     body: JSON.stringify({ resourceType: "application" }),
   });
   expectStatus(approval, 200, "approval creation");
+  const auditVerify = await request(consolePort, "/api/v1/audit-events/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: "Bearer synthetic-token" },
+    body: "{}",
+  });
+  expectStatus(auditVerify, 200, "audit chain verification");
   const approve = await request(consolePort, `/api/v1/applications/${uuid}/approve`, {
     method: "POST",
     headers: {

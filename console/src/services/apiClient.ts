@@ -13,6 +13,7 @@ import {
   WorkflowDefinition,
   WorkflowExecution,
   AuditSessionEvent,
+  AuditVerification,
 } from "../types";
 import {
   MOCK_IDENTITY,
@@ -217,6 +218,42 @@ export class ApiClient {
       requestId: "req-" + Math.random().toString(36).substring(2, 7),
     };
     this.sessionAuditLogs.unshift(event);
+  }
+
+  public async verifyAuditChain(): Promise<AuditVerification> {
+    if (!this.isLiveMode) {
+      const result: AuditVerification = {
+        verified: true,
+        entries: this.sessionAuditLogs.length,
+        newlySealed: 0,
+        headHash: null,
+        firstBreak: null,
+        verifiedAt: new Date().toISOString(),
+        preview: true,
+      };
+      this.logActivity("VERIFY_AUDIT_CHAIN", "security", "Preview: không gọi máy chủ");
+      return result;
+    }
+    const res = await this.send("/v1/audit-events/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "request_failed" }));
+      this.logActivity("VERIFY_AUDIT_CHAIN", "security", err.error || "request_failed", res.status === 403 ? "denied" : "error");
+      throw new Error(err.error || "audit_verification_failed");
+    }
+    const result = (await res.json()) as AuditVerification;
+    this.logActivity(
+      "VERIFY_AUDIT_CHAIN",
+      "security",
+      result.verified
+        ? `Chuỗi băm toàn vẹn: ${result.entries} sự kiện`
+        : `Phát hiện can thiệp tại #${result.firstBreak?.chainSeq} (${result.firstBreak?.reason})`,
+      result.verified ? "success" : "denied"
+    );
+    return result;
   }
 
   public getSessionActivity(): AuditSessionEvent[] {
