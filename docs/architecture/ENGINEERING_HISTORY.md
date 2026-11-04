@@ -8,13 +8,13 @@ independent security review or production certification.
 ## Baseline and revision identity
 
 The continuation began on authorized repository
-`https://github.com/NHMNDaizoken/Rosetta`, branch `main`, at local and remote
+`https://github.com/vku2-open-source-2026/junctura-dxos`, branch `main`, at local and remote
 `ff16a5e61d6405a25c1f7fdc3ade289732b21fbb`, with no working-tree changes.
 This was the DeepSeek/OpenCode checkpoint supplied by the owner. GitHub REST
-independently confirmed its [successful run](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41313291206).
+independently confirmed its [successful run](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/41313291206).
 
 Final implementation SHA: `64a68fab0f857609cad9c28323d07eddfcb020ac`.
-Exact-SHA [Actions run](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41321880800)
+Exact-SHA [Actions run](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/41321880800)
 completed successfully. Downloaded CI logs confirm the real C4B suite passed 29/29.
 The exact remote main SHA was independently verified after push.
 The final documentation revision is the commit containing this handoff; resolve
@@ -193,9 +193,9 @@ GitHub CLI/MCP was unavailable. Read-only GitHub REST verified the initial CI
 and Issue #1's actual acceptance scope. Authenticated Git/Git credential-helper
 backed REST are the authorized push/issue/CI methods; credentials are never
 printed or written to repository files. The implementation Actions run above passed all stages for its exact SHA.
-[Issue #1](https://github.com/NHMNDaizoken/Rosetta/issues/1) was closed as completed
+[Issue #1](https://github.com/vku2-open-source-2026/junctura-dxos/issues/1) was closed as completed
 after comparing its actual acceptance criteria with the new checks; the
-[evidence comment](https://github.com/NHMNDaizoken/Rosetta/issues/1#issuecomment-6560160245)
+[evidence comment](https://github.com/vku2-open-source-2026/junctura-dxos/issues/1#issuecomment-6560160245)
 records migration 017, fresh 9/9 integrity tests, development drift verification
 and preservation of historical bytes. No new issues were needed. The final
 documentation-only commit is verified by the same workflow before the user handoff.

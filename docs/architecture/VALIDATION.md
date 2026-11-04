@@ -52,10 +52,10 @@ diagram generation service receives secrets, tokens, private source or runtime d
 
 ## Historical evidence, not rerun locally
 
-The exact-baseline [Foundation CI run](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40211156038)
+The exact-baseline [Foundation CI run](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/40211156038)
 was read through GitHub's API and reports success. Earlier
 [Foundation milestone evidence](../FOUNDATION_OPENAPI.md#local-verification-evidence)
-and [CI](https://github.com/NHMNDaizoken/Rosetta/actions/runs/40203682323) describe
+and [CI](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/40203682323) describe
 real provider, isolation, restart and partial restore tests. The catalog identifies
 their scope. Current CI has no Console build/test step, so its green status does
 not certify Console authentication, packaging, resources or visual behavior.

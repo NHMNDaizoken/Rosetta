@@ -6,7 +6,7 @@
 
 **Nền tảng lõi nguồn mở để các ứng dụng chia sẻ dữ liệu và năng lực với nhau — có cấp quyền, thu hồi và kiểm chứng.**
 
-[![Foundation checks](https://github.com/NHMNDaizoken/Rosetta/actions/workflows/ci.yml/badge.svg)](https://github.com/NHMNDaizoken/Rosetta/actions/workflows/ci.yml)
+[![Foundation checks](https://github.com/vku2-open-source-2026/junctura-dxos/actions/workflows/ci.yml/badge.svg)](https://github.com/vku2-open-source-2026/junctura-dxos/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/badge/release-v0.1.0-176B80.svg)](CHANGELOG.md)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![REUSE compliant](https://img.shields.io/badge/REUSE-compliant-18877A.svg)](REUSE.toml)
@@ -108,8 +108,8 @@ sequenceDiagram
 **Yêu cầu:** Git, Node.js 24, Docker Desktop (Linux engine) với Docker Compose ≥ 2.20. Khuyến nghị RAM 16 GB (dành ≥ 8 GB cho Docker).
 
 ```sh
-git clone https://github.com/NHMNDaizoken/Rosetta.git junctura
-cd junctura
+git clone https://github.com/vku2-open-source-2026/junctura-dxos.git
+cd junctura-dxos
 npm run setup        # tạo .env với mật khẩu ngẫu nhiên (không commit)
 npm run local:up     # build và khởi động toàn bộ hệ thống
 npm run healthcheck  # kiểm tra các dịch vụ đã sẵn sàng
@@ -187,7 +187,7 @@ npm run test:integration           # kiểm thử tích hợp (cần hệ thốn
 
 ## Đóng góp
 
-Mọi đóng góp đều được hoan nghênh. Báo lỗi và đề xuất tại [Issues](https://github.com/NHMNDaizoken/Rosetta/issues); trước khi gửi Pull Request, đọc [hướng dẫn phát triển](docs/DEVELOPING.md). Commit theo chuẩn Conventional Commits và không bao giờ commit tệp `.env` hay khóa bí mật. Lịch sử thay đổi: [CHANGELOG.md](CHANGELOG.md).
+Mọi đóng góp đều được hoan nghênh. Báo lỗi và đề xuất tại [Issues](https://github.com/vku2-open-source-2026/junctura-dxos/issues); trước khi gửi Pull Request, đọc [hướng dẫn phát triển](docs/DEVELOPING.md). Commit theo chuẩn Conventional Commits và không bao giờ commit tệp `.env` hay khóa bí mật. Lịch sử thay đổi: [CHANGELOG.md](CHANGELOG.md).
 
 ## Giấy phép
 

@@ -3,7 +3,7 @@
 Updated: 2026-11-02 | Branch: main | Program: local stabilization and release preparation
 
 Starting local/remote SHA: `2cdcb6a6f9d80547e9b6effb585489f703158146`, clean tree.
-Its [exact-SHA Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41322854152)
+Its [exact-SHA Actions](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/41322854152)
 was independently verified successful. Earlier implementation evidence is preserved
 in the [historical engineering handoff](ENGINEERING_HISTORY.md).
 
@@ -54,12 +54,12 @@ and its exact-package inventories. This is not enterprise/production certificati
 | Commit | Change | Evidence |
 | --- | --- | --- |
 | `5cde40db73f518188bdb38a6f9db492201d0d468` | Migration/import integrity and development dependency remediation | First CI exposed missing test scratch/mount support; corrected below |
-| `d2ca17bc77700d990e66f324e31d711e9780cded` | Pinned-runtime test scratch/mount correction | [successful Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41328619616) |
-| `ad3109c85f8d09a88786d3ead82df90500165042` | Safe setup, doctor, local workflow and onboarding | [successful Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41329621666) |
-| `69767f696c511b5c444f11785759aa875b9db3bf` | Public server SDK, rendered Console fixes, onboarding and audit inventories | [successful Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41330694905) |
+| `d2ca17bc77700d990e66f324e31d711e9780cded` | Pinned-runtime test scratch/mount correction | [successful Actions](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/41328619616) |
+| `ad3109c85f8d09a88786d3ead82df90500165042` | Safe setup, doctor, local workflow and onboarding | [successful Actions](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/41329621666) |
+| `69767f696c511b5c444f11785759aa875b9db3bf` | Public server SDK, rendered Console fixes, onboarding and audit inventories | [successful Actions](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/41330694905) |
 | `1aedc5f9b96754cde7b665b15addbb0068cde8b4` | Source packager, reproducibility checks, release docs and version | Tested extracted install and baseline upgrade below |
 | `75c1bfd` | Exact static runtime-notice URL and container regression | Packaged Console test passes |
-| `05886dfb27c08356e8712668f61bcfe2fb205407` | npm advisory CI gate; source candidate with notice fix | [source increment Actions](https://github.com/NHMNDaizoken/Rosetta/actions/runs/41331705506); exact final handoff result is reported separately |
+| `05886dfb27c08356e8712668f61bcfe2fb205407` | npm advisory CI gate; source candidate with notice fix | [source increment Actions](https://github.com/vku2-open-source-2026/junctura-dxos/actions/runs/41331705506); exact final handoff result is reported separately |
 
 Pushed increment tips were checked against remote main; intermediate packaging/fix
 commits travel together. This document's final evidence revision follows those
