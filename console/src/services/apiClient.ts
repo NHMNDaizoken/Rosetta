@@ -14,6 +14,8 @@ import {
   WorkflowExecution,
   AuditSessionEvent,
   AuditVerification,
+  TrustGraph,
+  TrustGraphEdge,
 } from "../types";
 import {
   MOCK_IDENTITY,
@@ -25,6 +27,7 @@ import {
   MOCK_OBJECTS,
   MOCK_RESOURCE_SHARES,
   MOCK_AUDIT_EVENTS,
+  mockTrustGraph,
 } from "./mockData";
 
 const DEFAULT_BASE_URL = "/api";
@@ -85,6 +88,7 @@ export class ApiClient {
   private sessionRecords: StructuredRecord[];
   private sessionShares: ResourceShare[];
   private sessionAuditLogs: AuditSessionEvent[];
+  private previewTrustGraph: TrustGraph | null = null;
   private readonly listeners = new Set<() => void>();
 
   constructor() {
@@ -129,6 +133,7 @@ export class ApiClient {
     this.sessionRecords = live ? [] : [...MOCK_STRUCTURED_RECORDS];
     this.sessionShares = live ? [] : [...MOCK_RESOURCE_SHARES];
     this.sessionAuditLogs = live ? [] : [...MOCK_AUDIT_EVENTS];
+    this.previewTrustGraph = null;
   }
 
   private buildUrl(path: string): string {
@@ -254,6 +259,45 @@ export class ApiClient {
       result.verified ? "success" : "denied"
     );
     return result;
+  }
+
+  public async getTrustGraph(): Promise<TrustGraph> {
+    if (!this.isLiveMode) {
+      this.previewTrustGraph ??= mockTrustGraph();
+      return structuredClone(this.previewTrustGraph);
+    }
+    const res = await this.send("/v1/trust/graph");
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "request_failed" }));
+      throw new Error(err.error || "trust_graph_failed");
+    }
+    return (await res.json()) as TrustGraph;
+  }
+
+  public async revokeTrustGrant(edge: TrustGraphEdge, reason: string): Promise<void> {
+    const trimmed = reason.trim();
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(edge.grantId)) throw new Error("invalid_grant_id");
+    if (!trimmed || trimmed.length > 512) throw new Error("reason_required");
+    if (!this.isLiveMode) {
+      const target = this.previewTrustGraph?.edges.find((e) => e.grantId === edge.grantId);
+      if (!target || target.state === "revoked") throw new Error("invalid_transition");
+      target.state = "revoked";
+      target.revokedAt = new Date().toISOString();
+      target.revision += 1;
+      this.logActivity("REVOKE_TRUST_GRANT", "security", `Preview: thu hồi ${edge.title ?? edge.capabilityId}`);
+      return;
+    }
+    const res = await this.send(`/v1/trust/grants/${edge.grantId}/revoke`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "If-Match": `"grant-${edge.grantId}-${edge.revision}"` },
+      body: JSON.stringify({ reason: trimmed }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "request_failed" }));
+      this.logActivity("REVOKE_TRUST_GRANT", "security", err.error || "request_failed", res.status === 403 ? "denied" : "error");
+      throw new Error(err.error || "revoke_failed");
+    }
+    this.logActivity("REVOKE_TRUST_GRANT", "security", `Thu hồi quyền ${edge.title ?? edge.capabilityId}`);
   }
 
   public getSessionActivity(): AuditSessionEvent[] {

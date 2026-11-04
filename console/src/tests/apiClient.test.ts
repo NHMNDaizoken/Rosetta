@@ -233,4 +233,49 @@ describe("ApiClient session boundaries", () => {
     expect(result.preview).toBe(true);
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("reads the trust graph from the gateway in live mode", async () => {
+    const graph = { scope: "owned", nodes: [], edges: [], truncated: false, generatedAt: "2026-11-04T00:00:00.000Z" };
+    const fetchMock = vi.fn(async () => jsonResponse(200, graph));
+    vi.stubGlobal("fetch", fetchMock);
+    const client = new ApiClient();
+    client.setLiveMode(true);
+    client.setToken("trust-token");
+    await expect(client.getTrustGraph()).resolves.toEqual(graph);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("/api/v1/trust/graph");
+    expect(init.method).toBeUndefined();
+    expect(new Headers(init.headers).get("Authorization")).toBe("Bearer trust-token");
+  });
+
+  it("revokes a grant with the exact revision and a reason", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse(200, { state: "revoked" }));
+    vi.stubGlobal("fetch", fetchMock);
+    const client = new ApiClient();
+    client.setLiveMode(true);
+    const edge = (await (async () => { client.setLiveMode(false); const g = await client.getTrustGraph(); client.setLiveMode(true); return g.edges[0]; })());
+    await client.revokeTrustGrant(edge, "  hết hợp tác  ");
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe(`/api/v1/trust/grants/${edge.grantId}/revoke`);
+    expect(init.method).toBe("POST");
+    expect(new Headers(init.headers).get("If-Match")).toBe(`"grant-${edge.grantId}-${edge.revision}"`);
+    expect(JSON.parse(init.body as string)).toEqual({ reason: "hết hợp tác" });
+    await expect(client.revokeTrustGrant(edge, "   ")).rejects.toThrow("reason_required");
+    await expect(client.revokeTrustGrant({ ...edge, grantId: "../x" }, "x")).rejects.toThrow("invalid_grant_id");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps preview trust graph and revocation local", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const client = new ApiClient();
+    client.setLiveMode(false);
+    const graph = await client.getTrustGraph();
+    expect(graph.preview).toBe(true);
+    const active = graph.edges.find((e) => e.state === "active")!;
+    await client.revokeTrustGrant(active, "demo");
+    expect((await client.getTrustGraph()).edges.find((e) => e.grantId === active.grantId)?.state).toBe("revoked");
+    await expect(client.revokeTrustGrant(active, "again")).rejects.toThrow("invalid_transition");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
 });

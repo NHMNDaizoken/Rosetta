@@ -276,6 +276,16 @@ async function main() {
     body: "{}",
   });
   expectStatus(auditVerify, 200, "audit chain verification");
+  const trustGraph = await request(consolePort, "/api/v1/trust/graph", {
+    headers: { Authorization: "Bearer synthetic-token" },
+  });
+  expectStatus(trustGraph, 200, "trust graph");
+  const grantRevoke = await request(consolePort, `/api/v1/trust/grants/${uuid}/revoke`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "If-Match": '"synthetic-etag"', Authorization: "Bearer synthetic-token" },
+    body: JSON.stringify({ reason: "synthetic" }),
+  });
+  expectStatus(grantRevoke, 200, "grant revocation");
   const approve = await request(consolePort, `/api/v1/applications/${uuid}/approve`, {
     method: "POST",
     headers: {
@@ -335,6 +345,10 @@ async function main() {
     ["trailing slash bypass", "/api/v1/identity/", 404],
     ["invalid application id", "/api/v1/applications/not-a-uuid", 404],
     ["application suffix bypass", `/api/v1/applications/${uuid}/approve/`, 404],
+    ["unproxied grant lookup", `/api/v1/trust/grants/${uuid}`, 404],
+    ["unproxied grant activation", `/api/v1/trust/grants/${uuid}/activate`, 404],
+    ["invalid grant id", "/api/v1/trust/grants/not-a-uuid/revoke", 404],
+    ["trust graph suffix bypass", "/api/v1/trust/graph/", 404],
     ["api root", "/api", 404],
     ["api directory", "/api/", 404],
     ["encoded slash", "/api/v1%2Fidentity", 400],
@@ -363,6 +377,16 @@ async function main() {
     await request(consolePort, `/api/v1/applications/${uuid}/approve`),
     405,
     "approve method",
+  );
+  expectStatus(
+    await request(consolePort, "/api/v1/trust/graph", { method: "POST" }),
+    405,
+    "trust graph method",
+  );
+  expectStatus(
+    await request(consolePort, `/api/v1/trust/grants/${uuid}/revoke`),
+    405,
+    "grant revoke method",
   );
   expectStatus(
     await request(consolePort, `/api/v1/workflows/executions/${executionId}/complete`, {

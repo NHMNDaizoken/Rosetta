@@ -10,7 +10,7 @@ import {
   Terminal,
   ShieldCheck,
   Settings,
-  Sparkles,
+  Share2,
   BookOpen,
   ChevronLeft,
   ChevronRight,
@@ -68,6 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: t.nav.applicationsSection,
       items: [
         { id: "applications", label: t.nav.applications, icon: Layers },
+        { id: "capabilities", label: t.nav.capabilities, icon: Share2 },
       ],
     },
     {
@@ -82,17 +83,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: "security", label: t.nav.security, icon: ShieldCheck },
         { id: "settings", label: t.nav.settings, icon: Settings },
-      ],
-    },
-    {
-      label: t.nav.future,
-      items: [
-        {
-          id: "capabilities",
-          label: t.nav.capabilities,
-          icon: Sparkles,
-          isRoadmap: true,
-        },
       ],
     },
   ];

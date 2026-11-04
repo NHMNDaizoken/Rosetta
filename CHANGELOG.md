@@ -33,6 +33,12 @@ First public release of the Junctura Layer 1 platform for OLP'26.
   protected audit log, `POST /v1/audit-events/verify` (requires `audit.read`) and a
   **Verify integrity** card on the Console Security screen. Detects modified,
   deleted, reordered and truncated sealed events; never seals over a broken chain.
+- **Trust graph** (migration 019): read-only `GET /v1/trust/graph` returns the tenant's
+  applications and direct grants with effective state and expiry (administrators see
+  the tenant, writers only providers they own). The Console **Capability sharing**
+  screen draws it as an interactive graph with state filters, expiring-soon hints and
+  one-click revocation; the screen now reflects the implemented C1–C4B modules instead
+  of the old "planned" roadmap.
 - Gateway JSON access log with request IDs (paths only, no query strings or headers).
 - Migration checksums, contract digests and fixtures regenerated for the new names.
 - `npm run app:enroll -- <name>`: one-command local enrollment of a Layer-2 backend

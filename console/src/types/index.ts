@@ -171,6 +171,40 @@ export interface AuditVerification {
   preview?: boolean;
 }
 
+export type TrustGrantState = "pending" | "active" | "expired" | "revoked";
+
+export interface TrustGraphNode {
+  appId: string;
+  displayName: string;
+  state: "pending" | "active" | "suspended" | "revoked";
+  owned: boolean;
+}
+
+export interface TrustGraphEdge {
+  grantId: string;
+  providerAppId: string;
+  consumerAppId: string;
+  capabilityId: string;
+  version: string;
+  title: string | null;
+  operations: Array<"discover" | "invoke">;
+  revision: number;
+  state: TrustGrantState;
+  createdAt: string;
+  activatedAt: string | null;
+  revokedAt: string | null;
+  expiresAt: string;
+}
+
+export interface TrustGraph {
+  scope: "tenant" | "owned";
+  nodes: TrustGraphNode[];
+  edges: TrustGraphEdge[];
+  truncated: boolean;
+  generatedAt: string;
+  preview?: boolean;
+}
+
 export interface AuditSessionEvent {
   id: string;
   timestamp: string;

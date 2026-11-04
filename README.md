@@ -51,6 +51,7 @@ Mỗi ứng dụng vẫn do đơn vị của mình phát triển và sở hữu;
 - Chia sẻ từng bản ghi/tệp cho ứng dụng khác: chỉ đọc, có hạn dùng, thu hồi được.
 - Danh mục năng lực (Capability Registry) với hợp đồng đầu vào/đầu ra có phiên bản.
 - Cấp và thu hồi quyền giữa các ứng dụng, phê duyệt bởi người độc lập với người yêu cầu.
+- **Sơ đồ tin cậy (Trust Graph)** trên Console: thấy ngay ứng dụng nào đang được dùng chức năng nào của ứng dụng nào, trạng thái và hạn dùng, thu hồi chỉ bằng một cú bấm.
 - Gọi chức năng của ứng dụng khác (C4A) hoặc ghép nhiều chức năng thành một quy trình (C4B).
 - Nhật ký kiểm toán được bảo vệ: ứng dụng không thể sửa hay xóa dấu vết, và mọi sự kiện được niêm phong bằng **chuỗi băm SHA-256** — sửa, xóa hay đổi thứ tự một sự kiện là bị phát hiện ngay.
 
@@ -197,6 +198,7 @@ Mọi API đi qua cổng `http://127.0.0.1:8080` và yêu cầu `Authorization: 
 | Ứng dụng | `POST /v1/applications` · `POST /v1/approvals` | Đăng ký ứng dụng và phê duyệt độc lập |
 | Năng lực | `GET /v1/capabilities` · `POST /v1/capabilities/{id}/versions` | Công bố và khám phá năng lực có phiên bản |
 | Cấp quyền | `POST /v1/trust/grants` · `POST /v1/trust/grants/{id}/revoke` | Cấp, kích hoạt và thu hồi quyền giữa ứng dụng |
+| Sơ đồ tin cậy | `GET /v1/trust/graph` | Ứng dụng và quyền giữa chúng, kèm trạng thái và hạn dùng (cần `trust.write` hoặc `trust.approve`) |
 | Thực thi | `POST /v1/capability-executions` · `POST /v1/compositions` | Gọi một năng lực hoặc chạy quy trình ghép nhiều năng lực |
 | Kiểm toán | `POST /v1/audit-events/verify` | Niêm phong và kiểm tra toàn vẹn chuỗi băm nhật ký (cần quyền `audit.read`) |
 
@@ -258,7 +260,7 @@ npm run test:integration           # kiểm thử tích hợp
 
 - [x] **v0.1.0 — Tầng 1:** Foundation, chia sẻ năng lực (Registry, Trust, Invocation, Composition), kiểm toán, sao lưu/khôi phục, CI.
 - [x] Nhật ký kiểm toán niêm phong bằng chuỗi băm SHA-256, kiểm tra toàn vẹn ngay trên Console.
-- [ ] Bản đồ quyền giữa các ứng dụng (Trust Graph) trên Console.
+- [x] Sơ đồ tin cậy (Trust Graph) giữa các ứng dụng trên Console, thu hồi quyền ngay trên sơ đồ.
 - [ ] **v0.2.0 — Tầng 2:** các ứng dụng minh họa thuộc không gian H-P-D-I, chia sẻ dữ liệu và năng lực qua Junctura.
 - [ ] Giám sát hệ thống (Prometheus, Grafana) và triển khai thử nghiệm trên Internet.
 
