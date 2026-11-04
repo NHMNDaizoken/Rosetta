@@ -49,14 +49,23 @@ export function loadConfig(env = process.env) {
     workflowUrl: env.WORKFLOW_URL,
     workflowPassword: env.WORKFLOW_ADMIN_PASSWORD,
   });
-  const providerOrigins = JSON.parse(env.C4A_PROVIDER_ORIGINS ?? "[]");
-  const compositionOrigins = JSON.parse(env.C4B_PROVIDER_ORIGINS ?? "[]");
-  for (const [name, origins] of [["C4A_PROVIDER_ORIGINS", providerOrigins], ["C4B_PROVIDER_ORIGINS", compositionOrigins]]) {
-    if (!Array.isArray(origins) || origins.some(value => typeof value !== "string")) {
-      throw new Error(`${name} must be a JSON array of origins`);
-    }
+  const origins = name => {
+    let value;
+    try { value = JSON.parse(env[name] ?? "[]"); } catch { value = undefined; }
+    if (!Array.isArray(value) || value.some(origin => typeof origin !== "string")) throw new Error(`${name} must be a JSON array of origins`);
+    return value;
+  };
+  const providerOrigins = origins("C4A_PROVIDER_ORIGINS");
+  const compositionOrigins = origins("C4B_PROVIDER_ORIGINS");
+  // Internal providers (private network, operator provider CA). The CA path is
+  // read by the composition root; internal origins without it are refused there.
+  const internalOrigins = origins("C4A_INTERNAL_PROVIDER_ORIGINS");
+  const compositionInternalOrigins = origins("C4B_INTERNAL_PROVIDER_ORIGINS");
+  const providerCaFile = env.PROVIDER_CA_FILE || undefined;
+  if ((internalOrigins.length || compositionInternalOrigins.length) && !providerCaFile) {
+    throw new Error("Internal provider origins require PROVIDER_CA_FILE");
   }
   return { port: Number(rawPort), host: env.HOST ?? "127.0.0.1", config,
-    execution: env.C4A_ENABLED === "true" ? { providerOrigins } : undefined,
-    composition: env.C4B_ENABLED === "true" ? { providerOrigins: compositionOrigins } : undefined };
+    execution: env.C4A_ENABLED === "true" ? { providerOrigins, internalOrigins, providerCaFile } : undefined,
+    composition: env.C4B_ENABLED === "true" ? { providerOrigins: compositionOrigins, internalOrigins: compositionInternalOrigins, providerCaFile } : undefined };
 }

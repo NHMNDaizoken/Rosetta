@@ -24,7 +24,7 @@ export function createCompositionRuntime(config, networkOptions, { workerEnabled
   const root = config.workflowUrl?.replace(/\/service\/?$/, "");
   if (!root || root === config.workflowUrl || !config.workflowPassword) throw new Error("Composition workflow configuration is incomplete");
   const network = createProviderNetwork(networkOptions);
-  const origins = new Set([...(networkOptions.origins ?? []), ...(networkOptions.testOrigins ?? [])]);
+  const origins = new Set([...(networkOptions.origins ?? []), ...(networkOptions.testOrigins ?? []), ...(networkOptions.internalOrigins ?? [])]);
   if (!origins.size) throw new Error("Composition execution requires approved provider origins");
   const workerId = `c4b-${randomUUID()}`;
   const leases = createAuthenticationLeases();

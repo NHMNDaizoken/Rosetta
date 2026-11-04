@@ -47,6 +47,42 @@ Creation and output use strict UTF-8/duplicate-key parsing and a 64 KiB wire bou
 The provider receives `{invocationId, capability, input}` and must redeem before
 executing; success requires HTTP 200 and exactly `{output: …}` matching the manifest.
 
+## Internal providers
+
+Layer 2 provider services usually run on the same host as the platform, on private
+Docker addresses that the public provider policy correctly refuses. Internal providers
+are a separate, explicit opt-in that keeps the other controls unchanged:
+
+- **Exact origins only.** `C4A_INTERNAL_PROVIDER_ORIGINS` / `C4B_INTERNAL_PROVIDER_ORIGINS`
+  list exact `https://<name>.internal[:port]` origins (lowercase, no path). An origin
+  may not also be a public or test origin, and it must match the provider
+  application's registered `providerOrigin`.
+- **Private addresses only.** Every DNS answer must be RFC 1918 IPv4 or IPv6
+  unique-local (`fc00::/7`). Loopback, link-local, carrier-grade NAT, metadata and
+  public addresses are refused before any connection, and the socket is pinned to the
+  validated address exactly as for public providers.
+- **Own CA only.** TLS is mandatory and verified against `PROVIDER_CA_FILE` only, never
+  the system trust store, with SNI and certificate names checked. Core refuses to start
+  when internal origins are configured without the CA.
+- Tickets, headers, size limits, timeouts, audit and authority checks are identical to
+  public providers.
+
+Local setup:
+
+```sh
+npm run provider:pki -- tramyte benhvien      # .junctura/pki: CA + one certificate per provider
+# .env: C4A_ENABLED=true and
+#       C4A_INTERNAL_PROVIDER_ORIGINS=["https://tramyte.provider.internal:8443","https://benhvien.provider.internal:8443"]
+docker compose -f compose.yaml -f compose.providers.yaml up -d
+```
+
+`provider:pki` is pure Node (no OpenSSL needed): an ECDSA P-256 CA valid for 10 years
+and 825-day server certificates, private keys mode 0600 in the Git-ignored
+`.junctura/pki`. Only `ca.crt` is mounted into Core. Provider containers join the
+isolated `providers` network with an alias such as `tramyte.provider.internal` and serve
+HTTPS with their own certificate and key. This is a local/single-host deployment aid;
+across hosts use public HTTPS origins with publicly trusted certificates.
+
 ## Increment A controls
 
 `src/modules/capability/registry/payload.mjs` validates execution input and provider output

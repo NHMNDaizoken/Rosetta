@@ -24,6 +24,7 @@ export function createProviderNetwork(options) {
   if (!options || typeof options !== "object") throw new TypeError("provider network options are required");
   const {
     origins, testOrigins = [], testAddresses = [], allowTestNetwork = false, ca,
+    internalOrigins = [], internalCa,
     connectTimeoutMs = 2000, requestTimeoutMs = 10000,
     maxRequestBytes = 65536, maxResponseBytes = 65536,
     resolve = dnsLookup,
@@ -36,6 +37,17 @@ export function createProviderNetwork(options) {
   const allowedTestAddresses = new Set(testAddresses.map(normalizeAddress));
   if (test.size && allowedTestAddresses.size === 0) throw new TypeError("test origins require exact test addresses");
   if (ca !== undefined && !test.size) throw new TypeError("a custom CA is only accepted for test origins");
+  // Internal providers: exact https origins under the reserved .internal TLD,
+  // reachable only on private addresses and trusted only through the operator's
+  // own provider CA (never the system trust store).
+  const internal = normalizeInternalOrigins(internalOrigins);
+  if (internal.size && (typeof internalCa !== "string" || !internalCa.includes("-----BEGIN CERTIFICATE-----"))) {
+    throw new TypeError("internal origins require the provider CA certificate");
+  }
+  if (!internal.size && internalCa !== undefined) throw new TypeError("a provider CA is only accepted for internal origins");
+  for (const origin of internal) {
+    if (approved.has(origin) || test.has(origin)) throw new TypeError(`origin listed twice: ${origin}`);
+  }
   for (const [name, value] of Object.entries({ connectTimeoutMs, requestTimeoutMs, maxRequestBytes, maxResponseBytes })) {
     if (!Number.isSafeInteger(value) || value < 1) throw new TypeError(`${name} must be a positive integer`);
   }
@@ -44,15 +56,17 @@ export function createProviderNetwork(options) {
 
   function assertOrigin(origin) {
     if (typeof origin !== "string") throw new ProviderNetworkError("origin_not_allowed");
-    if (!approved.has(origin) && !test.has(origin)) throw new ProviderNetworkError("origin_not_allowed");
-    return test.has(origin);
+    if (test.has(origin)) return "test";
+    if (internal.has(origin)) return "internal";
+    if (approved.has(origin)) return "public";
+    throw new ProviderNetworkError("origin_not_allowed");
   }
 
   // Only the provider protocol headers are emitted. Caller credentials, OIDC
   // tokens and arbitrary headers cannot be forwarded. The socket connects to a
   // pre-validated address while Host and TLS SNI retain the approved hostname.
   async function postJson(origin, path, value, { ticket, operationId, timeoutMs, beforeConnect } = {}) {
-    const isTest = assertOrigin(origin);
+    const kind = assertOrigin(origin);
     if (typeof path !== "string" || path.length > MAX_PATH || !PATH.test(path)) {
       throw new ProviderNetworkError("path_not_allowed");
     }
@@ -90,8 +104,10 @@ export function createProviderNetwork(options) {
       const family = isIP(entry.address.replace(/^\[|\]$/g, ""));
       if (!family) throw new ProviderNetworkError("resolution_failed");
       if (isMetadataAddress(entry.address, family)) throw new ProviderNetworkError("private_address_forbidden");
-      if (isTest) {
+      if (kind === "test") {
         if (!allowedTestAddresses.has(normalizeAddress(entry.address))) throw new ProviderNetworkError("address_not_allowed");
+      } else if (kind === "internal") {
+        if (!isPrivateAddress(entry.address, family)) throw new ProviderNetworkError("address_not_allowed");
       } else if (isForbiddenAddress(entry.address, family)) {
         throw new ProviderNetworkError("private_address_forbidden");
       }
@@ -118,7 +134,7 @@ export function createProviderNetwork(options) {
       },
       connectTimeoutMs: Math.min(connectTimeoutMs, remainingBudget),
       totalTimeoutMs: remainingBudget,
-      ca: isTest ? ca : undefined,
+      ca: kind === "test" ? ca : kind === "internal" ? internalCa : undefined,
       maxResponseBytes,
     });
   }
@@ -216,7 +232,7 @@ function withTimeout(promise, milliseconds, code) {
 
 function transportCode(error) {
   const code = typeof error?.code === "string" ? error.code : "";
-  if (/CERT|TLS|SSL/.test(code)) return "tls_error";
+  if (/CERT|TLS|SSL|VERIFY|SIGNATURE|ISSUER/.test(code)) return "tls_error";
   if (code === "ECONNREFUSED") return "connection_refused";
   if (code === "ENOTFOUND" || code === "EAI_AGAIN") return "resolution_failed";
   return "transport_error";
@@ -237,6 +253,45 @@ function normalizeOrigins(list, test) {
     set.add(raw);
   }
   return set;
+}
+
+function normalizeInternalOrigins(list) {
+  if (!Array.isArray(list)) throw new TypeError("internal origins must be an array");
+  const set = new Set();
+  for (const raw of list) {
+    let url;
+    try { url = new URL(raw); } catch { throw new TypeError(`invalid internal origin: ${raw}`); }
+    if (url.protocol !== "https:" || url.origin !== raw || url.username || url.password ||
+        url.pathname !== "/" || url.search || url.hash ||
+        !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*\.internal$/.test(url.hostname)) {
+      throw new TypeError(`invalid internal origin: ${raw}`);
+    }
+    set.add(raw);
+  }
+  return set;
+}
+
+// Private networks only: RFC 1918 IPv4 and IPv6 unique-local (fc00::/7),
+// including IPv4-mapped forms. Loopback, link-local, carrier-grade NAT,
+// metadata and every public address stay unreachable through internal origins.
+export function isPrivateAddress(raw, family = isIP(raw)) {
+  if (isMetadataAddress(raw, family)) return false;
+  if (family === 4) return privateIPv4(raw);
+  if (family !== 6) return false;
+  const groups = expandIPv6(raw.toLowerCase().replace(/^\[|\]$/g, "").split("%", 1)[0]);
+  if (!groups) return false;
+  const [g0, g1, g2, g3, g4, g5, g6, g7] = groups;
+  if (g0 === 0 && g1 === 0 && g2 === 0 && g3 === 0 && g4 === 0 && g5 === 0xffff) {
+    return privateIPv4(`${g6 >> 8}.${g6 & 255}.${g7 >> 8}.${g7 & 255}`);
+  }
+  return (g0 & 0xfe00) === 0xfc00;
+}
+
+function privateIPv4(raw) {
+  const parts = raw.split(".").map(Number);
+  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) return false;
+  const [a, b] = parts;
+  return a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
 }
 
 function normalizeAddress(raw) {

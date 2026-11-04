@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2026 Junctura Contributors
+# SPDX-License-Identifier: Apache-2.0
+# Optional override for internal capability providers (Layer 2 services that run
+# next to the platform). Use together with compose.yaml:
+#   npm run provider:pki -- tramyte benhvien
+#   docker compose -f compose.yaml -f compose.providers.yaml up -d
+# Providers join the isolated "providers" network with an alias such as
+# tramyte.provider.internal and serve HTTPS with their certificate from
+# .junctura/pki. Core only trusts them through the provider CA mounted here.
+services:
+  core:
+    environment:
+      PROVIDER_CA_FILE: /run/junctura-pki/ca.crt
+      C4A_INTERNAL_PROVIDER_ORIGINS: ${C4A_INTERNAL_PROVIDER_ORIGINS:-[]}
+      C4B_INTERNAL_PROVIDER_ORIGINS: ${C4B_INTERNAL_PROVIDER_ORIGINS:-[]}
+    volumes:
+      - ./.junctura/pki/ca.crt:/run/junctura-pki/ca.crt:ro
+    networks: [providers]
+
+networks:
+  providers:
+    internal: true

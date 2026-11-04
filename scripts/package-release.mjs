@@ -10,7 +10,7 @@ import { constants, gzipSync } from "node:zlib";
 
 const roots = new Set(["src", "console", "sdk", "infra", "scripts", "docs", "examples", "tests", "integration", ".github", "LICENSES"]);
 const rootFiles = new Set([".env.example", ".node-version", ".dockerignore", ".gitattributes", ".gitignore",
-  "README.md", "LICENSE", "NOTICE", "THIRD-PARTY.md", "CHANGELOG.md", "REUSE.toml", "compose.yaml", "Dockerfile", "package.json", "requirements-contracts.txt", "requirements-reuse.txt"]);
+  "README.md", "LICENSE", "NOTICE", "THIRD-PARTY.md", "CHANGELOG.md", "REUSE.toml", "compose.yaml", "compose.providers.yaml", "Dockerfile", "package.json", "requirements-contracts.txt", "requirements-reuse.txt"]);
 
 export function releaseFiles(paths) {
   return paths.filter(path => {
