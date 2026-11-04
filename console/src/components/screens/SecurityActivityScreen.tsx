@@ -105,8 +105,7 @@ export const SecurityActivityScreen: React.FC = () => {
           <p className="leading-relaxed">{t.security.chainExplanation}</p>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button onClick={runVerification} disabled={verifying}>
-              <ShieldCheck className="w-4 h-4 mr-1.5" />
+            <Button onClick={runVerification} disabled={verifying} leftIcon={<ShieldCheck className="w-4 h-4" />}>
               {verifying ? t.security.chainChecking : t.security.chainButton}
             </Button>
             {verification?.preview && (

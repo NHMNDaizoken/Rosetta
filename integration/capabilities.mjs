@@ -377,6 +377,32 @@ test("separate exact approval is consumed once under concurrent activation; revo
   assert.equal(history.stdout.trim(), "3"); assert.equal(active.revision, 2);
 });
 
+test("trust graph shows exact grants to administrators and owned providers only", async () => {
+  const value = await published("2.9.0");
+  const g = await activeGrant(value, ["discover", "invoke"]);
+  const graph = async who => { const r = await api("/v1/trust/graph", who); return { status: r.status, value: r.status === 200 ? await r.json() : null }; };
+  const view = await graph(approver);
+  assert.equal(view.status, 200); assert.equal(view.value.scope, "tenant");
+  trustCases.push({ schema: "TrustGraph", value: view.value });
+  const edge = view.value.edges.find(e => e.grantId === g.grantId);
+  assert.ok(edge, "administrator sees the tenant grant");
+  assert.deepEqual([edge.providerAppId, edge.consumerAppId, edge.capabilityId, edge.version, edge.state, edge.revision],
+    [app.appId, consumer.app.appId, capabilityId, "2.9.0", "active", g.revision]);
+  assert.ok([app.appId, consumer.app.appId].every(id => view.value.nodes.some(n => n.appId === id)));
+  const strangerView = await graph(stranger);
+  assert.equal(strangerView.status, 200); assert.equal(strangerView.value.scope, "owned");
+  assert.ok(!strangerView.value.edges.some(e => e.grantId === g.grantId), "writer does not see grants of providers it does not own");
+  assert.ok(!strangerView.value.nodes.some(n => n.appId === app.appId));
+  const foreignView = await graph(foreignApprover);
+  assert.equal(foreignView.status, 200);
+  assert.ok(!foreignView.value.edges.some(e => e.grantId === g.grantId) && !foreignView.value.nodes.some(n => n.appId === app.appId), "tenant isolation");
+  assert.equal((await graph(publisher)).status, 403, "capability roles do not imply trust visibility");
+  assert.equal((await graph(consumer)).status, 403, "application service accounts cannot read the graph");
+  assert.equal((await api("/v1/trust/graph?scope=tenant-b", approver)).status, 400);
+  await revokeGrant(g);
+  assert.equal((await graph(approver)).value.edges.find(e => e.grantId === g.grantId).state, "revoked");
+});
+
 test("denied, revoked, expired and stale decisions never activate; expired grants need no job", async () => {
   const value = await published("2.0.2");
   for (const mode of ["denied", "revoked", "expired", "stale", "grant-expired"]) {
