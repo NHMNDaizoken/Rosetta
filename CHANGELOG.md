@@ -39,6 +39,11 @@ First public release of the Junctura Layer 1 platform for OLP'26.
   screen draws it as an interactive graph with state filters, expiring-soon hints and
   one-click revocation; the screen now reflects the implemented C1–C4B modules instead
   of the old "planned" roadmap.
+- `npm run trust:demo`: local demo data for the trust graph through the real Gateway
+  (four university apps, three published capabilities, active, expiring, pending and
+  revoked grants with owner/approver separation); `-- token` prints an approver token
+  for the Console. Re-running reuses existing apps, versions and live grants. Shared
+  demo identity helpers moved to `scripts/lib/demo-stack.mjs` (used by `app:enroll`).
 - Gateway JSON access log with request IDs (paths only, no query strings or headers).
 - Migration checksums, contract digests and fixtures regenerated for the new names.
 - `npm run app:enroll -- <name>`: one-command local enrollment of a Layer-2 backend
