@@ -138,6 +138,20 @@ OpenAPI `verifyAuditChain`); the Console Security screen has a **Verify integrit
 button. Integration suites delete synthetic audit rows during cleanup, which is
 itself reported as a break: verify the chain on a stack that has not run them.
 
+### Local demonstration
+
+```sh
+npm run audit:demo              # verify through Gateway -> Core -> database (expect intact)
+npm run audit:demo -- tamper    # alter sealed event #2 directly in PostgreSQL
+npm run audit:demo              # reports the break at #2: content_modified
+npm run audit:demo -- restore   # undo the alteration; verification is intact again
+npm run audit:demo -- token     # short-lived auditor token to paste into the Console
+```
+
+The helper creates a local `junctura-demo-auditor-<tenant>` identity with only
+`audit.read` (run `npm run app:enroll` first so the demo management client exists).
+It is for development stacks only.
+
 ## Failure, retention and rollback
 
 - Audit append failure rolls back the enclosing authority mutation. Callers must
