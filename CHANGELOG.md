@@ -29,6 +29,10 @@ First public release of the Junctura Layer 1 platform for OLP'26.
 - `npm run backup` / `npm run restore`: checksummed backups of the identity, data and
   workflow databases and the object volume; restore verifies, takes a safety backup,
   recreates databases with original ACLs/RLS and restarts the stack.
+- **Tamper-evident audit** (migration 018): per-tenant SHA-256 hash chain over the
+  protected audit log, `POST /v1/audit-events/verify` (requires `audit.read`) and a
+  **Verify integrity** card on the Console Security screen. Detects modified,
+  deleted, reordered and truncated sealed events; never seals over a broken chain.
 - Gateway JSON access log with request IDs (paths only, no query strings or headers).
 - Migration checksums, contract digests and fixtures regenerated for the new names.
 - `npm run app:enroll -- <name>`: one-command local enrollment of a Layer-2 backend

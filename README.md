@@ -52,7 +52,7 @@ Mỗi ứng dụng vẫn do đơn vị của mình phát triển và sở hữu;
 - Danh mục năng lực (Capability Registry) với hợp đồng đầu vào/đầu ra có phiên bản.
 - Cấp và thu hồi quyền giữa các ứng dụng, phê duyệt bởi người độc lập với người yêu cầu.
 - Gọi chức năng của ứng dụng khác (C4A) hoặc ghép nhiều chức năng thành một quy trình (C4B).
-- Nhật ký kiểm toán được bảo vệ: ứng dụng không thể sửa hay xóa dấu vết.
+- Nhật ký kiểm toán được bảo vệ: ứng dụng không thể sửa hay xóa dấu vết, và mọi sự kiện được niêm phong bằng **chuỗi băm SHA-256** — sửa, xóa hay đổi thứ tự một sự kiện là bị phát hiện ngay.
 
 **Vận hành và phát triển**
 - Khởi động toàn bộ hệ thống, đăng ký ứng dụng mới, sao lưu và khôi phục — mỗi việc một lệnh.
@@ -124,7 +124,7 @@ sequenceDiagram
 | Phân tách nhiệm vụ | Người yêu cầu và người phê duyệt phải khác nhau cho ứng dụng, năng lực, quyền và quy trình ghép. |
 | Tệp tải lên | ClamAV quét trước khi lưu; tệp nhiễm mã độc bị từ chối. |
 | Bí mật | OpenBao giữ khóa và mật khẩu vận hành; không có bí mật trong mã nguồn. |
-| Kiểm toán | Nhật ký được bảo vệ ở mức cơ sở dữ liệu, ứng dụng không thể sửa hay xóa; ghi kèm request-id. |
+| Kiểm toán | Nhật ký được bảo vệ ở mức cơ sở dữ liệu, ứng dụng không thể sửa hay xóa; niêm phong bằng chuỗi băm SHA-256 theo tenant để phát hiện mọi can thiệp. |
 | Container | Core chạy không quyền root, hệ thống tệp chỉ đọc, bỏ toàn bộ Linux capability. |
 
 ## Bắt đầu nhanh
@@ -198,7 +198,7 @@ Mọi API đi qua cổng `http://127.0.0.1:8080` và yêu cầu `Authorization: 
 | Năng lực | `GET /v1/capabilities` · `POST /v1/capabilities/{id}/versions` | Công bố và khám phá năng lực có phiên bản |
 | Cấp quyền | `POST /v1/trust/grants` · `POST /v1/trust/grants/{id}/revoke` | Cấp, kích hoạt và thu hồi quyền giữa ứng dụng |
 | Thực thi | `POST /v1/capability-executions` · `POST /v1/compositions` | Gọi một năng lực hoặc chạy quy trình ghép nhiều năng lực |
-| Kiểm toán | `GET /v1/audit-events` | Tra cứu nhật ký kiểm toán trong tenant |
+| Kiểm toán | `POST /v1/audit-events/verify` | Niêm phong và kiểm tra toàn vẹn chuỗi băm nhật ký (cần quyền `audit.read`) |
 
 Đặc tả đầy đủ: [Foundation OpenAPI](docs/contracts/foundation-api.openapi.json) (44 thao tác) và [Capability OpenAPI](docs/contracts/capability-api-v1.openapi.json).
 
@@ -253,6 +253,14 @@ GitHub Actions chạy ở mỗi lần push: kiểm tra giấy phép SPDX/REUSE, 
 npm run check && npm test          # kiểm tra mã nguồn và kiểm thử đơn vị
 npm run test:integration           # kiểm thử tích hợp
 ```
+
+## Lộ trình
+
+- [x] **v0.1.0 — Tầng 1:** Foundation, chia sẻ năng lực (Registry, Trust, Invocation, Composition), kiểm toán, sao lưu/khôi phục, CI.
+- [x] Nhật ký kiểm toán niêm phong bằng chuỗi băm SHA-256, kiểm tra toàn vẹn ngay trên Console.
+- [ ] Bản đồ quyền giữa các ứng dụng (Trust Graph) trên Console.
+- [ ] **v0.2.0 — Tầng 2:** các ứng dụng minh họa thuộc không gian H-P-D-I, chia sẻ dữ liệu và năng lực qua Junctura.
+- [ ] Giám sát hệ thống (Prometheus, Grafana) và triển khai thử nghiệm trên Internet.
 
 ## Đóng góp
 

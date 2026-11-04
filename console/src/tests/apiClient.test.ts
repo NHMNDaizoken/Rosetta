@@ -198,4 +198,39 @@ describe("ApiClient session boundaries", () => {
       "workflow_definitions_unavailable"
     );
   });
+
+  it("verifies the audit chain through the approved gateway in live mode", async () => {
+    const result = {
+      verified: false, entries: 1, newlySealed: 0, headHash: null, verifiedAt: "2026-11-04T00:00:00.000Z",
+      firstBreak: { chainSeq: 2, eventId: "11111111-1111-4111-8111-111111111111", reason: "content_modified" },
+    };
+    const fetchMock = vi.fn(async () => jsonResponse(200, result));
+    vi.stubGlobal("fetch", fetchMock);
+    const client = new ApiClient();
+    client.setLiveMode(true);
+    client.setToken("auditor-token");
+    await expect(client.verifyAuditChain()).resolves.toEqual(result);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("/api/v1/audit-events/verify");
+    expect(init.method).toBe("POST");
+    expect(init.body).toBe("{}");
+    expect(new Headers(init.headers).get("Authorization")).toBe("Bearer auditor-token");
+  });
+
+  it("reports missing audit permission without inventing a result", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse(403, { error: "audit_permission_required" })));
+    const client = new ApiClient();
+    client.setLiveMode(true);
+    await expect(client.verifyAuditChain()).rejects.toThrow("audit_permission_required");
+  });
+
+  it("never calls the server for an audit check in preview mode", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const client = new ApiClient();
+    client.setLiveMode(false);
+    const result = await client.verifyAuditChain();
+    expect(result.preview).toBe(true);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
 });

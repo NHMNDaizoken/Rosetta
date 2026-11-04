@@ -476,3 +476,23 @@ test("application authority, state, approvals and audit persist across database 
   await sql(`UPDATE app_private.principals SET enabled=false WHERE subject=${q(owner.id)};`);
   assert.equal((await api(path(),owner)).status,403,"operator revocation is checked live");
 });
+
+test("audit verification over HTTP seals the tenant chain and requires audit.read",async()=>{
+  const auditor=await human("auditor","tenant-a",["audit.read"]);
+  const deadline=Date.now()+30000;
+  let response;
+  do {
+    response=await api("/v1/audit-events/verify",auditor,{});
+    if(response.status!==503) break;
+    await new Promise(resolve=>setTimeout(resolve,500));
+  } while(Date.now()<deadline);
+  assert.equal(response.status,200);
+  const first=await response.json();
+  assert.equal(first.verified,true);assert.equal(first.firstBreak,null);assert.ok(first.entries>0);
+  assert.match(first.headHash,/^sha256:[0-9a-f]{64}$/);
+  const again=await (await api("/v1/audit-events/verify",auditor,{})).json();
+  assert.deepEqual([again.verified,again.entries,again.newlySealed,again.headHash],[true,first.entries,0,first.headHash],"verification is repeatable");
+  assert.equal((await api("/v1/audit-events/verify",stranger,{})).status,403);
+  assert.equal((await api("/v1/audit-events/verify",auditor,{seal:1})).status,400);
+  assert.equal((await api("/v1/audit-events/verify",undefined,{})).status,401);
+});

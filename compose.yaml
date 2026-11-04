@@ -78,6 +78,7 @@ services:
       - ./infra/postgres/015-composition-reservation.sql:/migrations/015-composition-reservation.sql:ro
       - ./infra/postgres/016-composition-finalization.sql:/migrations/016-composition-finalization.sql:ro
       - ./infra/postgres/017-composition-exact-grants.sql:/migrations/017-composition-exact-grants.sql:ro
+      - ./infra/postgres/018-audit-chain.sql:/migrations/018-audit-chain.sql:ro
     depends_on:
       database:
         condition: service_healthy
