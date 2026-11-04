@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import { releaseFiles } from "../scripts/package-release.mjs";
 
@@ -10,7 +10,12 @@ test("source release allowlist excludes local/private roots and rejects secrets 
   for (const path of ["console/.env.local", "infra/fixture.key", "console/node_modules/pkg/index.js", "console/dist/app.js", "docs/../private", "docs/private.dump", "integration/server.pem"]) assert.throws(() => releaseFiles([path]));
 });
 
-test("Console, SDK and Console lockfile carry the platform version", () => {
+// The Core image runs unit tests without the Console and SDK sources; the version
+// check runs wherever the whole repository is present (host checks and CI).
+const versioned = ["package.json", "console/package.json", "console/package-lock.json", "sdk/node/package.json", "console/src/constants/brand.ts"];
+const wholeRepository = versioned.every(path => existsSync(new URL(`../${path}`, import.meta.url)));
+
+test("Console, SDK and Console lockfile carry the platform version", { skip: !wholeRepository && "repository sources not present" }, () => {
   const read = path => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
   const version = JSON.parse(read("package.json")).version;
   assert.equal(JSON.parse(read("console/package.json")).version, version);
