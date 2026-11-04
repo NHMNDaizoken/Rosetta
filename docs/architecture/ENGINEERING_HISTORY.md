@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Layer 1 engineering history
 
 > Historical implementation checkpoint. The subsequent stabilization/release program and current open security gates are in [implementation status](LAYER1_IMPLEMENTATION_STATUS.md). This historical COMPLETE assessment applies only to its earlier bounded implementation scope.

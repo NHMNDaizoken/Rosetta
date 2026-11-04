@@ -2,34 +2,22 @@
 # SPDX-License-Identifier: Apache-2.0
 version = 1
 
-# Comment-hostile and documentation/static files covered by project annotations.
-# Source/config files that can embed comments keep inline SPDX headers instead.
+# Files that cannot carry a comment (JSON, plain data, NOTICE, the .node-version pin)
+# are annotated here. Every other tracked file carries an inline SPDX header, which
+# scripts/check.mjs enforces; license texts under LICENSES/ and LICENSE are exempt.
 
 [[annotations]]
 path = [
-  "README.md",
-  "CHANGELOG.md",
   "NOTICE",
-  "THIRD-PARTY.md",
-  ".gitignore",
-  ".gitattributes",
-  ".dockerignore",
   ".node-version",
-  "docs/**",
-  "console/index.html",
-  "console/public/favicon.svg",
-  "console/package.json",
-  "console/package-lock.json",
-  "console/tsconfig.json",
-  "console/tsconfig.node.json",
-  "console/src/constants/foundationEndpoints.json",
   "package.json",
   "sdk/node/package.json",
+  "console/package.json",
+  "console/package-lock.json",
+  "console/src/constants/foundationEndpoints.json",
   "infra/keycloak/realm.json",
   "docs/contracts/**/*.json",
   "docs/security/**",
-  "requirements-contracts.txt",
-  "requirements-reuse.txt",
 ]
 SPDX-FileCopyrightText = "2026 Junctura Contributors"
 SPDX-License-Identifier = "Apache-2.0"

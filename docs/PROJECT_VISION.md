@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Junctura DX-OS project vision
 
 > Architecture consolidation: 2026-10-26, baseline `7fdd7fc` on main.

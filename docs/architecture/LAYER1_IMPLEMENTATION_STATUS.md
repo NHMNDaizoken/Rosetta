@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Layer 1 implementation status
 
 Updated: 2026-11-02 | Branch: main | Program: local stabilization and release preparation

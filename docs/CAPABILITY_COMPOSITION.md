@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Bounded Capability Composition (C4B)
 
 Updated: 2026-11-01. C4B is implemented and opt-in. It uses the existing

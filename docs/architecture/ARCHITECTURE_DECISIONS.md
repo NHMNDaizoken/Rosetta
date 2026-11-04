@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Architecture decision records
 
 Historical decision snapshot through the reviewed baseline below. Preserve its

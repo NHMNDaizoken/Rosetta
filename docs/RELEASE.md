@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Local source release candidates
 
 Junctura's candidate is a versioned **source** distribution for the loopback local

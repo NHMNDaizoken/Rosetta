@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Protected audit boundary
 
 > Reviewed: 2026-10-28 | Status: IMPLEMENTED, bounded threat model

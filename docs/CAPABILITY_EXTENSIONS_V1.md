@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: 2026 Junctura Contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Capability-Driven Layer-1 extensions v1
 
 Implementation update (2026-11-01): C1 Registry, C2 direct Trust, the offline C3 resolver and protected Audit are implemented. Opt-in [C4A guarded invocation](CAPABILITY_EXECUTION.md) and [C4B bounded composition](CAPABILITY_COMPOSITION.md) now have real provider/OIDC/PostgreSQL/Flowable verification and remain disabled by default. Human delegation, general resume/retry, side effects, HA and hosting remain unsupported.
