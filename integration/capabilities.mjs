@@ -378,7 +378,7 @@ test("separate exact approval is consumed once under concurrent activation; revo
 });
 
 test("trust graph shows exact grants to administrators and owned providers only", async () => {
-  const value = await published("2.0.2");
+  const value = await published("2.9.0");
   const g = await activeGrant(value, ["discover", "invoke"]);
   const graph = async who => { const r = await api("/v1/trust/graph", who); return { status: r.status, value: r.status === 200 ? await r.json() : null }; };
   const view = await graph(approver);
@@ -387,7 +387,7 @@ test("trust graph shows exact grants to administrators and owned providers only"
   const edge = view.value.edges.find(e => e.grantId === g.grantId);
   assert.ok(edge, "administrator sees the tenant grant");
   assert.deepEqual([edge.providerAppId, edge.consumerAppId, edge.capabilityId, edge.version, edge.state, edge.revision],
-    [app.appId, consumer.app.appId, capabilityId, "2.0.2", "active", g.revision]);
+    [app.appId, consumer.app.appId, capabilityId, "2.9.0", "active", g.revision]);
   assert.ok([app.appId, consumer.app.appId].every(id => view.value.nodes.some(n => n.appId === id)));
   const strangerView = await graph(stranger);
   assert.equal(strangerView.status, 200); assert.equal(strangerView.value.scope, "owned");
