@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createJuncturaClient, JuncturaError } from "../sdk/node/index.mjs";
+import { createJuncturaClient, inputDigest, JuncturaError } from "../sdk/node/index.mjs";
+import { canonicalize } from "../src/modules/capability/registry/manifest.mjs";
+import { createHash } from "node:crypto";
 
 const json = (value, status = 200, headers = {}) => new Response(JSON.stringify(value), { status, headers });
 const auth = () => json({ access_token: "synthetic-token", token_type: "Bearer", expires_in: 300 });
@@ -96,4 +98,27 @@ test("SDK polling and malformed/oversized authentication responses are bounded",
     const invalid = createJuncturaClient({ ...options, fetcher: async () => issued });
     await assert.rejects(invalid.identity(), JuncturaError);
   }
+});
+
+test("SDK input digest matches the platform canonical digest", () => {
+  const input = { z: [1, "á", null, { b: true, a: 2.5 }], a: "x" };
+  assert.equal(inputDigest(input), `sha256:${createHash("sha256").update(canonicalize(input)).digest("hex")}`);
+  assert.throws(() => inputDigest({ n: Infinity }), TypeError);
+});
+
+test("SDK redeems provider tickets once and never sends malformed tickets", async () => {
+  const ticket = "t".repeat(43), invocationId = "11111111-1111-4111-8111-111111111111", sent = [];
+  const client = createJuncturaClient({ ...options, fetcher: async (url, init) => {
+    if (url.pathname.includes("/token")) return auth();
+    sent.push({ path: url.pathname, body: JSON.parse(init.body) });
+    return json({ active: true, context: { tenantId: "tenant-a", executionId: invocationId, purpose: "treatment" } });
+  } });
+  for (const authorization of [undefined, "", `Basic ${ticket}`, "Bearer short", `Bearer ${ticket} extra`]) {
+    assert.deepEqual(await client.redeemTicket({ authorization, invocationId, input: {} }), { active: false });
+  }
+  assert.equal(sent.length, 0);
+  const redeemed = await client.redeemTicket({ authorization: `Bearer ${ticket}`, invocationId, input: { patient: "p1" } });
+  assert.equal(redeemed.context.purpose, "treatment");
+  assert.deepEqual(sent, [{ path: "/v1/capability-authorizations/introspect",
+    body: { ticket, invocationId, inputDigest: inputDigest({ patient: "p1" }) } }]);
 });

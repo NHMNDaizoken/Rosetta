@@ -8,6 +8,11 @@ All notable changes to Junctura are recorded here. Versions follow
 
 ## Unreleased
 
+- **SDK on npm:** `sdk/node` is published as `@junctura/server-client` (Apache-2.0,
+  with npm provenance) by the `Publish SDK` workflow on a `sdk-vX.Y.Z` tag, so Layer 2
+  applications install it instead of copying it. New `redeemTicket()` and
+  `inputDigest()` for capability providers; `ExecutionContext` types now include
+  `emergency` and `justification`.
 - **Internal capability providers:** C4A/C4B can call Layer 2 services that run next
   to the platform. Exact `https://*.internal` origins only, private (RFC 1918 / ULA)
   addresses only, TLS verified solely against the operator's provider CA; all other

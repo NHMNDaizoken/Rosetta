@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Junctura Contributors
 // SPDX-License-Identifier: Apache-2.0
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { setTimeout as delay } from "node:timers/promises";
 
 export class JuncturaError extends Error {
@@ -23,6 +23,25 @@ async function boundedJson(response) {
   try { return JSON.parse(Buffer.concat(chunks).toString("utf8")); }
   catch { throw new JuncturaError(response.status, "invalid_response"); }
 }
+
+// Canonical JSON (sorted keys, no whitespace), the form Junctura digests.
+function canonical(value) {
+  if (value === null || typeof value === "boolean") return JSON.stringify(value);
+  if (typeof value === "string") {
+    if (!value.isWellFormed()) throw new TypeError("invalid_unicode");
+    return JSON.stringify(value);
+  }
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) throw new TypeError("nonfinite_number");
+    return JSON.stringify(value);
+  }
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (typeof value !== "object" || Object.getPrototypeOf(value) !== Object.prototype) throw new TypeError("invalid_json");
+  return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonical(value[key])}`).join(",")}}`;
+}
+
+/** The input digest a provider presents when it redeems an invocation ticket. */
+export const inputDigest = input => `sha256:${createHash("sha256").update(canonical(input)).digest("hex")}`;
 
 // Server-side only. Secrets and tokens stay in this closure; no Core imports,
 // token persistence, credential forwarding, mutation retries or implicit approval.
@@ -96,10 +115,19 @@ export function createJuncturaClient({ baseUrl, clientId, clientSecret, timeoutM
       if (cursor !== undefined) query.set("cursor", cursor);
       return (await request(`/v1/capabilities${query.size ? `?${query}` : ""}`)).json();
     },
-    // context: optional { purpose, dataSubject } — why the call is made and whose data it concerns.
+    // context: optional { purpose, dataSubject, emergency?, justification? } — why the call is made and whose data it concerns.
     async execute(target, input, idempotencyKey = randomUUID(), context) {
       return (await request("/v1/capability-executions", { method: "POST",
         json: context === undefined ? { target, input } : { target, input, context }, idempotencyKey })).json();
+    },
+    // Provider side: redeem the single-use ticket Junctura sent with an invocation
+    // (the request's Authorization header) before doing any work. Returns
+    // { active: false } for anything malformed, replayed or not addressed to this app.
+    async redeemTicket({ authorization, invocationId, input }) {
+      const ticket = typeof authorization === "string" ? /^Bearer ([A-Za-z0-9_-]{43,256})$/.exec(authorization)?.[1] : undefined;
+      if (!ticket || typeof invocationId !== "string") return { active: false };
+      return (await request("/v1/capability-authorizations/introspect", { method: "POST",
+        json: { ticket, invocationId, inputDigest: inputDigest(input) } })).json();
     },
     async execution(id) { return (await request(`/v1/capability-executions/${segment(id)}`)).json(); },
     async waitForExecution(id, { timeoutMs: pollTimeout = 60000, intervalMs = 500, signal } = {}) {
