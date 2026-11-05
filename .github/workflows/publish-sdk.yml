@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: 2026 Junctura Contributors
+# SPDX-License-Identifier: Apache-2.0
+# Publishes sdk/node to npm as @junctura/server-client when a tag sdk-vX.Y.Z is pushed.
+# The tag must equal sdk/node/package.json "version". Requires the NPM_TOKEN secret.
+name: Publish SDK
+
+on:
+  push:
+    tags: ["sdk-v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-sdk
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+          registry-url: https://registry.npmjs.org
+      - name: Check tag matches package version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(node -p 'require("./sdk/node/package.json").version')
+          test "$TAG" = "sdk-v$version" || { echo "Tag $TAG does not match sdk-v$version"; exit 1; }
+      - name: Test SDK
+        run: npm run test:sdk
+      - name: Add license files to the package
+        run: cp LICENSE NOTICE sdk/node/
+      - name: Publish with provenance
+        working-directory: sdk/node
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --provenance --access public

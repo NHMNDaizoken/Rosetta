@@ -161,3 +161,7 @@ kind-data/
 # poetry.lock, requirements*.txt, go.sum, gradle wrapper,
 # or source/configuration templates needed for build-from-source.
 # AI-agent instruction files stay local via the patterns above.
+
+# Copied into the SDK package only at publish time
+sdk/node/LICENSE
+sdk/node/NOTICE

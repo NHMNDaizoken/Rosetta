@@ -1,9 +1,47 @@
 {
   "name": "@junctura/server-client",
   "version": "0.1.0",
-  "private": true,
-  "type": "module",
+  "description": "Server-side Node.js client for Junctura DX-OS: OIDC client credentials, records, objects, workflows and capability calls with consent context.",
+  "keywords": [
+    "junctura",
+    "dx-os",
+    "digital-transformation",
+    "oidc",
+    "capability",
+    "consent",
+    "sdk"
+  ],
   "license": "Apache-2.0",
-  "engines": { "node": ">=24 <25" },
-  "exports": { ".": { "types": "./index.d.ts", "import": "./index.mjs" } }
+  "type": "module",
+  "homepage": "https://junctura.studio",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vku2-open-source-2026/junctura-dxos.git",
+    "directory": "sdk/node"
+  },
+  "bugs": {
+    "url": "https://github.com/vku2-open-source-2026/junctura-dxos/issues"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs"
+    }
+  },
+  "types": "./index.d.ts",
+  "files": [
+    "index.mjs",
+    "index.d.ts",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
 }

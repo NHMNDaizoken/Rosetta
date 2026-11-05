@@ -162,8 +162,14 @@ Lệnh tạo tài khoản dịch vụ cho ứng dụng, đăng ký và phê duy�
 
 ### Gọi API từ ứng dụng
 
+SDK Node.js được phát hành trên npm ([`@junctura/server-client`](https://www.npmjs.com/package/@junctura/server-client)), không cần chép mã vào ứng dụng:
+
+```sh
+npm install @junctura/server-client
+```
+
 ```js
-import { createJuncturaClient } from "./sdk/node/index.mjs";
+import { createJuncturaClient } from "@junctura/server-client";
 
 const junctura = createJuncturaClient({
   baseUrl: process.env.JUNCTURA_URL,
@@ -175,7 +181,7 @@ const record = await junctura.createRecord("students", { name: "Nguyễn Văn A"
 const same = await junctura.getRecord("students", record.id);
 ```
 
-Ứng dụng viết bằng ngôn ngữ nào cũng tích hợp được qua HTTP + JSON + OIDC; SDK chỉ là lựa chọn tiện lợi cho Node.js.
+Ứng dụng cung cấp năng lực dùng `junctura.redeemTicket(...)` để đổi vé trước khi xử lý ([hướng dẫn SDK](sdk/node/README.md)). Ứng dụng viết bằng ngôn ngữ nào cũng tích hợp được qua HTTP + JSON + OIDC; SDK chỉ là lựa chọn tiện lợi cho Node.js.
 
 ### Lệnh thường dùng
 
