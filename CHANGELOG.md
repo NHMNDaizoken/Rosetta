@@ -21,6 +21,13 @@ All notable changes to Junctura are recorded here. Versions follow
   into the audit chain (`execution.subject_accessed`, subject only as SHA-256) and passed
   to the provider on redemption. `GET /v1/me/data-access` lists, for the signed-in person
   only, the calls that named them. The SDK `execute()` accepts the context.
+- **Data subject consent and emergency access** (migration 021): calls that name a
+  person need that person's active consent for the consumer, capability and purpose,
+  re-checked at ticket redemption; people grant, list and revoke consents at
+  `/v1/me/consents`. Emergency (break-glass) calls with a justification skip consent,
+  are sealed (`execution.emergency_access`), shown to the person and reviewed by
+  `trust.approve` administrators at `/v1/emergency-accesses` (at most five pending per
+  consumer).
 
 ## 0.1.0 — Layer 1 release (2026-11-04)
 

@@ -22,6 +22,7 @@ const capabilityLayer = (path) => {
 const PUBLIC = new Set([
   "modules/applications/applications.mjs",
   "modules/audit/audit.mjs",
+  "modules/consent/consent.mjs",
   "modules/resources/resources.mjs",
   "modules/data/data.mjs",
   "modules/objects/objects.mjs",

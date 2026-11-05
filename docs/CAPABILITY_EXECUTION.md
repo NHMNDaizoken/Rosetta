@@ -74,6 +74,28 @@ A C4A request may carry an optional context:
   that named them: when, purpose, consumer and provider applications, capability and
   state. It never returns inputs, outputs, tickets or operator identities.
 
+### Consent and emergency access (021)
+
+- **Consent.** When the context names a `dataSubject`, the call needs an active consent
+  of that person for exactly this consumer application, capability and purpose
+  (`403 subject_consent_required` otherwise). People manage their consents themselves:
+  `POST /v1/me/consents` `{consumerAppId, capabilityId, purposes, expiresAt}` (at most
+  366 days), `GET /v1/me/consents`, `POST /v1/me/consents/{id}/revoke`. Consent is
+  checked again when the provider redeems its ticket, so a revocation stops calls that
+  were reserved but not yet dispatched.
+- **Emergency (break-glass).** `"emergency": true` with a `justification` (10–500
+  characters) and a `dataSubject` skips the consent check. The trust grant is still
+  required. The call is sealed as `execution.emergency_access`, shown to the person in
+  `GET /v1/me/data-access` (`emergency: true`, `review`), flagged to the provider
+  (`emergency: true` in the caller context) and queued for review. At most five
+  unreviewed emergency calls per consumer application are allowed
+  (`429 emergency_review_backlog`).
+- **Review.** Tenant administrators with `trust.approve` list emergency calls with
+  `GET /v1/emergency-accesses` and record once, with a note,
+  `POST /v1/emergency-accesses/{executionId}/review` `{decision: justified|unjustified,
+  note}` (core-writer). The decision is sealed as `execution.emergency_reviewed` and
+  shown to the person.
+
 The context is declared by the consumer application; Junctura records and exposes it
 but cannot prove a consumer named the right person. Providers should check that the
 input concerns the declared data subject. C4B compositions do not accept a context yet.

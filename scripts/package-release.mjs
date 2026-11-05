@@ -32,7 +32,7 @@ export function packageRelease(directory = "dist/releases") {
   const tree = execFileSync("git", ["ls-tree", "-rz", "HEAD"], { encoding: "utf8", maxBuffer: 8 * 1024 * 1024 }).split("\0").filter(Boolean);
   assert.ok(tree.every(entry => !entry.startsWith("120000 ") && !entry.startsWith("160000 ")), "Review symlinks/submodules before release");
   const files = releaseFiles(tree.map(entry => entry.slice(entry.indexOf("\t") + 1)));
-  for (const required of ["LICENSE", "NOTICE", "THIRD-PARTY.md", "CHANGELOG.md", "REUSE.toml", "LICENSES/Apache-2.0.txt", "compose.yaml", ".env.example", "docs/GETTING_STARTED.md", "docs/RELEASE.md", "docs/DEVELOPING.md", "infra/postgres/017-composition-exact-grants.sql", "infra/postgres/018-audit-chain.sql", "infra/postgres/019-trust-graph.sql", "infra/postgres/020-subject-access.sql"]) assert.ok(files.includes(required), `Missing release file ${required}`);
+  for (const required of ["LICENSE", "NOTICE", "THIRD-PARTY.md", "CHANGELOG.md", "REUSE.toml", "LICENSES/Apache-2.0.txt", "compose.yaml", ".env.example", "docs/GETTING_STARTED.md", "docs/RELEASE.md", "docs/DEVELOPING.md", "infra/postgres/017-composition-exact-grants.sql", "infra/postgres/018-audit-chain.sql", "infra/postgres/019-trust-graph.sql", "infra/postgres/020-subject-access.sql", "infra/postgres/021-consent-emergency.sql"]) assert.ok(files.includes(required), `Missing release file ${required}`);
   const name = `junctura-${version}`;
   const archive = execFileSync("git", ["archive", "--format=tar", `--prefix=${name}/`, sha, "--", ...files], { maxBuffer: 64 * 1024 * 1024 });
   const hash = createHash("sha256").update(archive).digest("hex");
