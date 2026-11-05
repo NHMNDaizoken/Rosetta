@@ -302,11 +302,90 @@
             "capabilityId": "urn:junctura:capability:5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b:vaccination-history",
             "version": "1.0.0",
             "title": "Lịch sử tiêm chủng"
-          }
+          },
+          "emergency": false,
+          "review": null
         }
       ],
       "truncated": false,
       "generatedAt": "2026-11-04T09:40:00.000Z"
+    }
+  },
+  "emergencyContext": {
+    "schema": "ExecutionContext",
+    "value": {
+      "purpose": "emergency_care",
+      "dataSubject": "8f14e45f-ceea-4672-9a2b-1f3c5d7e9a01",
+      "emergency": true,
+      "justification": "Bệnh nhân bất tỉnh tại phòng cấp cứu"
+    }
+  },
+  "subjectConsentCreate": {
+    "schema": "SubjectConsentCreate",
+    "value": {
+      "consumerAppId": "9b1f3c2a-4d5e-4f60-8a71-0c2d3e4f5a6b",
+      "capabilityId": "urn:junctura:capability:5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b:vaccination-history",
+      "purposes": [
+        "treatment",
+        "referral"
+      ],
+      "expiresAt": "2026-12-05T00:00:00.000Z"
+    }
+  },
+  "subjectConsent": {
+    "schema": "SubjectConsent",
+    "value": {
+      "consentId": "dcf6b718-7d02-41cc-8a2b-bb4aa9026d71",
+      "consumer": {
+        "appId": "9b1f3c2a-4d5e-4f60-8a71-0c2d3e4f5a6b",
+        "displayName": "Bệnh viện"
+      },
+      "capabilityId": "urn:junctura:capability:5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b:vaccination-history",
+      "capabilityTitle": "Lịch sử tiêm chủng",
+      "purposes": [
+        "referral",
+        "treatment"
+      ],
+      "createdAt": "2026-11-05T08:00:00.000Z",
+      "expiresAt": "2026-12-05T00:00:00.000Z",
+      "revokedAt": null,
+      "state": "active"
+    }
+  },
+  "emergencyAccessList": {
+    "schema": "EmergencyAccessList",
+    "value": {
+      "reviews": [
+        {
+          "executionId": "0c1d2e3f-4a5b-4c6d-8e7f-8091a2b3c4d5",
+          "state": "pending",
+          "accessedAt": "2026-11-05T02:10:00.000Z",
+          "purpose": "emergency_care",
+          "justification": "Bệnh nhân bất tỉnh tại phòng cấp cứu",
+          "executionState": "succeeded",
+          "consumer": {
+            "appId": "9b1f3c2a-4d5e-4f60-8a71-0c2d3e4f5a6b",
+            "displayName": "Bệnh viện"
+          },
+          "provider": {
+            "appId": "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b",
+            "displayName": "Trạm y tế"
+          },
+          "capability": {
+            "capabilityId": "urn:junctura:capability:5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b:vaccination-history",
+            "version": "1.0.0"
+          },
+          "note": null,
+          "reviewedAt": null
+        }
+      ]
+    }
+  },
+  "emergencyReview": {
+    "schema": "EmergencyReviewCreate",
+    "value": {
+      "decision": "justified",
+      "note": "Đã đối chiếu hồ sơ cấp cứu"
     }
   }
 }

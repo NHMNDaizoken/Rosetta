@@ -49,10 +49,10 @@ after(async () => {
 
 test("fresh install records every checksum atomically", async () => {
   await migrate();
-  assert.equal(await sql("SELECT max(version) FROM core.schema_migrations"), "20");
-  assert.equal(await sql("SELECT count(*) FROM core.schema_migration_checksums WHERE length(sha256) = 64 AND NOT adopted"), "20");
-  assert.equal(await sql("SELECT count(*) FROM core.schema_migration_checksums c JOIN core.schema_migrations m USING (version)"), "20");
-  assert.equal(await sql("SELECT last_version FROM core.schema_migration_state WHERE id = 1"), "20");
+  assert.equal(await sql("SELECT max(version) FROM core.schema_migrations"), "21");
+  assert.equal(await sql("SELECT count(*) FROM core.schema_migration_checksums WHERE length(sha256) = 64 AND NOT adopted"), "21");
+  assert.equal(await sql("SELECT count(*) FROM core.schema_migration_checksums c JOIN core.schema_migrations m USING (version)"), "21");
+  assert.equal(await sql("SELECT last_version FROM core.schema_migration_state WHERE id = 1"), "21");
 });
 
 test("repeat execution verifies without replaying", async () => {
@@ -98,15 +98,15 @@ test("interrupted migration leaves neither its objects nor its checksum", async 
 test("concurrent runners serialize and converge", async () => {
   const results = await Promise.all([migrate(), migrate()]);
   assert.equal(results.length, 2);
-  assert.equal(await sql("SELECT count(*) FROM core.schema_migration_checksums"), "20");
-  assert.equal(await sql("SELECT count(*) FROM core.schema_migrations"), "20");
+  assert.equal(await sql("SELECT count(*) FROM core.schema_migration_checksums"), "21");
+  assert.equal(await sql("SELECT count(*) FROM core.schema_migrations"), "21");
 });
 
 test("version-only history requires explicit operator adoption", async () => {
   await sql("TRUNCATE core.schema_migration_checksums");
   assert.match(await refused(), /version-only history/);
   await migrate({ MIGRATION_ADOPT_EXISTING: 1 });
-  assert.equal(await sql("SELECT count(*) FROM core.schema_migration_checksums WHERE adopted"), "20");
+  assert.equal(await sql("SELECT count(*) FROM core.schema_migration_checksums WHERE adopted"), "21");
 });
 
 test("composition RLS drift is covered after the versioned fingerprint upgrade", async () => {
@@ -121,7 +121,7 @@ test("installed schema drift is detected and only adopted after review", async (
   assert.match(await refused(), /installed schema drift detected/);
   await migrate({ MIGRATION_ADOPT_SCHEMA_DRIFT: 1 });
   await migrate();
-  assert.equal(await sql("SELECT last_version FROM core.schema_migration_state WHERE id = 1"), "20");
+  assert.equal(await sql("SELECT last_version FROM core.schema_migration_state WHERE id = 1"), "21");
 });
 
 test("a database newer than the runner is refused", async () => {

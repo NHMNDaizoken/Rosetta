@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { handleApplications } from "./modules/applications/applications.mjs";
 import { AUDIT_VERIFY_PATH, SUBJECT_ACCESS_PATH, handleAudit, handleSubjectAccess } from "./modules/audit/audit.mjs";
+import { handleConsent, isConsentPath } from "./modules/consent/consent.mjs";
 import { createAuthorizer } from "./platform/auth/auth.mjs";
 import { handleApprovals, handleCapabilities } from "./modules/capability/registry/capabilities.mjs";
 import { handleCompositions } from "./modules/capability/composition/registry.mjs";
@@ -114,6 +115,17 @@ export function createApi(config) {
         if (error.status === 413) response.setHeader("Connection", "close");
         return json(response, error instanceof HttpError ? error.status : 503,
           { error: error instanceof HttpError ? error.message : "capabilities_unavailable", issues: error.issues, requestId });
+      }
+    }
+    if (isConsentPath(path)) {
+      const requestId = randomUUID();
+      response.setHeader("X-Request-Id", requestId);
+      try {
+        return await handleConsent(request, response, await authorize(request, true), config, new URL(request.url, "http://core"));
+      } catch (error) {
+        if (error.status === 413) response.setHeader("Connection", "close");
+        return json(response, error instanceof HttpError ? error.status : 503,
+          { error: error instanceof HttpError ? error.message : "consent_unavailable", requestId });
       }
     }
     if (path === SUBJECT_ACCESS_PATH) {

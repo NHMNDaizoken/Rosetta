@@ -120,6 +120,14 @@ Migration 020 adds `execution_private.execution_contexts`, the
 and installs a wrapper under the original name and grant. See
 [CAPABILITY_EXECUTION](CAPABILITY_EXECUTION.md#purpose-and-data-subject).
 
+## Consent and emergency access (021)
+
+Migration 021 adds `execution_private.subject_consents` and
+`execution_private.emergency_reviews` (forced tenant RLS), emergency columns on
+`execution_contexts`, `core.subject_consent` (subject role) and `core.emergency_review`
+(trust role), and replaces the 020 execution wrapper and `core.subject_access`. The
+C4A base authority stays unchanged.
+
 ## C4B forward corrections
 
 Migrations 013-017 are additive corrections to 012, preserving existing records,
