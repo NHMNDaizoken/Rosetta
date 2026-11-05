@@ -204,6 +204,7 @@ after(async () => {
       DELETE FROM app_private.capability_publication_approvals WHERE requester_app_id IN (${apps}) OR version_id IN (SELECT version_id FROM app_private.capability_versions WHERE provider_app_id IN (${apps}));
       DELETE FROM app_private.capability_versions WHERE provider_app_id IN (${apps});
       DELETE FROM app_private.audit WHERE subject IN (${ids}) OR actor_app_id IN (${apps});
+      DELETE FROM execution_private.subject_consents WHERE consumer_app_id IN (${apps});
       DELETE FROM app_private.approvals WHERE app_id IN (${apps}); DELETE FROM app_private.applications WHERE owner_subject IN (${ids});
       DELETE FROM app_private.enrollments WHERE owner_subject IN (${ids}); DELETE FROM app_private.principals WHERE subject IN (${ids});`);
   }
